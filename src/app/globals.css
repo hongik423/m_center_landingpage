@@ -4,25 +4,38 @@
 
 @layer base {
   :root {
+    /* 기업 신뢰성을 나타내는 깊은 네이비 - Primary */
+    --primary: 214 88% 59%; /* #3b82f6 */
+    --primary-foreground: 210 40% 98%;
+    
+    /* 성장과 성공을 상징하는 그린 - Secondary */
+    --secondary: 142 76% 36%; /* #22c55e */
+    --secondary-foreground: 355 7% 97%;
+    
+    /* 혁신과 AI를 나타내는 퍼플 - Accent */
+    --accent: 262 83% 58%; /* #a855f7 */
+    --accent-foreground: 210 40% 98%;
+    
+    /* 경고/알림 색상 */
+    --warning: 45 93% 47%; /* #f59e0b */
+    --warning-foreground: 26 83% 14%;
+    
+    /* 오류 색상 */
+    --destructive: 0 84% 60%; /* #ef4444 */
+    --destructive-foreground: 210 40% 98%;
+    
+    /* 중성 색상 */
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --foreground: 222 84% 5%; /* #0f172a */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 222 84% 5%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
+    --popover-foreground: 222 84% 5%;
+    --border: 214 32% 91%; /* #e2e8f0 */
+    --input: 214 32% 91%;
+    --ring: 214 88% 59%;
+    --muted: 210 40% 96%; /* #f8fafc */
+    --muted-foreground: 215 16% 47%; /* #64748b */
     --radius: 0.5rem;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
@@ -32,25 +45,23 @@
   }
 
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --background: 222 84% 5%; /* #0f172a */
+    --foreground: 210 40% 98%;
+    --card: 222 84% 5%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 84% 5%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 214 88% 59%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 142 76% 36%;
+    --secondary-foreground: 210 40% 98%;
+    --accent: 262 83% 58%;
+    --accent-foreground: 210 40% 98%;
+    --muted: 215 28% 17%;
+    --muted-foreground: 217 33% 64%;
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 214 88% 59%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -65,5 +76,98 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* 커스텀 유틸리티 클래스 */
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+  }
+  
+  .shadow-custom {
+    box-shadow: 0 4px 20px -2px rgba(59, 130, 246, 0.15);
+  }
+  
+  .btn-primary {
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-custom;
+  }
+  
+  .btn-secondary {
+    @apply bg-white hover:bg-gray-50 text-primary border-2 border-primary font-semibold py-3 px-6 rounded-lg transition-all duration-200;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  }
+}
+
+/* 폰트 최적화 */
+@layer base {
+  html {
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-size: 16px; /* 기본 폰트 크기를 16px로 설정 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 'Roboto', 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    font-size: 1.0625rem; /* 17px - 기본 텍스트 크기 증가 */
+    line-height: 1.7;
+    letter-spacing: -0.01em; /* 약간의 자간 조정으로 가독성 향상 */
+  }
+  
+  /* 제목 요소들의 크기 조정 */
+  h1 {
+    @apply text-4xl md:text-5xl font-bold;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+  }
+  
+  h2 {
+    @apply text-3xl md:text-4xl font-bold;
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+  }
+  
+  h3 {
+    @apply text-2xl md:text-3xl font-semibold;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+  
+  h4 {
+    @apply text-xl md:text-2xl font-semibold;
+    line-height: 1.5;
+  }
+  
+  h5 {
+    @apply text-lg md:text-xl font-medium;
+    line-height: 1.6;
+  }
+  
+  h6 {
+    @apply text-base md:text-lg font-medium;
+    line-height: 1.6;
+  }
+  
+  /* 단락과 텍스트 요소 개선 */
+  p {
+    @apply text-base md:text-lg;
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+  
+  /* 리스트 아이템 크기 조정 */
+  li {
+    @apply text-base md:text-lg;
+    line-height: 1.7;
+  }
+  
+  /* 버튼 텍스트 크기 조정 */
+  button {
+    @apply text-base md:text-lg;
+    font-weight: 600;
   }
 }
