@@ -21,6 +21,7 @@ import {
   Quote
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 // 서비스 데이터
 const services = [
@@ -206,6 +207,8 @@ function MetricCard({ metric }: { metric: typeof performanceMetrics[0] }) {
 }
 
 export default function Home() {
+  const router = useRouter();
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -225,19 +228,22 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white text-lg px-8 py-4 font-semibold shadow-lg"
-                onClick={() => window.location.href = '/services/business-analysis'}
+                onClick={() => router.push('/services/business-analysis')}
               >
                 🌟 BM ZEN 사업분석 시작하기
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
               <Button 
                 className="btn-primary text-lg px-8 py-4"
-                onClick={() => window.location.href = '/diagnosis'}
+                onClick={() => router.push('/diagnosis')}
               >
                 무료 진단 받기
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
-              <Button className="btn-secondary text-lg px-8 py-4">
+              <Button 
+                className="btn-secondary text-lg px-8 py-4"
+                onClick={() => router.push('/consultation')}
+              >
                 전문가 상담 신청
               </Button>
             </div>
@@ -299,7 +305,7 @@ export default function Home() {
                         ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white' 
                         : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200'
                     }`}
-                    onClick={() => window.location.href = service.href}
+                    onClick={() => router.push(service.href)}
                   >
                     {service.featured ? '지금 시작하기' : '자세히 보기'}
                     <ArrowRight className="ml-2 w-4 h-4" />
@@ -431,7 +437,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 className="bg-white text-primary hover:bg-gray-100 font-semibold px-8 py-4 text-lg"
-                onClick={() => window.location.href = '/services/diagnosis'}
+                onClick={() => router.push('/services/diagnosis')}
               >
                 무료 진단 시작하기
                 <ArrowRight className="ml-2 w-5 h-5" />
@@ -439,7 +445,7 @@ export default function Home() {
               <Button 
                 variant="outline" 
                 className="border-white text-white hover:bg-white hover:text-primary font-semibold px-8 py-4 text-lg"
-                onClick={() => window.location.href = '/consultation'}
+                onClick={() => router.push('/consultation')}
               >
                 전문가와 상담하기
               </Button>

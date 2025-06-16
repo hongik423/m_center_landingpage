@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -70,6 +71,7 @@ const services = [
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
@@ -160,7 +162,7 @@ export default function Header() {
           <div className="hidden lg:flex items-center space-x-4">
             <Button 
               className="btn-primary gap-2"
-              onClick={() => window.location.href = '/consultation'}
+              onClick={() => router.push('/consultation')}
             >
               <Phone className="w-4 h-4" />
               무료상담신청
@@ -168,7 +170,7 @@ export default function Header() {
             <Button
               variant="outline"
               className="gap-2 bg-purple-100 hover:bg-purple-200 text-purple-700 border-purple-300"
-              onClick={() => window.location.href = '/chatbot'}
+              onClick={() => router.push('/chatbot')}
             >
               <Bot className="w-4 h-4" />
               AI챗봇
@@ -244,13 +246,23 @@ export default function Header() {
                   </div>
 
                   <div className="space-y-3 pt-4 border-t">
-                    <Button className="w-full btn-primary gap-2">
+                    <Button 
+                      className="w-full btn-primary gap-2"
+                      onClick={() => {
+                        router.push('/consultation');
+                        setIsMobileMenuOpen(false);
+                      }}
+                    >
                       <Phone className="w-4 h-4" />
                       무료상담신청
                     </Button>
                     <Button
                       variant="outline"
                       className="w-full gap-2 bg-purple-100 hover:bg-purple-200 text-purple-700"
+                      onClick={() => {
+                        router.push('/chatbot');
+                        setIsMobileMenuOpen(false);
+                      }}
                     >
                       <Bot className="w-4 h-4" />
                       AI챗봇
