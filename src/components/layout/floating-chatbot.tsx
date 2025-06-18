@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -285,7 +285,7 @@ export default function FloatingChatbot() {
   };
 
   return (
-    <React.Fragment>
+    <>
       {/* 🔵 **원형 플로팅 챗봇 버튼 (모바일 최적화)** */}
       {!isOpen && (
         <div 
@@ -544,6 +544,6 @@ export default function FloatingChatbot() {
           </Card>
         </div>
       )}
-    </React.Fragment>
+    </>
   );
 } 
