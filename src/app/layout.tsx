@@ -8,11 +8,27 @@ export const metadata: Metadata = {
   description: 'AI활용, 공장구매, 기술창업, 인증지원, 웹사이트구축 - 5대 영역 통합 솔루션으로 기업 성장을 지원하는 전문 컨설팅 플랫폼',
   keywords: '경영컨설팅, AI활용, 공장구매, 기술창업, 인증지원, 웹사이트구축, Business Model Zen, 기업의별',
   authors: [{ name: '기업의별 경영지도센터' }],
+  icons: {
+    icon: [
+      { url: '/logo-icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: '32x32' }
+    ],
+    shortcut: '/logo-icon.svg',
+    apple: '/logo-icon.svg',
+  },
   openGraph: {
     title: '기업의별 경영지도센터',
     description: 'Business Model Zen 프레임워크로 기업 성장의 5단계를 완성하세요',
     type: 'website',
     locale: 'ko_KR',
+    images: [
+      {
+        url: '/logo-gyeongji.svg',
+        width: 220,
+        height: 60,
+        alt: '기업의별 M-CENTER 로고',
+      },
+    ],
   },
   robots: {
     index: true,

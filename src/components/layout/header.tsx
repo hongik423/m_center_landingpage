@@ -81,19 +81,16 @@ export default function Header() {
         <nav className="flex items-center justify-between h-16">
           {/* 로고 */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-3">
+            <Link href="/" className="flex items-center">
               <Image
-                src="/logo-gyeongji.svg"
-                alt="기업의별 로고"
+                src="/logo-small.svg"
+                alt="기업의별 M-CENTER 로고"
                 width={120}
-                height={32}
-                className="h-8 w-auto"
-                style={{ width: 'auto', height: '32px' }}
+                height={40}
+                className="h-10 w-auto hover:opacity-90 transition-opacity"
+                style={{ width: 'auto', height: '40px' }}
                 priority
               />
-              <span className="font-bold text-lg text-gray-900 hidden sm:block">
-                경영지도센터
-              </span>
             </Link>
           </div>
 

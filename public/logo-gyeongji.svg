@@ -1,26 +1,60 @@
-<svg width="140" height="40" viewBox="0 0 140 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- 별 아이콘 -->
-  <g transform="translate(100, 5)">
-    <!-- 상단 작은 빨간 별 -->
-    <polygon points="15,0 16,3 19,3 17,5 18,8 15,6 12,8 13,5 11,3 14,3" fill="#E53E3E"/>
+<svg width="220" height="60" viewBox="0 0 220 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 배경 원형 요소 -->
+  <circle cx="30" cy="30" r="25" fill="url(#backgroundGradient)" opacity="0.1"/>
+  
+  <!-- 별 아이콘 그룹 -->
+  <g transform="translate(15, 10)">
+    <!-- 작은 별들 (배경 효과) -->
+    <polygon points="8,5 9,7 11,7 10,9 11,11 8,10 5,11 6,9 4,7 6,7" fill="#E53E3E" opacity="0.3"/>
+    <polygon points="22,8 23,10 25,10 24,12 25,14 22,13 19,14 20,12 18,10 20,10" fill="#38B2AC" opacity="0.3"/>
     
-    <!-- 메인 큰 노란 별 -->
-    <polygon points="15,8 18,16 26,16 20,21 22,29 15,25 8,29 10,21 4,16 12,16" fill="#F6AD55"/>
-    <!-- 별 그라데이션 효과 -->
-    <polygon points="15,8 18,16 26,16 20,21 22,29 15,25 8,29 10,21 4,16 12,16" fill="url(#starGradient)"/>
+    <!-- 메인 중앙 별 -->
+    <polygon points="15,15 19,25 30,25 22,32 25,42 15,36 5,42 8,32 0,25 11,25" fill="url(#mainStarGradient)"/>
+    
+    <!-- 별 내부 하이라이트 -->
+    <polygon points="15,15 17,20 22,20 19,23 20,28 15,25 10,28 11,23 8,20 13,20" fill="url(#highlightGradient)" opacity="0.8"/>
   </g>
   
-  <!-- 그라데이션 정의 -->
+  <!-- 그라데이션 정의들 -->
   <defs>
-    <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- 배경 그라데이션 -->
+    <linearGradient id="backgroundGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- 메인 별 그라데이션 -->
+    <linearGradient id="mainStarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F6AD55;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ED8936;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DD6B20;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- 하이라이트 그라데이션 -->
+    <linearGradient id="highlightGradient" x1="0%" y1="0%" x2="50%" y2="50%">
       <stop offset="0%" style="stop-color:#FED24A;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#F6AD55;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F6AD55;stop-opacity:0.5" />
+    </linearGradient>
+    
+    <!-- 텍스트 그라데이션 -->
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#2D3748;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4A5568;stop-opacity:1" />
     </linearGradient>
   </defs>
   
-  <!-- 기업의별 텍스트 -->
-  <text x="5" y="28" font-family="'Noto Sans KR', 'Malgun Gothic', sans-serif" font-size="18" font-weight="700" fill="#2D3748">기업의별</text>
+  <!-- 기업의별 메인 텍스트 -->
+  <text x="65" y="35" font-family="'Noto Sans KR', 'Malgun Gothic', sans-serif" font-size="24" font-weight="800" fill="url(#textGradient)">기업의별</text>
+  
+  <!-- M-CENTER 서브 텍스트 -->
+  <text x="65" y="50" font-family="'Arial', sans-serif" font-size="12" font-weight="600" fill="#667eea" letter-spacing="1px">M-CENTER</text>
+  
+  <!-- 경영지도센터 텍스트 -->
+  <text x="130" y="50" font-family="'Noto Sans KR', sans-serif" font-size="10" font-weight="400" fill="#718096">경영지도센터</text>
   
   <!-- ® 상표 기호 -->
-  <text x="85" y="18" font-family="Arial, sans-serif" font-size="8" font-weight="400" fill="#2D3748">®</text>
+  <text x="205" y="28" font-family="Arial, sans-serif" font-size="10" font-weight="500" fill="#A0AEC0">®</text>
+  
+  <!-- 장식적 라인 -->
+  <line x1="65" y1="42" x2="200" y2="42" stroke="url(#textGradient)" stroke-width="1" opacity="0.3"/>
 </svg> 
