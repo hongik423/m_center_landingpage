@@ -22,7 +22,8 @@ import {
   Loader2,
   CheckCircle,
   FileText,
-  Brain
+  Brain,
+  Clock
 } from 'lucide-react';
 
 // 간소화된 폼 검증 스키마 (8개 핵심 필드)
@@ -449,21 +450,21 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
   // 진단 처리 중 UI
   if (isSubmitting) {
     return (
-      <div className="max-w-2xl mx-auto">
-        <Card className="text-center p-8">
-          <CardContent className="space-y-6">
-            <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto relative">
-              <Brain className="w-10 h-10 text-blue-600 animate-pulse" />
+      <div className="max-w-2xl mx-auto px-4">
+        <Card className="text-center p-6 md:p-8">
+          <CardContent className="space-y-4 md:space-y-6">
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto relative">
+              <Brain className="w-8 h-8 md:w-10 md:h-10 text-blue-600 animate-pulse" />
               <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-blue-500 animate-spin" style={{ animationDuration: '2s' }}></div>
             </div>
             
-            <div className="space-y-4">
-              <h3 className="text-2xl font-bold text-gray-900">
+            <div className="space-y-3 md:space-y-4">
+              <h3 className="text-xl md:text-2xl font-bold text-gray-900">
                 🤖 AI 기업 진단 진행 중
               </h3>
               
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg">
-                <p className="text-lg font-semibold text-blue-800 mb-2">
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 md:p-6 rounded-lg">
+                <p className="text-base md:text-lg font-semibold text-blue-800 mb-2">
                   {processingStage || '진단을 시작하고 있습니다...'}
                 </p>
                 
@@ -480,7 +481,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                       ></div>
                     </div>
                     
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs md:text-sm text-gray-500">
                       💡 2-3분만 기다려주시면 맞춤형 2000자 요약 보고서를 받으실 수 있습니다.
                     </p>
                   </div>
@@ -488,8 +489,8 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
               </div>
               
               <div className="bg-yellow-50 p-4 rounded-lg">
-                <h4 className="font-semibold text-yellow-800 mb-2">✨ 처리 중인 작업들</h4>
-                <div className="text-sm text-yellow-700 space-y-1 text-left">
+                <h4 className="font-semibold text-yellow-800 mb-2 text-sm md:text-base">✨ 처리 중인 작업들</h4>
+                <div className="text-xs md:text-sm text-yellow-700 space-y-1 text-left">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <span>8개 핵심 정보 분석 및 업계 동향 조사</span>
@@ -500,11 +501,11 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                    <span>6개 서비스 중 최적 매칭 및 성과 예측</span>
+                    <span>6개 서비스 중 최적 매칭 선별</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                    <span>2000자 요약 진단 보고서 생성</span>
+                    <span>맞춤형 2000자 진단 보고서 생성</span>
                   </div>
                 </div>
               </div>
@@ -516,97 +517,84 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold flex items-center gap-2">
-            <FileText className="w-6 h-6 text-blue-600" />
-            무료 AI진단 신청 양식
+    <div className="max-w-4xl mx-auto px-4">
+      {/* 헤더 섹션 - 모바일 최적화 */}
+      <div className="text-center mb-8 md:mb-12">
+        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 px-3 md:px-4 py-2 rounded-full mb-4 md:mb-6">
+          <Brain className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+          <span className="text-xs md:text-sm font-medium text-blue-800">8개 정보로 완성하는 AI진단</span>
+        </div>
+        
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 md:mb-4">
+          무료 AI진단 신청
+        </h1>
+        
+        <p className="text-base md:text-lg text-gray-600 mb-6 md:mb-8 max-w-2xl mx-auto">
+          8개 핵심 정보만 입력하면 <strong>2-3분 내</strong>에 
+          맞춤형 AI진단 보고서를 받아볼 수 있습니다.
+        </p>
+
+        {/* 진행 단계 표시 - 모바일 최적화 */}
+        <div className="flex items-center justify-center gap-2 md:gap-4 mb-6 md:mb-8">
+          <div className="flex items-center">
+            <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs md:text-sm font-bold">
+              1
+            </div>
+            <span className="ml-2 text-xs md:text-sm font-medium text-blue-600">정보 입력</span>
+          </div>
+          <div className="w-8 md:w-12 h-0.5 bg-gray-300"></div>
+          <div className="flex items-center">
+            <div className="w-6 h-6 md:w-8 md:h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-xs md:text-sm font-bold">
+              2
+            </div>
+            <span className="ml-2 text-xs md:text-sm text-gray-500">AI 분석</span>
+          </div>
+          <div className="w-8 md:w-12 h-0.5 bg-gray-300"></div>
+          <div className="flex items-center">
+            <div className="w-6 h-6 md:w-8 md:h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-xs md:text-sm font-bold">
+              3
+            </div>
+            <span className="ml-2 text-xs md:text-sm text-gray-500">결과 확인</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 메인 폼 - 모바일 최적화 */}
+      <Card className="shadow-xl border-0">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 md:p-6">
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-gray-900">
+            <FileText className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
+            8개 핵심 정보 입력
           </CardTitle>
-          <p className="text-gray-600">
-            8개 핵심 정보만 입력하시면 2-3분 내에 맞춤형 AI진단 보고서를 받으실 수 있습니다.
+          <p className="text-sm md:text-base text-gray-600 mt-2">
+            간소화된 정보만 입력하세요. 모든 필드는 필수 입력 사항입니다.
           </p>
         </CardHeader>
-        <CardContent>
+
+        <CardContent className="p-4 md:p-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* 기업 정보 섹션 */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Building className="w-5 h-5" />
-                  기업 기본 정보
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 md:space-y-8">
+              
+              {/* 1. 기본 정보 그룹 - 모바일 최적화 */}
+              <div className="space-y-4 md:space-y-6">
+                <h3 className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <Building className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                  기본 정보
                 </h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  {/* 회사명 */}
                   <FormField
                     control={form.control}
                     name="companyName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>회사명 *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="회사명을 입력하세요" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="industry"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>업종 *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="업종을 선택하세요" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="manufacturing">제조업</SelectItem>
-                            <SelectItem value="it">IT/소프트웨어</SelectItem>
-                            <SelectItem value="service">서비스업</SelectItem>
-                            <SelectItem value="retail">유통/소매</SelectItem>
-                            <SelectItem value="construction">건설업</SelectItem>
-                            <SelectItem value="food">식품/외식</SelectItem>
-                            <SelectItem value="healthcare">의료/헬스케어</SelectItem>
-                            <SelectItem value="education">교육</SelectItem>
-                            <SelectItem value="finance">금융/보험</SelectItem>
-                            <SelectItem value="other">기타</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="contactManager"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>담당자명 *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="담당자명을 입력하세요" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>이메일 *</FormLabel>
+                        <FormLabel className="text-sm md:text-base font-medium">회사명 *</FormLabel>
                         <FormControl>
                           <Input 
-                            type="email" 
-                            placeholder="example@company.com" 
+                            placeholder="예: ㈜기업의별" 
                             {...field} 
+                            className="h-11 md:h-12 text-sm md:text-base touch-manipulation"
                           />
                         </FormControl>
                         <FormMessage />
@@ -614,16 +602,107 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                     )}
                   />
 
+                  {/* 업종 */}
+                  <FormField
+                    control={form.control}
+                    name="industry"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm md:text-base font-medium">업종 *</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="h-11 md:h-12 text-sm md:text-base touch-manipulation">
+                              <SelectValue placeholder="업종을 선택하세요" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="manufacturing">제조업</SelectItem>
+                            <SelectItem value="it">IT/소프트웨어</SelectItem>
+                            <SelectItem value="service">서비스업</SelectItem>
+                            <SelectItem value="retail">도소매업</SelectItem>
+                            <SelectItem value="construction">건설업</SelectItem>
+                            <SelectItem value="food">식품업</SelectItem>
+                            <SelectItem value="healthcare">의료/헬스케어</SelectItem>
+                            <SelectItem value="education">교육업</SelectItem>
+                            <SelectItem value="finance">금융업</SelectItem>
+                            <SelectItem value="other">기타</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* 2. 담당자 정보 그룹 - 모바일 최적화 */}
+              <div className="space-y-4 md:space-y-6">
+                <h3 className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <User className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                  담당자 정보
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  {/* 담당자명 */}
+                  <FormField
+                    control={form.control}
+                    name="contactManager"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm md:text-base font-medium">담당자명 *</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="예: 홍길동" 
+                            {...field} 
+                            className="h-11 md:h-12 text-sm md:text-base touch-manipulation"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* 이메일 */}
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm md:text-base font-medium">이메일 *</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="email"
+                            placeholder="예: hongildong@company.com" 
+                            {...field} 
+                            className="h-11 md:h-12 text-sm md:text-base touch-manipulation"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* 3. 기업 현황 그룹 - 모바일 최적화 */}
+              <div className="space-y-4 md:space-y-6">
+                <h3 className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <Users className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                  기업 현황
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                  {/* 직원수 */}
                   <FormField
                     control={form.control}
                     name="employeeCount"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>직원수 *</FormLabel>
+                        <FormLabel className="text-sm md:text-base font-medium">직원수 *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="직원수를 선택하세요" />
+                            <SelectTrigger className="h-11 md:h-12 text-sm md:text-base touch-manipulation">
+                              <SelectValue placeholder="직원수 선택" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -641,24 +720,25 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                     )}
                   />
 
+                  {/* 성장단계 */}
                   <FormField
                     control={form.control}
                     name="growthStage"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>성장단계 *</FormLabel>
+                        <FormLabel className="text-sm md:text-base font-medium">성장단계 *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="성장단계를 선택하세요" />
+                            <SelectTrigger className="h-11 md:h-12 text-sm md:text-base touch-manipulation">
+                              <SelectValue placeholder="성장단계 선택" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="startup">창업 준비</SelectItem>
-                            <SelectItem value="early">창업 초기 (1-3년)</SelectItem>
-                            <SelectItem value="growth">성장기 (3-7년)</SelectItem>
-                            <SelectItem value="mature">성숙기 (7년 이상)</SelectItem>
-                            <SelectItem value="expansion">확장기</SelectItem>
+                            <SelectItem value="startup">창업 초기 (1년 미만)</SelectItem>
+                            <SelectItem value="early">초기 성장 (1-3년)</SelectItem>
+                            <SelectItem value="growth">성장 확장 (3-7년)</SelectItem>
+                            <SelectItem value="mature">안정 성숙 (7년 이상)</SelectItem>
+                            <SelectItem value="expansion">사업 확장 단계</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -666,36 +746,36 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                     )}
                   />
 
+                  {/* 사업장 위치 */}
                   <FormField
                     control={form.control}
                     name="businessLocation"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>사업장 *</FormLabel>
+                        <FormLabel className="text-sm md:text-base font-medium">사업장 위치 *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="사업장을 선택하세요" />
+                            <SelectTrigger className="h-11 md:h-12 text-sm md:text-base touch-manipulation">
+                              <SelectValue placeholder="지역 선택" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="seoul">서울</SelectItem>
-                            <SelectItem value="gyeonggi">경기</SelectItem>
-                            <SelectItem value="incheon">인천</SelectItem>
-                            <SelectItem value="busan">부산</SelectItem>
-                            <SelectItem value="daegu">대구</SelectItem>
-                            <SelectItem value="daejeon">대전</SelectItem>
-                            <SelectItem value="gwangju">광주</SelectItem>
-                            <SelectItem value="ulsan">울산</SelectItem>
-                            <SelectItem value="sejong">세종</SelectItem>
-                            <SelectItem value="gangwon">강원</SelectItem>
-                            <SelectItem value="chungbuk">충북</SelectItem>
-                            <SelectItem value="chungnam">충남</SelectItem>
-                            <SelectItem value="jeonbuk">전북</SelectItem>
-                            <SelectItem value="jeonnam">전남</SelectItem>
-                            <SelectItem value="gyeongbuk">경북</SelectItem>
-                            <SelectItem value="gyeongnam">경남</SelectItem>
-                            <SelectItem value="jeju">제주</SelectItem>
+                            <SelectItem value="seoul">서울특별시</SelectItem>
+                            <SelectItem value="busan">부산광역시</SelectItem>
+                            <SelectItem value="daegu">대구광역시</SelectItem>
+                            <SelectItem value="incheon">인천광역시</SelectItem>
+                            <SelectItem value="gwangju">광주광역시</SelectItem>
+                            <SelectItem value="daejeon">대전광역시</SelectItem>
+                            <SelectItem value="ulsan">울산광역시</SelectItem>
+                            <SelectItem value="gyeonggi">경기도</SelectItem>
+                            <SelectItem value="gangwon">강원도</SelectItem>
+                            <SelectItem value="chungbuk">충청북도</SelectItem>
+                            <SelectItem value="chungnam">충청남도</SelectItem>
+                            <SelectItem value="jeonbuk">전라북도</SelectItem>
+                            <SelectItem value="jeonnam">전라남도</SelectItem>
+                            <SelectItem value="gyeongbuk">경상북도</SelectItem>
+                            <SelectItem value="gyeongnam">경상남도</SelectItem>
+                            <SelectItem value="jeju">제주특별자치도</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -705,102 +785,150 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                 </div>
               </div>
 
-              {/* 주요 고민사항 및 예상 혜택 */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5" />
-                  고민사항 및 기대효과
+              {/* 4. 고민사항 및 기대효과 - 모바일 최적화 */}
+              <div className="space-y-4 md:space-y-6">
+                <h3 className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                  핵심 정보
                 </h3>
+                
+                <div className="space-y-4 md:space-y-6">
+                  {/* 주요 고민사항 */}
+                  <FormField
+                    control={form.control}
+                    name="mainConcerns"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm md:text-base font-medium">
+                          주요 고민사항 * 
+                          <span className="text-xs md:text-sm text-gray-500 ml-1">(최소 20자)</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="예: 매출 증대 방안, 업무 효율성 향상, 인력 관리, 마케팅 전략, 비용 절감 등 구체적으로 작성해주세요."
+                            className="min-h-[100px] md:min-h-[120px] text-sm md:text-base touch-manipulation resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="mainConcerns"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>주요 고민사항 *</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="현재 겪고 있는 경영상의 어려움이나 해결하고 싶은 과제를 구체적으로 적어주세요. (예: 매출 증대, 생산성 향상, 디지털 전환, 품질 개선 등)" 
-                          className="min-h-[100px]"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="expectedBenefits"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>예상 혜택/기대효과 *</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="컨설팅을 통해 얻고자 하는 효과나 목표를 적어주세요. (예: 매출 20% 증대, 업무 효율성 향상, 비용 절감 등)" 
-                          className="min-h-[80px]"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  {/* 예상 혜택 */}
+                  <FormField
+                    control={form.control}
+                    name="expectedBenefits"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm md:text-base font-medium">
+                          예상 혜택 * 
+                          <span className="text-xs md:text-sm text-gray-500 ml-1">(최소 10자)</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="예: 매출 30% 증대, 업무 시간 50% 단축, 마케팅 비용 절감, 고객 만족도 향상 등"
+                            className="min-h-[80px] md:min-h-[100px] text-sm md:text-base touch-manipulation resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
 
-              {/* 개인정보 동의 */}
+              {/* 5. 개인정보 동의 - 모바일 최적화 */}
               <div className="space-y-4">
                 <FormField
                   control={form.control}
                   name="privacyConsent"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                       <FormControl>
                         <Checkbox
                           checked={field.value}
                           onCheckedChange={field.onChange}
+                          className="w-5 h-5 md:w-6 md:h-6 touch-manipulation"
                         />
                       </FormControl>
                       <div className="space-y-1 leading-none">
-                        <FormLabel>
-                          개인정보 수집 및 이용에 동의합니다 *
+                        <FormLabel className="text-sm md:text-base font-medium cursor-pointer">
+                          개인정보 수집 및 이용 동의 (필수)
                         </FormLabel>
-                        <p className="text-sm text-gray-600">
-                          입력하신 정보는 AI 진단 및 결과 제공을 위해서만 사용되며, 
-                          진단 완료 후 안전하게 처리됩니다.
+                        <p className="text-xs md:text-sm text-gray-600">
+                          AI진단 서비스 제공을 위한 개인정보 수집 및 이용에 동의합니다.
+                          수집된 정보는 진단 목적으로만 사용되며, 완료 후 즉시 삭제됩니다.
                         </p>
                       </div>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
 
-              {/* 제출 버튼 */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                {onBack && (
-                  <Button type="button" variant="outline" onClick={onBack}>
-                    이전으로
-                  </Button>
-                )}
+              {/* 제출 버튼 - 모바일 최적화 */}
+              <div className="pt-4 md:pt-6 border-t">
                 <Button 
                   type="submit" 
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 flex-1"
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 md:py-4 text-base md:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 touch-manipulation h-auto"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <>
+                      <Loader2 className="w-4 h-4 md:w-5 md:h-5 mr-2 animate-spin" />
+                      AI 진단 처리 중...
+                    </>
                   ) : (
-                    <Star className="w-4 h-4 mr-2" />
+                    <>
+                      <Brain className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                      무료 AI진단 신청하기
+                      <Star className="w-4 h-4 md:w-5 md:h-5 ml-2" />
+                    </>
                   )}
-                  {isSubmitting ? '진단 처리 중...' : '무료 AI 진단 신청'}
                 </Button>
+                
+                <p className="text-xs md:text-sm text-gray-500 text-center mt-3 md:mt-4">
+                  ⚡ 제출 후 2-3분 내에 맞춤형 AI진단 보고서를 받아보실 수 있습니다.
+                </p>
               </div>
             </form>
           </Form>
         </CardContent>
       </Card>
+
+      {/* 안내 정보 - 모바일 최적화 */}
+      <div className="mt-8 md:mt-12 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        <Card className="bg-green-50 border-green-200">
+          <CardContent className="p-4 md:p-6 text-center">
+            <CheckCircle className="w-8 h-8 md:w-10 md:h-10 text-green-600 mx-auto mb-2 md:mb-3" />
+            <h4 className="font-semibold text-green-800 mb-1 text-sm md:text-base">100% 무료</h4>
+            <p className="text-xs md:text-sm text-green-700">
+              진단부터 상담까지 완전 무료로 제공합니다.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="p-4 md:p-6 text-center">
+            <Clock className="w-8 h-8 md:w-10 md:h-10 text-blue-600 mx-auto mb-2 md:mb-3" />
+            <h4 className="font-semibold text-blue-800 mb-1 text-sm md:text-base">빠른 처리</h4>
+            <p className="text-xs md:text-sm text-blue-700">
+              8개 정보 입력 후 2-3분 내 결과 확인 가능합니다.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-purple-50 border-purple-200">
+          <CardContent className="p-4 md:p-6 text-center">
+            <Star className="w-8 h-8 md:w-10 md:h-10 text-purple-600 mx-auto mb-2 md:mb-3" />
+            <h4 className="font-semibold text-purple-800 mb-1 text-sm md:text-base">전문가급 분석</h4>
+            <p className="text-xs md:text-sm text-purple-700">
+              25년 경험 전문가 수준의 진단 결과를 제공합니다.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 } 
