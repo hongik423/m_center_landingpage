@@ -424,6 +424,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
         setTimeout(() => {
           onComplete({
             success: true,
+            message: '진단이 성공적으로 완료되었습니다.',
             data: results.data
           });
         }, 1500);

@@ -6,20 +6,28 @@ import SimplifiedDiagnosisResults from '@/components/diagnosis/SimplifiedDiagnos
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Zap, Clock, BarChart3 } from 'lucide-react';
 
-interface DiagnosisData {
+interface DiagnosisResponse {
   success: boolean;
   message: string;
-  data: any;
-  resultId: string;
-  resultUrl: string;
+  data: {
+    diagnosis: any;
+    summaryReport: string;
+    reportLength: number;
+    resultId: string;
+    resultUrl: string;
+    submitDate: string;
+    googleSheetsSaved: boolean;
+    processingTime: string;
+    reportType: string;
+  };
 }
 
 export default function DiagnosisPage() {
   const [currentStep, setCurrentStep] = useState(1); // 1: 소개, 2: 폼, 3: 결과
-  const [results, setResults] = useState<DiagnosisData | null>(null);
+  const [results, setResults] = useState<DiagnosisResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleDiagnosisComplete = (data: DiagnosisData) => {
+  const handleDiagnosisComplete = (data: DiagnosisResponse) => {
     setResults(data);
     setIsLoading(false);
     setCurrentStep(3);

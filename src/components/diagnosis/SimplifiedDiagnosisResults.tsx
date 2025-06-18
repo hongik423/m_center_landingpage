@@ -21,7 +21,6 @@ import {
   Award,
   BarChart3,
   ArrowRight,
-  CheckCircle2,
   Building2,
   MapPin
 } from 'lucide-react';
@@ -655,7 +654,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                   <ul className="space-y-2">
                     {(data.data.diagnosis.strengths || []).map((item: string, index: number) => (
                       <li key={index} className="flex items-start gap-2 text-sm">
-                        <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -803,7 +802,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                 <ul className="space-y-2">
                   {(data.data.diagnosis.expectedResults?.quantitative || []).map((result: string, index: number) => (
                     <li key={index} className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-green-600" />
+                      <CheckCircle className="w-4 h-4 text-green-600" />
                       <span className="text-sm">{result}</span>
                     </li>
                   ))}
