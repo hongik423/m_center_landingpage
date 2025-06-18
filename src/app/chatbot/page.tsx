@@ -77,6 +77,7 @@ export default function ChatbotPage() {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'error'>('connected');
 
   // 키워드 기반 응답 생성
   const generateResponse = (userMessage: string): string => {
@@ -425,31 +426,78 @@ export default function ChatbotPage() {
   const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: text,
-      sender: 'user',
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
-    setIsTyping(true);
-
-    // 1-2초 지연 후 응답 (실제 AI 호출하는 것처럼 보이기 위해)
-    setTimeout(() => {
-      const botResponse = generateResponse(text);
+    try {
+      setConnectionStatus('connecting');
       
-      const botMessage: Message = {
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        content: text,
+        sender: 'user',
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, userMessage]);
+      setInputValue('');
+      setIsTyping(true);
+
+      // 1-2초 지연 후 응답 (실제 AI 호출하는 것처럼 보이기 위해)
+      setTimeout(() => {
+        try {
+          const botResponse = generateResponse(text);
+          
+          const botMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            content: botResponse,
+            sender: 'bot',
+            timestamp: new Date()
+          };
+          
+          setMessages(prev => [...prev, botMessage]);
+          setConnectionStatus('connected');
+        } catch (error) {
+          console.error('응답 생성 오류:', error);
+          
+          const errorMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            content: `죄송합니다. 일시적인 오류가 발생했습니다. 
+
+📞 **즉시 전문가 상담 가능**
+• 전화: 010-9251-9743 (이후경 경영지도사)
+• 이메일: hongik423@gmail.com
+
+다시 질문해주시거나 위 연락처로 직접 상담받으세요!`,
+            sender: 'bot',
+            timestamp: new Date()
+          };
+          
+          setMessages(prev => [...prev, errorMessage]);
+          setConnectionStatus('error');
+        } finally {
+          setIsTyping(false);
+        }
+      }, 1500 + Math.random() * 1000); // 1.5-2.5초 랜덤 지연
+      
+    } catch (error) {
+      console.error('메시지 전송 오류:', error);
+      setConnectionStatus('error');
+      setIsTyping(false);
+      
+      const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: botResponse,
+        content: `연결에 문제가 발생했습니다. 
+
+📞 **대안 상담 방법**
+• 전화: 010-9251-9743 (즉시 연결)
+• 이메일: hongik423@gmail.com
+• 카카오톡: M-CENTER 검색
+
+전문가가 직접 도움드리겠습니다!`,
         sender: 'bot',
         timestamp: new Date()
       };
       
-      setMessages(prev => [...prev, botMessage]);
-      setIsTyping(false);
-    }, 1500 + Math.random() * 1000); // 1.5-2.5초 랜덤 지연
+      setMessages(prev => [...prev, errorMessage]);
+    }
   };
 
   return (
@@ -527,13 +575,23 @@ export default function ChatbotPage() {
                         <div>
                           <h3 className="font-semibold">AI 상담사</h3>
                           <div className="flex items-center space-x-2">
-                            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                            <span className="text-sm opacity-90">온라인</span>
+                            <div className={`w-2 h-2 rounded-full ${
+                              connectionStatus === 'connected' ? 'bg-green-400' :
+                              connectionStatus === 'connecting' ? 'bg-yellow-400 animate-pulse' :
+                              'bg-red-400'
+                            }`}></div>
+                            <span className="text-sm opacity-90">
+                              {connectionStatus === 'connected' ? '온라인' :
+                               connectionStatus === 'connecting' ? '연결 중...' :
+                               '오프라인'}
+                            </span>
                           </div>
                         </div>
                       </div>
                       <Badge variant="secondary" className="bg-white/20 text-white">
-                        실시간 상담
+                        {connectionStatus === 'connected' ? '실시간 상담' :
+                         connectionStatus === 'connecting' ? '연결 중' :
+                         '연결 오류'}
                       </Badge>
                     </div>
 
