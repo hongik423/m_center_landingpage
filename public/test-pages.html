@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M-CENTER GitHub Pages 테스트</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 50px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        h1 { font-size: 2.5em; margin-bottom: 20px; }
+        p { font-size: 1.2em; margin-bottom: 30px; }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        .button:hover { background: #45a049; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 M-CENTER GitHub Pages 작동 중!</h1>
+        <p>GitHub Pages가 성공적으로 배포되었습니다.</p>
+        <p>현재 시간: <span id="time"></span></p>
+        
+        <div>
+            <a href="./index.html" class="button">메인 페이지</a>
+            <a href="./chatbot/index.html" class="button">AI 챗봇</a>
+            <a href="./consultation/index.html" class="button">상담 신청</a>
+        </div>
+        
+        <div style="margin-top: 30px; font-size: 0.9em; opacity: 0.8;">
+            <p>✅ 정적 파일 호스팅 확인됨</p>
+            <p>✅ 경로 설정 정상</p>
+            <p>✅ 한글 인코딩 정상</p>
+        </div>
+    </div>
+
+    <script>
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('time').textContent = now.toLocaleString('ko-KR');
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html> 
