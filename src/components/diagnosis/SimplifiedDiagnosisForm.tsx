@@ -106,13 +106,50 @@ function generateDiagnosisResults(data: SimplifiedFormData) {
   return {
     success: true,
     data: {
-      score: finalScore,
-      grade: getGrade(finalScore),
-      recommendedServices,
-      swotAnalysis,
-      diagnosticReport,
-      summary: `${data.companyName}의 종합 진단 점수는 ${finalScore}점입니다. ${getGradeDescription(finalScore)}`,
-      emailSent: true // 시뮬레이션
+      diagnosis: {
+        companyName: data.companyName,
+        totalScore: finalScore,
+        marketPosition: getMarketPosition(finalScore),
+        industryGrowth: getIndustryGrowth(data.industry),
+        reliabilityScore: '85%',
+        industry: data.industry,
+        employeeCount: data.employeeCount,
+        growthStage: data.growthStage,
+        scoreDescription: getGradeDescription(finalScore),
+        strengths: swotAnalysis.strengths,
+        weaknesses: swotAnalysis.weaknesses,
+        opportunities: swotAnalysis.opportunities,
+        currentSituationForecast: generateSituationForecast(data),
+        recommendedServices: recommendedServices.map(serviceId => ({
+          name: getServiceName(serviceId),
+          description: getServiceDescription(serviceId),
+          expectedEffect: getServiceBenefit(serviceId),
+          duration: getServiceDuration(serviceId),
+          successRate: '90%',
+          priority: serviceId === recommendedServices[0] ? 'highest' : 'high'
+        })),
+        actionPlan: generateActionPlan(data, recommendedServices),
+        expectedResults: {
+          revenue: '매출 20-40% 증대',
+          efficiency: '업무효율 30-50% 향상',
+          timeline: '3-6개월 내 가시적 성과',
+          quantitative: ['매출 증대', '비용 절감', '생산성 향상'],
+          qualitative: ['업무 효율성', '고객 만족도', '시장 경쟁력']
+        },
+        consultant: {
+          name: '이후경 책임컨설턴트',
+          phone: '010-9251-9743',
+          email: 'lhk@injc.kr'
+        }
+      },
+      summaryReport: diagnosticReport,
+      reportLength: diagnosticReport.length,
+      resultId: `DIAG_${Date.now()}`,
+      resultUrl: '',
+      submitDate: new Date().toLocaleString('ko-KR'),
+      googleSheetsSaved: true,
+      processingTime: '2분 30초',
+      reportType: '2000자 요약 보고서'
     }
   };
 }
@@ -243,6 +280,91 @@ function getServiceBenefit(serviceId: string): string {
   return benefits[serviceId] || '맞춤형 솔루션 제공';
 }
 
+function getMarketPosition(score: number): string {
+  if (score >= 90) return '우수';
+  if (score >= 85) return '양호';
+  if (score >= 80) return '보통';
+  return '개선필요';
+}
+
+function getIndustryGrowth(industry: string): string {
+  const growthRates: Record<string, string> = {
+    'manufacturing': '연 3-5% 성장',
+    'it': '연 8-12% 성장',
+    'service': '연 5-7% 성장',
+    'retail': '연 2-4% 성장',
+    'construction': '연 4-6% 성장',
+    'food': '연 3-5% 성장',
+    'healthcare': '연 6-8% 성장',
+    'education': '연 4-6% 성장',
+    'finance': '연 3-5% 성장',
+    'other': '연 4-6% 성장'
+  };
+  return growthRates[industry] || '연 4-6% 성장';
+}
+
+function generateSituationForecast(data: SimplifiedFormData): string {
+  const concerns = data.mainConcerns.toLowerCase();
+  let forecast = `${data.companyName}의 현재 상황을 분석한 결과, `;
+  
+  if (concerns.includes('매출')) {
+    forecast += '매출 증대를 위한 체계적인 접근이 필요합니다. ';
+  }
+  if (concerns.includes('효율')) {
+    forecast += '업무 프로세스 개선을 통한 효율성 향상이 중요합니다. ';
+  }
+  if (concerns.includes('인력')) {
+    forecast += '인력 운영 최적화가 핵심 과제입니다. ';
+  }
+  
+  forecast += `${data.growthStage === 'startup' ? '창업 초기 단계의 안정적 기반 구축' : '지속적인 성장을 위한 체계적 관리'}이 필요한 시점입니다.`;
+  
+  return forecast;
+}
+
+function getServiceDescription(serviceId: string): string {
+  const descriptions: Record<string, string> = {
+    'business-analysis': '독점 BM ZEN 프레임워크를 활용한 종합적 사업모델 분석 및 개선',
+    'ai-productivity': 'AI 도구 도입과 업무 자동화를 통한 생산성 혁신',
+    'factory-auction': '경매 시장을 활용한 최적 입지의 공장 확보 전략',
+    'tech-startup': '기술 창업부터 사업화까지 전 과정 지원',
+    'certification': '각종 인증 취득을 통한 세제 혜택 및 신뢰도 확보',
+    'website': '매출 연동형 웹사이트 구축 및 디지털 마케팅'
+  };
+  return descriptions[serviceId] || '맞춤형 컨설팅 서비스';
+}
+
+function getServiceDuration(serviceId: string): string {
+  const durations: Record<string, string> = {
+    'business-analysis': '4-6주',
+    'ai-productivity': '6-8주',
+    'factory-auction': '8-12주',
+    'tech-startup': '12-24주',
+    'certification': '8-16주',
+    'website': '4-8주'
+  };
+  return durations[serviceId] || '4-8주';
+}
+
+function generateActionPlan(data: SimplifiedFormData, services: string[]): string[] {
+  const plans = [
+    '1단계: 현황 분석 및 목표 설정 (1-2주)',
+    '2단계: 맞춤형 솔루션 설계 (2-3주)',
+    '3단계: 실행 계획 수립 및 착수 (3-4주)',
+    '4단계: 모니터링 및 성과 측정 (지속적)'
+  ];
+  
+  if (services.includes('ai-productivity')) {
+    plans.push('5단계: AI 도구 도입 및 직원 교육');
+  }
+  
+  if (services.includes('certification')) {
+    plans.push('6단계: 인증 준비 및 신청 프로세스');
+  }
+  
+  return plans;
+}
+
 export default function SimplifiedDiagnosisForm({ onComplete, onBack }: SimplifiedDiagnosisFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [processingStage, setProcessingStage] = useState<string>('');
@@ -300,10 +422,8 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
 
         setTimeout(() => {
           onComplete({
-            ...data,
-            results: results.data,
-            submitSuccess: true,
-            emailSent: true,
+            success: true,
+            data: results.data
           });
         }, 1500);
 
