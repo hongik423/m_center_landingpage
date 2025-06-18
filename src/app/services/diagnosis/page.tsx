@@ -36,6 +36,7 @@ export default function FreeDiagnosisPage() {
   };
 
   const handleDiagnosisComplete = (results: any) => {
+    console.log('🔍 진단 완료 데이터:', results); // 디버깅용 로그
     setDiagnosisResults(results);
     setCurrentStep('results');
   };
@@ -51,7 +52,7 @@ export default function FreeDiagnosisPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
         <Header />
         <div className="container mx-auto px-4 py-8">
-          <SimplifiedDiagnosisResults data={diagnosisResults.results} />
+          <SimplifiedDiagnosisResults data={diagnosisResults} />
         </div>
       </div>
     );

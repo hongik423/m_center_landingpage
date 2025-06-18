@@ -45,6 +45,14 @@ export default function Footer() {
             <ul className="space-y-2 text-gray-300">
               <li>
                 <Link 
+                  href="/services/business-analysis" 
+                  className="hover:text-white transition-colors text-sm"
+                >
+                  BM ZEN 사업분석
+                </Link>
+              </li>
+              <li>
+                <Link 
                   href="/services/ai-productivity" 
                   className="hover:text-white transition-colors text-sm"
                 >

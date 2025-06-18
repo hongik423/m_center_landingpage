@@ -4,11 +4,13 @@ const isProd = process.env.NODE_ENV === 'production';
 const repoName = 'm_center_landingpage';
 
 const nextConfig: NextConfig = {
-  // GitHub Pages 배포 설정
-  output: 'export',
-  trailingSlash: true,
-  skipTrailingSlashRedirect: true,
-  distDir: 'out',
+  // GitHub Pages 배포 시에만 static export 활성화
+  ...(isProd && {
+    output: 'export',
+    trailingSlash: true,
+    skipTrailingSlashRedirect: true,
+    distDir: 'out',
+  }),
   
   // 이미지 최적화 설정
   images: {
@@ -16,7 +18,7 @@ const nextConfig: NextConfig = {
     domains: ['picsum.photos', 'images.unsplash.com'],
   },
   
-  // GitHub Pages용 경로 설정
+  // GitHub Pages용 경로 설정 (프로덕션에서만)
   basePath: isProd ? `/${repoName}` : '',
   assetPrefix: isProd ? `/${repoName}/` : '',
   

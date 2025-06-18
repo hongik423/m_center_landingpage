@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   description: 'AI활용, 공장구매, 기술창업, 인증지원, 웹사이트구축 - 5대 영역 통합 솔루션으로 기업 성장을 지원하는 전문 컨설팅 플랫폼',
   keywords: '경영컨설팅, AI활용, 공장구매, 기술창업, 인증지원, 웹사이트구축, Business Model Zen, 기업의별',
   authors: [{ name: '기업의별 경영지도센터' }],
+  metadataBase: new URL(process.env.NODE_ENV === 'production' ? 'https://injc24.github.io' : 'http://localhost:3000'),
   icons: {
     icon: [
       { url: '/logo-icon.svg', type: 'image/svg+xml' },

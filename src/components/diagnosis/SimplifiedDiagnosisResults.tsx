@@ -93,28 +93,25 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
   const [showFullReport, setShowFullReport] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
-  const handlePrint = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: `${data.data.diagnosis.companyName}_AI진단보고서_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '')}`,
-    pageStyle: `
-      @page {
-        size: A4;
-        margin: 20mm;
-      }
-      @media print {
-        body { 
-          -webkit-print-color-adjust: exact;
-          color-adjust: exact;
-        }
-        .no-print { display: none !important; }
-        .print-break { page-break-before: always; }
-        .bg-gradient-to-br { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; }
-        .text-white { color: white !important; }
-      }
-    `
-  });
+  // 안전한 데이터 검증
+  if (!data) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <Card className="border-red-200">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-red-800 mb-2">데이터를 불러올 수 없습니다</h3>
+            <p className="text-red-600 mb-4">진단 데이터가 전달되지 않았습니다.</p>
+            <Button onClick={() => window.location.reload()}>
+              다시 시도하기
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-  if (!data.success || !data.data) {
+  if (!data.success || !data.data || !data.data.diagnosis) {
     return (
       <div className="max-w-4xl mx-auto">
         <Card className="border-red-200">
@@ -132,7 +129,28 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
   }
 
   const diagnosis = data.data.diagnosis;
-  const primaryService = diagnosis.recommendedServices[0];
+  const primaryService = diagnosis.recommendedServices?.[0];
+
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `${diagnosis.companyName || '회사명'}_AI진단보고서_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '')}`,
+    pageStyle: `
+      @page {
+        size: A4;
+        margin: 20mm;
+      }
+      @media print {
+        body { 
+          -webkit-print-color-adjust: exact;
+          color-adjust: exact;
+        }
+        .no-print { display: none !important; }
+        .print-break { page-break-before: always; }
+        .bg-gradient-to-br { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; }
+        .text-white { color: white !important; }
+      }
+    `
+  });
 
   const handleDownload = async () => {
     try {
