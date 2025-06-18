@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 진단 API 테스트</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-case { 
+            background: #f5f5f5; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+        }
+        .result { 
+            background: #e8f5e8; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+            max-height: 400px; 
+            overflow-y: auto;
+        }
+        button { 
+            background: #007bff; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+        }
+        button:hover { background: #0056b3; }
+        .highlight { background: yellow; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 AI 진단 시스템 업데이트 테스트</h1>
+        
+        <div class="test-case">
+            <h3>📊 테스트 케이스 1: 제조업 (디지털 전환 고민)</h3>
+            <p><strong>목표:</strong> 업종별 최신 트렌드 반영 + 30일 핵심과제 고정 확인</p>
+            <button onclick="testManufacturing()">제조업 테스트 실행</button>
+        </div>
+
+        <div class="test-case">
+            <h3>🏗️ 테스트 케이스 2: 건설업 (안전관리 고민)</h3>
+            <p><strong>목표:</strong> OT분석 강화 + 정책자금 내용 삭제 확인</p>
+            <button onclick="testConstruction()">건설업 테스트 실행</button>
+        </div>
+
+        <div class="test-case">
+            <h3>💻 테스트 케이스 3: IT업 (AI 도입 고민)</h3>
+            <p><strong>목표:</strong> 최신기술사업화 사례 반영 확인</p>
+            <button onclick="testIT()">IT업 테스트 실행</button>
+        </div>
+
+        <div id="result" class="result" style="display: none;">
+            <h3>📋 테스트 결과</h3>
+            <div id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        async function testAPI(testData, testName) {
+            const resultDiv = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+            
+            resultDiv.style.display = 'block';
+            resultContent.innerHTML = `<p>🔄 ${testName} 테스트 실행 중...</p>`;
+
+            try {
+                const response = await fetch('/api/process-diagnosis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    let output = `
+                        <h4>✅ ${testName} 테스트 성공!</h4>
+                        <p><strong>처리 시간:</strong> ${result.data.processingTime}</p>
+                        <hr>
+                        
+                        <h5>🎯 핵심 확인사항:</h5>
+                        <p><span class="highlight">30일 핵심과제:</span> ${result.data.diagnosis.actionPlan[1]}</p>
+                        <p><span class="highlight">업종 성장률:</span> ${result.data.diagnosis.industryGrowth}</p>
+                        <p><span class="highlight">시장 위치:</span> ${result.data.diagnosis.marketPosition}</p>
+                        
+                        <h5>🔍 SWOT 분석 (OT 강화 확인):</h5>
+                        <p><strong>기회요인:</strong> ${result.data.diagnosis.swotAnalysis.opportunities.join(', ')}</p>
+                        <p><strong>위협요인:</strong> ${result.data.diagnosis.swotAnalysis.threats.join(', ')}</p>
+                        
+                        <h5>💡 기술 트렌드 (최신 사례 확인):</h5>
+                        <p><strong>신기술:</strong> ${result.data.diagnosis.technologyTrends.emerging.join(', ')}</p>
+                        ${result.data.diagnosis.technologyTrends.marketCases ? 
+                            `<p><strong>성공사례:</strong> ${result.data.diagnosis.technologyTrends.marketCases.join(' | ')}</p>` : ''}
+                        
+                        <h5>🏢 경영지도센터 서비스:</h5>
+                        <p><strong>핵심서비스:</strong> ${result.data.diagnosis.mcenterSolutions.coreServices.join(', ')}</p>
+                        
+                        <h5>📈 최종 권고사항:</h5>
+                        <p>${result.data.diagnosis.integratedOpinion.finalRecommendation}</p>
+                        
+                        <details>
+                            <summary>📊 전체 결과 보기</summary>
+                            <pre>${JSON.stringify(result, null, 2)}</pre>
+                        </details>
+                    `;
+                    resultContent.innerHTML = output;
+                } else {
+                    resultContent.innerHTML = `<h4>❌ 테스트 실패</h4><p>${result.error}</p>`;
+                }
+            } catch (error) {
+                resultContent.innerHTML = `<h4>🚨 오류 발생</h4><p>${error.message}</p>`;
+            }
+        }
+
+        function testManufacturing() {
+            const testData = {
+                companyName: "혁신제조(주)",
+                industry: "manufacturing",
+                businessManager: "김혁신",
+                employeeCount: "30-50명",
+                establishmentDifficulty: "보통",
+                businessLocation: "경기도",
+                mainConcerns: "디지털 전환 지연, 생산성 향상 필요, 품질관리 시스템 개선",
+                expectedBenefits: "자동화를 통한 효율성 개선, 디지털 혁신, 경쟁력 강화",
+                contactName: "김혁신",
+                contactPhone: "010-1111-2222",
+                contactEmail: "test-manufacturing@example.com",
+                privacyConsent: true
+            };
+            testAPI(testData, "제조업");
+        }
+
+        function testConstruction() {
+            const testData = {
+                companyName: "안전건설(주)",
+                industry: "construction",
+                businessManager: "이안전",
+                employeeCount: "20-30명",
+                establishmentDifficulty: "어려움",
+                businessLocation: "서울",
+                mainConcerns: "안전관리 시스템 부족, 인력 확보 어려움, 수주 경쟁 심화",
+                expectedBenefits: "안전사고 예방, 수주율 향상, 현장 효율성 개선",
+                contactName: "이안전",
+                contactPhone: "010-2222-3333",
+                contactEmail: "test-construction@example.com",
+                privacyConsent: true
+            };
+            testAPI(testData, "건설업");
+        }
+
+        function testIT() {
+            const testData = {
+                companyName: "AI혁신(주)",
+                industry: "it",
+                businessManager: "박AI",
+                employeeCount: "10-20명",
+                establishmentDifficulty: "쉬움",
+                businessLocation: "서울",
+                mainConcerns: "AI 기술 도입, 개발 생산성 향상, 시장 경쟁력 강화",
+                expectedBenefits: "AI 활용 자동화, 개발 효율성 증대, 글로벌 진출",
+                contactName: "박AI",
+                contactPhone: "010-3333-4444",
+                contactEmail: "test-it@example.com",
+                privacyConsent: true
+            };
+            testAPI(testData, "IT업");
+        }
+    </script>
+</body>
+</html> 

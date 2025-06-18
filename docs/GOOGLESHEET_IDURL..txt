@@ -1,0 +1,52 @@
+배포가 업데이트되었습니다.
+버전 1(2025. 6. 17., 오후 10:13)
+배포 ID
+
+AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX
+
+GOOGLE_스크립트 ID
+1eq4jLxuXgVfjH76MJRPq6aetIybwNjD2IpvLWgY3wlfDLPW2h2hzEjAC
+
+
+GOOGLE_SHEETS_ID=
+1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug
+
+
+GOOGLE_SHEETS_웹앱 URL
+https://script.google.com/macros/s/AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX/exec
+
+
+
+GOOGLE_SHEETS_라이버러리url_
+https://script.google.com/macros/library/d/1eq4jLxuXgVfjH76MJRPq6aetIybwNjD2IpvLWgY3wlfDLPW2h2hzEjAC/2
+
+
+AI진단결과보고서 시스템개선...3000자 이상 통합결과보고서를 작성
+1. 진단신청서 제출내용을 분석한 데이터를 참고하여 SWOT분석 실시
+2. 진단요청한 기업의 최신정보를 기준으로 서비스와 제품의 트렌드 (시장성장여부, 해당분야의 최신기술사업화 사례 등의 트렌드)를 외부요인으로 OT분석에 적용하여 분석하고 진단신청서 제출내용으로 SW분석을 추정할것...
+3. 상기 1.2 의 SWOT 분석을 토대로 경영지도센터의 6개 서비스를 활용하여 개선을 할 수 있는 실행전략을 작성
+4. AI진단결과보고서 UI/UX개선_상기의 개선한 내용의 보고서 내용을 통합적으로 사각형의 네모박스안에 결과를 읽을 수 있도록 작성하고 결과보고서를 PDF로 다운로드 받을 수 있도록 시스템 구축
+
+
+AI 기반 종합 경영진단 결과보고서에 전략솔루션에서 " 정책자금 및 정부지원 활용 삭제..."
+액션플랜에서 30일내 핵심과제에서 "BM ZEN 사업진단"과 "AI실무활용 생상성향상" 두가지로 고정으로 작성할것으로 수정하여 업데이트 할것...
+
+
+
+# M-CENTER 운영 환경변수 (실제 API 키 포함) - 2025.6.17 업데이트
+NEXT_PUBLIC_GOOGLE_SCRIPT_URL=https://script.google.com/macros/s/AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX/exec
+NEXT_PUBLIC_GOOGLE_SCRIPT_ID=1eq4jLxuXgVfjH76MJRPq6aetIybwNjD2IpvLWgY3wlfDLPW2h2hzEjAC
+NEXT_PUBLIC_GOOGLE_SCRIPT_DEPLOYMENT_ID=AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX
+NEXT_PUBLIC_GOOGLE_SHEETS_ID=1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug
+NEXT_PUBLIC_GOOGLE_SHEETS_URL=https://script.google.com/macros/s/AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX/exec
+
+NEXT_PUBLIC_EMAILJS_SERVICE_ID=service_qd9eycz
+NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=268NPLwN54rPvEias
+OPENAI_API_KEY=sk-proj-YOUR_OPENAI_API_KEY_HERE
+NODE_ENV=development
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+JWT_SECRET=mcenter-jwt-secret-key-2025
+ADMIN_EMAIL=hongik423@gmail.com
+NOTIFICATION_ENABLED=true
+AUTO_REPLY_ENABLED=true

@@ -1,0 +1,13 @@
+배포가 업데이트되었습니다.
+버전 1(2025. 6. 17., 오후 10:13)
+배포 ID
+
+AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX
+
+
+
+
+
+웹 앱
+URL
+https://script.google.com/macros/s/AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX/exec

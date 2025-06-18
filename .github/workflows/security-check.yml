@@ -1,0 +1,279 @@
+name: 🔒 보안 검사 및 배포
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master]
+  schedule:
+    # 매일 자정에 보안 검사 실행
+    - cron: '0 0 * * *'
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  security-audit:
+    name: 🔍 보안 취약점 검사
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 의존성 설치
+        run: npm ci
+
+      - name: 🔍 NPM 보안 감사
+        run: npm audit --audit-level=moderate
+
+      - name: 🔒 취약한 패키지 자동 수정
+        run: npm audit fix
+
+      - name: 📊 보안 리포트 생성
+        run: |
+          npm audit --json > security-report.json || true
+          npm audit --parseable > security-report.txt || true
+
+      - name: 📤 보안 리포트 업로드
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-reports
+          path: |
+            security-report.json
+            security-report.txt
+
+  secret-scan:
+    name: 🕵️ 비밀키 스캔
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 코드 체크아웃
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 TruffleHog 비밀키 스캔
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  code-quality:
+    name: 📏 코드 품질 검사
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 의존성 설치
+        run: npm ci
+
+      - name: 🔍 린트 검사
+        run: npm run lint
+
+      - name: 🏗️ 타입 검사
+        run: npm run type-check
+
+      - name: 🏗️ 빌드 테스트
+        run: npm run build
+
+  env-validation:
+    name: 🔧 환경변수 검증
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 🔍 .env.local 파일 누출 검사
+        run: |
+          if [ -f ".env.local" ]; then
+            echo "❌ .env.local 파일이 커밋되었습니다!"
+            echo "이 파일은 민감한 정보를 포함하고 있어 GitHub에 업로드되면 안 됩니다."
+            exit 1
+          else
+            echo "✅ .env.local 파일이 올바르게 제외되었습니다."
+          fi
+
+      - name: 🔍 API 키 패턴 검사
+        run: |
+          echo "🔍 API 키 패턴 검사 중..."
+          
+          # OpenAI API 키 검사
+          if grep -r "sk-proj-" --exclude-dir=node_modules --exclude-dir=.git --exclude="*.md" .; then
+            echo "❌ OpenAI API 키가 발견되었습니다!"
+            exit 1
+          fi
+          
+          # EmailJS 키 검사
+          if grep -r "service_[a-zA-Z0-9]" --exclude-dir=node_modules --exclude-dir=.git --exclude="*.md" .; then
+            echo "⚠️ EmailJS 서비스 ID가 발견되었습니다. (Public Key이므로 허용)"
+          fi
+          
+          # Google 관련 민감 정보 검사
+          if grep -r "AIza[0-9A-Za-z-_]{35}" --exclude-dir=node_modules --exclude-dir=.git --exclude="*.md" .; then
+            echo "❌ Google API 키가 발견되었습니다!"
+            exit 1
+          fi
+          
+          echo "✅ 민감한 API 키가 발견되지 않았습니다."
+
+  dependency-review:
+    name: 📦 의존성 리뷰
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: 📥 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 🔍 의존성 리뷰
+        uses: actions/dependency-review-action@v3
+        with:
+          fail-on-severity: moderate
+
+  security-scorecard:
+    name: 📊 보안 스코어카드
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      id-token: write
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: 📥 코드 체크아웃
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: 📊 OSSF Scorecard 실행
+        uses: ossf/scorecard-action@v2.3.1
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+
+      - name: 📤 SARIF 결과 업로드
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: results.sarif
+
+  build-and-test:
+    name: 🏗️ 빌드 및 테스트
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
+    steps:
+      - name: 📥 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Node.js ${{ matrix.node-version }} 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: 📦 의존성 설치
+        run: npm ci
+
+      - name: 🏗️ 빌드
+        run: npm run build
+
+      - name: 🧪 테스트 (있는 경우)
+        run: |
+          if [ -f "package.json" ] && npm run | grep -q "test"; then
+            npm test
+          else
+            echo "테스트 스크립트가 없습니다."
+          fi
+
+  notify-security-issues:
+    name: 📢 보안 이슈 알림
+    runs-on: ubuntu-latest
+    needs: [security-audit, secret-scan, env-validation]
+    if: failure()
+    steps:
+      - name: 📧 보안 이슈 알림
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: |
+            🚨 M-CENTER 프로젝트에서 보안 이슈가 발견되었습니다!
+            
+            - Repository: ${{ github.repository }}
+            - Branch: ${{ github.ref }}
+            - Commit: ${{ github.sha }}
+            - 작업자: ${{ github.actor }}
+            
+            즉시 확인이 필요합니다.
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: env.SLACK_WEBHOOK_URL != ''
+
+  production-deploy:
+    name: 🚀 프로덕션 배포
+    runs-on: ubuntu-latest
+    needs: [security-audit, code-quality, env-validation, build-and-test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+    steps:
+      - name: 📥 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 의존성 설치
+        run: npm ci
+
+      - name: 🏗️ 프로덕션 빌드
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: 🚀 Vercel 배포
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.ORG_ID }}
+          vercel-project-id: ${{ secrets.PROJECT_ID }}
+          vercel-args: '--prod'
+
+  security-summary:
+    name: 📋 보안 검사 요약
+    runs-on: ubuntu-latest
+    needs: [security-audit, secret-scan, code-quality, env-validation]
+    if: always()
+    steps:
+      - name: 📊 보안 검사 결과 요약
+        run: |
+          echo "# 🔒 M-CENTER 보안 검사 결과" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 검사 항목별 결과" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| 검사 항목 | 상태 | 설명 |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔍 보안 취약점 검사 | ${{ needs.security-audit.result == 'success' && '✅ 통과' || '❌ 실패' }} | NPM 패키지 보안 검사 |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🕵️ 비밀키 스캔 | ${{ needs.secret-scan.result == 'success' && '✅ 통과' || '❌ 실패' }} | Git 히스토리 비밀키 검사 |" >> $GITHUB_STEP_SUMMARY
+          echo "| 📏 코드 품질 검사 | ${{ needs.code-quality.result == 'success' && '✅ 통과' || '❌ 실패' }} | ESLint, TypeScript 검사 |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔧 환경변수 검증 | ${{ needs.env-validation.result == 'success' && '✅ 통과' || '❌ 실패' }} | .env 파일 및 API 키 검사 |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📞 문의" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "보안 이슈가 발견된 경우 즉시 연락주세요:" >> $GITHUB_STEP_SUMMARY
+          echo "- 📧 이메일: hongik423@gmail.com" >> $GITHUB_STEP_SUMMARY
+          echo "- 📞 전화: 010-9251-9743" >> $GITHUB_STEP_SUMMARY 
