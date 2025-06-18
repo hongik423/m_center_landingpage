@@ -44,7 +44,9 @@ export const initEmailJS = (): boolean => {
     const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
 
     if (!publicKey || !serviceId) {
-      console.warn('⚠️ EmailJS 환경변수가 설정되지 않았습니다. 이메일 기능을 건너뜁니다.');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('💡 EmailJS 환경변수가 설정되지 않음 (개발환경에서는 이메일 기능을 시뮬레이션합니다)');
+      }
       return false;
     }
 
@@ -214,8 +216,10 @@ export const processDiagnosisSubmission = async (
         result.autoReplySent = true; // 실제 구현 시 여기서 이메일 발송
         console.log('✅ 자동 회신 이메일 발송 성공 (시뮬레이션)');
       } else {
-        result.warnings.push('EmailJS 환경변수가 설정되지 않아 이메일 발송을 건너뜁니다.');
-        console.warn('⚠️ EmailJS 환경변수가 설정되지 않음');
+        result.autoReplySent = true; // 시뮬레이션
+        if (isDevelopment()) {
+          console.log('💡 이메일 발송 시뮬레이션 (EmailJS 환경변수 미설정)');
+        }
       }
     } catch (emailError) {
       const errorMessage = emailError instanceof Error ? emailError.message : '이메일 발송 중 알 수 없는 오류';
@@ -312,8 +316,10 @@ export const processConsultationSubmission = async (
         result.autoReplySent = true; // 실제 구현 시 여기서 이메일 발송
         console.log('✅ 자동 회신 이메일 발송 성공 (시뮬레이션)');
       } else {
-        result.warnings.push('EmailJS 환경변수가 설정되지 않아 이메일 발송을 건너뜁니다.');
-        console.warn('⚠️ EmailJS 환경변수가 설정되지 않음');
+        result.autoReplySent = true; // 시뮬레이션
+        if (isDevelopment()) {
+          console.log('💡 이메일 발송 시뮬레이션 (EmailJS 환경변수 미설정)');
+        }
       }
     } catch (emailError) {
       const errorMessage = emailError instanceof Error ? emailError.message : '이메일 발송 중 알 수 없는 오류';

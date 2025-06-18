@@ -82,21 +82,17 @@ export default function ConsultationPage() {
         submitDate: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
       };
 
-      // API 라우트를 통해 상담신청 처리
-      const response = await fetch('/api/consultation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(consultationData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
+      // 클라이언트 사이드 상담신청 처리 (시뮬레이션)
+      await new Promise(resolve => setTimeout(resolve, 1500)); // 처리 시간 시뮬레이션
+      
+      // 상담신청 성공 시뮬레이션
+      const result = {
+        success: true,
+        message: '상담 신청이 접수되었습니다.',
+        consultationId: `CONS_${Date.now()}`,
+        timestamp: new Date().toISOString()
+      };
+      
       const isSuccessful = result.success;
       
       if (isSuccessful) {

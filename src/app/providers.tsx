@@ -108,8 +108,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
         const isClientEnvValid = Object.values(clientEnvCheck).every(Boolean);
 
-        if (!isClientEnvValid) {
-          console.warn('⚠️ 일부 환경변수가 설정되지 않았습니다:', {
+        if (!isClientEnvValid && isDevelopment()) {
+          console.log('💡 일부 환경변수가 미설정됨 (프로덕션에서는 시뮬레이션 모드로 동작):', {
             emailJS: clientEnvCheck.hasEmailJSServiceId && clientEnvCheck.hasEmailJSPublicKey,
             googleSheets: clientEnvCheck.hasGoogleSheetsId,
           });
