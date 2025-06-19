@@ -588,13 +588,13 @@ export default function Home() {
                   8개 정보만 입력하면 2-3분 내에 전문가 수준의 AI진단 보고서를 받아볼 수 있습니다.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center">
-                  <Button 
-                    onClick={() => router.push('/services/diagnosis')}
+              <Button 
+                onClick={() => router.push('/services/diagnosis')}
                     className="bg-white text-blue-600 hover:bg-gray-50 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 h-auto touch-manipulation"
-                  >
+              >
                     <Brain className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-                    무료 AI진단 신청하기
-                  </Button>
+                무료 AI진단 신청하기
+              </Button>
                   <div className="flex flex-wrap justify-center gap-3 md:gap-4 text-xs md:text-sm text-blue-100">
                     <div className="flex items-center gap-1">
                       <Shield className="w-3 h-3 md:w-4 md:h-4" />
@@ -607,9 +607,9 @@ export default function Home() {
                     <div className="flex items-center gap-1">
                       <Users className="w-3 h-3 md:w-4 md:h-4" />
                       <span>전문가 상담 가능</span>
-                    </div>
-                  </div>
-                </div>
+            </div>
+          </div>
+        </div>
               </CardContent>
             </Card>
           </div>

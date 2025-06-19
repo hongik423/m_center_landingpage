@@ -13,8 +13,8 @@ interface DiagnosisResponse {
     diagnosis: any;
     summaryReport: string;
     reportLength: number;
-    resultId: string;
-    resultUrl: string;
+  resultId: string;
+  resultUrl: string;
     submitDate: string;
     googleSheetsSaved: boolean;
     processingTime: string;

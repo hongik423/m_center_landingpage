@@ -672,7 +672,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                         <FormLabel className="text-sm md:text-base font-medium">이메일 *</FormLabel>
                         <FormControl>
                           <Input 
-                            type="email"
+                            type="email" 
                             placeholder="예: hongildong@company.com" 
                             {...field} 
                             className="h-11 md:h-12 text-sm md:text-base touch-manipulation"
@@ -792,51 +792,51 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                   <AlertCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                   핵심 정보
                 </h3>
-                
+
                 <div className="space-y-4 md:space-y-6">
                   {/* 주요 고민사항 */}
-                  <FormField
-                    control={form.control}
-                    name="mainConcerns"
-                    render={({ field }) => (
-                      <FormItem>
+                <FormField
+                  control={form.control}
+                  name="mainConcerns"
+                  render={({ field }) => (
+                    <FormItem>
                         <FormLabel className="text-sm md:text-base font-medium">
                           주요 고민사항 * 
                           <span className="text-xs md:text-sm text-gray-500 ml-1">(최소 20자)</span>
                         </FormLabel>
-                        <FormControl>
-                          <Textarea 
+                      <FormControl>
+                        <Textarea 
                             placeholder="예: 매출 증대 방안, 업무 효율성 향상, 인력 관리, 마케팅 전략, 비용 절감 등 구체적으로 작성해주세요."
                             className="min-h-[100px] md:min-h-[120px] text-sm md:text-base touch-manipulation resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                   {/* 예상 혜택 */}
-                  <FormField
-                    control={form.control}
-                    name="expectedBenefits"
-                    render={({ field }) => (
-                      <FormItem>
+                <FormField
+                  control={form.control}
+                  name="expectedBenefits"
+                  render={({ field }) => (
+                    <FormItem>
                         <FormLabel className="text-sm md:text-base font-medium">
                           예상 혜택 * 
                           <span className="text-xs md:text-sm text-gray-500 ml-1">(최소 10자)</span>
                         </FormLabel>
-                        <FormControl>
-                          <Textarea 
+                      <FormControl>
+                        <Textarea 
                             placeholder="예: 매출 30% 증대, 업무 시간 50% 단축, 마케팅 비용 절감, 고객 만족도 향상 등"
                             className="min-h-[80px] md:min-h-[100px] text-sm md:text-base touch-manipulation resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 </div>
               </div>
 
@@ -927,8 +927,8 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
             <p className="text-xs md:text-sm text-purple-700">
               25년 경험 전문가 수준의 진단 결과를 제공합니다.
             </p>
-          </CardContent>
-        </Card>
+        </CardContent>
+      </Card>
       </div>
     </div>
   );
