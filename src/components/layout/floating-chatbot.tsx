@@ -35,20 +35,30 @@ const quickActions = [
   { text: '서비스안내', icon: Sparkles, action: '/services/ai-productivity' }
 ];
 
-// 초기 메시지
-const getWelcomeMessage = (): Message => ({
-  id: '1',
-  content: `👋 **기업의별 AI상담사**입니다!
+  // 초기 메시지
+const getWelcomeMessage = (): Message => {
+  // 개발 환경 디버깅 정보
+  const isLocalhost = typeof window !== 'undefined' && 
+                      (window.location.hostname === 'localhost' || 
+                       window.location.hostname === '127.0.0.1' ||
+                       window.location.hostname.includes('192.168'));
+  
+  const debugInfo = isLocalhost ? `\n\n🔧 **디버그 모드:** localhost:${window.location.port}` : '';
+  
+  return {
+    id: '1',
+    content: `👋 **기업의별 AI상담사**입니다!
 
 💡 **빠른 도움받기:**
 • 실시간 상담 가능
-• 정부지원사업 안내
+• 정부지원사업 안내  
 • 무료 기업진단
 
-궁금한 점을 메시지로 보내거나 아래 버튼을 눌러보세요! ⚡`,
-  sender: 'bot',
-  timestamp: new Date()
-});
+궁금한 점을 메시지로 보내거나 아래 버튼을 눌러보세요! ⚡${debugInfo}`,
+    sender: 'bot',
+    timestamp: new Date()
+  };
+};
 
 export default function FloatingChatbot() {
   // 기본 상태
@@ -211,9 +221,24 @@ export default function FloatingChatbot() {
     setInputValue('');
     setIsTyping(true);
 
+    // 🔥 개발 서버 감지 로직 개선
+    const isLocalhost = typeof window !== 'undefined' && 
+                        (window.location.hostname === 'localhost' || 
+                         window.location.hostname === '127.0.0.1' ||
+                         window.location.hostname.includes('192.168'));
+    
+    console.log('🤖 AI 메시지 전송:', { 
+      message: text, 
+      isLocalhost, 
+      hostname: typeof window !== 'undefined' ? window.location.hostname : 'server',
+      isMobile 
+    });
+
     try {
-      // 개발 환경에서만 API 호출
-      if (process.env.NODE_ENV === 'development') {
+      // 로컬호스트에서는 항상 API 호출 시도
+      if (isLocalhost) {
+        console.log('🚀 API 호출 시도 중...');
+        
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -223,9 +248,15 @@ export default function FloatingChatbot() {
           }),
         });
 
-        if (!response.ok) throw new Error('서버 오류');
+        console.log('📡 API 응답 상태:', response.status, response.ok);
+
+        if (!response.ok) {
+          throw new Error(`서버 오류: ${response.status}`);
+        }
 
         const data = await response.json();
+        console.log('✅ API 응답 성공:', { responseLength: data.response?.length });
+        
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
           content: data.response,
@@ -236,6 +267,8 @@ export default function FloatingChatbot() {
         addMessage(botMessage);
       } else {
         // 프로덕션 환경에서는 클라이언트 사이드 응답
+        console.log('🔄 클라이언트 사이드 응답 생성 중...');
+        
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
           content: generateClientResponse(text),
@@ -248,9 +281,11 @@ export default function FloatingChatbot() {
         addMessage(botMessage);
       }
     } catch (error) {
+      console.error('❌ AI 응답 오류:', error);
+      
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: `❌ 죄송합니다. 일시적으로 AI 기능을 사용할 수 없습니다.\n\n📞 **즉시 상담을 원하시면:**\n• 전화: 010-9251-9743\n• 이메일: lhk@injc.kr\n\n⚡ **무료 서비스 안내:**\n• [무료 AI진단 신청](/#ai-diagnosis)\n• [전문가 상담 신청](/consultation)\n• [서비스 안내](/services/business-analysis)`,
+        content: `❌ 죄송합니다. AI 서버 연결에 문제가 발생했습니다.\n\n🤖 **임시 해결책:**\n• 페이지를 새로고침 해보세요\n• 잠시 후 다시 시도해주세요\n\n📞 **즉시 상담을 원하시면:**\n• 전화: 010-9251-9743\n• 이메일: lhk@injc.kr\n\n⚡ **무료 서비스 안내:**\n• [무료 AI진단 신청](/#ai-diagnosis)\n• [전문가 상담 신청](/consultation)\n• [서비스 안내](/services/business-analysis)\n\n💡 **오류 정보:** ${error instanceof Error ? error.message : '알 수 없는 오류'}`,
         sender: 'bot',
         timestamp: new Date()
       };
@@ -258,7 +293,7 @@ export default function FloatingChatbot() {
     } finally {
       setIsTyping(false);
     }
-  }, [messages, addMessage]);
+  }, [messages, addMessage, isMobile]);
 
   // 클라이언트 사이드 응답 생성 함수
   const generateClientResponse = (message: string): string => {
