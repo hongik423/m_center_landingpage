@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[기업의별 M-CENTER] AI 무료진단 신청 확인</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Malgun Gothic', '맑은 고딕', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px 20px;
+        }
+        
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #007bff;
+            font-weight: bold;
+        }
+        
+        .message {
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+        
+        .info-box {
+            background: #f8f9ff;
+            border: 2px solid #e3f2fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .info-title {
+            color: #1976d2;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-title:before {
+            content: "📊";
+            margin-right: 8px;
+        }
+        
+        .info-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .info-list li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .info-list li:before {
+            content: "•";
+            color: #007bff;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        .consultant-box {
+            background: #fff3e0;
+            border: 2px solid #ffcc02;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .consultant-title {
+            color: #f57c00;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .consultant-title:before {
+            content: "🤝";
+            margin-right: 8px;
+        }
+        
+        .consultant-info {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px 15px;
+            align-items: center;
+        }
+        
+        .consultant-label {
+            font-weight: bold;
+            color: #f57c00;
+        }
+        
+        .consultant-value {
+            color: #333;
+        }
+        
+        .next-steps {
+            background: #e8f5e8;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .next-steps-title {
+            color: #388e3c;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .next-steps-title:before {
+            content: "🚀";
+            margin-right: 8px;
+        }
+        
+        .steps-list {
+            list-style: none;
+            padding: 0;
+            counter-reset: step-counter;
+        }
+        
+        .steps-list li {
+            margin-bottom: 12px;
+            padding-left: 40px;
+            position: relative;
+            counter-increment: step-counter;
+        }
+        
+        .steps-list li:before {
+            content: counter(step-counter);
+            background: #4caf50;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .footer p {
+            margin-bottom: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .logo {
+            font-weight: bold;
+            color: #007bff;
+            font-size: 18px;
+        }
+        
+        .contact-links {
+            margin-top: 15px;
+        }
+        
+        .contact-links a {
+            color: #007bff;
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: bold;
+        }
+        
+        .contact-links a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                border-radius: 5px;
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+            
+            .consultant-info {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 AI 무료진단 신청이 접수되었습니다!</h1>
+            <p>전문가가 곧 연락드리겠습니다</p>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                {{to_name}}님, 안녕하세요! 👋
+            </div>
+            
+            <div class="message">
+                <strong>{{company_name}}</strong>에서 신청해주신 <strong>AI 무료진단</strong>이 성공적으로 접수되었습니다.<br>
+                귀하의 비즈니스 성장을 위한 전문적인 분석을 준비하고 있습니다.
+            </div>
+            
+            <div class="info-box">
+                <div class="info-title">신청 정보 확인</div>
+                <ul class="info-list">
+                    <li><strong>회사명:</strong> {{company_name}}</li>
+                    <li><strong>담당자:</strong> {{to_name}}</li>
+                    <li><strong>연락처:</strong> {{to_email}}</li>
+                    <li><strong>신청일:</strong> {{diagnosis_date}}</li>
+                    <li><strong>서비스:</strong> {{service_name}}</li>
+                </ul>
+            </div>
+            
+            <div class="consultant-box">
+                <div class="consultant-title">담당 컨설턴트 정보</div>
+                <div class="consultant-info">
+                    <span class="consultant-label">성명:</span>
+                    <span class="consultant-value">{{consultant_name}}</span>
+                    <span class="consultant-label">전화:</span>
+                    <span class="consultant-value">{{consultant_phone}}</span>
+                    <span class="consultant-label">이메일:</span>
+                    <span class="consultant-value">{{consultant_email}}</span>
+                </div>
+            </div>
+            
+            <div class="next-steps">
+                <div class="next-steps-title">다음 단계 안내</div>
+                <ul class="steps-list">
+                    <li><strong>24시간 내</strong> 담당 컨설턴트가 연락드립니다</li>
+                    <li><strong>2-3일 내</strong> 상세한 진단 분석을 진행합니다</li>
+                    <li><strong>1주일 내</strong> 맞춤형 개선 방안을 제시합니다</li>
+                    <li>필요시 <strong>무료 상담</strong>을 통해 구체적인 실행 계획을 논의합니다</li>
+                </ul>
+            </div>
+            
+            <div class="message">
+                {{reply_message}}
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="logo">기업의별 M-CENTER</div>
+            <p>중소기업 성장 파트너, 전문 경영 컨설팅</p>
+            <div class="contact-links">
+                <a href="tel:{{consultant_phone}}">📞 전화상담</a>
+                <a href="mailto:{{consultant_email}}">📧 이메일 문의</a>
+            </div>
+            <p style="margin-top: 15px; font-size: 12px; color: #999;">
+                본 메일은 AI 무료진단 신청에 대한 자동 확인 메일입니다.<br>
+                추가 문의사항이 있으시면 언제든 연락 주세요.
+            </p>
+        </div>
+    </div>
+</body>
+</html> 

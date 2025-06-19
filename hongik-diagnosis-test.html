@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 홍길동 무료진단 신청 테스트</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Malgun Gothic', '맑은 고딕', Arial, sans-serif;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #007bff;
+            font-size: 32px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .test-info {
+            background: #f8f9ff;
+            border: 3px solid #007bff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: left;
+            position: relative;
+        }
+        
+        .test-info::before {
+            content: '📊';
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: white;
+            padding: 0 10px;
+            font-size: 20px;
+        }
+        
+        .test-info h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .test-info .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .test-info .info-item {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .test-info .info-item strong {
+            color: #007bff;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 30px;
+            width: 100%;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .test-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 123, 255, 0.4);
+        }
+        
+        .test-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .status {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            min-height: 250px;
+        }
+        
+        .log-container {
+            background: #1a1a1a;
+            color: #00ff41;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            text-align: left;
+            border: 2px solid #007bff;
+        }
+        
+        .log-line {
+            margin: 8px 0;
+            opacity: 0;
+            animation: fadeIn 0.6s forwards;
+            line-height: 1.4;
+        }
+        
+        .log-line.success {
+            color: #00ff41;
+        }
+        
+        .log-line.error {
+            color: #ff4757;
+        }
+        
+        .log-line.info {
+            color: #3742fa;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        .result-box {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #155724;
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        .result-box.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .result-box.info {
+            background: #cce7ff;
+            border-color: #007bff;
+            color: #004085;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 8px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .test-info .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 홍길동 무료진단 신청</h1>
+            <p>AI 진단 + 구글시트 저장 + 확인 메일 발송</p>
+        </div>
+        
+        <div class="test-info">
+            <h3>진단 신청 정보</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>신청자</strong>
+                    홍길동
+                </div>
+                <div class="info-item">
+                    <strong>이메일</strong>
+                    hongik423@naver.com
+                </div>
+                <div class="info-item">
+                    <strong>회사명</strong>
+                    홍길동컴퍼니
+                </div>
+                <div class="info-item">
+                    <strong>업종</strong>
+                    IT/소프트웨어
+                </div>
+                <div class="info-item">
+                    <strong>직원수</strong>
+                    11-20명
+                </div>
+                <div class="info-item">
+                    <strong>성장단계</strong>
+                    성장기
+                </div>
+            </div>
+        </div>
+        
+        <button class="test-button" id="testBtn" onclick="startDiagnosisTest()">
+            <span>📊 홍길동 무료진단 시작하기</span>
+        </button>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div class="status">
+            <div class="log-container" id="logContainer"></div>
+            <div id="resultContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // EmailJS 초기화
+        emailjs.init('268NPLwN54rPvEias');
+        
+        let currentStep = 0;
+        const totalSteps = 4;
+        
+        function addLog(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const logLine = document.createElement('div');
+            logLine.className = `log-line ${type}`;
+            logLine.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(logLine);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function updateProgress(step) {
+            const progress = (step / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+        
+        function showResult(type, title, message) {
+            const resultContainer = document.getElementById('resultContainer');
+            resultContainer.innerHTML = `
+                <div class="result-box ${type}">
+                    <h3>${title}</h3>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+        
+        async function startDiagnosisTest() {
+            const button = document.getElementById('testBtn');
+            button.disabled = true;
+            button.innerHTML = '<span>🔄 진단 처리 중...</span>';
+            
+            try {
+                // 1단계: 시작
+                currentStep = 1;
+                updateProgress(currentStep);
+                addLog('🚀 홍길동님 무료진단 신청 시작!', 'success');
+                addLog('📧 이메일: hongik423@naver.com', 'info');
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 2단계: API 호출
+                currentStep = 2;
+                updateProgress(currentStep);
+                addLog('📋 AI 진단 분석 및 구글시트 저장 중...', 'info');
+                
+                const diagnosisData = {
+                    companyName: '홍길동컴퍼니',
+                    industry: 'it',
+                    contactManager: '홍길동',
+                    email: 'hongik423@naver.com',
+                    employeeCount: '11-20명',
+                    growthStage: 'growth',
+                    businessLocation: '서울시',
+                    mainConcerns: '회사 성장에 맞는 AI 기술 도입과 업무 프로세스 개선이 필요합니다. 특히 고객 관리와 마케팅 자동화에 관심이 많습니다.',
+                    expectedBenefits: 'AI 도구를 활용하여 업무 효율성을 50% 이상 향상시키고, 고객 만족도를 높이고 싶습니다.',
+                    privacyConsent: true
+                };
+                
+                const response = await fetch('/api/simplified-diagnosis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(diagnosisData),
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    addLog('✅ AI 진단 완료 및 구글시트 저장 성공!', 'success');
+                    addLog(`📊 진단 점수: ${result.data.diagnosis.totalScore}점/100점`, 'success');
+                    addLog(`🏆 평가 등급: ${result.data.diagnosis.marketPosition}`, 'success');
+                    addLog(`📈 업계 성장률: ${result.data.diagnosis.industryGrowth}`, 'info');
+                } else {
+                    throw new Error('API 호출 실패: ' + result.message);
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 3단계: 이메일 발송
+                currentStep = 3;
+                updateProgress(currentStep);
+                addLog('📧 홍길동님께 진단 결과 확인 메일 발송 중...', 'info');
+                
+                const emailParams = {
+                    to_name: '홍길동',
+                    to_email: 'hongik423@naver.com',
+                    company_name: '홍길동컴퍼니',
+                    diagnosis_date: new Date().toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        weekday: 'long'
+                    }),
+                    service_name: 'AI 무료진단',
+                    consultant_name: '이후경 경영지도사',
+                    consultant_phone: '010-9251-9743',
+                    consultant_email: 'hongik423@gmail.com',
+                    reply_message: `홍길동님, AI 진단이 완료되었습니다! 🎉
+                    
+📊 진단 점수: ${result.data.diagnosis.totalScore}점 (${result.data.diagnosis.marketPosition})
+📈 업계 성장률: ${result.data.diagnosis.industryGrowth}
+🎯 추천 서비스: ${result.data.diagnosis.recommendedServices.map(s => s.name).join(', ')}
+
+💡 주요 강점:
+${result.data.diagnosis.strengths.map((s, i) => `${i+1}. ${s}`).join('\n')}
+
+🔧 개선 영역:
+${result.data.diagnosis.weaknesses.map((w, i) => `${i+1}. ${w}`).join('\n')}
+
+상세한 진단 결과와 맞춤 컨설팅 방안을 2-3일 내에 연락드리겠습니다.
+궁금한 점이 있으시면 언제든 연락 주세요! 📞`
+                };
+                
+                const emailResult = await emailjs.send(
+                    'service_qd9eycz',
+                    'template_diagnosis_conf',
+                    emailParams
+                );
+                
+                addLog('✅ 홍길동님께 확인 메일 발송 완료!', 'success');
+                addLog(`📨 EmailJS 상태: ${emailResult.status} - ${emailResult.text}`, 'success');
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 4단계: 완료
+                currentStep = 4;
+                updateProgress(currentStep);
+                addLog('🎉 홍길동님 무료진단 신청 처리 완료!', 'success');
+                
+                showResult('', '🎉 홍길동님 진단 신청 완료!', 
+                    `✅ AI 진단 분석 완료 (${result.data.diagnosis.totalScore}점)<br>
+                     ✅ 구글시트 저장 완료<br>
+                     ✅ 확인 메일 발송 완료<br>
+                     📧 홍길동님의 이메일로 진단 결과를 발송했습니다!<br><br>
+                     📞 담당자: 이후경 경영지도사 (010-9251-9743)`
+                );
+                
+            } catch (error) {
+                console.error('홍길동 진단 테스트 실패:', error);
+                addLog(`❌ 오류 발생: ${error.message}`, 'error');
+                
+                showResult('error', '❌ 진단 신청 처리 실패', 
+                    `오류: ${error.message}<br>
+                     다시 시도하거나 관리자에게 문의하세요.<br>
+                     📞 문의: 010-9251-9743`
+                );
+                
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '<span>📊 홍길동 무료진단 시작하기</span>';
+            }
+        }
+        
+        // 페이지 로드 시 초기화
+        window.onload = function() {
+            addLog('🎯 홍길동님 무료진단 신청 시스템 준비 완료', 'info');
+            addLog('🔧 EmailJS 초기화 완료', 'success');
+            addLog('📋 진단 데이터 준비 완료', 'info');
+            addLog('🚀 버튼을 클릭하여 진단을 시작하세요!', 'info');
+            
+            showResult('info', '📋 홍길동님 진단 신청 안내', 
+                '위 버튼을 클릭하면 AI 진단 분석, 구글시트 저장, 확인 메일 발송이 자동으로 진행됩니다.<br>처리 시간: 약 10-15초'
+            );
+        };
+    </script>
+</body>
+</html> 

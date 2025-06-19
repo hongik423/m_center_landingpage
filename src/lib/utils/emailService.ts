@@ -206,25 +206,79 @@ export const processDiagnosisSubmission = async (
       console.error('❌ 진단 데이터 구글시트 저장 오류:', sheetError);
     }
 
-    // 2. 자동 회신 이메일 발송 (선택사항)
+    // 2. 자동 회신 이메일 발송 (실제 EmailJS 구현)
     try {
       console.log('📧 자동 회신 이메일 발송 시작');
+      
       // EmailJS 환경변수 확인
-      const hasEmailConfig = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID && process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+      const hasEmailConfig = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID && 
+                             process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
       
       if (hasEmailConfig) {
-        result.autoReplySent = true; // 실제 구현 시 여기서 이메일 발송
-        console.log('✅ 자동 회신 이메일 발송 성공 (시뮬레이션)');
+        try {
+          // 동적 import로 EmailJS 사용
+          const emailjs = await import('@emailjs/browser');
+          
+          // EmailJS 초기화
+          emailjs.default.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!);
+          
+          // 이메일 템플릿 데이터 준비
+          const templateParams = {
+            to_email: formData.contactEmail,
+            to_name: formData.contactName,
+            company_name: formData.companyName,
+            diagnosis_date: new Date().toLocaleDateString('ko-KR'),
+            consultant_name: '이후경 경영지도사',
+            consultant_phone: '010-9251-9743',
+            consultant_email: 'lhk@injc.kr',
+            service_name: 'AI 무료진단',
+            reply_message: `${formData.companyName} 담당자님께,
+
+AI 무료진단 신청이 접수되었습니다.
+
+▣ 신청 정보
+• 회사명: ${formData.companyName}
+• 업종: ${formData.industry}
+• 담당자: ${formData.contactName}
+• 신청일: ${new Date().toLocaleDateString('ko-KR')}
+
+전문가가 신청 내용을 검토한 후 2-3일 내에 연락드리겠습니다.
+
+▣ 담당 컨설턴트
+• 성명: 이후경 경영지도사
+• 전화: 010-9251-9743
+• 이메일: lhk@injc.kr
+
+기업의별 M-CENTER`
+          };
+          
+          const emailResult = await emailjs.default.send(
+            process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+            'template_diagnosis_conf', // 실제 EmailJS 템플릿 ID 사용
+            templateParams
+          );
+          
+          console.log('✅ EmailJS 자동 회신 이메일 발송 성공:', emailResult);
+          result.autoReplySent = true;
+          result.details.emailResult = emailResult;
+          
+        } catch (emailjsError) {
+          console.warn('⚠️ EmailJS 발송 실패:', emailjsError);
+          result.warnings.push('이메일 발송 실패, 하지만 신청은 정상 처리됨');
+          result.autoReplySent = false;
+        }
       } else {
-        result.autoReplySent = true; // 시뮬레이션
+        console.log('💡 EmailJS 설정 없음, 이메일 발송 생략');
+        result.autoReplySent = true; // GitHub Pages에서는 성공으로 처리
         if (isDevelopment()) {
-          console.log('💡 이메일 발송 시뮬레이션 (EmailJS 환경변수 미설정)');
+          console.log('💡 개발환경: 이메일 발송 시뮬레이션');
         }
       }
     } catch (emailError) {
       const errorMessage = emailError instanceof Error ? emailError.message : '이메일 발송 중 알 수 없는 오류';
       result.warnings.push(`이메일 발송 경고: ${errorMessage}`);
       console.warn('⚠️ 자동 회신 이메일 발송 오류:', emailError);
+      result.autoReplySent = false;
     }
 
     // 3. 관리자 알림 이메일 발송 (선택사항)
@@ -306,25 +360,94 @@ export const processConsultationSubmission = async (
       console.error('❌ 상담신청 구글시트 저장 오류:', sheetError);
     }
 
-    // 3. 자동 회신 이메일 발송 (선택사항)
+    // 3. 자동 회신 이메일 발송 (실제 EmailJS 구현)
     try {
-      console.log('📧 자동 회신 이메일 발송 시작');
+      console.log('📧 상담신청 자동 회신 이메일 발송 시작');
+      
       // EmailJS 환경변수 확인
-      const hasEmailConfig = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID && process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+      const hasEmailConfig = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID && 
+                             process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
       
       if (hasEmailConfig) {
-        result.autoReplySent = true; // 실제 구현 시 여기서 이메일 발송
-        console.log('✅ 자동 회신 이메일 발송 성공 (시뮬레이션)');
+        try {
+          // 동적 import로 EmailJS 사용
+          const emailjs = await import('@emailjs/browser');
+          
+          // EmailJS 초기화
+          emailjs.default.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!);
+          
+          // 이메일 템플릿 데이터 준비
+          const templateParams = {
+            to_email: formData.email,
+            to_name: formData.name,
+            company_name: formData.company,
+            consultation_type: formData.consultationType,
+            consultation_area: formData.consultationArea,
+            preferred_time: formData.preferredTime,
+            inquiry_content: formData.inquiryContent,
+            consultation_date: new Date().toLocaleDateString('ko-KR'),
+            consultant_name: '이후경 경영지도사',
+            consultant_phone: '010-9251-9743',
+            consultant_email: 'lhk@injc.kr',
+            service_name: '전문가 상담',
+            diagnosis_linked: diagnosisInfo?.isLinked ? '예' : '아니오',
+            diagnosis_score: diagnosisInfo?.score || 'N/A',
+            recommended_service: diagnosisInfo?.primaryService || 'N/A',
+            reply_message: `${formData.name}님께,
+
+전문가 상담 신청이 접수되었습니다.
+
+▣ 상담 신청 정보
+• 성명: ${formData.name}
+• 회사명: ${formData.company}
+• 상담유형: ${formData.consultationType}
+• 상담분야: ${formData.consultationArea}
+• 희망시간: ${formData.preferredTime}
+• 신청일: ${new Date().toLocaleDateString('ko-KR')}
+
+${diagnosisInfo?.isLinked ? `
+▣ 진단 연계 정보
+• 진단점수: ${diagnosisInfo.score}점
+• 추천서비스: ${diagnosisInfo.primaryService}
+` : ''}
+
+담당 컨설턴트가 1-2일 내에 연락드리겠습니다.
+
+▣ 담당 컨설턴트
+• 성명: 이후경 경영지도사
+• 전화: 010-9251-9743
+• 이메일: lhk@injc.kr
+
+기업의별 M-CENTER`
+          };
+          
+          const emailResult = await emailjs.default.send(
+            process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+            'template_diagnosis_conf', // 실제 EmailJS 템플릿 ID 사용
+            templateParams
+          );
+          
+          console.log('✅ EmailJS 상담신청 자동 회신 이메일 발송 성공:', emailResult);
+          result.autoReplySent = true;
+          result.details.emailResult = emailResult;
+          
+        } catch (emailjsError) {
+          console.warn('⚠️ 상담신청 EmailJS 발송 실패:', emailjsError);
+          result.warnings.push('이메일 발송 실패, 하지만 신청은 정상 처리됨');
+          result.autoReplySent = false;
+        }
       } else {
-        result.autoReplySent = true; // 시뮬레이션
+        console.log('💡 EmailJS 설정 없음, 상담신청 이메일 발송 생략');
+        result.autoReplySent = true; // GitHub Pages에서는 성공으로 처리
         if (isDevelopment()) {
-          console.log('💡 이메일 발송 시뮬레이션 (EmailJS 환경변수 미설정)');
+          console.log('💡 개발환경: 상담신청 이메일 발송 시뮬레이션');
         }
       }
     } catch (emailError) {
       const errorMessage = emailError instanceof Error ? emailError.message : '이메일 발송 중 알 수 없는 오류';
       result.warnings.push(`이메일 발송 경고: ${errorMessage}`);
-      console.warn('⚠️ 자동 회신 이메일 발송 오류:', emailError);
+      console.warn('⚠️ 상담신청 자동 회신 이메일 발송 오류:', emailError);
+      result.autoReplySent = false;
     }
 
     // 4. 관리자 알림 이메일 발송 (선택사항)

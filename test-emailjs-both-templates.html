@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📧 M-CENTER EmailJS 템플릿 통합 테스트</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Malgun Gothic', '맑은 고딕', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .template-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .template-card {
+            border: 3px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .template-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .template-card.active {
+            border-color: #007bff;
+            background: #f8f9ff;
+        }
+        
+        .template-card.diagnosis {
+            border-left: 5px solid #007bff;
+        }
+        
+        .template-card.consultation {
+            border-left: 5px solid #28a745;
+        }
+        
+        .template-card h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .template-card.diagnosis h3 {
+            color: #007bff;
+        }
+        
+        .template-card.consultation h3 {
+            color: #28a745;
+        }
+        
+        .template-features {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .template-features li {
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .template-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .form-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .diagnosis-only,
+        .consultation-only {
+            display: none;
+        }
+        
+        .send-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: block;
+            margin: 0 auto;
+            position: relative;
+            min-width: 200px;
+        }
+        
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .send-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+        
+        .result.loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #bee5eb;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .info-box h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-box p {
+            color: #856404;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .template-selector,
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📧 M-CENTER EmailJS 템플릿 통합 테스트</h1>
+            <p>진단신청 및 상담신청 이메일 템플릿을 테스트해보세요</p>
+        </div>
+        
+        <div class="content">
+            <div class="info-box">
+                <h4>⚠️ 테스트 안내</h4>
+                <p>
+                    실제 이메일이 발송됩니다! 테스트용 이메일 주소를 사용하거나, 
+                    본인의 이메일 주소로 테스트해주세요. 
+                    <strong>hongik1@daum.net</strong>으로 테스트하시면 실제 고객에게 메일이 갑니다.
+                </p>
+            </div>
+            
+            <div class="template-selector">
+                <div class="template-card diagnosis" onclick="selectTemplate('diagnosis')">
+                    <h3>📊 진단신청 확인 템플릿</h3>
+                    <ul class="template-features">
+                        <li>AI 무료진단 신청 확인</li>
+                        <li>파란색 계열 디자인</li>
+                        <li>진단 프로세스 안내</li>
+                        <li>담당 컨설턴트 정보</li>
+                        <li>다음 단계 가이드</li>
+                    </ul>
+                </div>
+                
+                <div class="template-card consultation" onclick="selectTemplate('consultation')">
+                    <h3>🤝 상담신청 확인 템플릿</h3>
+                    <ul class="template-features">
+                        <li>전문가 상담 신청 확인</li>
+                        <li>녹색 계열 디자인</li>
+                        <li>상담 진행 절차</li>
+                        <li>상담 상세 내용</li>
+                        <li>즉시 연락 안내</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <form id="emailForm" class="form-section">
+                <h3>📝 이메일 발송 정보 입력</h3>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="to_name">수신자 이름 *</label>
+                        <input type="text" id="to_name" name="to_name" required placeholder="홍길동">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="to_email">수신자 이메일 *</label>
+                        <input type="email" id="to_email" name="to_email" required placeholder="test@example.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="company_name">회사명 *</label>
+                        <input type="text" id="company_name" name="company_name" required placeholder="테스트회사">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="consultant_name">담당 컨설턴트</label>
+                        <input type="text" id="consultant_name" name="consultant_name" value="이후경 경영지도사">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="consultant_phone">컨설턴트 전화</label>
+                        <input type="text" id="consultant_phone" name="consultant_phone" value="010-9251-9743">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="consultant_email">컨설턴트 이메일</label>
+                        <input type="email" id="consultant_email" name="consultant_email" value="hongik423@gmail.com">
+                    </div>
+                </div>
+                
+                <!-- 진단신청 전용 필드 -->
+                <div class="diagnosis-only">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="service_name">서비스명</label>
+                            <input type="text" id="service_name" name="service_name" value="AI 무료진단">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="diagnosis_date">진단 신청일</label>
+                            <input type="text" id="diagnosis_date" name="diagnosis_date">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 상담신청 전용 필드 -->
+                <div class="consultation-only">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="consultation_type">상담 유형</label>
+                            <select id="consultation_type" name="consultation_type">
+                                <option value="전화 상담">전화 상담</option>
+                                <option value="온라인 화상 상담">온라인 화상 상담</option>
+                                <option value="방문 상담">방문 상담</option>
+                                <option value="이메일 상담">이메일 상담</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="consultation_area">상담 분야</label>
+                            <select id="consultation_area" name="consultation_area">
+                                <option value="BM ZEN 사업분석">BM ZEN 사업분석</option>
+                                <option value="AI실무활용 생산성향상">AI실무활용 생산성향상</option>
+                                <option value="기술창업/기술사업화">기술창업/기술사업화</option>
+                                <option value="인증지원">인증지원</option>
+                                <option value="종합 컨설팅">종합 컨설팅</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="preferred_time">희망 시간</label>
+                            <select id="preferred_time" name="preferred_time">
+                                <option value="오전 (09:00-12:00)">오전 (09:00-12:00)</option>
+                                <option value="오후 (13:00-17:00)">오후 (13:00-17:00)</option>
+                                <option value="저녁 (18:00-20:00)">저녁 (18:00-20:00)</option>
+                                <option value="언제든 괜찮습니다">언제든 괜찮습니다</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="consultation_date">상담 신청일</label>
+                            <input type="text" id="consultation_date" name="consultation_date">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="inquiry_content">문의 내용</label>
+                        <textarea id="inquiry_content" name="inquiry_content" placeholder="상담받고 싶은 내용을 자세히 적어주세요..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="reply_message">추가 메시지</label>
+                    <textarea id="reply_message" name="reply_message" placeholder="고객에게 전달할 추가 메시지가 있다면 입력해주세요..."></textarea>
+                </div>
+                
+                <button type="submit" class="send-button" id="sendButton">
+                    📧 이메일 발송 테스트
+                </button>
+            </form>
+            
+            <div id="result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedTemplate = null;
+        
+        // EmailJS 초기화
+        emailjs.init('268NPLwN54rPvEias');
+        
+        // 현재 날짜를 기본값으로 설정
+        const today = new Date().toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: 'long',  
+            day: 'numeric'
+        });
+        
+        document.getElementById('diagnosis_date').value = today;
+        document.getElementById('consultation_date').value = today;
+        
+        function selectTemplate(type) {
+            selectedTemplate = type;
+            
+            // 모든 카드에서 active 클래스 제거
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // 선택된 카드에 active 클래스 추가
+            document.querySelector(`.template-card.${type}`).classList.add('active');
+            
+            // 템플릿별 필드 표시/숨김
+            const diagnosisFields = document.querySelectorAll('.diagnosis-only');
+            const consultationFields = document.querySelectorAll('.consultation-only');
+            
+            if (type === 'diagnosis') {
+                diagnosisFields.forEach(field => field.style.display = 'block');
+                consultationFields.forEach(field => field.style.display = 'none');
+            } else if (type === 'consultation') {
+                diagnosisFields.forEach(field => field.style.display = 'none');
+                consultationFields.forEach(field => field.style.display = 'block');
+            }
+            
+            // 버튼 텍스트 업데이트
+            const button = document.getElementById('sendButton');
+            if (type === 'diagnosis') {
+                button.innerHTML = '📊 진단신청 확인 이메일 발송';
+            } else if (type === 'consultation') {
+                button.innerHTML = '🤝 상담신청 확인 이메일 발송';
+            }
+        }
+        
+        function showResult(type, message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = message;
+            resultDiv.style.display = 'block';
+            
+            // 결과 영역으로 스크롤
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        document.getElementById('emailForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!selectedTemplate) {
+                showResult('error', '❌ 먼저 이메일 템플릿을 선택해주세요!');
+                return;
+            }
+            
+            const button = document.getElementById('sendButton');
+            const originalText = button.innerHTML;
+            
+            // 로딩 상태
+            button.disabled = true;
+            button.innerHTML = '<div class="loading-spinner"></div>이메일 발송 중...';
+            showResult('loading', '<div class="loading-spinner"></div>이메일 발송 중입니다. 잠시만 기다려주세요...');
+            
+            try {
+                // 폼 데이터 수집
+                const formData = new FormData(this);
+                const templateParams = {};
+                
+                for (let [key, value] of formData.entries()) {
+                    templateParams[key] = value;
+                }
+                
+                // 템플릿 ID 결정
+                const templateId = selectedTemplate === 'diagnosis' 
+                    ? 'template_diagnosis_conf' 
+                    : 'template_consultation_conf';
+                
+                console.log('발송할 데이터:', templateParams);
+                console.log('사용할 템플릿:', templateId);
+                
+                // EmailJS로 이메일 발송
+                const result = await emailjs.send(
+                    'service_qd9eycz',
+                    templateId,
+                    templateParams
+                );
+                
+                console.log('발송 성공:', result);
+                
+                const templateName = selectedTemplate === 'diagnosis' ? '진단신청 확인' : '상담신청 확인'; 
+                showResult('success', 
+                    `✅ ${templateName} 이메일이 성공적으로 발송되었습니다!<br>
+                     <strong>${templateParams.to_email}</strong>으로 이메일을 확인해보세요.<br>
+                     <small>템플릿 ID: ${templateId}</small>`
+                );
+                
+            } catch (error) {
+                console.error('발송 실패:', error);
+                showResult('error', 
+                    `❌ 이메일 발송에 실패했습니다.<br>
+                     오류: ${error.text || error.message || '알 수 없는 오류'}<br>
+                     <small>EmailJS 설정을 확인하고 다시 시도해주세요.</small>`
+                );
+            } finally {
+                // 버튼 상태 복원
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+        });
+        
+        // 첫 번째 템플릿을 기본 선택
+        selectTemplate('diagnosis');
+    </script>
+</body>
+</html> 

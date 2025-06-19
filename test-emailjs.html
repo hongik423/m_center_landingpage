@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmailJS 상담신청 답장 메일 테스트</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 20px; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .loading { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+    </style>
+</head>
+<body>
+    <h1>📧 EmailJS 상담신청 답장 메일 테스트</h1>
+    
+    <div class="form-group">
+        <label for="recipientEmail">수신자 이메일:</label>
+        <input type="email" id="recipientEmail" value="hongik1@daum.net" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="recipientName">수신자 이름:</label>
+        <input type="text" id="recipientName" value="홍길동" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="companyName">회사명:</label>
+        <input type="text" id="companyName" value="테스트회사" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="consultationType">상담 유형:</label>
+        <input type="text" id="consultationType" value="전화 상담" required>
+    </div>
+    
+    <button onclick="sendTestEmail()">📧 상담신청 답장 메일 발송</button>
+    
+    <div id="result"></div>
+
+    <script>
+        // EmailJS 초기화
+        (function() {
+            emailjs.init('268NPLwN54rPvEias'); // NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+        })();
+
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = message;
+            resultDiv.className = `result ${type}`;
+        }
+
+        async function sendTestEmail() {
+            const recipientEmail = document.getElementById('recipientEmail').value;
+            const recipientName = document.getElementById('recipientName').value;
+            const companyName = document.getElementById('companyName').value;
+            const consultationType = document.getElementById('consultationType').value;
+
+            if (!recipientEmail || !recipientName) {
+                showResult('❌ 수신자 이메일과 이름을 입력해주세요.', 'error');
+                return;
+            }
+
+            showResult('📧 이메일 발송 중...', 'loading');
+
+            try {
+                // EmailJS 템플릿 파라미터 준비
+                const templateParams = {
+                    to_email: recipientEmail,
+                    to_name: recipientName,
+                    company_name: companyName,
+                    consultation_type: consultationType,
+                    consultation_date: new Date().toLocaleDateString('ko-KR'),
+                    consultant_name: '이후경 경영지도사',
+                    consultant_phone: '010-9251-9743',
+                    consultant_email: 'hongik423@gmail.com',
+                    service_name: '전문가 상담',
+                    reply_message: `${recipientName}님께,
+
+기업의별 M-CENTER에서 알려드립니다.
+
+전문가 상담 신청이 성공적으로 접수되었습니다.
+
+▣ 상담 신청 정보
+• 성명: ${recipientName}
+• 회사명: ${companyName}
+• 상담유형: ${consultationType}
+• 신청일: ${new Date().toLocaleDateString('ko-KR')}
+
+담당 컨설턴트가 1-2일 내에 연락드리겠습니다.
+
+▣ 담당 컨설턴트
+• 성명: 이후경 경영지도사
+• 전화: 010-9251-9743
+• 이메일: hongik423@gmail.com
+
+감사합니다.
+
+기업의별 M-CENTER`
+                };
+
+                console.log('📧 EmailJS 발송 시작:', templateParams);
+
+                // 실제 EmailJS 템플릿 사용
+                const result = await emailjs.send(
+                    'service_qd9eycz', // NEXT_PUBLIC_EMAILJS_SERVICE_ID
+                    'template_diagnosis_conf', // 실제 템플릿 ID
+                    templateParams
+                );
+
+                console.log('✅ EmailJS 발송 성공:', result);
+                showResult(`✅ 이메일이 성공적으로 발송되었습니다!<br>
+                          📧 수신자: ${recipientEmail}<br>
+                          📊 상태: ${result.status}<br>
+                          🆔 응답: ${result.text}`, 'success');
+
+            } catch (error) {
+                console.error('❌ EmailJS 발송 실패:', error);
+                
+                let errorMessage = '❌ 이메일 발송에 실패했습니다.<br>';
+                
+                if (error.status === 400) {
+                    errorMessage += '📝 템플릿 설정 또는 파라미터 오류';
+                } else if (error.status === 403) {
+                    errorMessage += '🔑 API 키 또는 권한 오류';
+                } else if (error.status === 404) {
+                    errorMessage += '🔍 서비스 ID 또는 템플릿 ID 오류';
+                } else {
+                    errorMessage += `🔧 오류 상세: ${error.text || error.message}`;
+                }
+                
+                showResult(errorMessage, 'error');
+            }
+        }
+
+        // 대체 이메일 발송 방법 (Gmail을 통한 직접 발송)
+        async function sendDirectEmail() {
+            showResult('📧 대체 방법으로 이메일 발송 시도 중...', 'loading');
+            
+            try {
+                // mailto 링크를 통한 이메일 발송
+                const recipientEmail = document.getElementById('recipientEmail').value;
+                const recipientName = document.getElementById('recipientName').value;
+                const companyName = document.getElementById('companyName').value;
+                const consultationType = document.getElementById('consultationType').value;
+                
+                const subject = `[기업의별 M-CENTER] 상담신청 접수 확인 - ${companyName}`;
+                const body = `${recipientName}님께,
+
+기업의별 M-CENTER에서 알려드립니다.
+
+전문가 상담 신청이 성공적으로 접수되었습니다.
+
+▣ 상담 신청 정보
+• 성명: ${recipientName}
+• 회사명: ${companyName}
+• 상담유형: ${consultationType}
+• 신청일: ${new Date().toLocaleDateString('ko-KR')}
+
+담당 컨설턴트가 1-2일 내에 연락드리겠습니다.
+
+▣ 담당 컨설턴트
+• 성명: 이후경 경영지도사
+• 전화: 010-9251-9743
+• 이메일: hongik423@gmail.com
+
+감사합니다.
+
+기업의별 M-CENTER`;
+
+                const mailtoLink = `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.open(mailtoLink);
+                
+                showResult('✅ 이메일 클라이언트가 열렸습니다. 발송 버튼을 클릭해주세요.', 'success');
+                
+            } catch (error) {
+                showResult('❌ 대체 이메일 발송도 실패했습니다.', 'error');
+            }
+        }
+    </script>
+
+    <br><br>
+    <button onclick="sendDirectEmail()" style="background: #28a745;">📮 대체 방법: 직접 이메일 발송</button>
+    
+    <hr style="margin: 30px 0;">
+    
+    <h3>📝 EmailJS 설정 정보</h3>
+    <ul>
+        <li><strong>서비스 ID:</strong> service_qd9eycz</li>
+        <li><strong>퍼블릭 키:</strong> 268NPLwN54rPvEias</li>
+        <li><strong>템플릿 ID:</strong> template_consultation (임시)</li>
+        <li><strong>테스트 수신자:</strong> hongik1@daum.net</li>
+    </ul>
+    
+    <h3>🔧 문제 해결</h3>
+    <p>이메일 발송이 실패하는 경우:</p>
+    <ol>
+        <li>EmailJS 대시보드에서 템플릿 생성 필요</li>
+        <li>서비스 설정 확인 필요</li>
+        <li>대체 방법: 직접 이메일 발송 버튼 사용</li>
+    </ol>
+</body>
+</html> 

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 지정 이메일 자동 테스트</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Malgun Gothic', '맑은 고딕', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .email-targets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .email-card {
+            background: #f8f9ff;
+            border: 2px solid #e3f2fd;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: left;
+        }
+        
+        .email-card.diagnosis {
+            border-left: 5px solid #007bff;
+        }
+        
+        .email-card.consultation {
+            border-left: 5px solid #28a745;
+        }
+        
+        .email-card h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .email-card.diagnosis h3 {
+            color: #007bff;
+        }
+        
+        .email-card.consultation h3 {
+            color: #28a745;
+        }
+        
+        .test-info {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .test-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 60px;
+        }
+        
+        .test-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .test-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .test-button.diagnosis {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        }
+        
+        .test-button.consultation {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+        }
+        
+        .status {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            min-height: 200px;
+        }
+        
+        .log-container {
+            background: #212529;
+            color: #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            text-align: left;
+        }
+        
+        .log-line {
+            margin: 5px 0;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        .result-box {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #155724;
+        }
+        
+        .result-box.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .result-box.info {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+        
+        .progress-info {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #856404;
+        }
+        
+        @media (max-width: 768px) {
+            .email-targets,
+            .test-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 지정 이메일 자동 테스트</h1>
+            <p>구글시트 저장 + EmailJS 확인 메일 발송 테스트</p>
+        </div>
+        
+        <div class="email-targets">
+            <div class="email-card diagnosis">
+                <h3>📊 진단신청 테스트</h3>
+                <div class="test-info">
+                    <p><strong>수신자:</strong> hongik423@naver.com</p>
+                    <p><strong>이름:</strong> 김진단</p>
+                    <p><strong>회사:</strong> 진단테스트회사</p>
+                    <p><strong>템플릿:</strong> template_diagnosis_conf</p>
+                </div>
+            </div>
+            
+            <div class="email-card consultation">
+                <h3>🤝 상담신청 테스트</h3>
+                <div class="test-info">
+                    <p><strong>수신자:</strong> hongik1@daum.net</p>
+                    <p><strong>이름:</strong> 김상담</p>
+                    <p><strong>회사:</strong> 상담테스트회사</p>
+                    <p><strong>템플릿:</strong> template_consultation_conf</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-buttons">
+            <button class="test-button diagnosis" id="testDiagnosis" onclick="testDiagnosis()">
+                📊 진단신청 테스트<br>
+                <small>(hongik423@naver.com)</small>
+            </button>
+            
+            <button class="test-button consultation" id="testConsultation" onclick="testConsultation()">
+                🤝 상담신청 테스트<br>
+                <small>(hongik1@daum.net)</small>
+            </button>
+        </div>
+        
+        <div class="status">
+            <div class="log-container" id="logContainer"></div>
+            <div id="resultContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // EmailJS 초기화
+        emailjs.init('268NPLwN54rPvEias');
+        addLog('🔧 EmailJS 라이브러리 초기화 완료');
+        addLog('🎯 테스트 대상: 진단(hongik423@naver.com), 상담(hongik1@daum.net)');
+        
+        function addLog(message) {
+            const logContainer = document.getElementById('logContainer');
+            const logLine = document.createElement('div');
+            logLine.className = 'log-line';
+            logLine.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(logLine);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function showResult(type, title, message) {
+            const resultContainer = document.getElementById('resultContainer');
+            resultContainer.innerHTML = `
+                <div class="result-box ${type}">
+                    <h3>${title}</h3>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+        
+        async function testDiagnosis() {
+            const button = document.getElementById('testDiagnosis');
+            button.disabled = true;
+            button.innerHTML = '📊 진단 테스트 중...';
+            
+            try {
+                addLog('🚀 진단신청 테스트 시작');
+                addLog('📧 수신자: hongik423@naver.com');
+                
+                // 1단계: API 호출로 구글시트 저장
+                addLog('📋 1단계: API 호출 및 구글시트 저장...');
+                
+                const diagnosisData = {
+                    companyName: '진단테스트회사',
+                    industry: 'it',
+                    contactManager: '김진단',
+                    email: 'hongik423@naver.com',
+                    employeeCount: '6-10명',
+                    growthStage: 'growth',
+                    businessLocation: '서울시',
+                    mainConcerns: 'AI 도입과 업무 효율성 개선이 주요 고민입니다. 현재 수작업이 많아 생산성이 떨어지고 있습니다.',
+                    expectedBenefits: 'AI 도구 활용으로 업무 효율 40% 이상 향상을 기대합니다.',
+                    privacyConsent: true
+                };
+                
+                const response = await fetch('/api/simplified-diagnosis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(diagnosisData),
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    addLog('✅ API 호출 성공: 구글시트 저장 완료');
+                    addLog(`📊 진단 점수: ${result.data.diagnosis.totalScore}점`);
+                } else {
+                    throw new Error('API 호출 실패');
+                }
+                
+                // 2단계: EmailJS로 직접 이메일 발송
+                addLog('📧 2단계: EmailJS 확인 메일 발송...');
+                
+                const emailParams = {
+                    to_name: '김진단',
+                    to_email: 'hongik423@naver.com',
+                    company_name: '진단테스트회사',
+                    diagnosis_date: new Date().toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    }),
+                    service_name: 'AI 무료진단',
+                    consultant_name: '이후경 경영지도사',
+                    consultant_phone: '010-9251-9743',
+                    consultant_email: 'hongik423@gmail.com',
+                    reply_message: `AI 진단이 완료되었습니다!
+                    
+📊 진단 점수: ${result.data.diagnosis.totalScore}점 (${result.data.diagnosis.scoreDescription})
+🎯 추천 서비스: ${result.data.diagnosis.recommendedServices.map(s => s.name).join(', ')}
+
+상세한 진단 결과를 2-3일 내에 연락드리겠습니다. 추가 문의사항이 있으시면 언제든 연락 주세요.`
+                };
+                
+                addLog('📤 EmailJS 발송 중...');
+                const emailResult = await emailjs.send(
+                    'service_qd9eycz',
+                    'template_diagnosis_conf',
+                    emailParams
+                );
+                
+                addLog('✅ 진단신청 확인 메일 발송 성공!');
+                addLog(`📨 EmailJS 응답: ${emailResult.status} - ${emailResult.text}`);
+                
+                showResult('', '🎉 진단신청 테스트 완료!', 
+                    `✅ 구글시트 저장 성공<br>
+                     ✅ 확인 메일 발송 성공<br>
+                     📧 수신자: hongik423@naver.com<br>
+                     📊 진단 점수: ${result.data.diagnosis.totalScore}점`
+                );
+                
+            } catch (error) {
+                console.error('진단 테스트 실패:', error);
+                addLog(`❌ 오류 발생: ${error.message}`);
+                
+                showResult('error', '❌ 진단신청 테스트 실패', 
+                    `오류: ${error.message}<br>자세한 내용은 콘솔을 확인하세요.`
+                );
+                
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '📊 진단신청 테스트<br><small>(hongik423@naver.com)</small>';
+            }
+        }
+        
+        async function testConsultation() {
+            const button = document.getElementById('testConsultation');
+            button.disabled = true;
+            button.innerHTML = '🤝 상담 테스트 중...';
+            
+            try {
+                addLog('🚀 상담신청 테스트 시작');
+                addLog('📧 수신자: hongik1@daum.net');
+                
+                // 1단계: API 호출로 구글시트 저장
+                addLog('📋 1단계: API 호출 및 구글시트 저장...');
+                
+                const consultationData = {
+                    consultationType: 'phone',
+                    name: '김상담',
+                    phone: '010-1234-5678',
+                    email: 'hongik1@daum.net',
+                    company: '상담테스트회사',
+                    position: '대표이사',
+                    consultationArea: 'business-analysis',
+                    inquiryContent: 'BM ZEN 사업분석에 대해 상세히 알고 싶습니다. 현재 매출 정체기를 겪고 있어서 비즈니스 모델 개선이 필요한 상황입니다.',
+                    preferredTime: 'afternoon',
+                    privacyConsent: true,
+                    submitDate: new Date().toLocaleString('ko-KR')
+                };
+                
+                const response = await fetch('/api/consultation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(consultationData),
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    addLog('✅ API 호출 성공: 구글시트 저장 완료');
+                    addLog(`📝 상담신청 접수: ${result.data.sheetResult.row}번째 행에 저장`);
+                } else {
+                    throw new Error('API 호출 실패');
+                }
+                
+                // 2단계: EmailJS로 직접 이메일 발송
+                addLog('📧 2단계: EmailJS 확인 메일 발송...');
+                
+                const emailParams = {
+                    to_name: '김상담',
+                    to_email: 'hongik1@daum.net',
+                    company_name: '상담테스트회사',
+                    consultation_type: '전화 상담',
+                    consultation_area: 'BM ZEN 사업분석',
+                    preferred_time: '오후 (13:00-17:00)',
+                    inquiry_content: consultationData.inquiryContent,
+                    consultation_date: new Date().toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    }),
+                    consultant_name: '이후경 경영지도사',
+                    consultant_phone: '010-9251-9743',
+                    consultant_email: 'hongik423@gmail.com',
+                    reply_message: '담당 컨설턴트가 24시간 내에 연락드려 상담 일정을 조율하겠습니다. 빠른 상담을 원하시면 직접 연락주세요.'
+                };
+                
+                addLog('📤 EmailJS 발송 중...');
+                const emailResult = await emailjs.send(
+                    'service_qd9eycz',
+                    'template_consultation_conf',
+                    emailParams
+                );
+                
+                addLog('✅ 상담신청 확인 메일 발송 성공!');
+                addLog(`📨 EmailJS 응답: ${emailResult.status} - ${emailResult.text}`);
+                
+                showResult('', '🎉 상담신청 테스트 완료!', 
+                    `✅ 구글시트 저장 성공<br>
+                     ✅ 확인 메일 발송 성공<br>
+                     📧 수신자: hongik1@daum.net<br>
+                     📝 상담 분야: BM ZEN 사업분석`
+                );
+                
+            } catch (error) {
+                console.error('상담 테스트 실패:', error);
+                addLog(`❌ 오류 발생: ${error.message}`);
+                
+                showResult('error', '❌ 상담신청 테스트 실패', 
+                    `오류: ${error.message}<br>자세한 내용은 콘솔을 확인하세요.`
+                );
+                
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '🤝 상담신청 테스트<br><small>(hongik1@daum.net)</small>';
+            }
+        }
+        
+        // 페이지 로드 시 안내
+        window.onload = function() {
+            addLog('🎯 지정 이메일 자동 테스트 시스템 준비 완료');
+            addLog('🔥 버튼을 클릭하면 구글시트 저장 + 이메일 발송이 자동으로 진행됩니다');
+            
+            showResult('info', '📧 테스트 안내', 
+                '위 버튼을 클릭하면 지정된 이메일 주소로 실제 확인 메일이 발송됩니다!<br>각 테스트는 구글시트 저장과 EmailJS 발송을 순차적으로 진행합니다.'
+            );
+        };
+    </script>
+</body>
+</html> 

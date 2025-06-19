@@ -25,6 +25,7 @@ import {
   MapPin
 } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
+import { safeGet, validateApiResponse } from '@/lib/utils/safeDataAccess';
 
 interface DiagnosisData {
   companyName: string;
@@ -92,47 +93,10 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
   const [showFullReport, setShowFullReport] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
-  // 안전한 데이터 검증
-  if (!data) {
-    return (
-      <div className="max-w-4xl mx-auto">
-        <Card className="border-red-200">
-          <CardContent className="p-8 text-center">
-            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-red-800 mb-2">데이터를 불러올 수 없습니다</h3>
-            <p className="text-red-600 mb-4">진단 데이터가 전달되지 않았습니다.</p>
-            <Button onClick={() => window.location.reload()}>
-              다시 시도하기
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (!data.success || !data.data || !data.data.diagnosis) {
-    return (
-      <div className="max-w-4xl mx-auto">
-        <Card className="border-red-200">
-          <CardContent className="p-8 text-center">
-            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-red-800 mb-2">진단 처리 중 오류가 발생했습니다</h3>
-            <p className="text-red-600 mb-4">{data.message || '알 수 없는 오류가 발생했습니다.'}</p>
-            <Button onClick={() => window.location.reload()}>
-              다시 시도하기
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  const diagnosis = data.data.diagnosis;
-  const primaryService = diagnosis.recommendedServices?.[0];
-
+  // 🔧 **React Hook을 최상단으로 이동하여 조건부 호출 방지**
   const handlePrint = useReactToPrint({
     contentRef: printRef,
-    documentTitle: `${diagnosis.companyName || '회사명'}_AI진단보고서_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '')}`,
+    documentTitle: `${data?.data?.diagnosis?.companyName || '회사명'}_AI진단보고서_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '')}`,
     pageStyle: `
       @page {
         size: A4;
@@ -150,6 +114,147 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
       }
     `
   });
+
+  // 🔧 **강화된 데이터 검증 - GitHub Pages 호환성 개선**
+  console.log('📊 SimplifiedDiagnosisResults 데이터 검증:', { 
+    hasData: !!data, 
+    dataType: typeof data,
+    dataKeys: data ? Object.keys(data) : null,
+    timestamp: new Date().toISOString()
+  });
+
+  // 1단계: 데이터 자체가 없는 경우
+  if (!data) {
+    console.error('❌ 진단 데이터가 전달되지 않았습니다');
+    return (
+      <div className="max-w-4xl mx-auto">
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-red-800 mb-2">🚨 데이터 로딩 오류</h3>
+            <p className="text-red-600 mb-4">
+              진단 데이터가 전달되지 않았습니다.<br/>
+              GitHub Pages 환경에서 발생할 수 있는 일시적 오류입니다.
+            </p>
+            <div className="space-y-3">
+              <Button onClick={() => window.location.reload()} className="mr-2">
+                페이지 새로고침
+              </Button>
+              <Button variant="outline" onClick={() => window.location.href = '/services/diagnosis'}>
+                진단 페이지로 돌아가기
+              </Button>
+            </div>
+            <p className="text-xs text-gray-500 mt-4">
+              문제가 지속되면 010-9251-9743으로 연락주세요.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // 2단계: 데이터 구조 검증 및 정규화
+  let normalizedData: SimplifiedDiagnosisResultsProps['data'];
+  try {
+    // 안전한 API 응답 검증
+    const validation = validateApiResponse(data);
+    
+    if (!validation.isValid) {
+      throw new Error(validation.error || '유효하지 않은 응답 데이터');
+    }
+
+    // 안전한 데이터 접근으로 정규화
+    const hasDirectDiagnosis = safeGet(data, 'diagnosis', null);
+    const hasNestedDiagnosis = safeGet(data, 'data.diagnosis', null);
+    const hasSuccessStructure = safeGet(data, 'success', null) !== null && safeGet(data, 'data', null);
+
+    if (hasSuccessStructure && hasNestedDiagnosis) {
+      // 정상적인 구조: { success, data: { diagnosis } }
+      normalizedData = data;
+    } else if (hasDirectDiagnosis) {
+      // 직접 전달된 경우: { diagnosis, summaryReport, ... }
+      normalizedData = {
+        success: true,
+        message: '진단 완료',
+        data: data as any
+      };
+    } else if (hasNestedDiagnosis) {
+      // 중첩된 구조: { data: { diagnosis } }
+      normalizedData = {
+        success: true,
+        message: '진단 완료',
+        data: safeGet(data, 'data', data as any)
+      };
+    } else {
+      throw new Error('진단 데이터를 찾을 수 없습니다');
+    }
+
+    console.log('✅ 안전한 데이터 정규화 성공:', { 
+      hasSuccess: safeGet(normalizedData, 'success', false),
+      hasData: safeGet(normalizedData, 'data', null) !== null,
+      hasDiagnosis: safeGet(normalizedData, 'data.diagnosis', null) !== null,
+      diagnosisKeys: safeGet(normalizedData, 'data.diagnosis', null) ? Object.keys(safeGet(normalizedData, 'data.diagnosis', {})) : null
+    });
+
+  } catch (error) {
+    console.error('❌ 데이터 정규화 실패:', error, { originalData: data });
+    return (
+      <div className="max-w-4xl mx-auto">
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-red-800 mb-2">🔧 데이터 구조 오류</h3>
+            <p className="text-red-600 mb-4">
+              진단 데이터의 구조가 예상과 다릅니다.<br/>
+              GitHub Pages 배포 환경에서 발생할 수 있는 호환성 문제입니다.
+            </p>
+            <div className="space-y-3">
+              <Button onClick={() => window.location.reload()} className="mr-2">
+                페이지 새로고침
+              </Button>
+              <Button variant="outline" onClick={() => window.location.href = '/services/diagnosis'}>
+                새로운 진단 시작
+              </Button>
+            </div>
+            <details className="mt-4 text-left bg-gray-100 p-3 rounded text-xs">
+              <summary className="cursor-pointer font-medium">기술 정보 (개발자용)</summary>
+              <pre className="mt-2 whitespace-pre-wrap">{JSON.stringify(data, null, 2)}</pre>
+            </details>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // 3단계: 진단 데이터 유효성 검증
+  if (!normalizedData.success || !normalizedData.data || !normalizedData.data.diagnosis) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-orange-800 mb-2">⚠️ 진단 처리 중 오류 발생</h3>
+            <p className="text-orange-600 mb-4">
+              {normalizedData.message || '진단 처리 과정에서 오류가 발생했습니다.'}
+            </p>
+            <div className="space-y-3">
+              <Button onClick={() => window.location.href = '/services/diagnosis'}>
+                새로운 진단 시작하기
+              </Button>
+              <Button variant="outline" onClick={() => window.location.href = '/consultation'}>
+                전문가 상담 신청하기
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const diagnosis = normalizedData.data.diagnosis;
+  const primaryService = diagnosis.recommendedServices?.[0];
+
+
 
   const handleDownload = async () => {
     try {
@@ -322,7 +427,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {(diagnosis.recommendedServices || []).map((service, index: number) => (
+            {(diagnosis.recommendedServices || []).map((service: any, index: number) => (
               <div 
                 key={index} 
                 className={`p-4 rounded-lg border-2 ${
@@ -381,7 +486,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {(diagnosis.actionPlan || []).map((plan, index: number) => (
+              {(diagnosis.actionPlan || []).map((plan: any, index: number) => (
                 <div key={index} className="flex items-start gap-3">
                   <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="text-xs font-bold text-blue-600">{index + 1}</span>

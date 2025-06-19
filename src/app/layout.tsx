@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Providers from './providers';
 import FloatingChatbot from '@/components/layout/floating-chatbot';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: '기업의별 경영지도센터 | Business Model Zen 프레임워크 기반 기업 성장 솔루션',
@@ -61,6 +62,12 @@ export default function RootLayout({
           {children}
           <FloatingChatbot />
         </Providers>
+        
+        {/* 📧 EmailJS 스크립트 */}
+        <Script
+          src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

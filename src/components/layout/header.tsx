@@ -83,7 +83,7 @@ export default function Header() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <Image
-                src="/logo-small.svg"
+                src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/logo-small.svg`}
                 alt="기업의별 M-CENTER 로고"
                 width={120}
                 height={40}

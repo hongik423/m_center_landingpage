@@ -53,6 +53,42 @@ export default function ConsultationPage() {
     return navigator.onLine;
   };
 
+  // 📧 **EmailJS용 도우미 함수들**
+  const getConsultationTypeText = (type: string) => {
+    const typeMap: Record<string, string> = {
+      'phone': '전화 상담',
+      'online': '온라인 화상 상담',
+      'visit': '방문 상담',
+      'email': '이메일 상담'
+    };
+    return typeMap[type] || type;
+  };
+
+  const getConsultationAreaText = (area: string) => {
+    const areaMap: Record<string, string> = {
+      'business-analysis': 'BM ZEN 사업분석',
+      'ai-productivity': 'AI실무활용 생산성향상',
+      'factory-auction': '경매활용 공장구매',
+      'tech-startup': '기술사업화/기술창업',
+      'certification': '인증지원',
+      'website': '웹사이트 구축',
+      'comprehensive': '종합 컨설팅',
+      'diagnosis': '진단 결과 상담',
+      'other': '기타'
+    };
+    return areaMap[area] || area;
+  };
+
+  const getPreferredTimeText = (time: string) => {
+    const timeMap: Record<string, string> = {
+      'morning': '오전 (09:00-12:00)',
+      'afternoon': '오후 (13:00-17:00)',
+      'evening': '저녁 (18:00-20:00)',
+      'flexible': '시간 조정 가능'
+    };
+    return timeMap[time] || time;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -82,16 +118,80 @@ export default function ConsultationPage() {
         submitDate: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
       };
 
-      // 클라이언트 사이드 상담신청 처리 (시뮬레이션)
-      await new Promise(resolve => setTimeout(resolve, 1500)); // 처리 시간 시뮬레이션
+      // 실제 API를 통한 상담신청 처리
+      const response = await fetch('/api/consultation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(consultationData),
+      });
+
+      const result = await response.json();
       
-      // 상담신청 성공 시뮬레이션
-      const result = {
-        success: true,
-        message: '상담 신청이 접수되었습니다.',
-        consultationId: `CONS_${Date.now()}`,
-        timestamp: new Date().toISOString()
-      };
+      // 📧 **API 성공 시 즉시 EmailJS로 확인 메일 발송**
+      if (result.success) {
+        try {
+          console.log('📧 상담신청 확인 메일 발송 시작');
+          
+          // 브라우저 환경에서만 EmailJS 실행
+          if (typeof window !== 'undefined' && window.emailjs) {
+            // EmailJS 초기화
+            window.emailjs.init('268NPLwN54rPvEias');
+            
+            // 상담신청 확인 메일 템플릿 데이터 준비
+            const emailParams = {
+              to_name: consultationData.name,
+              to_email: consultationData.email,
+              company_name: consultationData.company,
+              consultation_type: getConsultationTypeText(consultationData.consultationType),
+              consultation_area: getConsultationAreaText(consultationData.consultationArea),
+              preferred_time: getPreferredTimeText(consultationData.preferredTime),
+              inquiry_content: consultationData.inquiryContent,
+              consultation_date: new Date().toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              }),
+              consultant_name: '이후경 경영지도사',
+              consultant_phone: '010-9251-9743',
+              consultant_email: 'hongik423@gmail.com',
+              reply_message: '담당 컨설턴트가 24시간 내에 연락드려 상담 일정을 조율하겠습니다. 빠른 상담을 원하시면 직접 연락주세요.'
+            };
+            
+            console.log('📧 상담신청 확인 메일 발송 데이터:', emailParams);
+            
+            const emailResult = await window.emailjs.send(
+              'service_qd9eycz',
+              'template_consultation_conf',
+              emailParams
+            );
+            
+            console.log('✅ 상담신청 확인 메일 발송 성공:', emailResult);
+            
+            // API 결과에 이메일 발송 정보 추가
+            result.emailSent = true;
+            result.emailInfo = {
+              recipient: consultationData.email,
+              status: emailResult.status,
+              text: emailResult.text,
+              timestamp: new Date().toISOString()
+            };
+            
+          } else {
+            console.warn('⚠️ EmailJS 라이브러리를 찾을 수 없습니다.');
+            result.emailSent = false;
+            result.emailError = 'EmailJS 라이브러리 미사용 가능';
+          }
+          
+        } catch (emailError) {
+          console.error('❌ 상담신청 확인 메일 발송 실패:', emailError);
+          
+          // 이메일 발송 실패해도 상담신청은 유지
+          result.emailSent = false;
+          result.emailError = emailError instanceof Error ? emailError.message : '이메일 발송 오류';
+        }
+      }
       
       const isSuccessful = result.success;
       

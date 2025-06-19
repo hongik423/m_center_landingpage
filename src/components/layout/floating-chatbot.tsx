@@ -15,6 +15,13 @@ import {
   Sparkles,
   GripVertical
 } from 'lucide-react';
+import { 
+  safeGet, 
+  validateApiResponse, 
+  checkApiCompatibility,
+  collectErrorInfo,
+  getBrowserInfo 
+} from '@/lib/utils/safeDataAccess';
 
 interface Message {
   id: string;
@@ -290,7 +297,7 @@ export default function FloatingChatbot() {
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
     };
-      }, [isDragging, dragStart, isOpen, isMinimized, lastLogTime, position.y, isMobile]);
+      }, [isDragging, dragStart, isOpen, isMinimized, lastLogTime, position.y, isMobile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 🧹 **컴포넌트 언마운트 시 정리 작업**
   useEffect(() => {
@@ -301,7 +308,7 @@ export default function FloatingChatbot() {
     };
   }, []);
 
-  // 메시지 전송
+  // 🚀 **강화된 메시지 전송 함수 - AI API 안정성 개선**
   const handleSendMessage = useCallback(async (text: string) => {
     if (!text.trim()) return;
 
@@ -316,79 +323,197 @@ export default function FloatingChatbot() {
     setInputValue('');
     setIsTyping(true);
 
-    // 🔥 개발 서버 감지 로직 개선
-    const isLocalhost = typeof window !== 'undefined' && 
-                        (window.location.hostname === 'localhost' || 
-                         window.location.hostname === '127.0.0.1' ||
-                         window.location.hostname.includes('192.168'));
-    
-    console.log('🤖 AI 메시지 전송:', { 
-      message: text, 
-      isLocalhost, 
-      hostname: typeof window !== 'undefined' ? window.location.hostname : 'server',
-      isMobile 
+    console.log('🤖 AI 메시지 전송 시작:', { 
+      message: text.substring(0, 50) + '...', 
+      messageLength: text.length,
+      timestamp: new Date().toISOString()
     });
 
     try {
-      // 로컬호스트에서는 항상 API 호출 시도
-      if (isLocalhost) {
-        console.log('🚀 API 호출 시도 중...');
-        
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: text,
-            history: messages.slice(-5)
-          }),
-        });
-
-        console.log('📡 API 응답 상태:', response.status, response.ok);
-
-        if (!response.ok) {
-          throw new Error(`서버 오류: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('✅ API 응답 성공:', { responseLength: data.response?.length });
-        
-        const botMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          content: data.response,
-          sender: 'bot',
-          timestamp: new Date()
-        };
-        
-        addMessage(botMessage);
-      } else {
-        // 프로덕션 환경에서는 클라이언트 사이드 응답
-        console.log('🔄 클라이언트 사이드 응답 생성 중...');
-        
-        const botMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          content: generateClientResponse(text),
-          sender: 'bot',
-          timestamp: new Date()
-        };
-        
-        // 실제 응답 시간을 시뮬레이션
-        await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-        addMessage(botMessage);
-      }
-    } catch (error) {
-      console.error('❌ AI 응답 오류:', error);
+      // 🔧 **API 호출 안전성 체크 (GitHub Pages 호환)**
+      const apiCompatibility = checkApiCompatibility('/api/chat');
+      const browserInfo = getBrowserInfo();
       
-      const errorMessage: Message = {
+      if (!apiCompatibility.canCall) {
+        console.warn('⚠️ API 호출 불가:', apiCompatibility.recommendation);
+        throw new Error(apiCompatibility.fallbackAction);
+      }
+      
+      // 🎯 **우선 API 상태 확인**
+      console.log('🔍 API 상태 확인 중...');
+      
+      try {
+        const statusResponse = await fetch('/api/chat', {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+        });
+        
+        if (statusResponse.ok) {
+          const statusData = await statusResponse.json();
+          console.log('✅ API 상태 확인 완료:', {
+            configured: statusData.configured,
+            environment: statusData.environment,
+            supportedMethods: statusData.supportedMethods
+          });
+          
+          if (!statusData.configured) {
+            throw new Error('OpenAI API 키가 설정되지 않았습니다');
+          }
+        } else {
+          console.warn('⚠️ API 상태 확인 실패:', statusResponse.status);
+        }
+      } catch (statusError) {
+        console.warn('⚠️ API 상태 확인 중 오류:', statusError);
+        // 상태 확인 실패 시에도 계속 시도
+      }
+      
+      // 🚀 **OpenAI API 호출 (안정성 개선)**
+      console.log('🚀 OpenAI API 호출 중...', { 
+        isGitHubPages: browserInfo.isGitHubPages,
+        userAgent: browserInfo.userAgent.substring(0, 50) + '...',
+        messageLength: text.length
+      });
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000); // 타임아웃 20초로 증가
+      
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache'
+        },
+        body: JSON.stringify({
+          message: text,
+          history: messages.slice(-5)
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+      
+      console.log('📡 API 응답 상태:', { 
+        status: response.status, 
+        ok: response.ok,
+        headers: response.headers.get('content-type')
+      });
+
+      if (response.ok) {
+        let rawData;
+        
+        try {
+          const responseText = await response.text();
+          if (!responseText.trim()) {
+            throw new Error('API에서 빈 응답을 받았습니다');
+          }
+          
+          rawData = JSON.parse(responseText);
+        } catch (jsonError) {
+          console.error('⚠️ JSON 파싱 오류:', jsonError);
+          throw new Error('API 응답 형식이 잘못되었습니다');
+        }
+        
+        // 🔧 **안전한 데이터 검증 및 접근**
+        const validationResult = validateApiResponse(rawData);
+        
+        if (!validationResult.isValid) {
+          console.error('⚠️ API 응답 검증 실패:', validationResult.error);
+          throw new Error(validationResult.error || 'API 응답이 유효하지 않습니다');
+        }
+        
+        const data = validationResult.data;
+        const responseContent = safeGet<string>(data, 'response', '');
+        
+        if (responseContent && typeof responseContent === 'string' && responseContent.trim()) {
+          console.log('✅ OpenAI API 응답 성공:', { 
+            responseLength: responseContent.length,
+            hasUsage: !!safeGet(data, 'usage'),
+            services: safeGet(data, 'services', []),
+            validationPassed: true
+          });
+          
+          const botMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            content: responseContent,
+            sender: 'bot',
+            timestamp: new Date()
+          };
+          
+          addMessage(botMessage);
+          return;
+                  } else {
+            console.error('⚠️ 응답 내용이 유효하지 않음:', { 
+              hasResponse: !!responseContent,
+              responseType: typeof responseContent,
+              responseLength: (responseContent as string)?.length || 0
+            });
+          throw new Error('API에서 유효한 응답 내용을 받지 못했습니다');
+        }
+      } else {
+        let errorData = null;
+        try {
+          const errorText = await response.text();
+          if (errorText.trim()) {
+            errorData = JSON.parse(errorText);
+          }
+        } catch (parseError) {
+          console.warn('⚠️ 오류 응답 파싱 실패:', parseError);
+        }
+        
+        const errorMessage = safeGet(errorData, 'error', `HTTP ${response.status}: ${response.statusText}`);
+        throw new Error(errorMessage);
+      }
+      
+    } catch (error) {
+      // 🔧 **강화된 오류 정보 수집 (GitHub Pages 호환)**
+      const errorInfo = collectErrorInfo(error, {
+        messageLength: text.length,
+        messageType: 'chat',
+        apiUrl: '/api/chat',
+        timestamp: new Date().toISOString()
+      });
+      
+      console.warn('⚠️ OpenAI API 오류, 클라이언트 응답 사용:', errorInfo);
+      
+      console.log('🤖 클라이언트 응답 생성 중...');
+      
+      let clientResponse = generateClientResponse(text);
+      
+      const browserInfo = getBrowserInfo();
+      
+      // 개발 환경 또는 localhost에서 디버그 정보 추가
+      if (browserInfo.isBrowser && (
+        window.location.hostname === 'localhost' || 
+        window.location.hostname === '127.0.0.1' ||
+        window.location.hostname.includes('192.168') ||
+        process.env.NODE_ENV === 'development'
+      )) {
+        const errorType = error instanceof Error && error.name === 'AbortError' ? 'API 타임아웃' : 'API 연결 오류';
+        clientResponse += `\n\n🔧 **개발자 정보:** ${errorType} 발생`;
+        
+        if (browserInfo.isGitHubPages) {
+          clientResponse += ` (GitHub Pages 환경)`;
+        }
+        
+        clientResponse += `, 클라이언트 응답으로 대체됨`;
+      }
+      
+      const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: `❌ 죄송합니다. AI 서버 연결에 문제가 발생했습니다.\n\n🤖 **임시 해결책:**\n• 페이지를 새로고침 해보세요\n• 잠시 후 다시 시도해주세요\n\n📞 **즉시 상담을 원하시면:**\n• 전화: 010-9251-9743\n• 이메일: lhk@injc.kr\n\n⚡ **무료 서비스 안내:**\n• [무료 AI진단 신청](/#ai-diagnosis)\n• [전문가 상담 신청](/consultation)\n• [서비스 안내](/services/business-analysis)\n\n💡 **오류 정보:** ${error instanceof Error ? error.message : '알 수 없는 오류'}`,
+        content: clientResponse,
         sender: 'bot',
         timestamp: new Date()
       };
-      addMessage(errorMessage);
+      
+      await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1200));
+      addMessage(botMessage);
+      
     } finally {
       setIsTyping(false);
+      console.log('🏁 메시지 전송 완료:', { timestamp: new Date().toISOString() });
     }
-  }, [messages, addMessage, isMobile]);
+  }, [messages, addMessage]);
 
   // 🎯 **스마트 스냅 기능 (모바일 최적화)**
   const performSmartSnap = useCallback(() => {
@@ -546,11 +671,17 @@ export default function FloatingChatbot() {
     setIsOpen(true);
   };
 
-  // 🔥 **확실한 닫기 기능**
+  // 🔥 **확실한 닫기 기능 (애니메이션 강화)**
   const handleClose = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('🔴 채팅창 닫기');
+    console.log('🔴 채팅창 닫기 → 원형 버튼으로 돌아가기');
+    
+    // 📱 모바일에서 햅틱 피드백
+    if (isMobile && 'vibrate' in navigator) {
+      navigator.vibrate([50, 50, 50]); // 3번 짧은 진동
+    }
+    
     setIsOpen(false);
   };
 
@@ -635,24 +766,57 @@ export default function FloatingChatbot() {
               </div>
             )}
             
-            {/* 호버 툴팁 (데스크톱만) */}
+            {/* 🎯 **강화된 호버 툴팁 (데스크톱만)** */}
             {!isDragging && !isMobile && (
-              <div className="absolute bottom-full right-0 mb-3 px-3 py-2 bg-gray-900/95 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap shadow-lg backdrop-blur-sm">
+              <div className="absolute bottom-full right-0 mb-3 px-4 py-3 bg-gradient-to-r from-blue-600/95 to-purple-600/95 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap shadow-xl backdrop-blur-sm border border-white/20">
                 <div className="flex items-center space-x-2">
-                  <Bot className="w-3 h-3" />
-                  <span className="font-medium">AI상담사</span>
+                  <Bot className="w-4 h-4 animate-pulse" />
+                  <span className="font-bold text-white">🤖 AI 전문상담사</span>
                 </div>
-                <div className="text-xs text-gray-300 mt-1 flex items-center space-x-1">
-                  <GripVertical className="w-2 h-2" />
-                  <span>드래그로 이동</span>
+                <div className="text-xs text-blue-100 mt-2 flex items-center justify-between space-x-3">
+                  <div className="flex items-center space-x-1">
+                    <Sparkles className="w-3 h-3" />
+                    <span>클릭하여 상담 시작</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <GripVertical className="w-3 h-3" />
+                    <span>드래그 이동</span>
+                  </div>
                 </div>
                 {/* 툴팁 화살표 */}
-                <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900/95"></div>
+                <div className="absolute top-full right-6 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-blue-600/95"></div>
+                
+                {/* 반짝이는 효과 */}
+                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-white/10 to-transparent opacity-50 animate-pulse"></div>
               </div>
             )}
             
-            {/* 펄스 효과 */}
+            {/* 🌟 **강화된 펄스 효과와 텍스트 애니메이션** */}
             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 opacity-30 animate-ping"></div>
+            
+            {/* 📱 **모바일 전용 간단한 상담 시작 텍스트** */}
+            {isMobile && !isDragging && (
+              <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                <div className="bg-blue-600/95 text-white text-xs px-3 py-1 rounded-full shadow-lg border border-white/20 animate-pulse">
+                  <span className="font-medium">💬 AI 상담 시작</span>
+                </div>
+              </div>
+            )}
+            
+            {/* 🎯 **데스크톱용 상담 시작 유도 애니메이션** */}
+            {!isMobile && !isDragging && (
+              <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 text-center opacity-0 group-hover:opacity-100 transition-all duration-500 animate-bounce">
+                <div className="bg-gradient-to-r from-blue-600/95 to-purple-600/95 text-white text-sm px-4 py-2 rounded-full shadow-xl border border-white/30 backdrop-blur-sm">
+                  <div className="flex items-center space-x-2">
+                    <Sparkles className="w-4 h-4 animate-spin" />
+                    <span className="font-bold">클릭하여 AI 상담 시작!</span>
+                    <Bot className="w-4 h-4 animate-pulse" />
+                  </div>
+                </div>
+                {/* 화살표 */}
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-blue-600/95"></div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -677,15 +841,41 @@ export default function FloatingChatbot() {
               onTouchStart={startDrag}
               title={isMobile ? "헤더 터치로 이동" : "헤더를 드래그해서 위아래로 이동하세요"}
             >
-              {/* 🔥 **최상위 닫기 버튼 (모바일 최적화)** */}
+              {/* 🚨 **극대형 슈퍼 닫기 버튼 - 절대 놓칠 수 없는 크기!** */}
               <div
-                className="absolute -top-2 -right-2 z-[60] cursor-pointer"
+                className="absolute -top-6 -right-6 z-[999] cursor-pointer group"
                 onClick={handleClose}
                 onMouseDown={(e) => e.stopPropagation()}
                 onTouchStart={(e) => e.stopPropagation()}
+                title="🔴 AI 상담창 닫기"
               >
-                <div className={`${isMobile ? 'w-7 h-7' : 'w-8 h-8'} bg-red-500 hover:bg-red-600 rounded-full shadow-lg border-2 border-white flex items-center justify-center transition-all duration-200 hover:scale-110`}>
-                  <X className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-white font-bold`} />
+                <div className="w-20 h-20 bg-gradient-to-br from-red-500 via-red-600 to-red-700 hover:from-red-600 hover:to-red-800 rounded-full shadow-2xl border-4 border-white flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 relative overflow-hidden">
+                  {/* 메인 X 아이콘 */}
+                  <X className="w-10 h-10 text-white font-black stroke-[4] drop-shadow-lg relative z-10" />
+                  
+                  {/* 강력한 애니메이션 효과들 */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-red-400/50 to-red-700/50 animate-pulse"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-white/30 scale-90 animate-ping"></div>
+                  <div className="absolute -inset-2 rounded-full border-3 border-red-300/60 animate-spin-slow"></div>
+                  
+                  {/* 반짝이는 하이라이트 */}
+                  <div className="absolute top-2 left-4 w-3 h-3 bg-white/70 rounded-full blur-sm animate-pulse"></div>
+                  <div className="absolute bottom-3 right-5 w-2 h-2 bg-white/50 rounded-full blur-sm animate-bounce"></div>
+                </div>
+                
+                {/* 🎯 **극대형 툴팁** */}
+                <div className="absolute bottom-full right-0 mb-4 px-6 py-4 bg-red-600/95 text-white text-lg font-bold rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap shadow-2xl backdrop-blur-sm border-2 border-red-400/50">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                      <X className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-xl font-black">채팅창 닫기</div>
+                      <div className="text-sm text-red-100 font-normal">원형 버튼으로 돌아가기</div>
+                    </div>
+                  </div>
+                  {/* 큰 화살표 */}
+                  <div className="absolute top-full right-8 w-0 h-0 border-l-6 border-r-6 border-t-6 border-transparent border-t-red-600/95"></div>
                 </div>
               </div>
 
@@ -754,17 +944,26 @@ export default function FloatingChatbot() {
                     {isMinimized ? <Maximize2 className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} /> : <Minimize2 className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />}
                   </Button>
                   
-                  {/* 🔥 **헤더 내부 닫기 버튼** */}
+                  {/* 🚨 **헤더 내부 극대형 닫기 버튼** */}
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleClose}
                     onMouseDown={(e) => e.stopPropagation()}
                     onTouchStart={(e) => e.stopPropagation()}
-                    className={`text-white hover:bg-red-500 bg-red-400/30 border border-white/30 ${isMobile ? 'p-1 h-6 w-6' : 'p-1 h-8 w-8'} transition-all duration-200 hover:scale-105`}
-                    title="채팅창 닫기"
+                    className="text-white hover:bg-red-500 bg-red-600/80 border-4 border-white w-16 h-16 transition-all duration-300 hover:scale-125 active:scale-95 hover:border-yellow-300 hover:shadow-2xl group relative rounded-full p-0"
+                    title="🔴 AI 상담창 완전히 닫기"
                   >
-                    <X className={`${isMobile ? 'w-3 h-3' : 'w-5 h-5'} font-bold`} />
+                    <X className="w-9 h-9 text-white font-black stroke-[4] group-hover:rotate-180 transition-transform duration-500 drop-shadow-lg" />
+                    
+                    {/* 극강 시각 효과 */}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-red-400/40 to-red-700/40 animate-pulse"></div>
+                    <div className="absolute -inset-2 rounded-full border-3 border-yellow-300/60 opacity-0 group-hover:opacity-100 animate-ping"></div>
+                    <div className="absolute -inset-1 rounded-full border-2 border-red-300/80 animate-spin-slow"></div>
+                    
+                    {/* 반짝이는 포인트들 */}
+                    <div className="absolute top-1 right-2 w-2 h-2 bg-yellow-300 rounded-full animate-ping"></div>
+                    <div className="absolute bottom-2 left-1 w-1.5 h-1.5 bg-white rounded-full animate-bounce"></div>
                   </Button>
                 </div>
               </div>

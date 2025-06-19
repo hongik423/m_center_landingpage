@@ -77,10 +77,17 @@ export function getOpenAIKey(): string {
   const key = process.env.OPENAI_API_KEY;
   
   if (!key) {
-    console.error('❌ OPENAI_API_KEY가 설정되지 않았습니다.');
-    console.error('💡 해결방법: 프로젝트 루트에 .env.local 파일을 생성하고');
-    console.error('   OPENAI_API_KEY=sk-proj-your-api-key-here 를 추가하세요.');
-    throw new Error('OPENAI_API_KEY가 설정되지 않았습니다. .env.local 파일을 확인해주세요.');
+    console.warn('⚠️ OPENAI_API_KEY가 설정되지 않았습니다. 클라이언트 사이드 응답을 사용합니다.');
+    console.info('💡 실제 OpenAI API를 사용하려면: 프로젝트 루트에 .env.local 파일을 생성하고');
+    console.info('   OPENAI_API_KEY=sk-proj-your-actual-api-key 를 추가하세요.');
+    throw new Error('OPENAI_API_KEY가 설정되지 않았습니다. 클라이언트 응답 모드로 작동합니다.');
+  }
+  
+  // 개발용 임시 키 체크
+  if (key.includes('temp') || key.includes('development') || key.includes('replace')) {
+    console.warn('⚠️ 개발용 임시 OpenAI API Key가 설정되어 있습니다. 클라이언트 사이드 응답을 사용합니다.');
+    console.info('💡 실제 OpenAI API를 사용하려면 실제 API 키로 교체하세요.');
+    throw new Error('개발용 임시 키입니다. 클라이언트 응답 모드로 작동합니다.');
   }
   
   // API 키 형식 검증

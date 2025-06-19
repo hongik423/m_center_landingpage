@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 M-CENTER 이메일 자동 발송 테스트</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Malgun Gothic', '맑은 고딕', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .status {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            min-height: 200px;
+        }
+        
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+        
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: #e9ecef;
+            z-index: 1;
+        }
+        
+        .step.active::after {
+            background: #007bff;
+        }
+        
+        .step.completed::after {
+            background: #28a745;
+        }
+        
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s;
+        }
+        
+        .step.active .step-circle {
+            background: #007bff;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .step.completed .step-circle {
+            background: #28a745;
+            color: white;
+        }
+        
+        .step.error .step-circle {
+            background: #dc3545;
+            color: white;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .step-label {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+        
+        .step.active .step-label {
+            color: #007bff;
+            font-weight: bold;
+        }
+        
+        .step.completed .step-label {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .step.error .step-label {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .log-container {
+            background: #212529;
+            color: #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            text-align: left;
+        }
+        
+        .log-line {
+            margin: 5px 0;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        .result-box {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #155724;
+        }
+        
+        .result-box.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .email-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .email-card {
+            background: #f8f9ff;
+            border: 2px solid #e3f2fd;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .email-card h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .email-card p {
+            font-size: 14px;
+            color: #666;
+            margin: 5px 0;
+        }
+        
+        .diagnosis-card {
+            border-left: 4px solid #007bff;
+        }
+        
+        .consultation-card {
+            border-left: 4px solid #28a745;
+        }
+        
+        .start-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        
+        .start-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .start-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        @media (max-width: 768px) {
+            .email-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .progress {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .step::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 M-CENTER 이메일 자동 발송 테스트</h1>
+            <p>진단신청 및 상담신청 확인 이메일을 자동으로 발송합니다</p>
+        </div>
+        
+        <div class="email-info">
+            <div class="email-card diagnosis-card">
+                <h4>📊 진단신청 확인 메일</h4>
+                <p><strong>수신자:</strong> hongik1@daum.net</p>
+                <p><strong>이름:</strong> 홍길동</p>
+                <p><strong>회사:</strong> 진단테스트회사</p>
+                <p><strong>템플릿:</strong> template_diagnosis_conf</p>
+            </div>
+            
+            <div class="email-card consultation-card">
+                <h4>🤝 상담신청 확인 메일</h4>
+                <p><strong>수신자:</strong> hongik423@naver.com</p>
+                <p><strong>이름:</strong> 김상담</p>
+                <p><strong>회사:</strong> 상담테스트회사</p>
+                <p><strong>템플릿:</strong> template_consultation_conf</p>
+            </div>
+        </div>
+        
+        <div class="status">
+            <div class="progress">
+                <div class="step" id="step1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">EmailJS 초기화</div>
+                </div>
+                <div class="step" id="step2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">진단신청 메일 발송</div>
+                </div>
+                <div class="step" id="step3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">상담신청 메일 발송</div>
+                </div>
+                <div class="step" id="step4">
+                    <div class="step-circle">✓</div>
+                    <div class="step-label">완료</div>
+                </div>
+            </div>
+            
+            <div class="log-container" id="logContainer"></div>
+            
+            <div id="resultContainer"></div>
+        </div>
+        
+        <button class="start-button" id="startButton" onclick="startEmailTest()">
+            🚀 자동 이메일 발송 시작
+        </button>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        
+        // EmailJS 초기화
+        emailjs.init('268NPLwN54rPvEias');
+        addLog('🔧 EmailJS 라이브러리 로드 완료');
+        
+        function addLog(message) {
+            const logContainer = document.getElementById('logContainer');
+            const logLine = document.createElement('div');
+            logLine.className = 'log-line';
+            logLine.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(logLine);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function updateStep(stepNumber, status = 'active') {
+            // 이전 단계들을 완료로 표시
+            for (let i = 1; i < stepNumber; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.className = 'step completed';
+            }
+            
+            // 현재 단계 상태 업데이트
+            const currentStepElement = document.getElementById(`step${stepNumber}`);
+            if (currentStepElement) {
+                currentStepElement.className = `step ${status}`;
+            }
+        }
+        
+        async function startEmailTest() {
+            const startButton = document.getElementById('startButton');
+            startButton.disabled = true;
+            startButton.textContent = '📧 이메일 발송 중...';
+            
+            try {
+                // Step 1: EmailJS 초기화
+                updateStep(1, 'active');
+                addLog('🚀 EmailJS 자동 이메일 발송 테스트 시작');
+                addLog('🔑 EmailJS 서비스 초기화 중... (service_qd9eycz)');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                updateStep(1, 'completed');
+                addLog('✅ EmailJS 초기화 완료');
+                
+                // Step 2: 진단신청 확인 메일 발송
+                updateStep(2, 'active');
+                addLog('📊 진단신청 확인 메일 발송 준비...');
+                addLog('📧 수신자: hongik1@daum.net');
+                addLog('🏢 회사: 진단테스트회사');
+                addLog('📋 템플릿: template_diagnosis_conf');
+                
+                const diagnosisParams = {
+                    to_name: '홍길동',
+                    to_email: 'hongik1@daum.net',
+                    company_name: '진단테스트회사',
+                    diagnosis_date: '2025년 6월 20일',
+                    service_name: 'AI 무료진단',
+                    consultant_name: '이후경 경영지도사',
+                    consultant_phone: '010-9251-9743',
+                    consultant_email: 'hongik423@gmail.com',
+                    reply_message: 'AI 진단 결과를 2-3일 내에 상세히 분석하여 연락드리겠습니다. 추가 문의사항이 있으시면 언제든 연락 주세요.'
+                };
+                
+                const diagnosisResult = await emailjs.send(
+                    'service_qd9eycz',
+                    'template_diagnosis_conf',
+                    diagnosisParams
+                );
+                
+                updateStep(2, 'completed');
+                addLog('✅ 진단신청 확인 메일 발송 성공!');
+                addLog(`📨 EmailJS 응답: ${diagnosisResult.status} - ${diagnosisResult.text}`);
+                
+                // 2초 대기
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Step 3: 상담신청 확인 메일 발송
+                updateStep(3, 'active');
+                addLog('🤝 상담신청 확인 메일 발송 준비...');
+                addLog('📧 수신자: hongik423@naver.com');
+                addLog('🏢 회사: 상담테스트회사');
+                addLog('📋 템플릿: template_consultation_conf');
+                
+                const consultationParams = {
+                    to_name: '김상담',
+                    to_email: 'hongik423@naver.com',
+                    company_name: '상담테스트회사',
+                    consultation_type: '전화 상담',
+                    consultation_area: 'BM ZEN 사업분석',
+                    preferred_time: '오후 (13:00-17:00)',
+                    inquiry_content: '비즈니스 모델 분석 및 사업화 전략에 대해 상담받고 싶습니다. 현재 매출 정체기를 겪고 있어서 전문가의 조언이 필요합니다.',
+                    consultation_date: '2025년 6월 20일',
+                    consultant_name: '이후경 경영지도사',
+                    consultant_phone: '010-9251-9743',
+                    consultant_email: 'hongik423@gmail.com',
+                    reply_message: '담당 컨설턴트가 24시간 내에 연락드려 상담 일정을 조율하겠습니다. 빠른 상담을 원하시면 직접 연락주세요.'
+                };
+                
+                const consultationResult = await emailjs.send(
+                    'service_qd9eycz',
+                    'template_consultation_conf',
+                    consultationParams
+                );
+                
+                updateStep(3, 'completed');
+                addLog('✅ 상담신청 확인 메일 발송 성공!');
+                addLog(`📨 EmailJS 응답: ${consultationResult.status} - ${consultationResult.text}`);
+                
+                // Step 4: 완료
+                updateStep(4, 'completed');
+                addLog('🎉 모든 이메일 발송이 완료되었습니다!');
+                
+                // 결과 표시
+                const resultContainer = document.getElementById('resultContainer');
+                resultContainer.innerHTML = `
+                    <div class="result-box">
+                        <h3>🎉 이메일 발송 완료!</h3>
+                        <p><strong>📊 진단신청 확인 메일:</strong> hongik1@daum.net ✅</p>
+                        <p><strong>🤝 상담신청 확인 메일:</strong> hongik423@naver.com ✅</p>
+                        <p><small>이메일 도착까지 1-2분 정도 소요될 수 있습니다.</small></p>
+                    </div>
+                `;
+                
+                startButton.textContent = '✅ 발송 완료';
+                startButton.style.background = '#28a745';
+                
+            } catch (error) {
+                console.error('이메일 발송 실패:', error);
+                addLog(`❌ 오류 발생: ${error.text || error.message || '알 수 없는 오류'}`);
+                
+                // 현재 단계를 오류로 표시
+                const currentStepElement = document.getElementById(`step${currentStep + 1}`);
+                if (currentStepElement) {
+                    currentStepElement.className = 'step error';
+                }
+                
+                const resultContainer = document.getElementById('resultContainer');
+                resultContainer.innerHTML = `
+                    <div class="result-box error">
+                        <h3>❌ 이메일 발송 실패</h3>
+                        <p>오류: ${error.text || error.message || '알 수 없는 오류'}</p>
+                        <p><small>EmailJS 설정을 확인하고 다시 시도해주세요.</small></p>
+                    </div>
+                `;
+                
+                startButton.disabled = false;
+                startButton.textContent = '🔄 다시 시도';
+                startButton.style.background = '#dc3545';
+            }
+        }
+        
+        // 페이지 로드 시 자동 실행
+        window.onload = function() {
+            addLog('📧 M-CENTER 이메일 자동 발송 시스템 준비 완료');
+            addLog('🎯 타겟 이메일: hongik1@daum.net, hongik423@naver.com');
+            addLog('⚡ 시작 버튼을 클릭하면 자동으로 두 이메일이 순차 발송됩니다');
+        };
+    </script>
+</body>
+</html> 

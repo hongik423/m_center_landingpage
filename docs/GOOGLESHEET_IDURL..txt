@@ -33,13 +33,12 @@ AI 기반 종합 경영진단 결과보고서에 전략솔루션에서 " 정책�
 
 
 
-# M-CENTER 운영 환경변수 (실제 API 키 포함) - 2025.6.17 업데이트
+# M-CENTER 운영 환경변수 설정 (⚠️ 실제 API 키는 .env.local에서 관리)
 NEXT_PUBLIC_GOOGLE_SCRIPT_URL=https://script.google.com/macros/s/AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX/exec
 NEXT_PUBLIC_GOOGLE_SCRIPT_ID=1eq4jLxuXgVfjH76MJRPq6aetIybwNjD2IpvLWgY3wlfDLPW2h2hzEjAC
 NEXT_PUBLIC_GOOGLE_SCRIPT_DEPLOYMENT_ID=AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX
 NEXT_PUBLIC_GOOGLE_SHEETS_ID=1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug
 NEXT_PUBLIC_GOOGLE_SHEETS_URL=https://script.google.com/macros/s/AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX/exec
-
 NEXT_PUBLIC_EMAILJS_SERVICE_ID=service_qd9eycz
 NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=268NPLwN54rPvEias
 OPENAI_API_KEY=sk-proj-YOUR_OPENAI_API_KEY_HERE
@@ -50,3 +49,8 @@ JWT_SECRET=mcenter-jwt-secret-key-2025
 ADMIN_EMAIL=hongik423@gmail.com
 NOTIFICATION_ENABLED=true
 AUTO_REPLY_ENABLED=true
+
+
+
+
+스마트공장구축 생산관리 안전관리 해외수출

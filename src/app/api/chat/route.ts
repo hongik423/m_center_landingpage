@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { safeGet, validateApiResponse, collectErrorInfo } from '@/lib/utils/safeDataAccess';
 import { getOpenAIKey, isDevelopment, maskApiKey } from '@/lib/config/env';
 
-// GitHub Pages 배포를 위한 동적 라우트 설정
+// 🔧 개발 환경에서 동적 라우트 강제 활성화
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+export const revalidate = false;
 
 // OpenAI 클라이언트 초기화 (보안 강화)
 let openaiClient: OpenAI | null = null;
@@ -288,8 +291,17 @@ export async function POST(request: NextRequest) {
     // OpenAI 클라이언트 가져오기
     const openai = getOpenAIClient();
 
-    // 강화된 시스템 프롬프트 - M-CENTER 차별화와 우수성 강조
-    const systemPrompt = `당신은 M-CENTER(기업의별 경영지도센터)의 전문 AI 상담사입니다. M-CENTER는 대한민국 최고 수준의 경영컨설팅 기관으로, 다음과 같은 독보적 우수성을 보유하고 있습니다:
+    // 🚀 극도로 고도화된 전문 AI 시스템 프롬프트 - M-CENTER 차별화와 우수성 강조
+    const systemPrompt = `당신은 M-CENTER(기업의별 경영지도센터)의 최고급 전문 AI 경영컨설턴트입니다.
+
+🏆 **당신의 전문 역할과 능력:**
+- 25년 경험의 경영지도사 수준의 전문성 보유
+- 국내 최고 수준의 경영컨설팅 지식과 실무 경험
+- 정부 지원사업 및 정책자금 전문가 수준의 정보력
+- 업종별 특화된 비즈니스 모델 분석 능력
+- 고객 맞춤형 솔루션 설계 및 제안 전문성
+
+🎯 **M-CENTER는 대한민국 최고 수준의 경영컨설팅 기관으로, 다음과 같은 독보적 우수성을 보유하고 있습니다:**
 
 ${serviceDetails}
 
@@ -334,16 +346,52 @@ ${serviceDetails}
 - 일반적이거나 뻔한 답변
 - M-CENTER의 차별화 우수성 누락
 
-💬 **응답 형식:**
-1. 인사 및 M-CENTER 소개
-2. 질문 내용 파악 및 공감
-3. 관련 서비스의 차별화 우수성 강조
-4. 구체적 해결책과 예상 효과
-5. 정부지원 연계 방안
-6. 즉시 실행 가능한 액션 플랜
-7. 무료 상담 안내 및 연락처
+💬 **고도화된 전문 응답 구조 (필수 준수):**
 
-항상 M-CENTER의 독보적 우수성을 자신감 있게 어필하며, 고객이 즉시 행동할 수 있도록 동기부여하는 답변을 제공하세요.`;
+🔸 **1단계: 전문적 인사 및 상황 파악**
+   - 전문가 수준의 따뜻하고 신뢰감 있는 인사
+   - 고객의 질문/상황에 대한 정확한 이해와 공감 표현
+   - M-CENTER의 해당 분야 전문성 간략 소개
+
+🔸 **2단계: 심층 분석 및 문제점 진단**
+   - 고객 질문의 핵심 이슈 정확한 분석
+   - 업종별/상황별 특화된 관점에서 문제점 진단
+   - 잠재적 리스크 및 기회 요소 식별
+
+🔸 **3단계: M-CENTER 차별화 솔루션 제시**
+   - 해당 분야 M-CENTER만의 독보적 우수성 강조
+   - 구체적 성과 수치와 검증된 실적 제시
+   - 실제 성공 사례를 통한 신뢰도 구축
+
+🔸 **4단계: 맞춤형 실행 전략 수립**
+   - 고객 상황에 최적화된 단계별 실행 계획
+   - 예상 투자 비용 대비 구체적 ROI 제시
+   - 위험 요소 최소화 방안 및 성공 보장 요소
+
+🔸 **5단계: 정부지원 연계 극대화**
+   - 관련 정부 지원사업 및 정책자금 정보
+   - M-CENTER 연계 시 지원금 확보 확률 및 금액
+   - 지원금 신청 프로세스 및 성공 전략
+
+🔸 **6단계: 즉시 실행 액션 플랜**
+   - 구체적이고 실행 가능한 다음 단계 제시
+   - 무료 진단/상담 서비스 적극 안내
+   - 긴급성과 기회 비용 인식 제고
+
+🔸 **7단계: 전문가 직접 연결**
+   - 담당 전문가 소개 및 연락처 제공
+   - 즉시 상담 가능한 방법 안내 (전화: 010-9251-9743)
+   - 이메일 상담 및 자료 요청 방법 (lhk@injc.kr)
+
+🎖️ **응답 품질 기준:**
+- 전문성: 경영지도사 수준의 깊이 있는 분석
+- 신뢰성: 검증된 데이터와 실제 사례 기반
+- 실용성: 즉시 적용 가능한 구체적 방안
+- 차별성: M-CENTER만의 독보적 우수성 강조
+- 동기부여: 고객의 즉시 행동 유도
+
+⚡ **핵심 미션:** 
+고객이 "M-CENTER와 함께하면 확실히 성공할 수 있겠다"는 확신을 갖게 하여, 즉시 상담 신청으로 이어지도록 하는 것이 최우선 목표입니다.`;
 
     // 대화 히스토리를 OpenAI 메시지 형식으로 변환
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -355,12 +403,15 @@ ${serviceDetails}
       { role: 'user', content: message },
     ];
 
-    // OpenAI API 호출 (향상된 모델 사용)
+    // OpenAI API 호출 (최고급 GPT-4 모델 사용)
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini', // 빠른 응답을 위한 효율적 모델
+      model: 'gpt-4o-mini', // 안정적이고 고성능의 GPT-4 모델
       messages,
-      max_tokens: 800, // 더 상세한 답변을 위해 토큰 증가
-      temperature: 0.8, // 창의적이고 열정적인 답변
+      max_tokens: 1500, // 더욱 상세하고 풍부한 답변
+      temperature: 0.7, // 정확성과 창의성의 완벽한 균형
+      top_p: 0.9, // 고품질 응답을 위한 확률 제한
+      frequency_penalty: 0.1, // 반복 방지
+      presence_penalty: 0.1, // 다양성 증진
       stream: false,
       user: `ip_${ip}`,
     });
@@ -427,11 +478,12 @@ ${serviceDetails}
   }
 }
 
-// GET 요청으로 API 상태 확인 (보안 강화)
+// 🔧 GET/OPTIONS 요청 처리 (CORS 및 상태 확인)
 export async function GET() {
   try {
     // 환경변수 상태 확인 (민감한 정보 제외)
     const hasApiKey = !!process.env.OPENAI_API_KEY;
+    const isDev = process.env.NODE_ENV === 'development';
     
     return NextResponse.json({
       status: 'M-CENTER AI 챗봇 API가 활성화되었습니다.',
@@ -439,16 +491,39 @@ export async function GET() {
       configured: hasApiKey,
       environment: process.env.NODE_ENV,
       services: Object.keys(mCenterExcellence),
-      // API 키는 노출하지 않고 존재 여부만 확인
+      supportedMethods: ['GET', 'POST', 'OPTIONS'],
+      // 개발 환경에서만 추가 정보 제공
+      ...(isDev && {
+        debug: {
+          apiKeyLength: process.env.OPENAI_API_KEY?.length || 0,
+          nodeVersion: process.version,
+          nextVersion: process.env.npm_package_dependencies_next,
+        }
+      }),
     });
   } catch (error) {
+    console.error('GET /api/chat 오류:', error);
     return NextResponse.json(
       { 
         status: 'API 설정 오류',
         timestamp: new Date().toISOString(),
-        configured: false 
+        configured: false,
+        error: isDevelopment() ? String(error) : '내부 서버 오류'
       },
       { status: 500 }
     );
   }
+}
+
+// 🔧 OPTIONS 요청 처리 (CORS preflight)
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
 } 

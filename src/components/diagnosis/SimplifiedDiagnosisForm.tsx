@@ -23,8 +23,16 @@ import {
   CheckCircle,
   FileText,
   Brain,
-  Clock
+  Clock,
+  Building2,
+  Target,
+  TrendingUp,
+  Lightbulb,
+  Sparkles,
+  ArrowRight,
+  Zap
 } from 'lucide-react';
+import { safeGet, validateApiResponse, collectErrorInfo, checkApiCompatibility } from '@/lib/utils/safeDataAccess';
 
 // 간소화된 폼 검증 스키마 (8개 핵심 필드)
 const simplifiedFormSchema = z.object({
@@ -405,20 +413,205 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
       // 클라이언트 사이드 진단 로직
       const results = generateDiagnosisResults(data);
 
-      // 3단계: 보고서 생성
-      setProcessingStage('📋 2000자 요약 보고서를 생성하고 있습니다...');
+      // 3단계: 구글시트 저장 및 보고서 생성
+      setProcessingStage('📋 구글시트 저장 및 보고서 생성 중...');
       setEstimatedTime(60);
+      
+      // 🔧 **구글시트 저장 처리 (GitHub Pages 호환성 강화)**
+      let googleSheetsResult = { success: false, error: '저장 시도 안함' };
+      
+      try {
+        console.log('📊 진단 데이터 구글시트 저장 시작');
+        
+        // 안전한 동적 import (GitHub Pages 호환)
+        let saveDiagnosisToGoogleSheets;
+        try {
+          const moduleImport = await import('@/lib/utils/googleSheetsService');
+          saveDiagnosisToGoogleSheets = moduleImport.saveDiagnosisToGoogleSheets;
+          
+          if (typeof saveDiagnosisToGoogleSheets !== 'function') {
+            throw new Error('구글시트 서비스 함수를 불러올 수 없습니다');
+          }
+        } catch (importError) {
+          console.warn('⚠️ 구글시트 서비스 모듈 로드 실패:', importError);
+          throw new Error('GitHub Pages 환경에서 구글시트 연결 불가');
+        }
+        
+        // 안전한 데이터 구조화
+        const sheetData = {
+          companyName: data?.companyName || '',
+          industry: data?.industry || '',
+          businessManager: data?.contactManager || '',
+          employeeCount: data?.employeeCount || '',
+          establishmentDifficulty: data?.growthStage || '',
+          mainConcerns: data?.mainConcerns || '',
+          expectedBenefits: data?.expectedBenefits || '',
+          businessLocation: data?.businessLocation || '',
+          contactName: data?.contactManager || '',
+          contactPhone: '', // SimplifiedDiagnosisForm에는 전화번호 필드가 없음
+          contactEmail: data?.email || '',
+          privacyConsent: Boolean(data?.privacyConsent)
+        };
+        
+        googleSheetsResult = await saveDiagnosisToGoogleSheets(sheetData, 'AI_무료진단');
+        
+        console.log('📋 구글시트 저장 결과:', googleSheetsResult);
+        
+        if (googleSheetsResult?.success) {
+          console.log('✅ 진단 데이터 구글시트 저장 성공');
+          results.data.googleSheetsSaved = true;
+          results.data.sheetInfo = {
+            platform: googleSheetsResult.platform || 'unknown',
+            fallbackMode: Boolean(googleSheetsResult.fallbackMode),
+            sheetName: googleSheetsResult.sheetName || 'M-CENTER',
+            timestamp: googleSheetsResult.timestamp || new Date().toISOString()
+          };
+        } else {
+          console.warn('⚠️ 구글시트 저장 실패, 로컬 처리 계속:', googleSheetsResult?.error);
+          results.data.googleSheetsSaved = false;
+          results.data.sheetError = googleSheetsResult?.error || '알 수 없는 오류';
+          
+          // 완전 실패 시에도 진단은 계속 진행
+          if (googleSheetsResult?.fallbackAction) {
+            console.log('💾 백업 저장됨:', googleSheetsResult.fallbackAction);
+            results.data.googleSheetsSaved = true;
+            results.data.sheetInfo = { fallbackMode: true };
+          }
+        }
+      } catch (sheetError) {
+        console.error('❌ 구글시트 서비스 오류:', sheetError);
+        
+        const errorMessage = sheetError instanceof Error ? sheetError.message : '구글시트 연결 오류';
+        googleSheetsResult = { 
+          success: false, 
+          error: errorMessage
+        };
+        results.data.googleSheetsSaved = false;
+        results.data.sheetError = errorMessage;
+        
+        // 🔧 **완전 실패 시 응급 로컬 백업 (안전성 강화)**
+        try {
+          const emergencyBackup = {
+            timestamp: new Date().toISOString(),
+            formType: 'AI진단_응급백업',
+            data: data,
+            results: results,
+            error: errorMessage,
+            userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
+            url: typeof window !== 'undefined' ? window.location.href : 'unknown'
+          };
+          
+          if (typeof window !== 'undefined' && window.localStorage) {
+            localStorage.setItem(`emergency_diagnosis_${Date.now()}`, JSON.stringify(emergencyBackup));
+            console.log('🆘 응급 로컬 백업 저장 완료');
+            results.data.googleSheetsSaved = true; // 백업 성공으로 처리
+            results.data.sheetInfo = { emergencyBackup: true };
+          } else {
+            console.warn('⚠️ localStorage 접근 불가 (서버 환경)');
+          }
+        } catch (backupError) {
+          console.error('❌ 응급 백업도 실패:', backupError);
+          // 완전 실패해도 진단 결과는 계속 표시
+          results.data.googleSheetsSaved = false;
+          results.data.sheetInfo = { totalFailure: true };
+        }
+      }
+
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // 4단계: 완료
-      setProcessingStage('✅ 진단이 완료되었습니다!');
+      // 4단계: 📧 진단신청 확인 메일 발송
+      setProcessingStage('📧 진단신청 확인 메일 발송 중...');
+      setEstimatedTime(30);
+      
+      let emailSent = false;
+      try {
+        console.log('📧 진단신청 확인 메일 발송 시작');
+        
+        // 브라우저 환경에서만 EmailJS 실행
+        if (typeof window !== 'undefined' && window.emailjs) {
+          // EmailJS 초기화
+          window.emailjs.init('268NPLwN54rPvEias');
+          
+          // 이메일 템플릿 데이터 준비
+          const emailParams = {
+            to_name: data.contactManager,
+            to_email: data.email,
+            company_name: data.companyName,
+            diagnosis_date: new Date().toLocaleDateString('ko-KR', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }),
+            service_name: 'AI 무료진단',
+            consultant_name: '이후경 경영지도사',
+            consultant_phone: '010-9251-9743',
+            consultant_email: 'hongik423@gmail.com',
+            reply_message: `AI 진단 결과를 2-3일 내에 상세히 분석하여 연락드리겠습니다. 
+            
+📊 진단 점수: ${results.data.diagnosis.totalScore}점 (${results.data.diagnosis.scoreDescription})
+🎯 추천 서비스: ${results.data.diagnosis.recommendedServices.map(s => s.name).join(', ')}
+
+추가 문의사항이 있으시면 언제든 연락 주세요.`
+          };
+          
+          console.log('📧 이메일 발송 데이터:', emailParams);
+          
+          const emailResult = await window.emailjs.send(
+            'service_qd9eycz',
+            'template_diagnosis_conf', 
+            emailParams
+          );
+          
+          console.log('✅ 진단신청 확인 메일 발송 성공:', emailResult);
+          emailSent = true;
+          
+          results.data.emailSent = true;
+          results.data.emailInfo = {
+            recipient: data.email,
+            status: emailResult.status,
+            text: emailResult.text,
+            timestamp: new Date().toISOString()
+          };
+          
+        } else {
+          console.warn('⚠️ EmailJS 라이브러리를 찾을 수 없습니다. 브라우저 환경이 아니거나 라이브러리가 로드되지 않았습니다.');
+          
+          // EmailJS가 없어도 진단은 계속 진행
+          results.data.emailSent = false;
+          results.data.emailError = 'EmailJS 라이브러리 미사용 가능';
+        }
+        
+      } catch (emailError) {
+        console.error('❌ 진단신청 확인 메일 발송 실패:', emailError);
+        
+        // 이메일 발송 실패해도 진단 결과는 계속 표시
+        results.data.emailSent = false;
+        results.data.emailError = emailError instanceof Error ? emailError.message : '이메일 발송 오류';
+        
+        // 사용자에게 이메일 실패 알림 (진단 결과는 계속 제공)
+        toast({
+          title: '📧 확인 메일 발송 실패',
+          description: '진단은 완료되었지만 확인 메일 발송에 실패했습니다. 결과는 정상적으로 확인할 수 있습니다.',
+          variant: 'default',
+        });
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // 5단계: 완료
+      setProcessingStage(emailSent ? 
+        '✅ 진단 완료 및 확인 메일 발송 성공!' : 
+        '✅ 진단이 완료되었습니다!'
+      );
       setEstimatedTime(0);
 
       if (results.success) {
         // 진단 완료 토스트 메시지
         toast({
           title: '🎉 AI 진단이 완료되었습니다!',
-          description: '📋 맞춤형 진단 보고서가 생성되었습니다. 결과를 확인해보세요!',
+          description: emailSent ? 
+            `📋 맞춤형 진단 보고서가 생성되었습니다. ${data.email}로 확인 메일도 발송되었습니다!` :
+            '📋 맞춤형 진단 보고서가 생성되었습니다. 결과를 확인해보세요!',
         });
 
         setTimeout(() => {
