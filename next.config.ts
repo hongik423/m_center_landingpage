@@ -42,40 +42,37 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_IS_GITHUB_PAGES: isGitHubPages ? 'true' : 'false',
   },
   
-  // 개발 환경에서 Fast Refresh 최적화
-  ...(!isProd && {
-    reactStrictMode: true,
-    swcMinify: true,
-  }),
+  // React Strict Mode 활성화
+  reactStrictMode: true,
   
-  // ESLint 설정
+  // ESLint 설정 - 개발 중에는 무시하지 않음
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: isProd && isGitHubPages, // GitHub Pages 배포 시에만 무시
   },
   
-  // 타입스크립트 설정
+  // 타입스크립트 설정 - 개발 중에는 무시하지 않음
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: isProd && isGitHubPages, // GitHub Pages 배포 시에만 무시
   },
+  
+  // 개발 환경에서 AI 관련 패키지 최적화
+  ...(!isProd && {
+    experimental: {
+      serverComponentsExternalPackages: ['openai'],
+    },
+  }),
   
   // 실험적 기능
   experimental: {
     // AI 챗봇 성능 최적화
     optimizePackageImports: ['lucide-react'],
-    // 개발 환경에서 서버 컴포넌트 디버깅
-    ...(!isProd && {
-      serverComponentsExternalPackages: ['openai'],
-    }),
+    // 서버 컴포넌트 최적화
+    ...(isProd && { serverComponentsExternalPackages: ['openai'] }),
   },
   
   // 웹팩 설정
   webpack: (config, { dev, isServer }) => {
-    // AI 관련 라이브러리 최적화
-    config.resolve.alias = {
-      ...config.resolve.alias,
-    };
-    
-    // 개발 환경에서 API 라우트 호환성 강화
+    // 개발 환경에서 AI 관련 모듈 해결 최적화
     if (dev && !isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -83,10 +80,16 @@ const nextConfig: NextConfig = {
         net: false,
         tls: false,
         child_process: false,
+        // OpenAI 패키지 호환성 강화
+        stream: false,
+        crypto: false,
+        path: false,
+        os: false,
+        util: false,
       };
     }
     
-    // GitHub Pages 환경에서 발생할 수 있는 모듈 해결 문제 처리
+    // GitHub Pages 환경에서만 최적화 적용
     if (isProd && isGitHubPages) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -121,21 +124,15 @@ const nextConfig: NextConfig = {
   ...(isProd && isGitHubPages && {
     generateEtags: false,
     compress: true,
-    onDemandEntries: {
-      maxInactiveAge: 25 * 1000,
-      pagesBufferLength: 2,
-    },
   }),
   
-  // 개발 환경 최적화
+  // 개발 환경 최적화 (Next.js 15.1.0 호환)
   ...(!isProd && {
     // 개발 서버 설정
     devIndicators: {
       buildActivity: true,
       buildActivityPosition: 'bottom-right',
     },
-    // 빠른 새로고침
-    fastRefresh: true,
   }),
 };
 
