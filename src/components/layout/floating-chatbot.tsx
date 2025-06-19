@@ -68,26 +68,39 @@ export default function FloatingChatbot() {
   const [isTyping, setIsTyping] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   
-  // 🔵 **오른쪽 고정, 수직 드래그만 가능한 상태**
+  // 🔵 **향상된 드래그 상태 관리**
   const [position, setPosition] = useState<Position>({ x: 0, y: 50 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState<Position>({ x: 0, y: 0 });
+  const [dragStartTime, setDragStartTime] = useState(0);
+  const [lastTouchY, setLastTouchY] = useState(0);
+  const [dragVelocity, setDragVelocity] = useState(0);
+  const [isSnapAnimating, setIsSnapAnimating] = useState(false);
   
   // 🚀 **드래그 로그 최적화를 위한 throttle**
   const [lastLogTime, setLastLogTime] = useState(0);
   const LOG_THROTTLE_MS = 500; // 0.5초마다 한번만 로그
 
-  // 🔵 **모바일 감지**
+  // 🔵 **모바일 감지 및 드래그 설정**
   const [isMobile, setIsMobile] = useState(false);
+  const [dragSensitivity, setDragSensitivity] = useState(1);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const dragTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 🔥 **모바일 감지 로직**
+  // 🔥 **향상된 모바일 감지 및 드래그 설정**
   useEffect(() => {
     const checkMobile = () => {
       const isMobileDevice = window.innerWidth < 768 || 
                            /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       setIsMobile(isMobileDevice);
+      
+      // 모바일에서 더 민감한 드래그 설정
+      setDragSensitivity(isMobileDevice ? 1.2 : 1.0);
+      
+      if (isMobileDevice) {
+        console.log('📱 모바일 최적화 드래그 모드 활성화');
+      }
     };
     
     checkMobile();
@@ -127,43 +140,89 @@ export default function FloatingChatbot() {
     }
   }, [isOpen, isMobile]);
 
-  // 🔥 **수직 드래그 시작 (모바일 터치 지원)**
+  // 🔥 **향상된 수직 드래그 시작 (모바일 최적화)**
   const startDrag = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
-    setIsDragging(true);
+    // 스냅 애니메이션 중단
+    setIsSnapAnimating(false);
+    if (dragTimeoutRef.current) {
+      clearTimeout(dragTimeoutRef.current);
+    }
     
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    
+    // 모바일에서 지연 시간 후 드래그 시작 (실수 터치 방지)
+    if (isMobile) {
+      dragTimeoutRef.current = setTimeout(() => {
+        setIsDragging(true);
+        
+        // 햅틱 피드백 시뮬레이션 (진동)
+        if ('vibrate' in navigator) {
+          navigator.vibrate(20);
+        }
+        
+        console.log('📱 모바일 터치 드래그 시작:', { 
+          y: position.y, 
+          sensitivity: dragSensitivity,
+          touchPoint: clientY 
+        });
+      }, 100); // 100ms 지연
+    } else {
+      setIsDragging(true);
+      console.log('🖱️ 데스크톱 마우스 드래그 시작:', { y: position.y });
+    }
+    
+    setDragStartTime(Date.now());
+    setLastTouchY(clientY);
+    setDragVelocity(0);
     
     setDragStart({
       x: clientX,
       y: clientY - position.y
     });
-    
-    console.log('🎯 수직 드래그 시작:', { y: position.y, isMobile });
   };
 
-  // 🔥 **수직 드래그 이벤트 처리 (터치 지원)**
+  // 🔥 **향상된 수직 드래그 이벤트 처리 (모바일 최적화)**
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent | TouchEvent) => {
       if (!isDragging) return;
       
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-      const newY = clientY - dragStart.y;
+      const rawY = (clientY - dragStart.y) * dragSensitivity;
+      
+      // 속도 계산 (모바일 던지기 효과용)
+      const currentTime = Date.now();
+      const timeDelta = currentTime - dragStartTime;
+      if (timeDelta > 0) {
+        const yDelta = clientY - lastTouchY;
+        setDragVelocity(yDelta / timeDelta * 1000); // px/second
+        setLastTouchY(clientY);
+      }
       
       // Y축 경계 체크 (모바일 최적화)
-      const mobileOffset = isMobile ? 10 : 20;
+      const mobileOffset = isMobile ? 8 : 20;
       const buttonHeight = isMobile ? 60 : 64;
       const chatHeight = isOpen ? (isMinimized ? 80 : (isMobile ? 480 : 520)) : buttonHeight;
       const maxY = window.innerHeight - chatHeight - mobileOffset;
-      const boundedY = Math.max(mobileOffset, Math.min(newY, maxY));
+      const minY = mobileOffset;
+      
+      // 경계에서 저항 효과 (모바일 스크롤 느낌)
+      let boundedY = rawY;
+      if (rawY < minY) {
+        const resistance = isMobile ? 0.3 : 0.1;
+        boundedY = minY + (rawY - minY) * resistance;
+      } else if (rawY > maxY) {
+        const resistance = isMobile ? 0.3 : 0.1;
+        boundedY = maxY + (rawY - maxY) * resistance;
+      }
       
       // X축은 항상 오른쪽 끝에 고정 (모바일 최적화)
       const chatWidth = isMobile ? Math.min(window.innerWidth - 20, 380) : 420;
       const buttonSize = isMobile ? 60 : 64;
-      const sideOffset = isMobile ? 10 : 20;
+      const sideOffset = isMobile ? 8 : 20;
       const fixedX = window.innerWidth - (isOpen ? chatWidth + 10 : buttonSize + sideOffset);
       
       setPosition({
@@ -174,15 +233,42 @@ export default function FloatingChatbot() {
       // 🚀 **로그 throttling으로 스팸 방지**
       const now = Date.now();
       if (now - lastLogTime > LOG_THROTTLE_MS) {
-        console.log('🚀 수직 드래그 중:', { y: boundedY, isMobile, throttled: true });
+        console.log('🚀 수직 드래그 중:', { 
+          y: boundedY, 
+          velocity: dragVelocity.toFixed(1), 
+          isMobile, 
+          throttled: true 
+        });
         setLastLogTime(now);
       }
     };
 
+    // 스냅 기능이 포함된 드래그 종료 처리
     const handleMouseUp = () => {
       if (isDragging) {
         setIsDragging(false);
-        console.log('✅ 드래그 종료 - 최종 위치:', { y: position.y, isMobile });
+        
+        // 모바일에서 스냅 기능
+        if (isMobile) {
+          performSmartSnap();
+        }
+        
+        // 드래그 종료 햅틱 피드백
+        if (isMobile && 'vibrate' in navigator) {
+          navigator.vibrate(10);
+        }
+        
+        console.log('✅ 드래그 종료:', { 
+          y: position.y, 
+          velocity: dragVelocity.toFixed(1),
+          isMobile 
+        });
+      }
+      
+      // 타임아웃 정리
+      if (dragTimeoutRef.current) {
+        clearTimeout(dragTimeoutRef.current);
+        dragTimeoutRef.current = null;
       }
     };
 
@@ -204,7 +290,16 @@ export default function FloatingChatbot() {
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
     };
-  }, [isDragging, dragStart, isOpen, isMinimized, lastLogTime, position.y, isMobile]);
+      }, [isDragging, dragStart, isOpen, isMinimized, lastLogTime, position.y, isMobile]);
+
+  // 🧹 **컴포넌트 언마운트 시 정리 작업**
+  useEffect(() => {
+    return () => {
+      if (dragTimeoutRef.current) {
+        clearTimeout(dragTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // 메시지 전송
   const handleSendMessage = useCallback(async (text: string) => {
@@ -295,6 +390,95 @@ export default function FloatingChatbot() {
     }
   }, [messages, addMessage, isMobile]);
 
+  // 🎯 **스마트 스냅 기능 (모바일 최적화)**
+  const performSmartSnap = useCallback(() => {
+    if (!isMobile) return;
+    
+    setIsSnapAnimating(true);
+    const screenHeight = window.innerHeight;
+    const currentY = position.y;
+    const chatHeight = isOpen ? (isMinimized ? 80 : 480) : 60;
+    const mobileOffset = 8;
+    
+    // 스냅 영역 정의
+    const topZone = screenHeight * 0.15; // 상위 15%
+    const bottomZone = screenHeight * 0.85; // 하위 15%
+    const centerY = (screenHeight - chatHeight) / 2;
+    
+    let targetY = currentY;
+    let snapType = 'none';
+    
+    // 속도 기반 스냅 (던지기 효과)
+    if (Math.abs(dragVelocity) > 500) {
+      if (dragVelocity < 0) {
+        // 위로 던짐
+        targetY = mobileOffset;
+        snapType = 'top-velocity';
+      } else {
+        // 아래로 던짐
+        targetY = screenHeight - chatHeight - mobileOffset;
+        snapType = 'bottom-velocity';
+      }
+    } else {
+      // 위치 기반 스냅
+      if (currentY < topZone) {
+        targetY = mobileOffset;
+        snapType = 'top-position';
+      } else if (currentY > bottomZone) {
+        targetY = screenHeight - chatHeight - mobileOffset;
+        snapType = 'bottom-position';
+      } else {
+        targetY = centerY;
+        snapType = 'center';
+      }
+    }
+    
+    console.log('🎯 스마트 스냅 실행:', {
+      from: currentY.toFixed(1),
+      to: targetY.toFixed(1),
+      velocity: dragVelocity.toFixed(1),
+      type: snapType
+    });
+    
+    // 스냅 애니메이션
+    const startY = currentY;
+    const distance = targetY - startY;
+    const duration = Math.min(Math.max(Math.abs(distance) * 2, 200), 600); // 200ms ~ 600ms
+    const startTime = Date.now();
+    
+    const animateSnap = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // easeOutCubic 이징 함수
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const newY = startY + distance * eased;
+      
+      // X축 업데이트
+      const chatWidth = Math.min(window.innerWidth - 20, 380);
+      const buttonSize = 60;
+      const sideOffset = 8;
+      const fixedX = window.innerWidth - (isOpen ? chatWidth + 10 : buttonSize + sideOffset);
+      
+      setPosition({ x: fixedX, y: newY });
+      
+      if (progress < 1) {
+        requestAnimationFrame(animateSnap);
+      } else {
+        setIsSnapAnimating(false);
+        
+        // 스냅 완료 햅틱 피드백
+        if ('vibrate' in navigator) {
+          navigator.vibrate(15);
+        }
+        
+        console.log('✅ 스냅 완료:', { finalY: targetY.toFixed(1), type: snapType });
+      }
+    };
+    
+    requestAnimationFrame(animateSnap);
+  }, [position.y, dragVelocity, isMobile, isOpen, isMinimized]);
+
   // 클라이언트 사이드 응답 생성 함수
   const generateClientResponse = (message: string): string => {
     const lowerMessage = message.toLowerCase();
@@ -352,9 +536,9 @@ export default function FloatingChatbot() {
     setIsOpen(false);
   };
 
-  // 🎯 **드래그 중 클릭 방지**
+  // 🎯 **드래그 및 애니메이션 중 클릭 방지**
   const handleToggle = (e: React.MouseEvent) => {
-    if (isDragging) {
+    if (isDragging || isSnapAnimating) {
       e.preventDefault();
       e.stopPropagation();
       return;
@@ -393,7 +577,7 @@ export default function FloatingChatbot() {
           onClick={handleToggle}
         >
           {/* 🔵 **원형 버튼 (모바일 최적화)** */}
-          <div className={`relative ${isMobile ? 'w-14 h-14' : 'w-16 h-16'} bg-gradient-to-r from-blue-500 to-purple-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group ${isDragging ? 'scale-110 shadow-2xl ring-4 ring-blue-300/50' : 'hover:scale-110'}`}>
+          <div className={`relative ${isMobile ? 'w-14 h-14' : 'w-16 h-16'} bg-gradient-to-r from-blue-500 to-purple-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group ${isDragging ? 'scale-110 shadow-2xl ring-4 ring-blue-300/50' : isSnapAnimating ? 'scale-105 shadow-xl ring-2 ring-green-400/50' : 'hover:scale-110'}`}>
             
             {/* 메인 AI 아이콘 */}
             <Bot className={`${isMobile ? 'w-7 h-7' : 'w-8 h-8'} text-white`} />
@@ -401,11 +585,40 @@ export default function FloatingChatbot() {
             {/* 온라인 상태 표시 */}
             <div className={`absolute -top-1 -right-1 ${isMobile ? 'w-3 h-3' : 'w-4 h-4'} bg-green-400 rounded-full border-2 border-white animate-pulse shadow-sm`}></div>
             
-            {/* 🔥 **드래그 힌트 도트들 (모바일 최적화)** */}
+            {/* 🔥 **모바일 최적화 드래그 힌트** */}
             {isDragging && (
-              <div className="absolute inset-0 rounded-full border-2 border-dashed border-white/60 animate-spin-slow">
-                <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></div>
-                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></div>
+              <>
+                {isMobile ? (
+                  // 모바일 전용 드래그 힌트
+                  <div className="absolute inset-0 rounded-full border-2 border-dashed border-white/80 animate-pulse">
+                    <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full animate-bounce"></div>
+                    <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    
+                    {/* 수직 이동 인디케이터 */}
+                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                      <div className="flex flex-col items-center space-y-0.5">
+                        <div className="w-0 h-0 border-l-2 border-r-2 border-b-3 border-transparent border-b-white animate-ping"></div>
+                        <div className="text-white text-xs font-bold">↕</div>
+                        <div className="w-0 h-0 border-l-2 border-r-2 border-t-3 border-transparent border-t-white animate-ping" style={{ animationDelay: '0.5s' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  // 데스크톱 드래그 힌트
+                  <div className="absolute inset-0 rounded-full border-2 border-dashed border-white/60 animate-spin-slow">
+                    <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></div>
+                    <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></div>
+                  </div>
+                )}
+              </>
+            )}
+            
+            {/* 🎯 **스냅 애니메이션 중 표시 (모바일 전용)** */}
+            {isSnapAnimating && isMobile && (
+              <div className="absolute inset-0 rounded-full border-2 border-solid border-green-400/80 animate-ping">
+                <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-green-400 text-lg animate-pulse">
+                  🎯
+                </div>
               </div>
             )}
             
@@ -456,10 +669,10 @@ export default function FloatingChatbot() {
             transition: isDragging ? 'none' : 'all 0.2s ease'
           }}
         >
-          <Card className={`h-full shadow-2xl border-2 bg-white rounded-lg overflow-hidden ${isDragging ? 'border-blue-500 shadow-2xl' : 'border-gray-300'}`}>
+          <Card className={`h-full shadow-2xl border-2 bg-white rounded-lg overflow-hidden transition-all duration-200 ${isDragging ? 'border-blue-500 shadow-2xl' : isSnapAnimating ? 'border-green-400 shadow-xl' : 'border-gray-300'}`}>
             {/* 🟦 **확장된 채팅창 드래그 헤더 (모바일 최적화)** */}
-            <CardHeader 
-              className={`${isMobile ? 'p-2' : 'p-3'} bg-gradient-to-r from-blue-500 to-purple-600 text-white select-none relative transition-all duration-200 ${isDragging ? 'cursor-grabbing bg-blue-600 shadow-2xl' : 'cursor-move hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-700'}`}
+                          <CardHeader 
+              className={`${isMobile ? 'p-2' : 'p-3'} bg-gradient-to-r from-blue-500 to-purple-600 text-white select-none relative transition-all duration-200 ${isDragging ? 'cursor-grabbing bg-blue-600 shadow-2xl' : isSnapAnimating ? 'bg-green-500 cursor-default' : 'cursor-move hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-700'}`}
               onMouseDown={startDrag}
               onTouchStart={startDrag}
               title={isMobile ? "헤더 터치로 이동" : "헤더를 드래그해서 위아래로 이동하세요"}
@@ -490,8 +703,32 @@ export default function FloatingChatbot() {
                   <Bot className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
                   <span className={`font-semibold ${isMobile ? 'text-xs' : 'text-sm'}`}>기업의별 AI상담사</span>
                   
-                  {/* 🎯 **강화된 드래그 가이드 (데스크톱만)** */}
-                  {!isMobile && (
+                  {/* 🎯 **플랫폼별 드래그 가이드** */}
+                  {isMobile ? (
+                    // 모바일 전용 드래그 가이드
+                    <div className={`flex items-center space-x-1 text-xs px-2 py-1 rounded-full transition-all duration-200 ${isDragging ? 'bg-white/40 scale-105 animate-pulse' : isSnapAnimating ? 'bg-green-400/30' : 'bg-white/10'}`}>
+                      {isDragging ? (
+                        <>
+                          <div className="flex flex-col items-center">
+                            <div className="w-0 h-0 border-l-1 border-r-1 border-b-2 border-transparent border-b-white animate-bounce"></div>
+                            <div className="w-0 h-0 border-l-1 border-r-1 border-t-2 border-transparent border-t-white animate-bounce" style={{ animationDelay: '0.3s' }}></div>
+                          </div>
+                          <span className="font-bold text-white">↕ 터치 이동</span>
+                        </>
+                      ) : isSnapAnimating ? (
+                        <>
+                          <span className="text-lg animate-spin">🎯</span>
+                          <span className="font-medium text-white">위치 조정</span>
+                        </>
+                      ) : (
+                        <>
+                          <GripVertical className="w-3 h-3" />
+                          <span className="font-medium">터치 이동</span>
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    // 데스크톱 드래그 가이드
                     <div className={`flex items-center space-x-2 text-xs px-3 py-1 rounded-full transition-all duration-200 ${isDragging ? 'bg-white/30 scale-105' : 'bg-white/10 hover:bg-white/20'}`}>
                       <GripVertical className={`w-3 h-3 ${isDragging ? 'animate-pulse' : ''}`} />
                       <span className="font-medium">드래그 이동</span>
