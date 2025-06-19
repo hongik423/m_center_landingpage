@@ -357,7 +357,7 @@ export default function FloatingChatbot() {
           });
           
           if (!statusData.configured) {
-            throw new Error('OpenAI API 키가 설정되지 않았습니다');
+            throw new Error('Gemini API 키가 설정되지 않았습니다');
           }
         } else {
           console.warn('⚠️ API 상태 확인 실패:', statusResponse.status);
@@ -367,8 +367,8 @@ export default function FloatingChatbot() {
         // 상태 확인 실패 시에도 계속 시도
       }
       
-      // 🚀 **OpenAI API 호출 (안정성 개선)**
-      console.log('🚀 OpenAI API 호출 중...', { 
+      // 🚀 **Gemini API 호출 (안정성 개선)**
+      console.log('🚀 Gemini API 호출 중...', { 
         isGitHubPages: browserInfo.isGitHubPages,
         userAgent: browserInfo.userAgent.substring(0, 50) + '...',
         messageLength: text.length
@@ -426,7 +426,7 @@ export default function FloatingChatbot() {
         const responseContent = safeGet<string>(data, 'response', '');
         
         if (responseContent && typeof responseContent === 'string' && responseContent.trim()) {
-          console.log('✅ OpenAI API 응답 성공:', { 
+          console.log('✅ Gemini API 응답 성공:', { 
             responseLength: responseContent.length,
             hasUsage: !!safeGet(data, 'usage'),
             services: safeGet(data, 'services', []),
@@ -474,7 +474,7 @@ export default function FloatingChatbot() {
         timestamp: new Date().toISOString()
       });
       
-      console.warn('⚠️ OpenAI API 오류, 클라이언트 응답 사용:', errorInfo);
+      console.warn('⚠️ Gemini API 오류, 클라이언트 응답 사용:', errorInfo);
       
       console.log('🤖 클라이언트 응답 생성 중...');
       
@@ -849,9 +849,9 @@ export default function FloatingChatbot() {
                 onTouchStart={(e) => e.stopPropagation()}
                 title="🔴 AI 상담창 닫기"
               >
-                <div className="w-20 h-20 bg-gradient-to-br from-red-500 via-red-600 to-red-700 hover:from-red-600 hover:to-red-800 rounded-full shadow-2xl border-4 border-white flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 relative overflow-hidden">
+                <div className="w-20 h-20 bg-gradient-to-br from-red-200 via-red-300 to-red-400 hover:from-red-300 hover:to-red-500 rounded-full shadow-2xl border-4 border-white flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 relative overflow-hidden">
                   {/* 메인 X 아이콘 */}
-                  <X className="w-10 h-10 text-white font-black stroke-[4] drop-shadow-lg relative z-10" />
+                  <X className="w-10 h-10 text-black font-black stroke-[4] drop-shadow-lg relative z-10" />
                   
                   {/* 강력한 애니메이션 효과들 */}
                   <div className="absolute inset-0 bg-gradient-to-br from-red-400/50 to-red-700/50 animate-pulse"></div>
@@ -866,8 +866,8 @@ export default function FloatingChatbot() {
                 {/* 🎯 **극대형 툴팁** */}
                 <div className="absolute bottom-full right-0 mb-4 px-6 py-4 bg-red-600/95 text-white text-lg font-bold rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap shadow-2xl backdrop-blur-sm border-2 border-red-400/50">
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                      <X className="w-5 h-5 text-white" />
+                                          <div className="w-8 h-8 bg-white/80 rounded-full flex items-center justify-center">
+                      <X className="w-5 h-5 text-black" />
                     </div>
                     <div>
                       <div className="text-xl font-black">채팅창 닫기</div>
@@ -951,10 +951,10 @@ export default function FloatingChatbot() {
                     onClick={handleClose}
                     onMouseDown={(e) => e.stopPropagation()}
                     onTouchStart={(e) => e.stopPropagation()}
-                    className="text-white hover:bg-red-500 bg-red-600/80 border-4 border-white w-16 h-16 transition-all duration-300 hover:scale-125 active:scale-95 hover:border-yellow-300 hover:shadow-2xl group relative rounded-full p-0"
+                    className="text-white hover:bg-red-300 bg-red-200/90 border-4 border-white w-16 h-16 transition-all duration-300 hover:scale-125 active:scale-95 hover:border-yellow-300 hover:shadow-2xl group relative rounded-full p-0"
                     title="🔴 AI 상담창 완전히 닫기"
                   >
-                    <X className="w-9 h-9 text-white font-black stroke-[4] group-hover:rotate-180 transition-transform duration-500 drop-shadow-lg" />
+                    <X className="w-9 h-9 text-black font-black stroke-[4] group-hover:rotate-180 transition-transform duration-500 drop-shadow-lg" />
                     
                     {/* 극강 시각 효과 */}
                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-red-400/40 to-red-700/40 animate-pulse"></div>

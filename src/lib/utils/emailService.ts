@@ -17,6 +17,7 @@ interface BaseTemplateParams {
   reply_to: string;
   from_name: string;
   message: string;
+  [key: string]: any; // 인덱스 시그니처 추가
 }
 
 interface DiagnosisTemplateParams extends BaseTemplateParams {
@@ -27,6 +28,7 @@ interface DiagnosisTemplateParams extends BaseTemplateParams {
   submission_date: string;
   diagnosis_summary?: string;
   next_steps?: string;
+  [key: string]: any; // 인덱스 시그니처 추가
 }
 
 interface ConsultationTemplateParams extends BaseTemplateParams {
@@ -36,6 +38,7 @@ interface ConsultationTemplateParams extends BaseTemplateParams {
   status: string;
   consultant_name?: string;
   appointment_date?: string;
+  [key: string]: any; // 인덱스 시그니처 추가
 }
 
 interface AdminNotificationParams {
@@ -46,6 +49,7 @@ interface AdminNotificationParams {
   service_type: string;
   submission_date: string;
   details: string;
+  [key: string]: any; // 인덱스 시그니처 추가
 }
 
 // 🎯 이메일 발송 결과 타입

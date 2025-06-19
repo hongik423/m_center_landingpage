@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { safeGet, validateApiResponse, collectErrorInfo } from '@/lib/utils/safeDataAccess';
-import { getOpenAIKey, isDevelopment, maskApiKey } from '@/lib/config/env';
+import { getGeminiKey, isDevelopment, maskApiKey } from '@/lib/config/env';
 
 // GitHub Pages 정적 export 호환성
 export const dynamic = 'force-static';
@@ -19,34 +19,32 @@ function getCorsHeaders() {
   };
 }
 
-// OpenAI 클라이언트 초기화 (보안 강화)
-let openaiClient: OpenAI | null = null;
+// Gemini 클라이언트 초기화 (보안 강화)
+let geminiClient: GoogleGenerativeAI | null = null;
 
-function getOpenAIClient(): OpenAI {
-  if (!openaiClient) {
+function getGeminiClient(): GoogleGenerativeAI {
+  if (!geminiClient) {
     try {
-      const apiKey = getOpenAIKey();
+      const apiKey = getGeminiKey();
       
       if (isDevelopment()) {
-        console.log('✅ OpenAI API Key 설정 완료:', maskApiKey(apiKey));
+        console.log('✅ Gemini API Key 설정 완료:', maskApiKey(apiKey));
       }
       
-      openaiClient = new OpenAI({
-        apiKey: apiKey,
-      });
+      geminiClient = new GoogleGenerativeAI(apiKey);
       
       if (isDevelopment()) {
-        console.log('🤖 OpenAI 클라이언트 초기화 완료:', {
+        console.log('🤖 Gemini 클라이언트 초기화 완료:', {
           apiKeyMasked: maskApiKey(apiKey),
         });
       }
     } catch (error) {
-      console.error('OpenAI 클라이언트 초기화 실패:', error);
-      throw new Error('OpenAI API 설정을 확인해주세요');
+      console.error('Gemini 클라이언트 초기화 실패:', error);
+      throw new Error('Gemini API 설정을 확인해주세요');
     }
   }
   
-  return openaiClient;
+  return geminiClient;
 }
 
 // M-CENTER 서비스별 차별화 포인트와 우수성 데이터베이스
@@ -76,7 +74,7 @@ const mCenterExcellence = {
     name: 'AI 활용 생산성향상',
     differentiators: [
       '실무진 직접 교육하는 1:1 맞춤 컨설팅',
-      'ChatGPT 업무 적용 전문가 (국내 TOP 3)',
+      'AI 생산성 전문가 (국내 TOP 3)',
       '업종별 특화 AI 활용법 개발',
       '즉시 적용 가능한 실용적 솔루션'
     ],
@@ -308,8 +306,8 @@ export async function POST(request: NextRequest) {
     const relevantServices = identifyRelevantServices(message);
     const serviceDetails = generateServiceDetails(relevantServices);
 
-    // OpenAI 클라이언트 가져오기
-    const openai = getOpenAIClient();
+    // Gemini 클라이언트 가져오기
+    const gemini = getGeminiClient();
 
     // 🚀 극도로 고도화된 전문 AI 시스템 프롬프트 - M-CENTER 차별화와 우수성 강조
     const systemPrompt = `당신은 M-CENTER(기업의별 경영지도센터)의 최고급 전문 AI 경영컨설턴트입니다.
@@ -413,30 +411,40 @@ ${serviceDetails}
 ⚡ **핵심 미션:** 
 고객이 "M-CENTER와 함께하면 확실히 성공할 수 있겠다"는 확신을 갖게 하여, 즉시 상담 신청으로 이어지도록 하는 것이 최우선 목표입니다.`;
 
-    // 대화 히스토리를 OpenAI 메시지 형식으로 변환
-    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-      { role: 'system', content: systemPrompt },
-      ...history.map((msg: any) => ({
-        role: msg.sender === 'user' ? 'user' as const : 'assistant' as const,
-        content: msg.content,
-      })),
-      { role: 'user', content: message },
-    ];
+    // 대화 히스토리 포맷팅
+    let conversationHistory = '';
+    if (history.length > 0) {
+      conversationHistory = history.map((msg: any) => {
+        const role = msg.sender === 'user' ? '사용자' : 'AI 컨설턴트';
+        return `${role}: ${msg.content}`;
+      }).join('\n\n');
+      conversationHistory += '\n\n';
+    }
 
-    // OpenAI API 호출 (최고급 GPT-4 모델 사용)
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini', // 안정적이고 고성능의 GPT-4 모델
-      messages,
-      max_tokens: 1500, // 더욱 상세하고 풍부한 답변
-      temperature: 0.7, // 정확성과 창의성의 완벽한 균형
-      top_p: 0.9, // 고품질 응답을 위한 확률 제한
-      frequency_penalty: 0.1, // 반복 방지
-      presence_penalty: 0.1, // 다양성 증진
-      stream: false,
-      user: `ip_${ip}`,
+    const fullPrompt = `${systemPrompt}
+
+이전 대화:
+${conversationHistory}
+
+현재 질문: ${message}
+
+위의 시스템 프롬프트에 따라 전문적이고 상세한 답변을 제공해주세요.`;
+
+    // Gemini API 호출 - 최신 모델로 업데이트
+    const model = gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
+      generationConfig: {
+        maxOutputTokens: 1500,
+        temperature: 0.7,
+        topP: 0.9,
+        topK: 40,
+      },
     });
 
-    const aiResponse = completion.choices[0]?.message?.content;
+    const response = await result.response;
+    const aiResponse = response.text();
 
     if (!aiResponse) {
       return NextResponse.json(
@@ -451,7 +459,6 @@ ${serviceDetails}
     // 개발 환경에서만 사용량 로깅
     if (isDevelopment()) {
       console.log('💬 AI 응답 생성 완료:', {
-        tokensUsed: completion.usage,
         responseLength: aiResponse.length,
         relevantServices,
       });
@@ -459,7 +466,6 @@ ${serviceDetails}
 
     return NextResponse.json({
       response: aiResponse,
-      usage: completion.usage,
       services: relevantServices, // 디버깅용
     }, {
       headers: getCorsHeaders()
@@ -467,7 +473,7 @@ ${serviceDetails}
 
   } catch (error) {
     // 에러 로깅 (민감한 정보 제외)
-    console.error('OpenAI API 오류:', {
+    console.error('Gemini API 오류:', {
       message: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString(),
     });
@@ -484,21 +490,11 @@ ${serviceDetails}
         );
       }
       
-      if (error.message.includes('rate limit')) {
+      if (error.message.includes('rate limit') || error.message.includes('quota')) {
         return NextResponse.json(
           { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' },
           { 
             status: 429,
-            headers: getCorsHeaders()
-          }
-        );
-      }
-      
-      if (error.message.includes('quota')) {
-        return NextResponse.json(
-          { error: '일시적으로 서비스를 이용할 수 없습니다.' },
-          { 
-            status: 503,
             headers: getCorsHeaders()
           }
         );
@@ -519,7 +515,7 @@ ${serviceDetails}
 export async function GET(request: NextRequest) {
   try {
     // 환경변수 상태 확인 (민감한 정보 제외)
-    const hasApiKey = !!process.env.OPENAI_API_KEY;
+    const hasApiKey = !!process.env.GEMINI_API_KEY;
     const isDev = process.env.NODE_ENV === 'development';
     
     return NextResponse.json({
@@ -532,7 +528,7 @@ export async function GET(request: NextRequest) {
       // 개발 환경에서만 추가 정보 제공
       ...(isDev && {
         debug: {
-          apiKeyLength: process.env.OPENAI_API_KEY?.length || 0,
+          apiKeyLength: process.env.GEMINI_API_KEY?.length || 0,
           nodeVersion: process.version,
         }
       }),
@@ -564,58 +560,49 @@ export async function OPTIONS(request: NextRequest) {
   });
 }
 
-// 🔧 지원하지 않는 HTTP 메서드들에 대한 명확한 405 응답
+// 🔧 PUT 요청 처리 (향후 확장용)
 export async function PUT(request: NextRequest) {
   return NextResponse.json(
     { 
-      error: 'PUT 메서드는 지원하지 않습니다', 
-      supportedMethods: ['GET', 'POST', 'OPTIONS'],
-      message: 'AI 챗봇과 대화하려면 POST 메서드를 사용해주세요.'
+      error: 'PUT 메서드는 지원되지 않습니다.',
+      supportedMethods: ['GET', 'POST', 'OPTIONS']
     },
     { 
       status: 405,
-      headers: {
-        ...getCorsHeaders(),
-        'Allow': 'GET, POST, OPTIONS'
-      }
+      headers: getCorsHeaders()
     }
   );
 }
 
+// 🔧 DELETE 요청 처리 (향후 확장용)
 export async function DELETE(request: NextRequest) {
   return NextResponse.json(
     { 
-      error: 'DELETE 메서드는 지원하지 않습니다', 
-      supportedMethods: ['GET', 'POST', 'OPTIONS'],
-      message: 'AI 챗봇과 대화하려면 POST 메서드를 사용해주세요.'
+      error: 'DELETE 메서드는 지원되지 않습니다.',
+      supportedMethods: ['GET', 'POST', 'OPTIONS']
     },
     { 
       status: 405,
-      headers: {
-        ...getCorsHeaders(),
-        'Allow': 'GET, POST, OPTIONS'
-      }
+      headers: getCorsHeaders()
     }
   );
 }
 
+// 🔧 PATCH 요청 처리 (향후 확장용)
 export async function PATCH(request: NextRequest) {
   return NextResponse.json(
     { 
-      error: 'PATCH 메서드는 지원하지 않습니다', 
-      supportedMethods: ['GET', 'POST', 'OPTIONS'],
-      message: 'AI 챗봇과 대화하려면 POST 메서드를 사용해주세요.'
+      error: 'PATCH 메서드는 지원되지 않습니다.',
+      supportedMethods: ['GET', 'POST', 'OPTIONS']
     },
     { 
       status: 405,
-      headers: {
-        ...getCorsHeaders(),
-        'Allow': 'GET, POST, OPTIONS'
-      }
+      headers: getCorsHeaders()
     }
   );
 }
 
+// 🔧 HEAD 요청 처리 (상태 확인용)
 export async function HEAD(request: NextRequest) {
   return new NextResponse(null, {
     status: 200,

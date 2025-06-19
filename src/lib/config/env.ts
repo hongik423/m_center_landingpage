@@ -7,8 +7,8 @@ import { z } from 'zod';
 
 // 환경변수 스키마 정의
 const envSchema = z.object({
-  // OpenAI API (서버 사이드 전용)
-  OPENAI_API_KEY: z.string().min(1, 'OpenAI API Key는 필수입니다'),
+  // Gemini API (서버 사이드 전용)
+  GEMINI_API_KEY: z.string().min(1, 'Gemini API Key는 필수입니다'),
   
   // EmailJS (클라이언트 사이드 허용)
   NEXT_PUBLIC_EMAILJS_SERVICE_ID: z.string().min(1, 'EmailJS Service ID는 필수입니다'),
@@ -35,7 +35,7 @@ export type EnvConfig = z.infer<typeof envSchema>;
 export function getServerEnv(): EnvConfig {
   try {
     const env = envSchema.parse({
-      OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+      GEMINI_API_KEY: process.env.GEMINI_API_KEY,
       NEXT_PUBLIC_EMAILJS_SERVICE_ID: process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
       NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
       NEXT_PUBLIC_GOOGLE_SHEETS_ID: process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
@@ -70,34 +70,34 @@ export function getClientEnv() {
 }
 
 /**
- * OpenAI API Key (서버 전용)
+ * Gemini API Key (서버 전용)
  * 클라이언트에서 절대 접근 불가
  */
-export function getOpenAIKey(): string {
-  const key = process.env.OPENAI_API_KEY;
+export function getGeminiKey(): string {
+  const key = process.env.GEMINI_API_KEY;
   
   if (!key) {
-    console.warn('⚠️ OPENAI_API_KEY가 설정되지 않았습니다. 클라이언트 사이드 응답을 사용합니다.');
-    console.info('💡 실제 OpenAI API를 사용하려면: 프로젝트 루트에 .env.local 파일을 생성하고');
-    console.info('   OPENAI_API_KEY=sk-proj-your-actual-api-key 를 추가하세요.');
-    throw new Error('OPENAI_API_KEY가 설정되지 않았습니다. 클라이언트 응답 모드로 작동합니다.');
+    console.warn('⚠️ GEMINI_API_KEY가 설정되지 않았습니다. 클라이언트 사이드 응답을 사용합니다.');
+    console.info('💡 실제 Gemini API를 사용하려면: 프로젝트 루트에 .env.local 파일을 생성하고');
+    console.info('   GEMINI_API_KEY=your-actual-api-key 를 추가하세요.');
+    throw new Error('GEMINI_API_KEY가 설정되지 않았습니다. 클라이언트 응답 모드로 작동합니다.');
   }
   
   // 개발용 임시 키 체크
   if (key.includes('temp') || key.includes('development') || key.includes('replace')) {
-    console.warn('⚠️ 개발용 임시 OpenAI API Key가 설정되어 있습니다. 클라이언트 사이드 응답을 사용합니다.');
-    console.info('💡 실제 OpenAI API를 사용하려면 실제 API 키로 교체하세요.');
+    console.warn('⚠️ 개발용 임시 Gemini API Key가 설정되어 있습니다. 클라이언트 사이드 응답을 사용합니다.');
+    console.info('💡 실제 Gemini API를 사용하려면 실제 API 키로 교체하세요.');
     throw new Error('개발용 임시 키입니다. 클라이언트 응답 모드로 작동합니다.');
   }
   
-  // API 키 형식 검증
-  if (!key.startsWith('sk-')) {
-    console.error('❌ 유효하지 않은 OpenAI API Key 형식입니다.');
-    console.error('💡 올바른 형식: sk-proj-... 또는 sk-...');
-    throw new Error('유효하지 않은 OpenAI API Key 형식입니다');
+  // API 키 형식 검증 (Gemini API 키는 AIza로 시작)
+  if (!key.startsWith('AIza')) {
+    console.error('❌ 유효하지 않은 Gemini API Key 형식입니다.');
+    console.error('💡 올바른 형식: AIza... 로 시작하는 키');
+    throw new Error('유효하지 않은 Gemini API Key 형식입니다');
   }
   
-  console.log('✅ OpenAI API Key 설정 완료:', maskApiKey(key));
+  console.log('✅ Gemini API Key 설정 완료:', maskApiKey(key));
   return key;
 }
 
@@ -133,7 +133,7 @@ export function isProduction(): boolean {
  */
 export function maskApiKey(key: string): string {
   if (!key || key.length < 8) return '***';
-  return `${key.slice(0, 4)}****${key.slice(-4)}`;
+  return `${key.slice(0, 8)}****${key.slice(-4)}`;
 }
 
 /**
@@ -198,13 +198,13 @@ export function logEnvStatus(): void {
   if (isDevelopment()) {
     console.log('🔧 환경변수 상태:', {
       nodeEnv: process.env.NODE_ENV,
-      hasOpenAIKey: !!process.env.OPENAI_API_KEY,
+      hasGeminiKey: !!process.env.GEMINI_API_KEY,
       hasEmailJSConfig: !!(process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID && process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY),
       hasGoogleSheetsId: !!process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
       hasGoogleScriptUrl: !!process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
       hasGoogleScriptId: !!process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_ID,
       hasBaseUrl: !!process.env.NEXT_PUBLIC_BASE_URL,
-      openAIKeyMasked: process.env.OPENAI_API_KEY ? maskApiKey(process.env.OPENAI_API_KEY) : 'None',
+      geminiKeyMasked: process.env.GEMINI_API_KEY ? maskApiKey(process.env.GEMINI_API_KEY) : 'None',
       googleScriptUrlMasked: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL ? 
         `${process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL.slice(0, 50)}...` : 'None',
     });

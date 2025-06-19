@@ -317,7 +317,7 @@ function calculateDetailedScore(data: SimplifiedDiagnosisRequest): {
   reliabilityScore: number;
   evaluationBasis: string[];
 } {
-  const industryData = enhancedIndustryAnalysis[data.industry] || enhancedIndustryAnalysis['other'];
+  const industryData = enhancedIndustryAnalysis[data.industry as keyof typeof enhancedIndustryAnalysis] || enhancedIndustryAnalysis['other'];
   
   // 1. 비즈니스 모델 적합성 (25%)
   let businessModelScore = industryData.keyMetrics.averageROI * 4; // 기본 점수
@@ -343,7 +343,7 @@ function calculateDetailedScore(data: SimplifiedDiagnosisRequest): {
   else if (growthRate >= 5) marketPositionScore += 2;
   
   // 기업 규모별 보정
-  const sizeMultiplier = {
+  const sizeMultiplier: Record<string, number> = {
     '1-5': 0.85,
     '6-10': 0.92,
     '11-30': 1.0,
@@ -359,7 +359,7 @@ function calculateDetailedScore(data: SimplifiedDiagnosisRequest): {
   let operationalScore = industryData.keyMetrics.efficiency;
   
   // 성장단계별 보정
-  const stageBonus = {
+  const stageBonus: Record<string, number> = {
     'startup': -5,
     'early': 0,
     'growth': 8,
@@ -391,7 +391,7 @@ function calculateDetailedScore(data: SimplifiedDiagnosisRequest): {
   let digitalScore = 60; // 기본 점수
   
   // 업종별 디지털 성숙도 반영
-  const digitalMaturity = {
+  const digitalMaturity: Record<string, number> = {
     '높음': 15,
     '중간': 8,
     '낮음': 0
@@ -409,7 +409,7 @@ function calculateDetailedScore(data: SimplifiedDiagnosisRequest): {
   let financialScore = 65; // 기본 점수
   
   // 기업 규모별 재무 안정성 추정
-  const financialStability = {
+  const financialStability: Record<string, number> = {
     '1-5': -8,
     '6-10': -3,
     '11-30': 2,
@@ -487,7 +487,7 @@ function calculateDetailedScore(data: SimplifiedDiagnosisRequest): {
 // 📊 정교한 간소화된 진단 분석 함수 (신뢰도 향상)
 function generateSimplifiedDiagnosis(data: SimplifiedDiagnosisRequest) {
   // 업종별 기본 데이터 가져오기
-  const industryData = enhancedIndustryAnalysis[data.industry] || enhancedIndustryAnalysis['other'];
+  const industryData = enhancedIndustryAnalysis[data.industry as keyof typeof enhancedIndustryAnalysis] || enhancedIndustryAnalysis['other'];
   
   // 🎯 새로운 정교한 점수 계산 시스템 사용
   const scoreResult = calculateDetailedScore(data);

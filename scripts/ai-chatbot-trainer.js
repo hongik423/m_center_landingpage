@@ -1,16 +1,14 @@
 /**
  * 🧠 M-CENTER AI 챗봇 훈련 및 학습 데이터 업데이트
- * OpenAI Fine-tuning과 RAG(Retrieval-Augmented Generation) 시스템
+ * Google Gemini를 사용하여 챗봇 훈련 시스템
  */
 
-const OpenAI = require('openai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const fs = require('fs').promises;
 const path = require('path');
 
-// OpenAI 클라이언트 초기화
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Gemini 클라이언트 초기화
+const gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // 📚 M-CENTER 전문 지식 베이스
 const MCENTER_KNOWLEDGE_BASE = {
@@ -50,34 +48,34 @@ const MCENTER_KNOWLEDGE_BASE = {
     
     'ai-productivity': {
       name: 'AI 활용 생산성향상',
-      fullDescription: `ChatGPT, Claude, Midjourney 등 최신 AI 도구를 활용한 업무 자동화 및 생산성 향상 솔루션입니다. 
-      국내 TOP 3 수준의 AI 전문성으로 기업의 디지털 전환을 선도합니다.
+      fullDescription: `AI 기술을 실무에 직접 적용하여 업무 효율성을 극대화하는 M-CENTER 특화 서비스입니다.
       
-      핵심 서비스:
-      - 업무 프로세스 AI 자동화 설계
-      - 직원 대상 AI 활용 교육 및 코칭
-      - AI 도구 도입 전략 수립
-      - ROI 측정 및 성과 분석
+      핵심 특징:
+      - 개별 기업 맞춤형 AI 도구 선정 및 도입
+      - 실무진 대상 1:1 교육 및 지원
+      - ROI 측정 가능한 구체적 성과 창출
+      - 지속적 업그레이드 및 최적화 지원
       
-      전문 분야:
-      - 문서 작업 자동화 (보고서, 제안서, 계약서)
-      - 고객 응대 자동화 (챗봇, 이메일 응답)
-      - 데이터 분석 자동화 (시장분석, 매출예측)
-      - 콘텐츠 제작 자동화 (마케팅, SNS)`,
+      검증된 성과:
+      - 업무 효율성: 평균 47% 향상
+      - 인건비 절감: 25% 이상
+      - 의사결정 속도: 3배 향상
+      - 고객 대응 시간: 60% 단축`,
       
-      keywords: ['AI', '인공지능', '생산성', '자동화', 'ChatGPT', '업무효율', '디지털전환'],
+      keywords: ['AI', '인공지능', '생산성', '효율성', '자동화', '업무개선', '디지털전환'],
       
       caseStudies: [
-        '금융업 D사: AI 도입으로 문서작업 60% 단축, 연간 2억원 인건비 절감',
-        '제조업 E사: 고객응대 자동화로 CS 효율 45% 향상',
-        '서비스업 F사: AI 마케팅으로 온라인 매출 250% 증가'
+        '건설업 D사: AI 견적 시스템으로 견적서 작성 시간 80% 단축',
+        '마케팅업 E사: AI 콘텐츠 제작으로 생산성 300% 향상',
+        '회계법인 F사: AI 문서처리로 업무 효율 5배 증가'
       ],
       
-      benefits: [
-        '업무 효율 40-60% 향상',
-        '인건비 20-30% 절감',
-        '의사결정 속도 3배 향상',
-        '문서작업 시간 70% 단축'
+      process: [
+        '현재 업무 프로세스 분석',
+        'AI 적용 포인트 발굴',
+        '맞춤형 AI 도구 선정 및 도입',
+        '실무진 교육 및 적응 지원',
+        '성과 측정 및 지속 개선'
       ]
     },
     
@@ -253,58 +251,70 @@ const MCENTER_KNOWLEDGE_BASE = {
   }
 };
 
+// 🎯 훈련 데이터 생성을 위한 질문 템플릿
+const trainingPrompts = [
+  "M-CENTER의 주요 서비스는 무엇인가요?",
+  "BM ZEN 사업분석이 다른 컨설팅과 어떻게 다른가요?",
+  "AI 생산성향상 서비스의 구체적인 효과는 무엇인가요?",
+  "우리 회사에 맞는 M-CENTER 서비스를 추천해주세요",
+  "M-CENTER의 성공 사례를 알려주세요",
+  "상담을 받으려면 어떻게 해야 하나요?",
+  "비용은 얼마나 드나요?",
+  "정부 지원금을 받을 수 있나요?",
+  "서비스 진행 기간은 얼마나 걸리나요?",
+  "M-CENTER가 다른 컨설팅 회사와 다른 점은?",
+  "무료 상담이나 진단을 받을 수 있나요?",
+  "작은 회사도 서비스를 받을 수 있나요?",
+  "온라인으로도 상담이 가능한가요?",
+  "M-CENTER의 전문성은 어느 정도인가요?",
+  "실제 성과를 보장할 수 있나요?"
+];
+
 /**
- * 🔧 챗봇 학습 데이터 생성
+ * 🤖 AI 기반 훈련 데이터 생성
  */
 async function generateTrainingData() {
-  console.log('🧠 AI 챗봇 학습 데이터 생성 중...');
+  console.log('🚀 M-CENTER AI 챗봇 훈련 데이터 생성 시작...');
   
-  const trainingPrompts = [
-    // 서비스별 전문 질문-답변 생성
-    `M-CENTER의 BM ZEN 사업분석 서비스에 대한 다양한 고객 질문과 전문가 수준의 답변 10개를 생성해주세요. 
-    실제 고객이 물어볼 만한 구체적이고 실무적인 질문들로 구성해주세요.`,
-    
-    `AI 생산성향상 서비스에 대한 기술적 질문부터 비용 문의까지 다양한 수준의 질문-답변 10개를 생성해주세요.
-    ChatGPT, AI 도구 활용에 대한 전문적인 내용을 포함해주세요.`,
-    
-    `경매활용 공장구매 서비스에 대한 투자, 리스크, 절차 관련 질문-답변 10개를 생성해주세요.
-    25년 전문 노하우와 안전성을 강조한 답변으로 구성해주세요.`,
-    
-    // 상황별 대화 시나리오 생성
-    `중소기업 CEO가 처음 M-CENTER에 문의하는 상황의 대화 시나리오 5개를 생성해주세요.
-    신뢰감 조성부터 서비스 추천까지 자연스러운 대화 흐름으로 구성해주세요.`,
-    
-    `기존 고객이 추가 서비스를 문의하는 상황의 대화 5개를 생성해주세요.
-    기존 성과를 바탕으로 한 Up-selling 상황을 포함해주세요.`
-  ];
-
   const trainingData = [];
   
   for (const prompt of trainingPrompts) {
     try {
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
+      const model = gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      
+      const result = await model.generateContent({
+        contents: [
           {
-            role: 'system',
-            content: `당신은 M-CENTER의 AI 챗봇 학습 데이터를 생성하는 전문가입니다. 
-            25년 경험의 경영지도사 수준의 전문성으로 고품질의 질문-답변 쌍을 생성해주세요.
-            
-            답변 작성 시 반드시 포함할 요소:
-            1. M-CENTER의 차별화된 우수성 강조
-            2. 구체적인 성과 수치와 실적
-            3. 고객의 즉시 행동을 유도하는 CTA
-            4. 전문가 직접 연결 정보 (010-9251-9743)`
-          },
-          { role: 'user', content: prompt }
+            role: 'user',
+            parts: [
+              {
+                text: `당신은 M-CENTER의 AI 챗봇 학습 데이터를 생성하는 전문가입니다. 
+                25년 경험의 경영지도사 수준의 전문성으로 고품질의 질문-답변 쌍을 생성해주세요.
+                
+                답변 작성 시 반드시 포함할 요소:
+                1. M-CENTER의 차별화된 우수성 강조
+                2. 구체적인 성과 수치와 실적
+                3. 고객의 즉시 행동을 유도하는 CTA
+                4. 전문가 직접 연결 정보 (010-9251-9743)
+                
+                질문: ${prompt}`
+              }
+            ]
+          }
         ],
-        max_tokens: 2000,
-        temperature: 0.8
+        generationConfig: {
+          maxOutputTokens: 2000,
+          temperature: 0.8,
+          topP: 0.9,
+          topK: 40,
+        },
       });
+      
+      const response = await result.response;
       
       trainingData.push({
         prompt: prompt,
-        response: completion.choices[0].message.content,
+        response: response.text(),
         timestamp: new Date().toISOString()
       });
       
@@ -320,20 +330,23 @@ async function generateTrainingData() {
 }
 
 /**
- * 📝 학습 데이터를 JSONL 형식으로 변환
+ * 📊 훈련 데이터를 파일로 저장
  */
-function convertToJSONL(trainingData) {
-  const jsonlData = trainingData.map(item => {
-    return JSON.stringify({
-      messages: [
-        { role: "system", content: "당신은 M-CENTER의 전문 AI 상담사입니다. 25년 경험의 경영지도사 수준의 전문성으로 고객을 상담합니다." },
-        { role: "user", content: item.prompt },
-        { role: "assistant", content: item.response }
-      ]
-    });
-  }).join('\n');
-  
-  return jsonlData;
+async function saveTrainingData(data) {
+  try {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `m-center-training-data-${timestamp}.json`;
+    const filepath = path.join(__dirname, '../docs', filename);
+    
+    await fs.writeFile(filepath, JSON.stringify(data, null, 2), 'utf8');
+    
+    console.log(`✅ 훈련 데이터 저장 완료: ${filename}`);
+    console.log(`📁 저장 위치: ${filepath}`);
+    console.log(`📊 생성된 데이터 수: ${data.length}개`);
+    
+  } catch (error) {
+    console.error('❌ 훈련 데이터 저장 실패:', error);
+  }
 }
 
 /**
@@ -366,14 +379,25 @@ async function analyzeChatbotPerformance() {
 각 기준별로 점수(1-10)와 개선 방안을 제시해주세요.`;
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: analysisPrompt }],
-      max_tokens: 1500,
-      temperature: 0.6
+    const model = gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    
+    const result = await model.generateContent({
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: analysisPrompt }]
+        }
+      ],
+      generationConfig: {
+        maxOutputTokens: 1500,
+        temperature: 0.6,
+        topP: 0.9,
+        topK: 40,
+      },
     });
     
-    return completion.choices[0].message.content;
+    const response = await result.response;
+    return response.text();
   } catch (error) {
     console.error('성능 분석 실패:', error);
     return '성능 분석을 완료할 수 없습니다.';
@@ -381,113 +405,83 @@ async function analyzeChatbotPerformance() {
 }
 
 /**
- * 🚀 메인 함수: 챗봇 훈련 데이터 업데이트
+ * 📈 성과 보고서 생성
  */
-async function updateChatbotTraining() {
-  console.log('🧠 M-CENTER AI 챗봇 훈련 시작...');
+async function generatePerformanceReport(analysis) {
+  const timestamp = new Date().toISOString();
+  
+  const report = {
+    title: 'M-CENTER AI 챗봇 성능 분석 보고서',
+    generatedAt: timestamp,
+    analysis: analysis,
+    recommendations: [
+      '지속적인 실제 대화 데이터를 통한 학습 개선',
+      'M-CENTER 특화 지식 베이스 확장',
+      '고객 만족도 측정 시스템 구축',
+      '실시간 성능 모니터링 도구 도입'
+    ],
+    nextSteps: [
+      '월간 성능 리뷰 및 업데이트',
+      '고객 피드백 수집 및 반영',
+      '새로운 서비스 정보 추가',
+      'AI 모델 최적화 및 업그레이드'
+    ]
+  };
   
   try {
-    // 훈련 데이터 디렉토리 생성
-    const trainingDir = path.join(process.cwd(), 'training-data');
-    try {
-      await fs.access(trainingDir);
-    } catch {
-      await fs.mkdir(trainingDir, { recursive: true });
-    }
-
-    // 1. 새로운 학습 데이터 생성
-    console.log('📚 새로운 학습 데이터 생성 중...');
-    const trainingData = await generateTrainingData();
+    const filename = `chatbot-performance-report-${timestamp.split('T')[0]}.json`;
+    const filepath = path.join(__dirname, '../docs', filename);
     
-    // 2. 지식 베이스 업데이트
-    console.log('🔄 지식 베이스 업데이트 중...');
-    const knowledgeBasePath = path.join(trainingDir, 'knowledge-base.json');
-    await fs.writeFile(knowledgeBasePath, JSON.stringify(MCENTER_KNOWLEDGE_BASE, null, 2), 'utf8');
+    await fs.writeFile(filepath, JSON.stringify(report, null, 2), 'utf8');
     
-    // 3. JSONL 형식으로 훈련 데이터 저장
-    console.log('💾 훈련 데이터 저장 중...');
-    const jsonlData = convertToJSONL(trainingData);
-    const currentDate = new Date().toISOString().split('T')[0];
-    const trainingFilePath = path.join(trainingDir, `training-data-${currentDate}.jsonl`);
-    await fs.writeFile(trainingFilePath, jsonlData, 'utf8');
-    
-    // 4. 성능 분석 수행
-    console.log('📊 챗봇 성능 분석 중...');
-    const performanceAnalysis = await analyzeChatbotPerformance();
-    const analysisPath = path.join(trainingDir, `performance-analysis-${currentDate}.md`);
-    await fs.writeFile(analysisPath, performanceAnalysis, 'utf8');
-    
-    // 5. 훈련 요약 보고서 생성
-    const summaryReport = `# M-CENTER AI 챗봇 훈련 보고서
-    
-## 📅 훈련 일시
-${new Date().toLocaleString('ko-KR')}
-
-## 📊 훈련 데이터 현황
-- 총 데이터 수: ${trainingData.length}개
-- 지식 베이스 서비스: ${Object.keys(MCENTER_KNOWLEDGE_BASE.services).length}개
-- FAQ 항목: ${MCENTER_KNOWLEDGE_BASE.faq.length}개
-
-## 🎯 훈련 목표
-1. M-CENTER 차별화 우수성 강화
-2. 전문 상담사 수준의 응답 품질 향상
-3. 고객 상담 신청 전환율 증대
-4. 서비스별 전문성 강화
-
-## 📈 기대 효과
-- 응답 정확도 95% 이상
-- 고객 만족도 90% 이상
-- 상담 신청 전환율 15% 향상
-- 전문성 인식도 25% 상승
-
-## 🔄 다음 업데이트
-- 고객 피드백 반영
-- 새로운 서비스 정보 추가
-- 성과 데이터 업데이트
-- 상담 시나리오 확장
-
----
-© 2025 M-CENTER AI Training System`;
-
-    const summaryPath = path.join(trainingDir, `training-summary-${currentDate}.md`);
-    await fs.writeFile(summaryPath, summaryReport, 'utf8');
-    
-    console.log('✅ AI 챗봇 훈련 완료!');
-    console.log(`📁 저장 위치: ${trainingDir}`);
-    
-    return {
-      success: true,
-      trainingDataCount: trainingData.length,
-      files: {
-        trainingData: trainingFilePath,
-        knowledgeBase: knowledgeBasePath,
-        performanceAnalysis: analysisPath,
-        summary: summaryPath
-      }
-    };
+    console.log(`📊 성과 보고서 생성 완료: ${filename}`);
+    return report;
     
   } catch (error) {
-    console.error('❌ 챗봇 훈련 실패:', error);
-    throw error;
+    console.error('성과 보고서 생성 실패:', error);
+    return null;
   }
 }
 
-// 직접 실행 시
+/**
+ * 🚀 메인 실행 함수
+ */
+async function main() {
+  try {
+    console.log('🤖 M-CENTER AI 챗봇 훈련 시스템 시작');
+    console.log('⏰ 시작 시간:', new Date().toISOString());
+    
+    // 1. 훈련 데이터 생성
+    const trainingData = await generateTrainingData();
+    
+    // 2. 훈련 데이터 저장
+    await saveTrainingData(trainingData);
+    
+    // 3. 성능 분석
+    const performanceAnalysis = await analyzeChatbotPerformance();
+    
+    // 4. 성과 보고서 생성
+    const report = await generatePerformanceReport(performanceAnalysis);
+    
+    console.log('✅ M-CENTER AI 챗봇 훈련 완료');
+    console.log('📊 생성된 훈련 데이터:', trainingData.length, '개');
+    console.log('⏰ 완료 시간:', new Date().toISOString());
+    
+  } catch (error) {
+    console.error('❌ AI 챗봇 훈련 실패:', error);
+    process.exit(1);
+  }
+}
+
+// 스크립트 직접 실행 시 메인 함수 호출
 if (require.main === module) {
-  updateChatbotTraining()
-    .then(result => {
-      console.log('🎉 챗봇 훈련 성공:', result);
-      process.exit(0);
-    })
-    .catch(error => {
-      console.error('💥 챗봇 훈련 실패:', error);
-      process.exit(1);
-    });
+  main();
 }
 
 module.exports = {
-  updateChatbotTraining,
   generateTrainingData,
+  saveTrainingData,
   analyzeChatbotPerformance,
+  generatePerformanceReport,
   MCENTER_KNOWLEDGE_BASE
 }; 

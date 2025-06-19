@@ -418,7 +418,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
       setEstimatedTime(60);
       
       // 🔧 **구글시트 저장 처리 (GitHub Pages 호환성 강화)**
-      let googleSheetsResult = { success: false, error: '저장 시도 안함' };
+      let googleSheetsResult: { success: boolean; error?: string; [key: string]: any } = { success: false, error: '저장 시도 안함' };
       
       try {
         console.log('📊 진단 데이터 구글시트 저장 시작');
@@ -460,7 +460,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
         if (googleSheetsResult?.success) {
           console.log('✅ 진단 데이터 구글시트 저장 성공');
           results.data.googleSheetsSaved = true;
-          results.data.sheetInfo = {
+          (results.data as any).sheetInfo = {
             platform: googleSheetsResult.platform || 'unknown',
             fallbackMode: Boolean(googleSheetsResult.fallbackMode),
             sheetName: googleSheetsResult.sheetName || 'M-CENTER',
@@ -469,13 +469,13 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
         } else {
           console.warn('⚠️ 구글시트 저장 실패, 로컬 처리 계속:', googleSheetsResult?.error);
           results.data.googleSheetsSaved = false;
-          results.data.sheetError = googleSheetsResult?.error || '알 수 없는 오류';
+          (results.data as any).sheetError = googleSheetsResult?.error || '알 수 없는 오류';
           
           // 완전 실패 시에도 진단은 계속 진행
           if (googleSheetsResult?.fallbackAction) {
             console.log('💾 백업 저장됨:', googleSheetsResult.fallbackAction);
             results.data.googleSheetsSaved = true;
-            results.data.sheetInfo = { fallbackMode: true };
+            (results.data as any).sheetInfo = { fallbackMode: true };
           }
         }
       } catch (sheetError) {
@@ -487,7 +487,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
           error: errorMessage
         };
         results.data.googleSheetsSaved = false;
-        results.data.sheetError = errorMessage;
+        (results.data as any).sheetError = errorMessage;
         
         // 🔧 **완전 실패 시 응급 로컬 백업 (안전성 강화)**
         try {
@@ -505,7 +505,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
             localStorage.setItem(`emergency_diagnosis_${Date.now()}`, JSON.stringify(emergencyBackup));
             console.log('🆘 응급 로컬 백업 저장 완료');
             results.data.googleSheetsSaved = true; // 백업 성공으로 처리
-            results.data.sheetInfo = { emergencyBackup: true };
+            (results.data as any).sheetInfo = { emergencyBackup: true };
           } else {
             console.warn('⚠️ localStorage 접근 불가 (서버 환경)');
           }
@@ -513,7 +513,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
           console.error('❌ 응급 백업도 실패:', backupError);
           // 완전 실패해도 진단 결과는 계속 표시
           results.data.googleSheetsSaved = false;
-          results.data.sheetInfo = { totalFailure: true };
+          (results.data as any).sheetInfo = { totalFailure: true };
         }
       }
 
@@ -529,69 +529,123 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
         
         // 브라우저 환경에서만 EmailJS 실행
         if (typeof window !== 'undefined' && window.emailjs) {
-          // EmailJS 초기화
-          window.emailjs.init('268NPLwN54rPvEias');
-          
-          // 이메일 템플릿 데이터 준비
-          const emailParams = {
-            to_name: data.contactManager,
-            to_email: data.email,
-            company_name: data.companyName,
-            diagnosis_date: new Date().toLocaleDateString('ko-KR', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            }),
-            service_name: 'AI 무료진단',
-            consultant_name: '이후경 경영지도사',
-            consultant_phone: '010-9251-9743',
-            consultant_email: 'hongik423@gmail.com',
-            reply_message: `AI 진단 결과를 2-3일 내에 상세히 분석하여 연락드리겠습니다. 
+          try {
+            // 환경변수 확인
+            const emailjsPublicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || '268NPLwN54rPvEias';
+            const emailjsServiceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 'service_qd9eycz';
             
+            console.log('📧 EmailJS 설정 확인:', {
+              hasPublicKey: !!emailjsPublicKey,
+              hasServiceId: !!emailjsServiceId,
+              isProduction: process.env.NODE_ENV === 'production'
+            });
+            
+            // EmailJS 초기화
+            window.emailjs.init(emailjsPublicKey);
+            
+            // 이메일 템플릿 데이터 준비
+            const emailParams = {
+              to_name: data.contactManager,
+              to_email: data.email,
+              company_name: data.companyName,
+              diagnosis_date: new Date().toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              }),
+              service_name: 'AI 무료진단',
+              consultant_name: '이후경 경영지도사',
+              consultant_phone: '010-9251-9743',
+              consultant_email: 'hongik423@gmail.com',
+              reply_message: `AI 진단 결과를 2-3일 내에 상세히 분석하여 연락드리겠습니다. 
+              
 📊 진단 점수: ${results.data.diagnosis.totalScore}점 (${results.data.diagnosis.scoreDescription})
 🎯 추천 서비스: ${results.data.diagnosis.recommendedServices.map(s => s.name).join(', ')}
 
 추가 문의사항이 있으시면 언제든 연락 주세요.`
-          };
-          
-          console.log('📧 이메일 발송 데이터:', emailParams);
-          
-          const emailResult = await window.emailjs.send(
-            'service_qd9eycz',
-            'template_diagnosis_conf', 
-            emailParams
-          );
-          
-          console.log('✅ 진단신청 확인 메일 발송 성공:', emailResult);
-          emailSent = true;
-          
-          results.data.emailSent = true;
-          results.data.emailInfo = {
-            recipient: data.email,
-            status: emailResult.status,
-            text: emailResult.text,
-            timestamp: new Date().toISOString()
-          };
+            };
+            
+            console.log('📧 이메일 발송 데이터:', emailParams);
+            
+            const emailResult = await window.emailjs.send(
+              emailjsServiceId,
+              'template_diagnosis_conf', 
+              emailParams
+            );
+            
+            console.log('✅ 진단신청 확인 메일 발송 성공:', emailResult);
+            emailSent = true;
+            
+            (results.data as any).emailSent = true;
+            (results.data as any).emailInfo = {
+              recipient: data.email,
+              status: emailResult.status,
+              text: emailResult.text,
+              timestamp: new Date().toISOString()
+            };
+          } catch (emailjsError) {
+            console.error('❌ EmailJS 내부 오류:', emailjsError);
+            throw emailjsError; // 상위 catch 블록으로 전달
+          }
           
         } else {
           console.warn('⚠️ EmailJS 라이브러리를 찾을 수 없습니다. 브라우저 환경이 아니거나 라이브러리가 로드되지 않았습니다.');
           
           // EmailJS가 없어도 진단은 계속 진행
-          results.data.emailSent = false;
-          results.data.emailError = 'EmailJS 라이브러리 미사용 가능';
+          (results.data as any).emailSent = false;
+          (results.data as any).emailError = 'EmailJS 라이브러리 미사용 가능';
         }
         
       } catch (emailError) {
         console.error('❌ 진단신청 확인 메일 발송 실패:', emailError);
         
+        // 🔧 **이메일 오류 상세 분석**
+        let errorMessage = '이메일 발송 오류';
+        let userMessage = '진단은 완료되었지만 확인 메일 발송에 실패했습니다.';
+        
+        if (emailError instanceof Error) {
+          errorMessage = emailError.message;
+          
+          // 구체적인 오류 유형별 메시지
+          if (errorMessage.includes('EmailJS')) {
+            userMessage = 'EmailJS 서비스 오류로 확인 메일을 발송할 수 없습니다.';
+          } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
+            userMessage = '네트워크 연결 문제로 확인 메일을 발송할 수 없습니다.';
+          } else if (errorMessage.includes('auth') || errorMessage.includes('key')) {
+            userMessage = '이메일 서비스 인증 오류가 발생했습니다.';
+          }
+        }
+        
+        // 🆘 **긴급 백업: 이메일 정보를 로컬에 저장**
+        try {
+          const emailBackup = {
+            timestamp: new Date().toISOString(),
+            recipient: data.email,
+            recipientName: data.contactManager,
+            companyName: data.companyName,
+            diagnosisScore: results.data.diagnosis.totalScore,
+            diagnosisUrl: typeof window !== 'undefined' ? window.location.href : 'unknown',
+            error: errorMessage,
+            status: 'email_failed_backup'
+          };
+          
+          if (typeof window !== 'undefined' && window.localStorage) {
+            localStorage.setItem(`email_backup_${Date.now()}`, JSON.stringify(emailBackup));
+            console.log('📧 이메일 백업 정보 로컬 저장 완료');
+            userMessage += ' 관리자가 직접 연락드리겠습니다.';
+          }
+        } catch (backupError) {
+          console.warn('⚠️ 이메일 백업 저장 실패:', backupError);
+        }
+        
         // 이메일 발송 실패해도 진단 결과는 계속 표시
-        results.data.emailSent = false;
-        results.data.emailError = emailError instanceof Error ? emailError.message : '이메일 발송 오류';
+        (results.data as any).emailSent = false;
+        (results.data as any).emailError = errorMessage;
         
         // 사용자에게 이메일 실패 알림 (진단 결과는 계속 제공)
         toast({
           title: '📧 확인 메일 발송 실패',
-          description: '진단은 완료되었지만 확인 메일 발송에 실패했습니다. 결과는 정상적으로 확인할 수 있습니다.',
+          description: userMessage + ' 결과는 정상적으로 확인할 수 있습니다.',
           variant: 'default',
         });
       }
