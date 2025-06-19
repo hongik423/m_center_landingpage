@@ -67,7 +67,7 @@ export default function FloatingChatbot() {
   const [lastLogTime, setLastLogTime] = useState(0);
   const LOG_THROTTLE_MS = 500; // 0.5초마다 한번만 로그
 
-  // �� **모바일 감지**
+  // 🔵 **모바일 감지**
   const [isMobile, setIsMobile] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -135,7 +135,7 @@ export default function FloatingChatbot() {
     console.log('🎯 수직 드래그 시작:', { y: position.y, isMobile });
   };
 
-  // �� **수직 드래그 이벤트 처리 (터치 지원)**
+  // 🔥 **수직 드래그 이벤트 처리 (터치 지원)**
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent | TouchEvent) => {
       if (!isDragging) return;
@@ -212,30 +212,45 @@ export default function FloatingChatbot() {
     setIsTyping(true);
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: text,
-          history: messages.slice(-5)
-        }),
-      });
+      // 개발 환경에서만 API 호출
+      if (process.env.NODE_ENV === 'development') {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: text,
+            history: messages.slice(-5)
+          }),
+        });
 
-      if (!response.ok) throw new Error('서버 오류');
+        if (!response.ok) throw new Error('서버 오류');
 
-      const data = await response.json();
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: data.response,
-        sender: 'bot',
-        timestamp: new Date()
-      };
-      
-      addMessage(botMessage);
+        const data = await response.json();
+        const botMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: data.response,
+          sender: 'bot',
+          timestamp: new Date()
+        };
+        
+        addMessage(botMessage);
+      } else {
+        // 프로덕션 환경에서는 클라이언트 사이드 응답
+        const botMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: generateClientResponse(text),
+          sender: 'bot',
+          timestamp: new Date()
+        };
+        
+        // 실제 응답 시간을 시뮬레이션
+        await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+        addMessage(botMessage);
+      }
     } catch (error) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: `❌ 연결 오류가 발생했습니다.\n\n📞 **즉시 상담: 010-9251-9743**\n📧 **이메일: hongik423@gmail.com**`,
+        content: `❌ 죄송합니다. 일시적으로 AI 기능을 사용할 수 없습니다.\n\n📞 **즉시 상담을 원하시면:**\n• 전화: 010-9251-9743\n• 이메일: lhk@injc.kr\n\n⚡ **무료 서비스 안내:**\n• [무료 AI진단 신청](/#ai-diagnosis)\n• [전문가 상담 신청](/consultation)\n• [서비스 안내](/services/business-analysis)`,
         sender: 'bot',
         timestamp: new Date()
       };
@@ -244,6 +259,49 @@ export default function FloatingChatbot() {
       setIsTyping(false);
     }
   }, [messages, addMessage]);
+
+  // 클라이언트 사이드 응답 생성 함수
+  const generateClientResponse = (message: string): string => {
+    const lowerMessage = message.toLowerCase();
+    
+    // 기본 응답 템플릿
+    const responses = {
+      greeting: `👋 안녕하세요! **기업의별 M-CENTER** AI상담사입니다.\n\n🏆 **대한민국 최고의 경영컨설팅 전문기관**으로 25년간 검증된 노하우를 바탕으로 도움드리겠습니다!`,
+      
+      services: `🚀 **M-CENTER 6대 핵심서비스**\n\n1. **BM ZEN 사업분석** - 매출 20-40% 증대\n2. **AI 생산성향상** - 업무효율 40-60% 향상  \n3. **경매활용 공장구매** - 부동산비용 30-50% 절감\n4. **기술사업화/창업** - 평균 5억원 정부지원\n5. **인증지원** - 연간 세제혜택 5천만원\n6. **웹사이트 구축** - 온라인 매출 30% 증대`,
+      
+      consultation: `💬 **전문가 무료 상담 안내**\n\n📞 **즉시 상담:**\n• 전화: 010-9251-9743 (이후경 경영지도사)\n• 이메일: lhk@injc.kr\n\n⚡ **온라인 신청:**\n• [무료 AI진단](/diagnosis)\n• [전문가 상담](/consultation)\n• [서비스 안내](/services/business-analysis)`,
+      
+      general: `✨ **기업의별 M-CENTER**가 도움드리겠습니다!\n\n🎯 **맞춤형 솔루션을 위해** 다음 중 관심 있는 분야를 알려주세요:\n\n• 📈 **매출 증대** - BM ZEN 사업분석\n• 🤖 **업무 효율화** - AI 생산성향상\n• 🏭 **공장/부동산** - 경매활용 구매\n• 🚀 **기술창업** - 사업화 지원\n• 📋 **인증/세제혜택** - 각종 인증\n• 🌐 **온라인 마케팅** - 웹사이트 구축\n\n📞 **즉시 상담: 010-9251-9743**`
+    };
+
+    // 키워드 매칭
+    if (lowerMessage.includes('안녕') || lowerMessage.includes('처음') || lowerMessage.includes('시작')) {
+      return responses.greeting;
+    }
+    
+    if (lowerMessage.includes('서비스') || lowerMessage.includes('사업') || lowerMessage.includes('컨설팅')) {
+      return responses.services;
+    }
+    
+    if (lowerMessage.includes('상담') || lowerMessage.includes('연락') || lowerMessage.includes('전화')) {
+      return responses.consultation;
+    }
+    
+    if (lowerMessage.includes('매출') || lowerMessage.includes('수익')) {
+      return `💰 **매출 증대 전문 컨설팅**\n\n🏆 **BM ZEN 사업분석 서비스**\n• 독자적 프레임워크로 95% 성공률\n• 평균 20-40% 매출 증대 보장\n• 3개월 내 가시적 성과\n\n📊 **실제 성과:**\n• 제조업체: 8개월 만에 45% 매출 증가\n• IT서비스: 6개월 만에 수익률 60% 개선\n\n📞 **무료 상담: 010-9251-9743**\n⚡ [무료 AI진단 신청](/#ai-diagnosis)`;
+    }
+    
+    if (lowerMessage.includes('AI') || lowerMessage.includes('효율') || lowerMessage.includes('자동화')) {
+      return `🤖 **AI 생산성향상 컨설팅**\n\n✨ **ChatGPT 전문 활용법**\n• 업무효율 40-60% 향상 보장\n• 인건비 25% 절감 효과\n• 실무진 1:1 맞춤 교육\n\n🎯 **정부지원 연계:**\n• AI 바우처 최대 2천만원 지원\n• 100% 정부지원 가능\n\n📞 **상담: 010-9251-9743**\n⚡ [서비스 상세보기](/services/ai-productivity)`;
+    }
+    
+    if (lowerMessage.includes('공장') || lowerMessage.includes('부동산') || lowerMessage.includes('임대')) {
+      return `🏭 **경매활용 공장구매 컨설팅**\n\n💎 **25년 경매 전문 노하우**\n• 부동산비용 30-50% 절감\n• 평균 40% 저가 매입 성공\n• 95% 안전 낙찰률 보장\n\n🎯 **실제 성과:**\n• 15억 공장을 9억에 낙찰 (40% 절약)\n• 연간 임대료 3억 → 자가 소유 전환\n\n📞 **상담: 010-9251-9743**\n⚡ [상세 정보](/services/factory-auction)`;
+    }
+    
+    return responses.general;
+  };
 
   // 빠른 액션 처리
   const handleQuickAction = (action: string) => {
@@ -308,7 +366,7 @@ export default function FloatingChatbot() {
             {/* 온라인 상태 표시 */}
             <div className={`absolute -top-1 -right-1 ${isMobile ? 'w-3 h-3' : 'w-4 h-4'} bg-green-400 rounded-full border-2 border-white animate-pulse shadow-sm`}></div>
             
-            {/* �� **드래그 힌트 도트들 (모바일 최적화)** */}
+            {/* 🔥 **드래그 힌트 도트들 (모바일 최적화)** */}
             {isDragging && (
               <div className="absolute inset-0 rounded-full border-2 border-dashed border-white/60 animate-spin-slow">
                 <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></div>

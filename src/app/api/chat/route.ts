@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { getOpenAIKey, isDevelopment, maskApiKey } from '@/lib/config/env';
 
+// GitHub Pages 배포를 위한 동적 라우트 설정
+export const dynamic = 'force-dynamic';
+
 // OpenAI 클라이언트 초기화 (보안 강화)
 let openaiClient: OpenAI | null = null;
 
