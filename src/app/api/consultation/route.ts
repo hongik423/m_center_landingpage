@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { processConsultationSubmission } from '@/lib/utils/emailService';
 
+// GitHub Pages 정적 export 호환성
+export const dynamic = 'force-static';
+export const revalidate = false;
+
 /**
  * 통합 상담신청 처리 API
  * POST /api/consultation

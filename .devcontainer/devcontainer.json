@@ -1,0 +1,101 @@
+{
+  "name": "M-CENTER AI 개발환경",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:18",
+  
+  // 🔧 개발 컨테이너 설정
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    }
+  },
+  
+  // 📦 VS Code 확장 프로그램 (GitHub AI 최적화)
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // 🤖 GitHub AI 관련 확장
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        
+        // 🎨 Next.js 개발 필수 확장
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-vscode.vscode-typescript-next",
+        
+        // 🚀 개발 생산성 확장
+        "formulahendry.auto-rename-tag",
+        "christian-kohler.path-intellisense",
+        "ms-vscode.vscode-json",
+        "redhat.vscode-yaml",
+        
+        // 🔍 Git 및 GitHub 확장
+        "GitHub.vscode-pull-request-github",
+        "eamodio.gitlens",
+        
+        // 📊 프로젝트 관리
+        "ms-vscode.vscode-todo-highlight",
+        "gruntfuggly.todo-tree"
+      ],
+      
+      // ⚙️ VS Code 설정
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": true
+        },
+        "typescript.preferences.includePackageJsonAutoImports": "auto",
+        "github.copilot.enable": {
+          "*": true,
+          "yaml": true,
+          "plaintext": false,
+          "markdown": true,
+          "typescript": true,
+          "javascript": true,
+          "typescriptreact": true,
+          "javascriptreact": true
+        }
+      }
+    }
+  },
+  
+  // 🔧 포트 포워딩 설정
+  "forwardPorts": [3000, 3001, 3002],
+  "portsAttributes": {
+    "3000": {
+      "label": "Next.js 개발 서버",
+      "onAutoForward": "notify"
+    }
+  },
+  
+  // 🚀 컨테이너 시작 후 실행할 명령
+  "postCreateCommand": "npm install",
+  "postStartCommand": "echo '🎉 M-CENTER AI 개발환경이 준비되었습니다!'",
+  
+  // 🔒 보안 설정
+  "remoteUser": "node",
+  "containerUser": "node",
+  
+  // 🛠️ 개발 도구 설정
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  
+  // 🌐 환경 변수
+  "containerEnv": {
+    "NODE_ENV": "development",
+    "NEXT_TELEMETRY_DISABLED": "1"
+  },
+  
+  // 📝 작업공간 설정
+  "workspaceFolder": "/workspaces/m_center_landingpage",
+  
+  // 🎯 GitHub AI 최적화 설정
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "installDirectlyFromGitHubRelease": true
+    }
+  }
+} 

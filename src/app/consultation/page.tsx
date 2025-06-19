@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -134,13 +134,28 @@ export default function ConsultationPage() {
         try {
           console.log('📧 상담신청 확인 메일 발송 시작');
           
-          // 브라우저 환경에서만 EmailJS 실행
-          if (typeof window !== 'undefined' && window.emailjs) {
-            // EmailJS 초기화
-            window.emailjs.init('268NPLwN54rPvEias');
+          // 🔧 브라우저 환경에서만 EmailJS 실행 (안전한 로딩 확인)
+          if (typeof window !== 'undefined') {
+            // EmailJS 라이브러리 로딩 대기
+            let emailjsLoaded = false;
+            let attempts = 0;
+            const maxAttempts = 10;
             
-            // 상담신청 확인 메일 템플릿 데이터 준비
-            const emailParams = {
+            while (!emailjsLoaded && attempts < maxAttempts) {
+              if (window.emailjs) {
+                emailjsLoaded = true;
+                break;
+              }
+              await new Promise(resolve => setTimeout(resolve, 100));
+              attempts++;
+            }
+            
+            if (emailjsLoaded && window.emailjs) {
+              // EmailJS 초기화
+              window.emailjs.init('268NPLwN54rPvEias');
+              
+              // 상담신청 확인 메일 템플릿 데이터 준비
+              const emailParams = {
               to_name: consultationData.name,
               to_email: consultationData.email,
               company_name: consultationData.company,
@@ -177,11 +192,16 @@ export default function ConsultationPage() {
               text: emailResult.text,
               timestamp: new Date().toISOString()
             };
-            
+              
+            } else {
+              console.warn('⚠️ EmailJS 라이브러리 로딩 실패 또는 시간 초과');
+              result.emailSent = false;
+              result.emailError = 'EmailJS 라이브러리 로딩 실패';
+            }
           } else {
-            console.warn('⚠️ EmailJS 라이브러리를 찾을 수 없습니다.');
+            console.warn('⚠️ 브라우저 환경이 아닙니다.');
             result.emailSent = false;
-            result.emailError = 'EmailJS 라이브러리 미사용 가능';
+            result.emailError = '브라우저 환경 아님';
           }
           
         } catch (emailError) {
@@ -306,7 +326,8 @@ export default function ConsultationPage() {
     }));
   };
 
-  useState(() => {
+  // 🔧 네트워크 상태 감지 (useState → useEffect 수정)
+  useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
@@ -317,7 +338,7 @@ export default function ConsultationPage() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  });
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -369,8 +390,8 @@ export default function ConsultationPage() {
                         <SelectContent>
                           <SelectItem value="phone">전화 상담</SelectItem>
                           <SelectItem value="online">온라인 상담 (화상)</SelectItem>
-                          <SelectItem value="email">이메일 상담</SelectItem>
                           <SelectItem value="visit">방문 상담</SelectItem>
+                          <SelectItem value="email">이메일 상담</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

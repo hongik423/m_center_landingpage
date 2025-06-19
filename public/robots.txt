@@ -1,0 +1,23 @@
+User-agent: *
+Allow: /
+
+# 사이트맵 위치
+Sitemap: https://injc.kr/sitemap.xml
+Sitemap: http://localhost:3000/sitemap.xml
+
+# 크롤링 제외 경로
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /test-*
+
+# 중요 페이지 우선순위
+Allow: /
+Allow: /services/
+Allow: /diagnosis/
+Allow: /consultation/
+Allow: /about/
+Allow: /cases/
+
+# 크롤링 속도 조절
+Crawl-delay: 1 

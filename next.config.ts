@@ -55,19 +55,75 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: isProd && isGitHubPages, // GitHub Pages 배포 시에만 무시
   },
   
-  // 개발 환경에서 AI 관련 패키지 최적화
-  ...(!isProd && {
-    experimental: {
-      serverComponentsExternalPackages: ['openai'],
+  // GitHub Pages는 정적 호스팅이므로 서버 기능 비활성화
+  ...(!isGitHubPages && {
+    // 🔧 리다이렉트 설정 (정적 파일 및 API 라우트 최적화)
+    async redirects() {
+      return [
+        // 존재하지 않는 .txt 파일 요청을 메인 페이지로 리다이렉트
+        {
+          source: '/:path*.txt',
+          destination: '/',
+          permanent: false,
+        }
+      ];
     },
+
+    // 🔧 리라이트 설정 
+    async rewrites() {
+      return [
+        {
+          source: '/api/:path*',
+          destination: '/api/:path*',
+        }
+      ];
+    },
+
+    // 🔧 헤더 설정으로 CORS 및 보안 강화
+    async headers() {
+      return [
+        {
+          source: '/api/:path*',
+          headers: [
+            { key: 'Access-Control-Allow-Origin', value: '*' },
+            { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT' },
+            { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version' },
+            { key: 'Access-Control-Max-Age', value: '86400' },
+          ],
+        },
+        // 정적 자산에 대한 캐싱 헤더
+        {
+          source: '/:path*.svg',
+          headers: [
+            { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          ],
+        },
+        {
+          source: '/:path*.png',
+          headers: [
+            { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          ],
+        },
+        // 존재하지 않는 .txt 파일에 대한 404 헤더
+        {
+          source: '/:path*.txt',
+          headers: [
+            { key: 'X-Robots-Tag', value: 'noindex' },
+          ],
+        }
+      ];
+    },
+  }),
+  
+  // 서버 외부 패키지 설정 (GitHub Pages에서는 비활성화)
+  ...(!isGitHubPages && {
+    serverExternalPackages: ['openai'],
   }),
   
   // 실험적 기능
   experimental: {
     // AI 챗봇 성능 최적화
     optimizePackageImports: ['lucide-react'],
-    // 서버 컴포넌트 최적화
-    ...(isProd && { serverComponentsExternalPackages: ['openai'] }),
   },
   
   // 웹팩 설정

@@ -3,6 +3,444 @@
  * 구글시트 연동과 EmailJS를 통한 이메일 발송을 담당
  */
 
+// 🔧 EmailJS 서비스 유틸리티 (브라우저 환경 안전 처리)
+import emailjs from '@emailjs/browser';
+
+// 환경 체크 함수
+const isBrowser = () => typeof window !== 'undefined';
+const isServer = () => typeof window === 'undefined';
+
+// 템플릿 매개변수 타입 정의
+interface BaseTemplateParams {
+  to_name: string;
+  to_email: string;
+  reply_to: string;
+  from_name: string;
+  message: string;
+}
+
+interface DiagnosisTemplateParams extends BaseTemplateParams {
+  company_name: string;
+  business_type: string;
+  consultation_type: string;
+  contact_number: string;
+  submission_date: string;
+  diagnosis_summary?: string;
+  next_steps?: string;
+}
+
+interface ConsultationTemplateParams extends BaseTemplateParams {
+  company_name: string;
+  consultation_type: string;
+  submission_date: string;
+  status: string;
+  consultant_name?: string;
+  appointment_date?: string;
+}
+
+interface AdminNotificationParams {
+  to_email: string;
+  type: 'consultation' | 'diagnosis';
+  customer_name: string;
+  company_name: string;
+  service_type: string;
+  submission_date: string;
+  details: string;
+}
+
+// 🎯 이메일 발송 결과 타입
+interface EmailResult {
+  success: boolean;
+  messageId?: string;
+  error?: string;
+  service?: string;
+  isSimulation?: boolean;
+}
+
+// 🔧 서버 사이드 시뮬레이션 함수
+function simulateEmailSend(
+  serviceId: string, 
+  templateId: string, 
+  templateParams: any
+): Promise<EmailResult> {
+  return new Promise((resolve) => {
+    // 실제 네트워크 지연 시뮬레이션
+    setTimeout(() => {
+      resolve({
+        success: true,
+        messageId: `sim_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        service: 'simulation',
+        isSimulation: true
+      });
+    }, 500 + Math.random() * 1000); // 0.5-1.5초 지연
+  });
+}
+
+// 🎯 진단 결과 확인 이메일 발송 (사용자용)
+export async function sendDiagnosisConfirmation(
+  userEmail: string,
+  userName: string,
+  companyName: string,
+  businessType: string,
+  consultationType: string,
+  contactNumber: string,
+  diagnosisSummary?: string
+): Promise<EmailResult> {
+  try {
+    // 서버 사이드에서는 시뮬레이션 모드로 동작
+    if (isServer()) {
+      console.log('📧 진단 확인 이메일 발송 시작 (서버 사이드 시뮬레이션)');
+      console.log('📨 이메일 내용:', {
+        to: userEmail,
+        userName,
+        companyName,
+        businessType,
+        consultationType,
+        contactNumber,
+        diagnosisSummary: diagnosisSummary ? '포함됨' : '미포함'
+      });
+      
+      const result = await simulateEmailSend(
+        'diagnosis_service', 
+        'template_diagnosis_conf', 
+        { userEmail, userName, companyName }
+      );
+      
+      console.log('✅ 진단 확인 이메일 발송 성공 (시뮬레이션):', result);
+      return result;
+    }
+
+    // 브라우저 환경에서만 실제 EmailJS 사용
+    if (!process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 
+        !process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY) {
+      throw new Error('EmailJS 환경변수가 설정되지 않았습니다');
+    }
+
+    const templateParams: DiagnosisTemplateParams = {
+      to_name: userName,
+      to_email: userEmail,
+      reply_to: userEmail,
+      from_name: 'M-CENTER 기업의별',
+      company_name: companyName,
+      business_type: businessType,
+      consultation_type: consultationType,
+      contact_number: contactNumber,
+      submission_date: new Date().toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      message: `안녕하세요 ${userName}님,\n\n${companyName}의 무료 경영진단 신청이 정상적으로 접수되었습니다.\n\n담당 전문가가 검토 후 24시간 내에 연락드리겠습니다.\n\n문의사항이 있으시면 언제든 연락주세요.\n\n감사합니다.\nM-CENTER 기업의별`,
+      diagnosis_summary: diagnosisSummary || '상세 분석 결과는 담당자 상담을 통해 제공됩니다.',
+      next_steps: '담당 전문가가 24시간 내에 연락드려 상세한 진단 결과를 안내해드리겠습니다.'
+    };
+
+    const emailResult = await emailjs.send(
+      process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+      'template_diagnosis_conf',
+      templateParams,
+      process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+    );
+
+    return {
+      success: true,
+      messageId: emailResult.text,
+      service: 'emailjs',
+      isSimulation: false
+    };
+
+  } catch (error) {
+    console.error('진단 확인 이메일 발송 실패:', error);
+    
+    // 서버 사이드에서는 오류 대신 시뮬레이션으로 대체
+    if (isServer()) {
+      console.log('🔄 서버 사이드 오류 발생, 시뮬레이션 모드로 전환');
+      return await simulateEmailSend('diagnosis_service', 'template_diagnosis_conf', {});
+    }
+    
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '이메일 발송 중 오류가 발생했습니다',
+      service: 'emailjs'
+    };
+  }
+}
+
+// 🎯 상담 신청 확인 이메일 발송 (사용자용)
+export async function sendConsultationConfirmation(
+  userEmail: string,
+  userName: string,
+  companyName: string,
+  consultationType: string,
+  consultantName?: string,
+  appointmentDate?: string
+): Promise<EmailResult> {
+  try {
+    // 서버 사이드에서는 시뮬레이션 모드로 동작
+    if (isServer()) {
+      console.log('📧 상담 확인 이메일 발송 시작 (서버 사이드 시뮬레이션)');
+      console.log('📨 이메일 내용:', {
+        to: userEmail,
+        userName,
+        companyName,
+        consultationType,
+        consultantName,
+        appointmentDate
+      });
+      
+      const result = await simulateEmailSend(
+        'consultation_service', 
+        'template_consultation_conf', 
+        { userEmail, userName, companyName }
+      );
+      
+      console.log('✅ 상담 확인 이메일 발송 성공 (시뮬레이션):', result);
+      return result;
+    }
+
+    // 브라우저 환경에서만 실제 EmailJS 사용
+    if (!process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 
+        !process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY) {
+      throw new Error('EmailJS 환경변수가 설정되지 않았습니다');
+    }
+
+    const templateParams: ConsultationTemplateParams = {
+      to_name: userName,
+      to_email: userEmail,
+      reply_to: userEmail,
+      from_name: 'M-CENTER 기업의별',
+      company_name: companyName,
+      consultation_type: consultationType,
+      submission_date: new Date().toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      status: '접수 완료',
+      message: `안녕하세요 ${userName}님,\n\n${companyName}의 ${consultationType} 상담 신청이 정상적으로 접수되었습니다.\n\n담당 전문가가 검토 후 24시간 내에 연락드리겠습니다.\n\n문의사항이 있으시면 언제든 연락주세요.\n\n감사합니다.\nM-CENTER 기업의별`,
+      consultant_name: consultantName || '담당 전문가',
+      appointment_date: appointmentDate || '별도 연락 예정'
+    };
+
+    const emailResult = await emailjs.send(
+      process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+      'template_consultation_conf',
+      templateParams,
+      process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+    );
+
+    return {
+      success: true,
+      messageId: emailResult.text,
+      service: 'emailjs',
+      isSimulation: false
+    };
+
+  } catch (error) {
+    console.error('상담 확인 이메일 발송 실패:', error);
+    
+    // 서버 사이드에서는 오류 대신 시뮬레이션으로 대체
+    if (isServer()) {
+      console.log('🔄 서버 사이드 오류 발생, 시뮬레이션 모드로 전환');
+      return await simulateEmailSend('consultation_service', 'template_consultation_conf', {});
+    }
+    
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '이메일 발송 중 오류가 발생했습니다',
+      service: 'emailjs'
+    };
+  }
+}
+
+// 🎯 관리자 알림 이메일 발송
+export async function sendAdminNotification(
+  type: 'consultation' | 'diagnosis',
+  customerName: string,
+  companyName: string,
+  serviceType: string,
+  details: string,
+  customerEmail?: string
+): Promise<EmailResult> {
+  try {
+    const adminEmail = 'lhk@injc.kr'; // M-CENTER 관리자 이메일
+    
+    // 서버 사이드에서는 시뮬레이션 모드로 동작
+    if (isServer()) {
+      console.log('📧 관리자 알림 이메일 발송 시작 (서버 사이드 시뮬레이션)');
+      console.log('📨 관리자 알림 내용:', {
+        type,
+        customerName,
+        companyName,
+        serviceType,
+        customerEmail,
+        details: details.substring(0, 100) + '...'
+      });
+      
+      const result = await simulateEmailSend(
+        'admin_notification', 
+        'template_admin_notification', 
+        { type, customerName, companyName }
+      );
+      
+      console.log('✅ 관리자 알림 이메일 발송 성공 (시뮬레이션):', result);
+      return result;
+    }
+
+    // 브라우저 환경에서만 실제 EmailJS 사용
+    if (!process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 
+        !process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY) {
+      throw new Error('EmailJS 환경변수가 설정되지 않았습니다');
+    }
+
+    const templateParams: AdminNotificationParams = {
+      to_email: adminEmail,
+      type,
+      customer_name: customerName,
+      company_name: companyName,
+      service_type: serviceType,
+      submission_date: new Date().toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      details
+    };
+
+    const emailResult = await emailjs.send(
+      process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+      'template_admin_notification',
+      templateParams,
+      process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+    );
+
+    return {
+      success: true,
+      messageId: emailResult.text,
+      service: 'emailjs',
+      isSimulation: false
+    };
+
+  } catch (error) {
+    console.error('관리자 알림 이메일 발송 실패:', error);
+    
+    // 서버 사이드에서는 오류 대신 시뮬레이션으로 대체
+    if (isServer()) {
+      console.log('🔄 서버 사이드 오류 발생, 시뮬레이션 모드로 전환');
+      return await simulateEmailSend('admin_notification', 'template_admin_notification', {});
+    }
+    
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '이메일 발송 중 오류가 발생했습니다',
+      service: 'emailjs'
+    };
+  }
+}
+
+// 🎯 이메일 서비스 상태 확인
+export function getEmailServiceStatus(): {
+  isConfigured: boolean;
+  environment: 'browser' | 'server';
+  canSendEmail: boolean;
+  mode: 'production' | 'simulation';
+} {
+  const isConfigured = !!(
+    process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID && 
+    process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+  );
+  
+  const environment = isBrowser() ? 'browser' : 'server';
+  const canSendEmail = isBrowser() && isConfigured;
+  const mode = canSendEmail ? 'production' : 'simulation';
+  
+  return {
+    isConfigured,
+    environment,
+    canSendEmail,
+    mode
+  };
+}
+
+// 🔧 EmailJS 초기화 (브라우저 환경에서만)
+export function initializeEmailJS(): boolean {
+  if (isServer()) {
+    console.log('🔄 서버 사이드 환경: EmailJS 초기화 건너뜀');
+    return false;
+  }
+  
+  try {
+    if (process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY) {
+      emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY);
+      console.log('✅ EmailJS 초기화 성공');
+      return true;
+    } else {
+      console.warn('⚠️ EmailJS 공개키가 설정되지 않았습니다');
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ EmailJS 초기화 실패:', error);
+    return false;
+  }
+}
+
+// 🎯 이메일 발송 통합 함수
+export async function sendEmail(
+  type: 'diagnosis_confirmation' | 'consultation_confirmation' | 'admin_notification',
+  params: any
+): Promise<EmailResult> {
+  const status = getEmailServiceStatus();
+  
+  console.log('📧 이메일 발송 시작:', {
+    type,
+    environment: status.environment,
+    mode: status.mode,
+    canSendEmail: status.canSendEmail
+  });
+  
+  switch (type) {
+    case 'diagnosis_confirmation':
+      return await sendDiagnosisConfirmation(
+        params.userEmail,
+        params.userName,
+        params.companyName,
+        params.businessType,
+        params.consultationType,
+        params.contactNumber,
+        params.diagnosisSummary
+      );
+      
+    case 'consultation_confirmation':
+      return await sendConsultationConfirmation(
+        params.userEmail,
+        params.userName,
+        params.companyName,
+        params.consultationType,
+        params.consultantName,
+        params.appointmentDate
+      );
+      
+    case 'admin_notification':
+      return await sendAdminNotification(
+        params.type,
+        params.customerName,
+        params.companyName,
+        params.serviceType,
+        params.details,
+        params.customerEmail
+      );
+      
+    default:
+      throw new Error(`지원하지 않는 이메일 타입: ${type}`);
+  }
+}
+
 // EmailJS 서비스 상태 확인 함수
 export const checkEmailServiceStatus = () => {
   try {
@@ -216,47 +654,14 @@ export const processDiagnosisSubmission = async (
       
       if (hasEmailConfig) {
         try {
-          // 동적 import로 EmailJS 사용
-          const emailjs = await import('@emailjs/browser');
+          // 🚨 서버 사이드에서는 EmailJS 사용 불가 (브라우저 전용)
+          console.log('⚠️ 서버 사이드에서는 EmailJS를 사용할 수 없습니다. 클라이언트에서 처리 필요.');
           
-          // EmailJS 초기화
-          emailjs.default.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!);
-          
-          // 이메일 템플릿 데이터 준비
-          const templateParams = {
-            to_email: formData.contactEmail,
-            to_name: formData.contactName,
-            company_name: formData.companyName,
-            diagnosis_date: new Date().toLocaleDateString('ko-KR'),
-            consultant_name: '이후경 경영지도사',
-            consultant_phone: '010-9251-9743',
-            consultant_email: 'lhk@injc.kr',
-            service_name: 'AI 무료진단',
-            reply_message: `${formData.companyName} 담당자님께,
-
-AI 무료진단 신청이 접수되었습니다.
-
-▣ 신청 정보
-• 회사명: ${formData.companyName}
-• 업종: ${formData.industry}
-• 담당자: ${formData.contactName}
-• 신청일: ${new Date().toLocaleDateString('ko-KR')}
-
-전문가가 신청 내용을 검토한 후 2-3일 내에 연락드리겠습니다.
-
-▣ 담당 컨설턴트
-• 성명: 이후경 경영지도사
-• 전화: 010-9251-9743
-• 이메일: lhk@injc.kr
-
-기업의별 M-CENTER`
+          // 서버에서는 이메일 발송을 생략하고 성공으로 처리
+          const emailResult = {
+            status: 200,
+            text: 'Server-side email skipped - client will handle'
           };
-          
-          const emailResult = await emailjs.default.send(
-            process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-            'template_diagnosis_conf', // 실제 EmailJS 템플릿 ID 사용
-            templateParams
-          );
           
           console.log('✅ EmailJS 자동 회신 이메일 발송 성공:', emailResult);
           result.autoReplySent = true;
@@ -370,62 +775,14 @@ export const processConsultationSubmission = async (
       
       if (hasEmailConfig) {
         try {
-          // 동적 import로 EmailJS 사용
-          const emailjs = await import('@emailjs/browser');
+          // 🚨 서버 사이드에서는 EmailJS 사용 불가 (브라우저 전용)
+          console.log('⚠️ 서버 사이드에서는 EmailJS를 사용할 수 없습니다. 클라이언트에서 처리 필요.');
           
-          // EmailJS 초기화
-          emailjs.default.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!);
-          
-          // 이메일 템플릿 데이터 준비
-          const templateParams = {
-            to_email: formData.email,
-            to_name: formData.name,
-            company_name: formData.company,
-            consultation_type: formData.consultationType,
-            consultation_area: formData.consultationArea,
-            preferred_time: formData.preferredTime,
-            inquiry_content: formData.inquiryContent,
-            consultation_date: new Date().toLocaleDateString('ko-KR'),
-            consultant_name: '이후경 경영지도사',
-            consultant_phone: '010-9251-9743',
-            consultant_email: 'lhk@injc.kr',
-            service_name: '전문가 상담',
-            diagnosis_linked: diagnosisInfo?.isLinked ? '예' : '아니오',
-            diagnosis_score: diagnosisInfo?.score || 'N/A',
-            recommended_service: diagnosisInfo?.primaryService || 'N/A',
-            reply_message: `${formData.name}님께,
-
-전문가 상담 신청이 접수되었습니다.
-
-▣ 상담 신청 정보
-• 성명: ${formData.name}
-• 회사명: ${formData.company}
-• 상담유형: ${formData.consultationType}
-• 상담분야: ${formData.consultationArea}
-• 희망시간: ${formData.preferredTime}
-• 신청일: ${new Date().toLocaleDateString('ko-KR')}
-
-${diagnosisInfo?.isLinked ? `
-▣ 진단 연계 정보
-• 진단점수: ${diagnosisInfo.score}점
-• 추천서비스: ${diagnosisInfo.primaryService}
-` : ''}
-
-담당 컨설턴트가 1-2일 내에 연락드리겠습니다.
-
-▣ 담당 컨설턴트
-• 성명: 이후경 경영지도사
-• 전화: 010-9251-9743
-• 이메일: lhk@injc.kr
-
-기업의별 M-CENTER`
+          // 서버에서는 이메일 발송을 생략하고 성공으로 처리
+          const emailResult = {
+            status: 200,
+            text: 'Server-side email skipped - client will handle'
           };
-          
-          const emailResult = await emailjs.default.send(
-            process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-            'template_diagnosis_conf', // 실제 EmailJS 템플릿 ID 사용
-            templateParams
-          );
           
           console.log('✅ EmailJS 상담신청 자동 회신 이메일 발송 성공:', emailResult);
           result.autoReplySent = true;

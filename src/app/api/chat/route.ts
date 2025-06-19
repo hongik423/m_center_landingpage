@@ -3,10 +3,21 @@ import OpenAI from 'openai';
 import { safeGet, validateApiResponse, collectErrorInfo } from '@/lib/utils/safeDataAccess';
 import { getOpenAIKey, isDevelopment, maskApiKey } from '@/lib/config/env';
 
-// 🔧 개발 환경에서 동적 라우트 강제 활성화
-export const dynamic = 'force-dynamic';
+// GitHub Pages 정적 export 호환성
+export const dynamic = 'force-static';
 export const runtime = 'nodejs';
 export const revalidate = false;
+
+// 🔧 CORS 설정을 위한 공통 헤더 함수
+function getCorsHeaders() {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+    'Access-Control-Max-Age': '86400',
+    'Content-Type': 'application/json',
+  };
+}
 
 // OpenAI 클라이언트 초기화 (보안 강화)
 let openaiClient: OpenAI | null = null;
@@ -266,21 +277,30 @@ export async function POST(request: NextRequest) {
     if (!message || typeof message !== 'string') {
       return NextResponse.json(
         { error: '유효한 메시지가 필요합니다.' },
-        { status: 400 }
+        { 
+          status: 400,
+          headers: getCorsHeaders()
+        }
       );
     }
 
     if (message.length > 1000) {
       return NextResponse.json(
         { error: '메시지가 너무 깁니다. (최대 1000자)' },
-        { status: 400 }
+        { 
+          status: 400,
+          headers: getCorsHeaders()
+        }
       );
     }
 
     if (history.length > 20) {
       return NextResponse.json(
         { error: '대화 히스토리가 너무 깁니다.' },
-        { status: 400 }
+        { 
+          status: 400,
+          headers: getCorsHeaders()
+        }
       );
     }
 
@@ -421,7 +441,10 @@ ${serviceDetails}
     if (!aiResponse) {
       return NextResponse.json(
         { error: 'AI 응답을 생성할 수 없습니다.' },
-        { status: 500 }
+        { 
+          status: 500,
+          headers: getCorsHeaders()
+        }
       );
     }
 
@@ -438,6 +461,8 @@ ${serviceDetails}
       response: aiResponse,
       usage: completion.usage,
       services: relevantServices, // 디버깅용
+    }, {
+      headers: getCorsHeaders()
     });
 
   } catch (error) {
@@ -452,41 +477,53 @@ ${serviceDetails}
       if (error.message.includes('API key')) {
         return NextResponse.json(
           { error: 'API 설정을 확인해주세요.' },
-          { status: 401 }
+          { 
+            status: 401,
+            headers: getCorsHeaders()
+          }
         );
       }
       
       if (error.message.includes('rate limit')) {
         return NextResponse.json(
           { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' },
-          { status: 429 }
+          { 
+            status: 429,
+            headers: getCorsHeaders()
+          }
         );
       }
       
       if (error.message.includes('quota')) {
         return NextResponse.json(
           { error: '일시적으로 서비스를 이용할 수 없습니다.' },
-          { status: 503 }
+          { 
+            status: 503,
+            headers: getCorsHeaders()
+          }
         );
       }
     }
 
     return NextResponse.json(
       { error: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: getCorsHeaders()
+      }
     );
   }
 }
 
-// 🔧 GET/OPTIONS 요청 처리 (CORS 및 상태 확인)
-export async function GET() {
+// 🔧 GET 요청 처리 (CORS 및 상태 확인)
+export async function GET(request: NextRequest) {
   try {
     // 환경변수 상태 확인 (민감한 정보 제외)
     const hasApiKey = !!process.env.OPENAI_API_KEY;
     const isDev = process.env.NODE_ENV === 'development';
     
     return NextResponse.json({
-      status: 'M-CENTER AI 챗봇 API가 활성화되었습니다.',
+      status: 'M-CENTER AI 챗봇 API가 정상 작동 중입니다.',
       timestamp: new Date().toISOString(),
       configured: hasApiKey,
       environment: process.env.NODE_ENV,
@@ -497,9 +534,10 @@ export async function GET() {
         debug: {
           apiKeyLength: process.env.OPENAI_API_KEY?.length || 0,
           nodeVersion: process.version,
-          nextVersion: process.env.npm_package_dependencies_next,
         }
       }),
+    }, {
+      headers: getCorsHeaders()
     });
   } catch (error) {
     console.error('GET /api/chat 오류:', error);
@@ -510,20 +548,77 @@ export async function GET() {
         configured: false,
         error: isDevelopment() ? String(error) : '내부 서버 오류'
       },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: getCorsHeaders()
+      }
     );
   }
 }
 
 // 🔧 OPTIONS 요청 처리 (CORS preflight)
-export async function OPTIONS() {
+export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      'Access-Control-Max-Age': '86400',
+    headers: getCorsHeaders(),
+  });
+}
+
+// 🔧 지원하지 않는 HTTP 메서드들에 대한 명확한 405 응답
+export async function PUT(request: NextRequest) {
+  return NextResponse.json(
+    { 
+      error: 'PUT 메서드는 지원하지 않습니다', 
+      supportedMethods: ['GET', 'POST', 'OPTIONS'],
+      message: 'AI 챗봇과 대화하려면 POST 메서드를 사용해주세요.'
     },
+    { 
+      status: 405,
+      headers: {
+        ...getCorsHeaders(),
+        'Allow': 'GET, POST, OPTIONS'
+      }
+    }
+  );
+}
+
+export async function DELETE(request: NextRequest) {
+  return NextResponse.json(
+    { 
+      error: 'DELETE 메서드는 지원하지 않습니다', 
+      supportedMethods: ['GET', 'POST', 'OPTIONS'],
+      message: 'AI 챗봇과 대화하려면 POST 메서드를 사용해주세요.'
+    },
+    { 
+      status: 405,
+      headers: {
+        ...getCorsHeaders(),
+        'Allow': 'GET, POST, OPTIONS'
+      }
+    }
+  );
+}
+
+export async function PATCH(request: NextRequest) {
+  return NextResponse.json(
+    { 
+      error: 'PATCH 메서드는 지원하지 않습니다', 
+      supportedMethods: ['GET', 'POST', 'OPTIONS'],
+      message: 'AI 챗봇과 대화하려면 POST 메서드를 사용해주세요.'
+    },
+    { 
+      status: 405,
+      headers: {
+        ...getCorsHeaders(),
+        'Allow': 'GET, POST, OPTIONS'
+      }
+    }
+  );
+}
+
+export async function HEAD(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: getCorsHeaders(),
   });
 } 

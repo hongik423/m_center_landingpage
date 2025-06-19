@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>페이지를 찾을 수 없습니다 - M-CENTER</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Malgun Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            color: #374151;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 600px;
+            background: white;
+            padding: 60px 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .error-code {
+            font-size: 6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+        
+        .error-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 15px;
+        }
+        
+        .error-description {
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(30, 58, 138, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #f9fafb;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .btn-secondary:hover {
+            background: #f3f4f6;
+            transform: translateY(-2px);
+        }
+        
+        .helpful-links {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .helpful-links h3 {
+            font-size: 1.1rem;
+            color: #374151;
+            margin-bottom: 15px;
+        }
+        
+        .link-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        
+        .link-item {
+            padding: 8px 15px;
+            background: #f9fafb;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #6b7280;
+            transition: all 0.3s ease;
+        }
+        
+        .link-item:hover {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        @media (max-width: 640px) {
+            .container {
+                padding: 40px 20px;
+            }
+            
+            .error-code {
+                font-size: 4rem;
+            }
+            
+            .error-title {
+                font-size: 1.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-code">404</div>
+        <h1 class="error-title">페이지를 찾을 수 없습니다</h1>
+        <p class="error-description">
+            요청하신 페이지가 존재하지 않거나 이동되었을 수 있습니다.<br>
+            URL을 다시 확인하시거나 아래 링크를 이용해 원하시는 페이지로 이동하세요.
+        </p>
+        
+        <div class="action-buttons">
+            <a href="/" class="btn btn-primary">메인 페이지로</a>
+            <button onclick="history.back()" class="btn btn-secondary">이전 페이지로</button>
+        </div>
+        
+        <div class="helpful-links">
+            <h3>주요 페이지 바로가기</h3>
+            <div class="link-list">
+                <a href="/services/diagnosis" class="link-item">AI 진단</a>
+                <a href="/consultation" class="link-item">상담 신청</a>
+                <a href="/services/business-analysis" class="link-item">BM ZEN 사업분석</a>
+                <a href="/services/ai-productivity" class="link-item">AI 생산성향상</a>
+                <a href="/chatbot" class="link-item">AI 챗봇</a>
+                <a href="/about" class="link-item">회사 소개</a>
+                <a href="/cases" class="link-item">성공 사례</a>
+                <a href="/support/contact" class="link-item">문의하기</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 현재 URL 정보 수집 및 자동 리다이렉트 시도
+        (function() {
+            const currentPath = window.location.pathname;
+            
+            // 일반적인 경로 오류 자동 수정
+            const redirectMap = {
+                '/home': '/',
+                '/index': '/',
+                '/main': '/',
+                '/contact': '/support/contact',
+                '/faq': '/support/faq',
+                '/business': '/services/business-analysis',
+                '/ai': '/services/ai-productivity',
+                '/website': '/services/website',
+                '/startup': '/services/tech-startup',
+                '/certification': '/services/certification',
+                '/factory': '/services/factory-auction'
+            };
+            
+            if (redirectMap[currentPath]) {
+                setTimeout(() => {
+                    window.location.href = redirectMap[currentPath];
+                }, 2000);
+            }
+            
+            // Google Analytics 404 추적 (GA가 설정되어 있다면)
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'exception', {
+                    'description': '404_page_not_found',
+                    'fatal': false,
+                    'custom_parameter_1': currentPath
+                });
+            }
+        })();
+    </script>
+</body>
+</html> 

@@ -1,67 +1,192 @@
-name: Deploy AI Chatbot to GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
+  # GitHub Pages 배포 트리거
   push:
-    branches: [ master ]
+    branches:
+      - main
+      - master
+      - github-pages
+  
+  # 수동 실행 가능
   workflow_dispatch:
+    inputs:
+      deploy_environment:
+        description: 'Deploy Environment'
+        required: true
+        default: 'github-pages'
+        type: choice
+        options:
+        - github-pages
+        - staging
 
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# 동시 배포 방지
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
+  # 빌드 작업
   build:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
+      - name: 🔄 코드 체크아웃
+        uses: actions/checkout@v4
         
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Build Next.js app for GitHub Pages
-      run: npm run build
-      env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        NEXT_PUBLIC_EMAILJS_SERVICE_ID: ${{ secrets.NEXT_PUBLIC_EMAILJS_SERVICE_ID }}
-        NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY }}
-        NEXT_PUBLIC_GOOGLE_SCRIPT_URL: ${{ secrets.NEXT_PUBLIC_GOOGLE_SCRIPT_URL }}
-        NEXT_PUBLIC_GOOGLE_SHEETS_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_SHEETS_ID }}
-        NEXT_PUBLIC_SITE_URL: https://hongik423.github.io/m_center_landingpage
-        GITHUB_PAGES: true
-        NODE_ENV: production
-        
-    - name: Add .nojekyll file
-      run: touch out/.nojekyll
-    
-    - name: Setup Pages
-      uses: actions/configure-pages@v4
-    
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: './out'
+      - name: 🔧 Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: 📦 종속성 설치
+        run: |
+          npm ci
+          
+      - name: 🏗️ Next.js 정적 빌드
+        run: |
+          npx cross-env GITHUB_PAGES=true NODE_ENV=production next build
+        env:
+          # GitHub Pages 배포 환경 변수
+          GITHUB_PAGES: true
+          NODE_ENV: production
+          NEXT_PUBLIC_BASE_PATH: /m_center_landingpage
+          NEXT_PUBLIC_SITE_URL: https://injc.github.io/m_center_landingpage
+          NEXT_PUBLIC_IS_GITHUB_PAGES: true
+          # API 키들 (프론트엔드에서만 사용)
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          NEXT_PUBLIC_EMAILJS_SERVICE_ID: ${{ secrets.NEXT_PUBLIC_EMAILJS_SERVICE_ID }}
+          NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY }}
+          NEXT_PUBLIC_GOOGLE_SCRIPT_URL: ${{ secrets.NEXT_PUBLIC_GOOGLE_SCRIPT_URL }}
+          NEXT_PUBLIC_GOOGLE_SHEETS_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_SHEETS_ID }}
+          
+      - name: 📄 GitHub Pages 호환성 최적화
+        run: |
+          # .nojekyll 파일 확인/생성
+          if [ ! -f "./out/.nojekyll" ]; then
+            touch ./out/.nojekyll
+            echo "✅ .nojekyll 파일 생성됨"
+          fi
+          
+          # 404.html 확인
+          if [ ! -f "./out/404.html" ]; then
+            cp ./public/404.html ./out/404.html 2>/dev/null || echo "⚠️ 404.html 복사 실패"
+          fi
+          
+          # robots.txt 확인
+          if [ ! -f "./out/robots.txt" ]; then
+            cp ./public/robots.txt ./out/robots.txt 2>/dev/null || echo "⚠️ robots.txt 복사 실패"
+          fi
+          
+          # sitemap.xml 확인
+          if [ ! -f "./out/sitemap.xml" ]; then
+            cp ./public/sitemap.xml ./out/sitemap.xml 2>/dev/null || echo "⚠️ sitemap.xml 복사 실패"
+          fi
+          
+          echo "🔍 빌드 결과 확인:"
+          ls -la ./out/ | head -10
+          
+      - name: 📤 GitHub Pages 아티팩트 업로드
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
 
+  # 배포 작업
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+      
     runs-on: ubuntu-latest
     needs: build
     
     steps:
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4 
+      - name: 🚀 GitHub Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v4
+        
+      - name: ✅ 배포 성공 알림
+        run: |
+          echo "🎉 GitHub Pages 배포 성공!"
+          echo "📍 배포 URL: ${{ steps.deployment.outputs.page_url }}"
+          echo "⏰ 배포 시간: $(date)"
+          
+      - name: 🔍 배포 후 상태 확인
+        run: |
+          echo "🔗 주요 페이지 확인:"
+          echo "- 메인: ${{ steps.deployment.outputs.page_url }}"
+          echo "- AI 진단: ${{ steps.deployment.outputs.page_url }}services/diagnosis"
+          echo "- AI 챗봇: ${{ steps.deployment.outputs.page_url }}chatbot"
+          echo "- 상담 신청: ${{ steps.deployment.outputs.page_url }}consultation"
+
+  # GitHub AI 호환성 테스트
+  ai-compatibility-test:
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: success()
+    
+    steps:
+      - name: 🤖 GitHub AI 호환성 테스트
+        run: |
+          echo "🔍 GitHub AI 환경 점검 시작..."
+          
+          # 기본 환경 정보
+          echo "📊 환경 정보:"
+          echo "- Runner OS: $RUNNER_OS"
+          echo "- GitHub Workspace: $GITHUB_WORKSPACE"
+          echo "- GitHub Repository: $GITHUB_REPOSITORY"
+          echo "- GitHub Actor: $GITHUB_ACTOR"
+          
+          # Node.js 환경 확인
+          echo "🔧 Node.js 환경:"
+          node --version
+          npm --version
+          
+          # 배포 URL 상태 확인
+          echo "🌐 배포 상태 확인:"
+          DEPLOY_URL="${{ needs.deploy.outputs.page_url || 'https://injc.github.io/m_center_landingpage/' }}"
+          
+          # 최대 5분 대기 후 상태 확인
+          for i in {1..10}; do
+            echo "⏳ 배포 안정화 대기 중... ($i/10)"
+            sleep 30
+            
+            if curl -s -o /dev/null -w "%{http_code}" "$DEPLOY_URL" | grep -q "200"; then
+              echo "✅ 사이트 접근 성공!"
+              break
+            elif [ $i -eq 10 ]; then
+              echo "⚠️ 사이트 접근 실패 - GitHub AI 환경에서 수동 확인 필요"
+            fi
+          done
+          
+          echo "🎯 GitHub AI 가동 준비 완료!"
+          echo "💡 GitHub Codespaces나 GitHub.dev에서 프로젝트를 열어 AI 기능을 활용하세요."
+          
+      - name: 📋 GitHub AI 활용 가이드
+        run: |
+          echo "🚀 GitHub AI 완전 가동 가이드:"
+          echo ""
+          echo "1️⃣ GitHub Codespaces 시작:"
+          echo "   - 리포지토리에서 'Code' > 'Codespaces' > 'Create codespace on main'"
+          echo ""
+          echo "2️⃣ GitHub.dev 에디터:"
+          echo "   - 리포지토리에서 '.' 키 눌러서 바로 접속"
+          echo "   - 또는 URL에서 github.com을 github.dev로 변경"
+          echo ""
+          echo "3️⃣ AI 기능 활용:"
+          echo "   - GitHub Copilot: 코드 자동완성 및 제안"
+          echo "   - GitHub Copilot Chat: AI와 대화하며 코딩"
+          echo "   - Code Scanning: 보안 취약점 자동 탐지"
+          echo "   - Dependabot: 의존성 자동 업데이트"
+          echo ""
+          echo "4️⃣ 개발 서버 실행:"
+          echo "   - npm install && npm run dev"
+          echo "   - 포트 3000에서 개발 서버 실행"
+          echo ""
+          echo "✨ 이제 GitHub AI가 완전히 가동됩니다!" 

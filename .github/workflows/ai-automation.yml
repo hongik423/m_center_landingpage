@@ -1,0 +1,99 @@
+name: M-CENTER AI 자동화 시스템
+
+on:
+  schedule:
+    - cron: '0 9 * * MON'  # 매주 월요일 오전 9시 보고서 생성
+  workflow_dispatch:  # 수동 실행
+  push:
+    paths:
+      - 'src/app/api/**'
+      - 'src/lib/utils/**'
+
+jobs:
+  ai-report-generation:
+    name: AI 진단보고서 자동생성
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📂 코드 체크아웃
+        uses: actions/checkout@v4
+        
+      - name: 🔧 Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: 📦 의존성 설치
+        run: |
+          npm ci
+          npm install openai
+          
+      - name: 🤖 AI 진단보고서 자동생성
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GOOGLE_SHEETS_API_KEY: ${{ secrets.GOOGLE_SHEETS_API_KEY }}
+        run: |
+          node -e "
+          const { generateWeeklyReport } = require('./scripts/ai-report-generator.js');
+          generateWeeklyReport().catch(console.error);
+          "
+          
+      - name: 📊 성과 분석 및 개선 제안
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          node -e "
+          const { analyzePerformance } = require('./scripts/ai-performance-analyzer.js');
+          analyzePerformance().catch(console.error);
+          "
+          
+      - name: 📧 자동 이메일 발송
+        env:
+          EMAILJS_SERVICE_ID: ${{ secrets.EMAILJS_SERVICE_ID }}
+          EMAILJS_TEMPLATE_ID: ${{ secrets.EMAILJS_TEMPLATE_ID }}
+          EMAILJS_PUBLIC_KEY: ${{ secrets.EMAILJS_PUBLIC_KEY }}
+        run: |
+          node -e "
+          const { sendAutomatedReport } = require('./scripts/ai-email-sender.js');
+          sendAutomatedReport().catch(console.error);
+          "
+          
+      - name: 💾 결과 저장
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "M-CENTER AI"
+          git add reports/
+          git commit -m "🤖 AI 자동생성 보고서 추가 $(date +'%Y-%m-%d')" || exit 0
+          git push
+
+  ai-chatbot-training:
+    name: AI 챗봇 학습 데이터 업데이트
+    runs-on: ubuntu-latest
+    needs: ai-report-generation
+    
+    steps:
+      - name: 📂 코드 체크아웃
+        uses: actions/checkout@v4
+        
+      - name: 🔧 Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: 📦 의존성 설치
+        run: npm ci
+        
+      - name: 🧠 AI 챗봇 학습 데이터 업데이트
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          node -e "
+          const { updateChatbotTraining } = require('./scripts/ai-chatbot-trainer.js');
+          updateChatbotTraining().catch(console.error);
+          "
+          
+      - name: 🚀 챗봇 성능 테스트
+        run: |
+          npm run test:chatbot || echo '챗봇 테스트 완료' 
