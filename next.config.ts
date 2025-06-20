@@ -136,9 +136,15 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['lucide-react'],
   },
   
-  // 웹팩 설정
+  // 웹팩 설정 - 단순화
   webpack: (config, { dev, isServer }) => {
-    // GitHub Pages 빌드 시 클라이언트 전용 라이브러리 처리
+    // 🔧 개발 환경에서 ChunkLoadError 방지를 위한 최소 설정
+    if (dev) {
+      // 개발 환경에서 캐시 비활성화
+      config.cache = false;
+    }
+    
+    // GitHub Pages 빌드 시에만 추가 설정
     if (isProd && isGitHubPages) {
       // 서버 사이드에서 브라우저 전용 모듈 제외
       if (isServer) {

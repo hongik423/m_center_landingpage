@@ -193,6 +193,30 @@ const config = {
           'Segoe UI Symbol',
           'sans-serif'
         ],
+        // 랜딩페이지 타이틀용 - 돋보이면서도 모던한 느낌
+        title: [
+          'Pretendard Variable',
+          'Pretendard',
+          'system-ui',
+          '-apple-system',
+          'sans-serif'
+        ],
+        // 본문/설명 텍스트용 - 모바일/웹 모두 읽기 좋음
+        content: [
+          'Spoqa Han Sans Neo',
+          'Pretendard Variable',
+          'Pretendard',
+          'system-ui',
+          '-apple-system',
+          'sans-serif'
+        ],
+        // 숫자/가격 강조용 - 자간 조정에 유리
+        number: [
+          'Spoqa Han Sans Neo',
+          'Pretendard Variable',
+          'system-ui',
+          'monospace'
+        ],
         mono: [
           'SF Mono',
           'Monaco',

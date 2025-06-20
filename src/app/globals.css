@@ -1,3 +1,7 @@
+/* 한국어 최적화 폰트 로드 */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+@import url('https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@latest/css/SpoqaHanSansNeo.css');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -42,6 +46,11 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    
+    /* 토스 스타일 커스텀 색상 */
+    --toss-blue: 56 100% 65%;
+    --toss-navy: 230 35% 10%;
+    --toss-gray: 214 13% 93%;
   }
 
   .dark {
@@ -87,6 +96,97 @@
     @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
   }
   
+  /* 목적별 폰트 클래스 */
+  .font-title {
+    font-family: 'Pretendard Variable', 'Pretendard', system-ui, -apple-system, sans-serif;
+    font-weight: 800; /* ExtraBold */
+    letter-spacing: -0.02em;
+  }
+  
+  .font-content {
+    font-family: 'Spoqa Han Sans Neo', 'Pretendard Variable', 'Pretendard', system-ui, -apple-system, sans-serif;
+    font-weight: 400; /* Regular */
+    letter-spacing: -0.01em;
+  }
+  
+  .font-number {
+    font-family: 'Spoqa Han Sans Neo', 'Pretendard Variable', system-ui, monospace;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+  
+  /* 가시성 개선 클래스 */
+  .text-enhanced {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* 토스 스타일 유틸리티 클래스 */
+  .toss-card {
+    @apply bg-white rounded-3xl shadow-sm border border-gray-100/50 backdrop-blur-sm;
+  }
+  
+  .toss-card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-blue-200/50;
+  }
+  
+  .toss-button-primary {
+    @apply bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700;
+    @apply text-white font-semibold rounded-2xl px-6 py-3;
+    @apply shadow-lg hover:shadow-xl transition-all duration-300;
+    @apply transform hover:-translate-y-0.5 active:translate-y-0;
+    @apply border-0 focus:ring-2 focus:ring-blue-500/20 focus:ring-offset-2;
+  }
+  
+  .toss-button-secondary {
+    @apply bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700;
+    @apply text-white font-semibold rounded-2xl px-6 py-3;
+    @apply shadow-lg hover:shadow-xl transition-all duration-300;
+    @apply transform hover:-translate-y-0.5 active:translate-y-0;
+    @apply border-0 focus:ring-2 focus:ring-emerald-500/20 focus:ring-offset-2;
+  }
+  
+  .toss-button-outline {
+    @apply bg-white/50 hover:bg-white border border-gray-200 hover:border-gray-300;
+    @apply text-gray-700 hover:text-gray-900 font-semibold rounded-2xl px-6 py-3;
+    @apply shadow-sm hover:shadow-md transition-all duration-300;
+    @apply backdrop-blur-sm focus:ring-2 focus:ring-gray-500/20 focus:ring-offset-2;
+  }
+  
+  .toss-nav-item {
+    @apply px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50/50;
+    @apply rounded-xl font-medium transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:ring-offset-1;
+  }
+  
+  .toss-dropdown {
+    @apply bg-white/95 backdrop-blur-xl border border-gray-100/50;
+    @apply shadow-2xl rounded-2xl p-4;
+    @apply animate-in fade-in-0 zoom-in-95 duration-200;
+  }
+  
+  .toss-service-card {
+    @apply flex items-center p-4 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50;
+    @apply cursor-pointer transition-all duration-200 border border-transparent hover:border-blue-100/50;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:ring-offset-1;
+  }
+  
+  .toss-service-icon {
+    @apply w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl;
+    @apply flex items-center justify-center shadow-sm;
+  }
+  
+  .toss-header-blur {
+    @apply bg-white/95 backdrop-blur-xl border-b border-gray-100/50;
+    @apply supports-[backdrop-filter]:bg-white/80;
+  }
+  
+  .toss-mobile-menu {
+    @apply bg-white/95 backdrop-blur-xl border-l border-gray-100/50;
+    @apply supports-[backdrop-filter]:bg-white/90;
+  }
+  
   .shadow-custom {
     box-shadow: 0 4px 20px -2px rgba(59, 130, 246, 0.15);
   }
@@ -117,6 +217,33 @@
       opacity: 0.8;
       transform: scale(1.05);
     }
+  }
+  
+  /* 토스 스타일 애니메이션 */
+  @keyframes toss-bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-2px);
+    }
+  }
+  
+  @keyframes toss-glow {
+    0%, 100% {
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+    50% {
+      box-shadow: 0 6px 24px rgba(59, 130, 246, 0.25);
+    }
+  }
+  
+  .animate-toss-bounce {
+    animation: toss-bounce 2s ease-in-out infinite;
+  }
+  
+  .animate-toss-glow {
+    animation: toss-glow 3s ease-in-out infinite;
   }
   
   /* 모든 터치 요소에 대한 성능 최적화 */

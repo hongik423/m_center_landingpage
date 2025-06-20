@@ -12,7 +12,7 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NODE_ENV === 'production' 
     ? 'https://hongik423.github.io/m_center_landingpage' 
-    : 'http://localhost:3001'),
+    : 'http://localhost:3000'),
   title: 'M-CENTER | 기업의별 경영지도센터',
   description: '25년 경험의 전문 경영컨설팅. BM ZEN 사업분석, AI 생산성향상, 경매활용 공장구매 등 6대 핵심서비스로 기업 성장을 돕습니다.',
   keywords: 'M-CENTER, 기업의별, 경영컨설팅, BM ZEN, AI 생산성, 경매 공장구매, 기술창업, 인증지원',
@@ -64,7 +64,7 @@ export default function RootLayout({
     <html lang="ko" suppressHydrationWarning>
       <head>
         {/* 🔧 리소스 프리로딩 최적화 - 즉시 사용되는 이미지만 preload */}
-        <link rel="preload" href={`${basePath}/star-counselor-icon.svg`} as="image" type="image/svg+xml" />
+        {/* star-counselor-icon.svg는 사용자가 챗봇 클릭 시에만 필요하므로 preload 제거 */}
         
         {/* EmailJS 라이브러리 로드 */}
         <script
