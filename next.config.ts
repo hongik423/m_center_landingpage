@@ -128,49 +128,35 @@ const nextConfig: NextConfig = {
   
   // 웹팩 설정
   webpack: (config, { dev, isServer }) => {
-    // 개발 환경에서 AI 관련 모듈 해결 최적화
-    if (dev && !isServer) {
+    // GitHub Pages 빌드 시 클라이언트 전용 라이브러리 처리
+    if (isProd && isGitHubPages) {
+      // 서버 사이드에서 브라우저 전용 모듈 제외
+      if (isServer) {
+        config.externals = [
+          ...((config.externals as any[]) || []),
+          '@emailjs/browser',
+          'emailjs-com'
+        ];
+      }
+      
+      // 클라이언트 사이드 fallback 설정
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
         net: false,
         tls: false,
         child_process: false,
-        // OpenAI 패키지 호환성 강화
         stream: false,
         crypto: false,
         path: false,
         os: false,
         util: false,
-      };
-    }
-    
-    // GitHub Pages 환경에서만 최적화 적용
-    if (isProd && isGitHubPages) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
+        process: false,
+        buffer: false,
       };
       
-      // 소스맵 최적화
+      // 소스맵 비활성화
       config.devtool = false;
-      
-      // 번들 크기 최적화
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendors',
-              chunks: 'all',
-            },
-          },
-        },
-      };
     }
     
     return config;

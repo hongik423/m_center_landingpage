@@ -3,10 +3,10 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { safeGet, validateApiResponse, collectErrorInfo } from '@/lib/utils/safeDataAccess';
 import { getGeminiKey, isDevelopment, maskApiKey } from '@/lib/config/env';
 
-// Dynamic API route for chat functionality
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-export const revalidate = 0;
+// GitHub Pages 호환을 위한 정적 설정
+export const dynamic = 'force-static';
+export const runtime = 'edge';
+export const revalidate = false;
 
 // 🔧 CORS 설정을 위한 공통 헤더 함수
 function getCorsHeaders() {

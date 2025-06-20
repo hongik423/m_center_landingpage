@@ -53,11 +53,11 @@ jobs:
         run: |
           npx cross-env GITHUB_PAGES=true NODE_ENV=production next build
         env:
-          # GitHub Pages 배포 환경 변수
+          # GitHub Pages 배포 환경 변수 (수정됨)
           GITHUB_PAGES: true
           NODE_ENV: production
           NEXT_PUBLIC_BASE_PATH: /m_center_landingpage
-          NEXT_PUBLIC_SITE_URL: https://injc.github.io/m_center_landingpage
+          NEXT_PUBLIC_SITE_URL: https://hongik423.github.io/m_center_landingpage
           NEXT_PUBLIC_IS_GITHUB_PAGES: true
           # API 키들 (프론트엔드에서만 사용)
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -74,23 +74,44 @@ jobs:
             echo "✅ .nojekyll 파일 생성됨"
           fi
           
+          # index.html이 있는지 확인
+          if [ -f "./out/index.html" ]; then
+            echo "✅ index.html 파일 존재함"
+          else
+            echo "❌ index.html 파일이 없습니다!"
+          fi
+          
           # 404.html 확인
           if [ ! -f "./out/404.html" ]; then
-            cp ./public/404.html ./out/404.html 2>/dev/null || echo "⚠️ 404.html 복사 실패"
+            if [ -f "./public/404.html" ]; then
+              cp ./public/404.html ./out/404.html
+              echo "✅ 404.html 복사 완료"
+            else
+              echo "⚠️ 404.html 파일이 없습니다"
+            fi
           fi
           
           # robots.txt 확인
           if [ ! -f "./out/robots.txt" ]; then
-            cp ./public/robots.txt ./out/robots.txt 2>/dev/null || echo "⚠️ robots.txt 복사 실패"
+            if [ -f "./public/robots.txt" ]; then
+              cp ./public/robots.txt ./out/robots.txt
+              echo "✅ robots.txt 복사 완료"
+            fi
           fi
           
           # sitemap.xml 확인
           if [ ! -f "./out/sitemap.xml" ]; then
-            cp ./public/sitemap.xml ./out/sitemap.xml 2>/dev/null || echo "⚠️ sitemap.xml 복사 실패"
+            if [ -f "./public/sitemap.xml" ]; then
+              cp ./public/sitemap.xml ./out/sitemap.xml
+              echo "✅ sitemap.xml 복사 완료"
+            fi
           fi
           
           echo "🔍 빌드 결과 확인:"
-          ls -la ./out/ | head -10
+          ls -la ./out/ | head -20
+          
+          echo "🔍 빌드 파일 개수:"
+          find ./out -type f | wc -l
           
       - name: 📤 GitHub Pages 아티팩트 업로드
         uses: actions/upload-pages-artifact@v3
@@ -115,15 +136,16 @@ jobs:
         run: |
           echo "🎉 GitHub Pages 배포 성공!"
           echo "📍 배포 URL: ${{ steps.deployment.outputs.page_url }}"
+          echo "📍 예상 URL: https://hongik423.github.io/m_center_landingpage/"
           echo "⏰ 배포 시간: $(date)"
           
       - name: 🔍 배포 후 상태 확인
         run: |
           echo "🔗 주요 페이지 확인:"
-          echo "- 메인: ${{ steps.deployment.outputs.page_url }}"
-          echo "- AI 진단: ${{ steps.deployment.outputs.page_url }}services/diagnosis"
-          echo "- AI 챗봇: ${{ steps.deployment.outputs.page_url }}chatbot"
-          echo "- 상담 신청: ${{ steps.deployment.outputs.page_url }}consultation"
+          echo "- 메인: https://hongik423.github.io/m_center_landingpage/"
+          echo "- AI 진단: https://hongik423.github.io/m_center_landingpage/services/diagnosis/"
+          echo "- AI 챗봇: https://hongik423.github.io/m_center_landingpage/chatbot/"
+          echo "- 상담 신청: https://hongik423.github.io/m_center_landingpage/consultation/"
 
   # GitHub AI 호환성 테스트
   ai-compatibility-test:
@@ -150,7 +172,7 @@ jobs:
           
           # 배포 URL 상태 확인
           echo "🌐 배포 상태 확인:"
-          DEPLOY_URL="${{ needs.deploy.outputs.page_url || 'https://injc.github.io/m_center_landingpage/' }}"
+          DEPLOY_URL="${{ steps.deployment.outputs.page_url || 'https://hongik423.github.io/m_center_landingpage/' }}"
           
           # 최대 5분 대기 후 상태 확인
           for i in {1..10}; do
