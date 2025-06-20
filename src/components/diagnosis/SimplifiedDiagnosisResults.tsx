@@ -427,7 +427,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
     }
   };
 
-  // 📄 실제 PDF 파일 다운로드 기능
+  // 📄 강화된 PDF 다운로드 기능
   const handlePDFDownload = async () => {
     try {
       console.log('📄 PDF 다운로드 시작');
@@ -439,58 +439,157 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
         duration: 3000,
       });
 
-      // 진단 데이터를 PDFGenerator에 맞는 형태로 변환
-      const pdfDiagnosisData = {
-        companyName: diagnosis.companyName,
-        overallScore: diagnosis.totalScore,
-        marketPosition: diagnosis.marketPosition,
-        industryGrowth: diagnosis.industryGrowth,
-        quickAnalysis: {
-          strengths: diagnosis.strengths.map((item: any) => 
-            typeof item === 'string' ? item : item?.category || item?.reason || JSON.stringify(item)
-          ),
-          improvements: diagnosis.weaknesses.map((item: any) => 
-            typeof item === 'string' ? item : item?.category || item?.reason || JSON.stringify(item)
-          ),
-          opportunities: diagnosis.opportunities.map((item: any) => 
-            typeof item === 'string' ? item : item?.category || item?.reason || JSON.stringify(item)
-          )
-        },
-        actionPlan: diagnosis.actionPlan.map((item: any) => 
-          typeof item === 'string' ? item : item?.title || item?.category || item?.reason || JSON.stringify(item)
-        )
+      // 🔧 데이터 안전 변환 함수
+      const safeExtractText = (item: any): string => {
+        if (typeof item === 'string') return item;
+        if (item?.category) return item.category;
+        if (item?.reason) return item.reason;
+        if (item?.title) return item.title;
+        if (item?.description) return item.description;
+        if (typeof item === 'object') return JSON.stringify(item);
+        return String(item || '데이터 없음');
       };
 
-      // PDFGenerator를 사용하여 PDF 생성
+      // 진단 데이터를 PDFGenerator에 맞는 형태로 안전하게 변환
+      const pdfDiagnosisData = {
+        companyName: diagnosis.companyName || 'Unknown Company',
+        overallScore: diagnosis.totalScore || 75,
+        marketPosition: diagnosis.marketPosition || '양호',
+        industryGrowth: diagnosis.industryGrowth || '성장 중',
+        detailedAnalysis: true,
+        quickAnalysis: {
+          strengths: (diagnosis.strengths || []).map(safeExtractText).filter(Boolean),
+          improvements: (diagnosis.weaknesses || []).map(safeExtractText).filter(Boolean),
+          opportunities: (diagnosis.opportunities || []).map(safeExtractText).filter(Boolean)
+        },
+        actionPlan: (diagnosis.actionPlan || []).map(safeExtractText).filter(Boolean),
+        // 추가 정보
+        currentSituationForecast: diagnosis.currentSituationForecast || '상황 분석 중',
+        expectedResults: diagnosis.expectedResults,
+        consultant: diagnosis.consultant || {
+          name: '이후경 경영지도사',
+          phone: '010-9251-9743',
+          email: 'hongik423@gmail.com'
+        }
+      };
+
+      console.log('📊 PDF 변환 데이터:', pdfDiagnosisData);
+
+      // 📦 동적 PDFGenerator 로드
+      const { PDFGenerator } = await import('@/lib/utils/pdfGenerator');
+      
+      // 📄 PDF 생성
       await PDFGenerator.generateDiagnosisPDF(pdfDiagnosisData, {
         title: 'M-CENTER AI 기반 종합 경영진단 결과',
-        companyName: diagnosis.companyName,
+        companyName: diagnosis.companyName || 'Unknown Company',
         includeDetails: true
       });
 
       toast({
         title: "✅ PDF 다운로드 완료!",
-        description: "진단 결과 PDF 파일이 다운로드되었습니다.",
+        description: "진단 결과 PDF 파일이 다운로드되었습니다. 다운로드 폴더를 확인해주세요.",
         duration: 5000,
       });
+
+      console.log('✅ PDF 다운로드 성공');
 
     } catch (error) {
-      console.error('❌ PDF 다운로드 실패:', error);
+      console.error('❌ PDF 다운로드 오류:', error);
+      
+      // 🔧 상세 오류 분석 및 사용자 친화적 메시지
+      let errorMessage = "PDF 생성 중 오류가 발생했습니다.";
+      let suggestion = "다시 시도해주세요.";
+      
+      if (error instanceof Error) {
+        const errorText = error.message.toLowerCase();
+        if (errorText.includes('jspdf')) {
+          errorMessage = "PDF 라이브러리 초기화 실패";
+          suggestion = "브라우저를 새로고침하고 다시 시도해주세요.";
+        } else if (errorText.includes('html2canvas')) {
+          errorMessage = "화면 캡처 기능 오류";
+          suggestion = "브라우저의 하드웨어 가속을 확인해주세요.";
+        } else if (errorText.includes('클라이언트')) {
+          errorMessage = "클라이언트 환경 오류";
+          suggestion = "페이지를 새로고침하고 다시 시도해주세요.";
+        } else if (errorText.includes('import')) {
+          errorMessage = "모듈 로드 실패";
+          suggestion = "네트워크 연결을 확인하고 다시 시도해주세요.";
+        }
+      }
       
       toast({
-        title: "PDF 다운로드 실패",
-        description: "PDF 생성 중 오류가 발생했습니다. 브라우저 호환성 문제일 수 있습니다.",
+        title: "PDF 생성 실패",
+        description: `${errorMessage} ${suggestion}`,
         variant: "destructive",
-        duration: 5000,
+        duration: 7000,
       });
 
-      // 대안으로 HTML 보고서 제공
+      // 🔄 대안 제안
       const shouldTryAlternative = confirm(
-        'PDF 다운로드에 실패했습니다.\n\n대신 HTML 형태의 상세 보고서를 새 창에서 열어드릴까요?'
+        `PDF 다운로드에 실패했습니다.\n\n오류: ${errorMessage}\n\n대안을 선택해주세요:\n\n1. OK: 텍스트 보고서 다운로드\n2. 취소: HTML 보고서 새 창으로 열기`
       );
-      
+
       if (shouldTryAlternative) {
-        handleDownload();
+                 // 📄 텍스트 보고서 대안
+         try {
+           // 텍스트 보고서용 간단한 데이터 재구성
+           const safeExtract = (item: any): string => {
+             if (typeof item === 'string') return item;
+             if (item?.category) return item.category;
+             if (item?.reason) return item.reason;
+             if (item?.title) return item.title;
+             if (item?.description) return item.description;
+             return String(item || '데이터 없음');
+           };
+           
+           const textReportData = {
+             companyName: diagnosis.companyName || 'Unknown Company',
+             overallScore: diagnosis.totalScore || 75,
+             marketPosition: diagnosis.marketPosition || '양호',
+             industryGrowth: diagnosis.industryGrowth || '성장 중',
+             quickAnalysis: {
+               strengths: (diagnosis.strengths || []).map(safeExtract).filter(Boolean),
+               improvements: (diagnosis.weaknesses || []).map(safeExtract).filter(Boolean),
+               opportunities: (diagnosis.opportunities || []).map(safeExtract).filter(Boolean)
+             },
+             actionPlan: (diagnosis.actionPlan || []).map(safeExtract).filter(Boolean)
+           };
+           
+           const { OptimizedReportGenerator } = await import('@/lib/utils/reportGenerator');
+           OptimizedReportGenerator.downloadQuickReport(textReportData, 'text');
+          
+          toast({
+            title: "✅ 텍스트 보고서 다운로드 완료",
+            description: "PDF 대신 텍스트 형태의 보고서를 다운로드했습니다.",
+            duration: 5000,
+          });
+        } catch (textError) {
+          console.error('텍스트 보고서 다운로드 실패:', textError);
+          toast({
+            title: "텍스트 다운로드 실패",
+            description: "텍스트 보고서 다운로드도 실패했습니다. HTML 보고서를 시도해보세요.",
+            variant: "destructive",
+            duration: 5000,
+          });
+        }
+      } else {
+        // 📄 HTML 보고서 대안
+        try {
+          handleDownload();
+          toast({
+            title: "HTML 보고서 생성",
+            description: "대신 HTML 형태의 상세 보고서를 새 창에서 열었습니다.",
+            duration: 5000,
+          });
+        } catch (htmlError) {
+          console.error('HTML 보고서 실패:', htmlError);
+          toast({
+            title: "모든 다운로드 실패",
+            description: "모든 다운로드 방법이 실패했습니다. 관리자에게 문의해주세요.",
+            variant: "destructive",
+            duration: 5000,
+          });
+        }
       }
     } finally {
       setIsLoading(false);

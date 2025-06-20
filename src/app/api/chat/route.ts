@@ -324,8 +324,9 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // GEMINI AI API 호출 (최신 2.5-flash 모델)
-    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    // GEMINI AI API 호출 (안정적인 1.5-pro 모델)
+    console.log('🚀 GEMINI API 호출 시작:', { messageLength: message.length, hasApiKey: !!GEMINI_API_KEY });
+    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -370,11 +371,20 @@ export async function POST(request: NextRequest) {
       }),
     });
 
+    console.log('📡 GEMINI API 응답 상태:', { 
+      status: geminiResponse.status, 
+      ok: geminiResponse.ok,
+      statusText: geminiResponse.statusText,
+      headers: geminiResponse.headers.get('content-type')
+    });
+
     if (!geminiResponse.ok) {
-      console.warn(`⚠️ GEMINI API 오류 (${geminiResponse.status}), 폴백 응답 사용`);
+      const errorText = await geminiResponse.text();
+      console.error(`❌ GEMINI API 오류 (${geminiResponse.status}):`, errorText);
       return NextResponse.json({
         response: generateFallbackResponse(message),
         source: 'fallback_api_error',
+        error: `API Error ${geminiResponse.status}: ${errorText}`,
         timestamp: new Date().toISOString()
       }, {
         headers: getCorsHeaders()
@@ -382,23 +392,31 @@ export async function POST(request: NextRequest) {
     }
 
     const geminiData = await geminiResponse.json();
+    console.log('🔍 GEMINI API 응답 데이터:', JSON.stringify(geminiData, null, 2));
     
     if (geminiData.candidates && geminiData.candidates[0]?.content?.parts?.[0]?.text) {
       const aiResponse = geminiData.candidates[0].content.parts[0].text;
+      console.log('✅ GEMINI API 성공:', { responseLength: aiResponse.length });
       
       return NextResponse.json({
         response: aiResponse,
-        source: 'gemini-2.5-flash',
+        source: 'gemini-1.5-pro',
         timestamp: new Date().toISOString(),
         usage: geminiData.usageMetadata
       }, {
         headers: getCorsHeaders()
       });
     } else {
-      console.warn('⚠️ GEMINI API 응답 형식 오류, 폴백 응답 사용');
+      console.warn('⚠️ GEMINI API 응답 형식 오류:', { 
+        hasCandidates: !!geminiData.candidates,
+        candidatesLength: geminiData.candidates?.length,
+        firstCandidate: geminiData.candidates?.[0],
+        rawData: geminiData
+      });
       return NextResponse.json({
         response: generateFallbackResponse(message),
         source: 'fallback_format_error',
+        debugInfo: { geminiData },
         timestamp: new Date().toISOString()
       }, {
         headers: getCorsHeaders()

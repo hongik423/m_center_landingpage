@@ -1290,7 +1290,6 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
           contactManager: data.contactManager || '',
           email: data.email || '',
           employeeCount: data.employeeCount || '',
-          growthStage: data.growthStage || '',
           businessLocation: data.businessLocation || '',
           mainConcerns: data.mainConcerns || '',
           expectedBenefits: data.expectedBenefits || '',
@@ -1336,10 +1335,10 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
         
         if (apiResult.success) {
           console.log('✅ 진단 데이터 API 처리 성공');
-          results.data.googleSheetsSaved = apiResult.data?.sheetSaved || true;
-          results.data.emailSent = apiResult.data?.autoReplySent || true;
-          results.data.adminNotified = apiResult.data?.adminNotified || true;
-          results.data.apiResult = apiResult; // apiResult를 results.data에 저장
+          (results.data as any).googleSheetsSaved = apiResult.data?.sheetSaved || true;
+          (results.data as any).emailSent = apiResult.data?.autoReplySent || true;
+          (results.data as any).adminNotified = apiResult.data?.adminNotified || true;
+          (results.data as any).apiResult = apiResult; // apiResult를 results.data에 저장
           
           (results.data as any).apiInfo = {
             sheetSaved: apiResult.data?.sheetSaved || false,
@@ -1350,9 +1349,9 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
           };
         } else {
           console.warn('⚠️ API 처리 실패:', apiResult.error);
-          results.data.googleSheetsSaved = false;
-          results.data.emailSent = false;
-          results.data.apiResult = apiResult; // 실패해도 apiResult 저장
+          (results.data as any).googleSheetsSaved = false;
+          (results.data as any).emailSent = false;
+          (results.data as any).apiResult = apiResult; // 실패해도 apiResult 저장
           
           (results.data as any).apiError = {
             message: apiResult.error || '서버 처리 실패',
@@ -1367,9 +1366,9 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
       } catch (apiError) {
         console.error('❌ 진단 데이터 API 호출 실패:', apiError);
         
-        results.data.googleSheetsSaved = false;
-        results.data.emailSent = false;
-        results.data.apiResult = null; // API 에러 시 null로 설정
+        (results.data as any).googleSheetsSaved = false;
+        (results.data as any).emailSent = false;
+        (results.data as any).apiResult = null; // API 에러 시 null로 설정
         
         (results.data as any).apiError = {
           message: apiError instanceof Error ? apiError.message : '네트워크 오류',
@@ -1384,9 +1383,9 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // 4단계: 완료 - 개선된 완료 메시지
-      const dataStorageSuccess = results.data.googleSheetsSaved || false;
-      const emailSuccess = results.data.emailSent || false;
-      const adminNotified = results.data.adminNotified || false;
+      const dataStorageSuccess = (results.data as any).googleSheetsSaved || false;
+      const emailSuccess = (results.data as any).emailSent || false;
+      const adminNotified = (results.data as any).adminNotified || false;
       
       // 상태에 따른 완료 메시지 설정
       let completionMessage = '';

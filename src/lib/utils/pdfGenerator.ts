@@ -42,13 +42,27 @@ export class PDFGenerator {
       console.log('📦 html2canvas 로드 중...');
       const html2canvasModule = await import('html2canvas');
 
-      // jsPDF v3 호환 처리 (여러 방식 시도)
-      this.jsPDF = (jsPDFModule as any).jsPDF || 
-                   ((jsPDFModule as any).default && (jsPDFModule as any).default.jsPDF) || 
-                   (jsPDFModule as any).default || 
-                   jsPDFModule;
+      // jsPDF 라이브러리 호환성 처리 (다양한 버전 지원)
+      if (typeof jsPDFModule === 'function') {
+        this.jsPDF = jsPDFModule;
+      } else if ((jsPDFModule as any).jsPDF && typeof (jsPDFModule as any).jsPDF === 'function') {
+        this.jsPDF = (jsPDFModule as any).jsPDF;
+      } else if ((jsPDFModule as any).default && typeof (jsPDFModule as any).default === 'function') {
+        this.jsPDF = (jsPDFModule as any).default;
+      } else if ((jsPDFModule as any).default && (jsPDFModule as any).default.jsPDF) {
+        this.jsPDF = (jsPDFModule as any).default.jsPDF;
+      } else {
+        this.jsPDF = jsPDFModule;
+      }
 
-      this.html2canvas = html2canvasModule.default || html2canvasModule;
+      // html2canvas 라이브러리 호환성 처리
+      if (typeof html2canvasModule === 'function') {
+        this.html2canvas = html2canvasModule;
+      } else if ((html2canvasModule as any).default && typeof (html2canvasModule as any).default === 'function') {
+        this.html2canvas = (html2canvasModule as any).default;
+      } else {
+        this.html2canvas = html2canvasModule;
+      }
 
       console.log('📚 라이브러리 로드 상태:', {
         jsPDFType: typeof this.jsPDF,
