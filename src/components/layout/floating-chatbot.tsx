@@ -181,7 +181,7 @@ export default function FloatingChatbot() {
         >
           <div className="relative">
             {/* 메인 버튼 */}
-            <div className="w-16 h-16 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center border-4 border-white/20" style={{ backgroundColor: '#1E3A8A', boxShadow: '0 25px 50px -12px rgba(30, 58, 138, 0.4)' }}>
+            <div className="w-16 h-16 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center border-4 border-white/20" style={{ backgroundColor: '#4285F4', boxShadow: '0 25px 50px -12px rgba(66, 133, 244, 0.4)' }}>
               {/* 새로운 별-AI상담사 아이콘 */}
               <img 
                 src="/star-counselor-icon.svg" 
@@ -190,7 +190,7 @@ export default function FloatingChatbot() {
               />
               
               {/* 펄스 효과 */}
-              <div className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ backgroundColor: '#1E3A8A' }}></div>
+              <div className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ backgroundColor: '#4285F4' }}></div>
               
               {/* 온라인 상태 표시 - 별 모양 */}
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse flex items-center justify-center">
@@ -214,7 +214,7 @@ export default function FloatingChatbot() {
         <div className="fixed bottom-6 right-6 w-96 h-[500px] z-50 transition-all duration-300">
           <Card className="h-full shadow-2xl border-0 bg-white rounded-3xl overflow-hidden">
             {/* 🎨 단순한 헤더 */}
-            <CardHeader className="p-4 text-white relative" style={{ backgroundColor: '#1E3A8A' }}>
+            <CardHeader className="p-4 text-white relative" style={{ backgroundColor: '#4285F4' }}>
               {/* 단순한 닫기 버튼 - 이모지 사용 */}
               <button
                 className="absolute top-3 right-3 w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 text-lg"
@@ -260,7 +260,7 @@ export default function FloatingChatbot() {
                           ? 'text-white rounded-br-md'
                           : 'bg-white text-gray-800 rounded-bl-md border border-gray-100'
                       }`}
-                      style={message.sender === 'user' ? { backgroundColor: '#002552' } : {}}
+                      style={message.sender === 'user' ? { backgroundColor: '#4285F4' } : {}}
                     >
                       <p className="whitespace-pre-line text-sm leading-relaxed">{message.content}</p>
                       <div className={`text-xs mt-2 ${message.sender === 'user' ? 'text-white/70' : 'text-gray-500'}`}>
@@ -275,9 +275,9 @@ export default function FloatingChatbot() {
                   <div className="flex justify-start">
                     <div className="bg-white p-3 rounded-2xl rounded-bl-md shadow-sm border border-gray-100">
                       <div className="flex space-x-1">
-                        <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: '#002552' }}></div>
-                        <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: '#002552', animationDelay: '0.1s' }}></div>
-                        <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: '#002552', animationDelay: '0.2s' }}></div>
+                        <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: '#4285F4' }}></div>
+                        <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: '#4285F4', animationDelay: '0.1s' }}></div>
+                        <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: '#4285F4', animationDelay: '0.2s' }}></div>
                       </div>
                     </div>
                   </div>
@@ -294,8 +294,8 @@ export default function FloatingChatbot() {
                     placeholder="메시지를 입력하세요..."
                     className="flex-1 text-sm rounded-full border-2 border-gray-200 bg-gray-50 transition-all duration-200"
                     onFocus={(e) => {
-                      e.target.style.borderColor = '#002552';
-                      e.target.style.boxShadow = '0 0 0 3px rgba(0, 37, 82, 0.2)';
+                      e.target.style.borderColor = '#4285F4';
+                      e.target.style.boxShadow = '0 0 0 3px rgba(66, 133, 244, 0.2)';
                     }}
                     onBlur={(e) => {
                       e.target.style.borderColor = '#d1d5db';
@@ -314,16 +314,16 @@ export default function FloatingChatbot() {
                     disabled={!inputValue.trim() || isTyping}
                     className="px-4 text-white rounded-full shadow-sm transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50"
                     style={{ 
-                      backgroundColor: '#002552',
+                      backgroundColor: '#4285F4',
                     }}
                     onMouseEnter={(e) => {
                       if (!e.currentTarget.disabled) {
-                        e.currentTarget.style.backgroundColor = '#001a3d';
+                        e.currentTarget.style.backgroundColor = '#3367d6';
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (!e.currentTarget.disabled) {
-                        e.currentTarget.style.backgroundColor = '#002552';
+                        e.currentTarget.style.backgroundColor = '#4285F4';
                       }
                     }}
                   >

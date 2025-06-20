@@ -378,7 +378,7 @@ M-CENTER의 25년 전문 노하우로 최고의 솔루션을 제공해드리겠�
         <Card className="mb-4">
           <CardHeader className="pb-3">
                           <CardTitle className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center relative">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center relative" style={{ backgroundColor: '#4285F4' }}>
                   <img 
                     src="/star-counselor-icon.svg" 
                     alt="별-AI상담사" 
@@ -411,7 +411,7 @@ M-CENTER의 25년 전문 노하우로 최고의 솔루션을 제공해드리겠�
             {messages.map((message) => (
               <div key={message.id} className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {message.sender === 'bot' && (
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 relative">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 relative" style={{ backgroundColor: '#4285F4' }}>
                     <img 
                       src="/star-counselor-icon.svg" 
                       alt="별-AI상담사" 
@@ -424,9 +424,10 @@ M-CENTER의 25년 전문 노하우로 최고의 솔루션을 제공해드리겠�
                   <div
                     className={`p-4 rounded-lg ${
                       message.sender === 'user'
-                        ? 'bg-blue-600 text-white'
+                        ? 'text-white'
                         : 'bg-gray-100 text-gray-900'
                     }`}
+                    style={message.sender === 'user' ? { backgroundColor: '#4285F4' } : {}}
                   >
                     <div className="whitespace-pre-line">{message.content}</div>
                     
@@ -487,7 +488,7 @@ M-CENTER의 25년 전문 노하우로 최고의 솔루션을 제공해드리겠�
                 </div>
                 
                 {message.sender === 'user' && (
-                  <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#4285F4' }}>
                     <User className="w-5 h-5 text-white" />
                   </div>
                 )}
@@ -497,7 +498,7 @@ M-CENTER의 25년 전문 노하우로 최고의 솔루션을 제공해드리겠�
             {/* 타이핑 인디케이터 */}
             {isTyping && (
               <div className="flex gap-3 justify-start">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center relative">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center relative" style={{ backgroundColor: '#4285F4' }}>
                   <img 
                     src="/star-counselor-icon.svg" 
                     alt="별-AI상담사" 

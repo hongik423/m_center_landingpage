@@ -91,6 +91,16 @@ const nextConfig: NextConfig = {
             { key: 'Access-Control-Max-Age', value: '86400' },
           ],
         },
+        // 보안 헤더 추가
+        {
+          source: '/(.*)',
+          headers: [
+            { key: 'X-Frame-Options', value: 'DENY' },
+            { key: 'X-Content-Type-Options', value: 'nosniff' },
+            { key: 'X-XSS-Protection', value: '1; mode=block' },
+            { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          ],
+        },
         // 정적 자산에 대한 캐싱 헤더
         {
           source: '/:path*.svg',

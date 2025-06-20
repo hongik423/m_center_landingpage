@@ -330,31 +330,29 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
       const reportLength = comprehensiveReport.length;
       console.log(`📊 생성된 보고서 길이: ${reportLength}자 (목표: 1500자 이상)`);
       
-      // 새 창에서 보고서 열기
-      const reportWindow = window.open('', '_blank', 'width=1200,height=800,scrollbars=yes');
-      if (reportWindow) {
-        reportWindow.document.write(htmlContent);
-        reportWindow.document.close();
-        
-        // 보고서 메타데이터 전달
-        reportWindow.postMessage({
-          type: 'REPORT_METADATA',
-          reportLength,
-          comprehensiveReport,
-          isEnhanced: true
-        }, '*');
-        
-        // 인쇄 대화상자 자동 열기 (3초 후)
-        reportWindow.onload = () => {
-          setTimeout(() => {
-            reportWindow.print();
-          }, 3000);
-        };
-      }
+      // 📥 HTML 파일로 다운로드
+      const companyName = enhancedDiagnosisInput.companyName.replace(/[^\w가-힣]/g, '_');
+      const currentDate = new Date().toISOString().slice(0, 10);
+      const fileName = `M-CENTER_${companyName}_진단결과보고서_${currentDate}.html`;
+      
+      // UTF-8 BOM 추가로 한글 인코딩 보장
+      const BOM = '\uFEFF';
+      const finalHtmlContent = BOM + htmlContent;
+      
+      // HTML 파일 다운로드
+      const blob = new Blob([finalHtmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
       
       toast({
-        title: "🚀 AI 고급 보고서 생성 완료!",
-        description: `${reportLength}자 상세 분석 보고서가 새 창에서 열렸습니다. (신뢰도: ${aiAnalysisResult.reliabilityScore}%)`,
+        title: "🚀 AI 고급 보고서 다운로드 완료!",
+        description: `${reportLength}자 상세 분석 보고서를 HTML 파일로 다운로드했습니다. (신뢰도: ${aiAnalysisResult.reliabilityScore}%)`,
         duration: 5000,
       });
       
@@ -403,15 +401,28 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
         };
 
         const fallbackHtml = PremiumReportGenerator.generatePremiumReport(basicPremiumData);
-        const reportWindow = window.open('', '_blank');
-        if (reportWindow) {
-          reportWindow.document.write(fallbackHtml);
-          reportWindow.document.close();
-        }
+        
+        // 📥 폴백 HTML 파일 다운로드
+        const companyName = (normalizedData.data.diagnosis.companyName || '기업').replace(/[^\w가-힣]/g, '_');
+        const currentDate = new Date().toISOString().slice(0, 10);
+        const fileName = `M-CENTER_${companyName}_기본진단결과_${currentDate}.html`;
+        
+        const BOM = '\uFEFF';
+        const finalFallbackContent = BOM + fallbackHtml;
+        
+        const blob = new Blob([finalFallbackContent], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
         
         toast({
-          title: "기본 보고서 생성 완료",
-          description: "네트워크 문제로 기본 보고서를 제공합니다.",
+          title: "📄 기본 보고서 다운로드 완료",
+          description: "네트워크 문제로 기본 보고서를 HTML 파일로 다운로드했습니다.",
           variant: "default"
         });
         
@@ -914,19 +925,30 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                 {showFullReport ? '보고서 접기' : '보고서 펼치기'}
               </Button>
               <Button 
-                variant="outline" 
                 onClick={handleDownload}
                 disabled={isLoading}
+                className="text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                style={{ backgroundColor: '#4285F4' }}
+                onMouseEnter={(e) => {
+                  if (!e.currentTarget.disabled) {
+                    e.currentTarget.style.backgroundColor = '#3367d6';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!e.currentTarget.disabled) {
+                    e.currentTarget.style.backgroundColor = '#4285F4';
+                  }
+                }}
               >
                 {isLoading ? (
                   <>
-                    <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
-                    AI 분석 중...
+                    <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-gray-300 border-t-white"></div>
+                    보고서 생성 중...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    1500자 AI 보고서
+                    <Download className="w-4 h-4 mr-2" />
+                    결과보고서다운로드
                   </>
                 )}
               </Button>
@@ -976,19 +998,30 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
           </div>
           
           <Button 
-            onClick={handlePDFDownload}
+            onClick={handleDownload}
             disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            className="text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            style={{ backgroundColor: '#4285F4' }}
+            onMouseEnter={(e) => {
+              if (!e.currentTarget.disabled) {
+                e.currentTarget.style.backgroundColor = '#3367d6';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!e.currentTarget.disabled) {
+                e.currentTarget.style.backgroundColor = '#4285F4';
+              }
+            }}
           >
             {isLoading ? (
               <>
                 <div className="w-4 h-4 animate-spin rounded-full border-2 border-gray-300 border-t-white"></div>
-                PDF 생성 중...
+                보고서 생성 중...
               </>
             ) : (
               <>
                 <Download className="w-4 h-4" />
-                결과보고서 PDF 다운로드
+                결과보고서다운로드
               </>
             )}
           </Button>
