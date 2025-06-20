@@ -117,10 +117,10 @@ ${COMPANY_INFO.slogan}
 
 // 🤖 AI 챗봇 설정
 export const CHATBOT_CONFIG = {
-  name: `${COMPANY_INFO.shortName} AI 상담사`,
-  greeting: `안녕하세요! 🤖 ${COMPANY_INFO.name} AI 상담사입니다.`,
+  name: `별-AI상담사`,
+  greeting: `안녕하세요! ⭐ ${COMPANY_INFO.name} 별-AI상담사입니다.`,
   
-  systemMessage: `당신은 ${COMPANY_INFO.name}의 전문 AI 상담사입니다. ${CONSULTANT_INFO.name}을 대표하여 친절하고 전문적으로 상담을 진행합니다.`,
+  systemMessage: `당신은 ${COMPANY_INFO.name}의 전문 별-AI상담사입니다. ${CONSULTANT_INFO.name}을 대표하여 친절하고 전문적으로 상담을 진행합니다.`,
   
   contactInfo: {
     consultant: CONSULTANT_INFO.name,

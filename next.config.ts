@@ -168,12 +168,11 @@ const nextConfig: NextConfig = {
     compress: true,
   }),
   
-  // 개발 환경 최적화 (Next.js 15.1.0 호환)
+  // 개발 환경 최적화 (Next.js 15.3.4 호환)
   ...(!isProd && {
     // 개발 서버 설정
     devIndicators: {
-      buildActivity: true,
-      buildActivityPosition: 'bottom-right',
+      position: 'bottom-right',
     },
   }),
 };

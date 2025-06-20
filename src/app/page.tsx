@@ -344,8 +344,8 @@ export default function Home() {
                           }
                         }}
                       >
-                        <Brain className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-                        AI 상담사와 채팅 시작하기
+                        <span className="text-yellow-400 mr-2">⭐</span>
+                        별-AI상담사와 채팅 시작하기
                       </Button>
                       
                       <Button 

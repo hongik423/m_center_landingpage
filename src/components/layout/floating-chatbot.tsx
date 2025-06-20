@@ -181,23 +181,28 @@ export default function FloatingChatbot() {
         >
           <div className="relative">
             {/* 메인 버튼 */}
-            <div className="w-16 h-16 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center border-4 border-white/20" style={{ backgroundColor: '#002552', boxShadow: '0 25px 50px -12px rgba(0, 37, 82, 0.4)' }}>
-              <MessageCircle className="w-7 h-7 text-white" />
+            <div className="w-16 h-16 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center border-4 border-white/20" style={{ backgroundColor: '#1E3A8A', boxShadow: '0 25px 50px -12px rgba(30, 58, 138, 0.4)' }}>
+              {/* 새로운 별-AI상담사 아이콘 */}
+              <img 
+                src="/star-counselor-icon.svg" 
+                alt="별-AI상담사" 
+                className="w-12 h-12"
+              />
               
               {/* 펄스 효과 */}
-              <div className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ backgroundColor: '#002552' }}></div>
+              <div className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ backgroundColor: '#1E3A8A' }}></div>
               
-              {/* 온라인 상태 표시 */}
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white animate-pulse">
-                <div className="absolute inset-0.5 bg-green-300 rounded-full animate-ping"></div>
+              {/* 온라인 상태 표시 - 별 모양 */}
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse flex items-center justify-center">
+                <span className="text-xs">⭐</span>
               </div>
             </div>
             
             {/* 호버 툴팁 */}
             <div className="absolute bottom-full right-0 mb-3 px-3 py-2 bg-gray-900/95 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap backdrop-blur-sm">
               <div className="flex items-center space-x-2">
-                <Sparkles className="w-3 h-3 text-yellow-400" />
-                <span>AI 상담 시작하기</span>
+                <span className="text-yellow-400">⭐</span>
+                <span>별-AI상담사와 채팅하기</span>
               </div>
             </div>
           </div>
@@ -209,7 +214,7 @@ export default function FloatingChatbot() {
         <div className="fixed bottom-6 right-6 w-96 h-[500px] z-50 transition-all duration-300">
           <Card className="h-full shadow-2xl border-0 bg-white rounded-3xl overflow-hidden">
             {/* 🎨 단순한 헤더 */}
-            <CardHeader className="p-4 text-white relative" style={{ backgroundColor: '#002552' }}>
+            <CardHeader className="p-4 text-white relative" style={{ backgroundColor: '#1E3A8A' }}>
               {/* 단순한 닫기 버튼 - 이모지 사용 */}
               <button
                 className="absolute top-3 right-3 w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 text-lg"
@@ -221,15 +226,19 @@ export default function FloatingChatbot() {
 
               <div className="flex items-center space-x-3 pr-10">
                 <div className="relative">
-                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                    <Bot className="w-5 h-5 text-white" />
+                  <img 
+                    src="/star-counselor-icon.svg" 
+                    alt="별-AI상담사" 
+                    className="w-10 h-10 rounded-full"
+                  />
+                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full border-2 border-white flex items-center justify-center">
+                    <span className="text-xs">⭐</span>
                   </div>
-                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg">M-CENTER AI</h3>
+                  <h3 className="font-bold text-lg">별-AI상담사</h3>
                   <div className="text-xs text-white/80 flex items-center space-x-1">
-                    <Sparkles className="w-3 h-3" />
+                    <span className="text-yellow-400">⭐</span>
                     <span>GEMINI AI 기반</span>
                   </div>
                 </div>

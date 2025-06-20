@@ -377,14 +377,18 @@ M-CENTER의 25년 전문 노하우로 최고의 솔루션을 제공해드리겠�
       {!embedded && (
         <Card className="mb-4">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <Bot className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold">M-CENTER AI 상담사</h2>
-                <p className="text-sm text-gray-600">25년 경험의 전문 경영컨설턴트</p>
-              </div>
+                          <CardTitle className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center relative">
+                  <img 
+                    src="/star-counselor-icon.svg" 
+                    alt="별-AI상담사" 
+                    className="w-10 h-10 rounded-full"
+                  />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold">M-CENTER 별-AI상담사</h2>
+                  <p className="text-sm text-gray-600">⭐ 25년 경험의 전문 경영컨설턴트</p>
+                </div>
               <div className="ml-auto flex items-center gap-2">
                 <Badge 
                   variant={connectionStatus === 'connected' ? 'default' : 'destructive'}
@@ -407,8 +411,12 @@ M-CENTER의 25년 전문 노하우로 최고의 솔루션을 제공해드리겠�
             {messages.map((message) => (
               <div key={message.id} className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {message.sender === 'bot' && (
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-5 h-5 text-white" />
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 relative">
+                    <img 
+                      src="/star-counselor-icon.svg" 
+                      alt="별-AI상담사" 
+                      className="w-8 h-8 rounded-full"
+                    />
                   </div>
                 )}
                 
@@ -489,8 +497,12 @@ M-CENTER의 25년 전문 노하우로 최고의 솔루션을 제공해드리겠�
             {/* 타이핑 인디케이터 */}
             {isTyping && (
               <div className="flex gap-3 justify-start">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-white" />
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center relative">
+                  <img 
+                    src="/star-counselor-icon.svg" 
+                    alt="별-AI상담사" 
+                    className="w-8 h-8 rounded-full"
+                  />
                 </div>
                 <div className="bg-gray-100 p-4 rounded-lg">
                   <div className="flex items-center gap-1">

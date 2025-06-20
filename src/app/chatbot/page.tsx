@@ -26,7 +26,7 @@ interface Message {
 const initialMessages: Message[] = [
   {
     id: '1',
-    content: `안녕하세요! M-CENTER(기업의별 경영지도센터) AI 상담사입니다. 
+    content: `안녕하세요! M-CENTER(기업의별 경영지도센터) 별-AI상담사입니다. 
 
 🏆 **대한민국 최고 수준의 경영컨설팅 기관**
 ✅ 25년 검증된 전문성 | ✅ 95% 이상 성공률 | ✅ 정부지원 전문기관
@@ -709,10 +709,15 @@ export default function ChatbotPage() {
                     {/* 채팅 헤더 */}
                     <div className="flex items-center justify-between p-4 border-b bg-purple-600 text-white rounded-t-lg">
                       <div className="flex items-center space-x-3">
-                        <Bot className="w-8 h-8" />
+                        <img 
+                          src="/star-counselor-icon.svg" 
+                          alt="별-AI상담사" 
+                          className="w-8 h-8 rounded-full"
+                        />
                         <div>
-                          <h3 className="font-semibold">AI 상담사</h3>
+                          <h3 className="font-semibold">별-AI상담사</h3>
                           <div className="flex items-center space-x-2">
+                            <span className="text-yellow-400">⭐</span>
                             <div className={`w-2 h-2 rounded-full ${
                               connectionStatus === 'connected' ? 'bg-green-400' :
                               connectionStatus === 'connecting' ? 'bg-yellow-400 animate-pulse' :
