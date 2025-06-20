@@ -1,513 +1,213 @@
-# 🏢 기업의별 경영지도센터 랜딩페이지
+# 🎯 M-CENTER 경영지도센터 - 기업 성장의 든든한 동반자
 
-> AI 기반 기업 진단 및 컨설팅 서비스를 제공하는 경영지도센터의 공식 웹사이트
+[![배포 상태](https://img.shields.io/badge/배포-완료-brightgreen.svg)](https://hongik423.github.io/m_center_landingpage/)
+[![버전](https://img.shields.io/badge/버전-v2.0.0-blue.svg)](https://github.com/hongik423/m_center_landingpage/releases)
+[![Next.js](https://img.shields.io/badge/Next.js-15.3.4-black.svg)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
 
-## 🎉 **최종 완성** (2025.01)
-
-### ✅ **구글시트 & 이메일 시스템 완료**
-- 🎯 **진단신청자** → `AI_진단신청` 시트 (별도 관리)
-- 💬 **상담신청자** → `상담신청` 시트 (별도 관리)
-- 📧 **관리자 알림** → hongik423@gmail.com 자동 발송
-- 📨 **신청자 확인메일** → 자동 발송 시스템
-- 🔐 **GitHub 보안정책** 100% 준수
-
-### 🔧 **완벽한 통합 시스템**
-- **Apps Script**: 최종 통합 버전 배포 완료
-- **EmailJS**: 3개 템플릿 설정 완료
-- **백업 시스템**: 로컬 백업까지 완벽 대응
-- **테스트 완료**: 전 기능 정상 작동 확인
-
-## 🚀 최신 업데이트 (2025.6.17)
-
-### 📊 구글시트 연동 개선
-- ✅ 새로운 구글시트 URL 적용
-- ✅ Apps Script 스크립트 ID 업데이트  
-- ✅ 서버/클라이언트 호환성 문제 해결
-- ✅ 이메일 발송 기능 안정화
-- ✅ 구글시트 연동 테스트 API 추가
-
-### 🔧 주요 개선사항
-- **구글시트 URL**: `https://script.google.com/macros/s/AKfycbzaGieoJnM2Et662p-0QD-3s9KXz-a0QdxYUuvrS1ZU_4LQvwcEj7-rBU4uWXH5aQH1/exec`
-- **구글시트 ID**: `1LQNeT0abhMHXktrNjRbxl2XEFWVCwcYr5kVTAcRvpfM`
-- **Apps Script ID**: `1wO3g-xpGXZVEMYcXd1qYbO_nTExximzjAgaDoLToEsz38Z7-6LWsrKoY`
-
-## 🎯 주요 기능
-
-### 🤖 AI 무료진단 시스템
-- **실시간 AI 분석**: 기업 정보 입력 시 즉시 맞춤형 솔루션 제공
-- **구글시트 자동 저장**: 모든 신청 데이터가 실시간으로 구글시트에 저장
-- **이메일 자동 발송**: 신청 확인 및 결과 이메일 자동 송부
-- **진단 결과 URL**: 개별 맞춤형 진단 결과 페이지 생성
-
-### 📋 서비스 소개
-- **BM ZEN 사업분석**: Business Model Zen 프레임워크 기반 체계적 분석
-- **AI 활용 생산성향상**: 인공지능 도구 도입 및 최적화 컨설팅
-- **경매활용 공장구매**: 공장 부동산 경매 전문 컨설팅
-- **기술사업화/기술창업**: 기술 기반 창업 및 사업화 지원
-- **인증지원**: 각종 기업 인증 취득 지원
-- **웹사이트 구축**: 기업 맞춤형 웹사이트 개발
-
-### 💬 AI 챗봇
-- **24시간 상담**: 언제든지 궁금한 점 문의 가능
-- **실시간 응답**: OpenAI GPT 기반 즉시 답변 제공
-- **상담 연결**: 필요시 전문가와 직접 연결
-
-## ⚙️ 기술 스택
-
-- **Frontend**: Next.js 15, React 18, TypeScript
-- **Styling**: Tailwind CSS, shadcn/ui
-- **AI**: OpenAI GPT API
-- **Database**: Google Sheets (Apps Script)
-- **Email**: EmailJS
-- **Deployment**: Vercel
-
-## 🔧 환경변수 설정 (중요!)
-
-프로젝트 루트에 `.env.local` 파일을 생성하고 아래 내용을 입력하세요:
-
-```bash
-# 구글시트 연동 (필수) - 2025.6.17 업데이트
-NEXT_PUBLIC_GOOGLE_SCRIPT_URL=https://script.google.com/macros/s/AKfycbzaGieoJnM2Et662p-0QD-3s9KXz-a0QdxYUuvrS1ZU_4LQvwcEj7-rBU4uWXH5aQH1/exec
-NEXT_PUBLIC_GOOGLE_SCRIPT_ID=1wO3g-xpGXZVEMYcXd1qYbO_nTExximzjAgaDoLToEsz38Z7-6LWsrKoY
-NEXT_PUBLIC_GOOGLE_SCRIPT_DEPLOYMENT_ID=AKfycbzaGieoJnM2Et662p-0QD-3s9KXz-a0QdxYUuvrS1ZU_4LQvwcEj7-rBU4uWXH5aQH1
-NEXT_PUBLIC_GOOGLE_SHEETS_ID=1LQNeT0abhMHXktrNjRbxl2XEFWVCwcYr5kVTAcRvpfM
-NEXT_PUBLIC_GOOGLE_SHEETS_URL=https://docs.google.com/spreadsheets/d/1LQNeT0abhMHXktrNjRbxl2XEFWVCwcYr5kVTAcRvpfM/edit?usp=sharing
-
-# EmailJS 설정
-NEXT_PUBLIC_EMAILJS_SERVICE_ID=service_qd9eycz
-NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=268NPLwN54rPvEias
-
-# OpenAI API 설정
-OPENAI_API_KEY=your_openai_api_key_here
-
-# 기본 설정
-NODE_ENV=development
-NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
-ADMIN_EMAIL=hongik423@gmail.com
-NOTIFICATION_ENABLED=true
-AUTO_REPLY_ENABLED=true
-```
-
-## 🚀 설치 및 실행
-
-```bash
-# 의존성 설치
-npm install
-
-# 개발 서버 실행
-npm run dev
-
-# 빌드
-npm run build
-
-# 프로덕션 실행
-npm start
-```
-
-## 🧪 구글시트 연동 테스트
-
-구글시트 연동이 정상적으로 작동하는지 확인하려면:
-
-### 1. 연결 상태 확인
-```bash
-curl http://localhost:3000/api/test-googlesheets
-```
-
-### 2. 테스트 데이터 저장
-```bash
-curl -X POST http://localhost:3000/api/test-googlesheets \
-  -H "Content-Type: application/json" \
-  -d '{
-    "companyName": "테스트회사",
-    "contactEmail": "test@example.com",
-    "contactName": "홍길동"
-  }'
-```
-
-### 3. 브라우저에서 테스트
-1. `http://localhost:3000/services/diagnosis` 접속
-2. AI 무료진단 신청 폼 작성
-3. 구글시트에 데이터 저장 확인: [구글시트 보기](https://docs.google.com/spreadsheets/d/1LQNeT0abhMHXktrNjRbxl2XEFWVCwcYr5kVTAcRvpfM/edit?usp=sharing)
-
-## 📊 구글시트 Apps Script 정보
-
-- **스크립트 ID**: `1wO3g-xpGXZVEMYcXd1qYbO_nTExximzjAgaDoLToEsz38Z7-6LWsrKoY`
-- **웹앱 URL**: `https://script.google.com/macros/s/AKfycbzaGieoJnM2Et662p-0QD-3s9KXz-a0QdxYUuvrS1ZU_4LQvwcEj7-rBU4uWXH5aQH1/exec`
-- **시트명**: `m_center_landingpage-request`
-
-### 저장되는 데이터 구조
-- 제출일시, 회사명, 업종, 사업담당자
-- 직원수, 사업성장단계, 주요고민사항, 예상혜택
-- 진행사업장, 담당자명, 연락처, 이메일
-- 개인정보동의, 폼타입, 진단상태, AI분석결과, 결과URL
-
-## 🔍 문제 해결
-
-### 구글시트 연동 오류
-1. **환경변수 확인**: `.env.local` 파일의 URL이 정확한지 확인
-2. **Apps Script 권한**: 구글 Apps Script에서 웹앱 배포 상태 확인
-3. **CORS 정책**: 구글 Apps Script에서 모든 도메인 허용 설정 확인
-
-### 이메일 발송 오류
-1. **EmailJS 설정**: Service ID와 Public Key 확인
-2. **템플릿 설정**: EmailJS 대시보드에서 템플릿 존재 여부 확인
-
-### SyntaxError 문제
-1. **서버 재시작**: `npm run dev` 재실행
-2. **캐시 클리어**: `.next` 폴더 삭제 후 재빌드
-3. **한글 인코딩**: UTF-8 인코딩 확인
-
-## 📱 반응형 디자인
-
-- **모바일**: 320px~768px
-- **태블릿**: 768px~1024px  
-- **데스크톱**: 1024px 이상
-
-## 🔐 보안 특징
-
-- **환경변수 관리**: 민감한 정보는 환경변수로 보호
-- **데이터 검증**: 모든 입력 데이터 유효성 검사
-- **HTTPS 지원**: 프로덕션 환경에서 SSL 인증서 적용
-- **개인정보 보호**: GDPR 준수 개인정보 처리 방침
-
-## 📝 API 문서
-
-### 주요 엔드포인트
-
-- `GET /api/test-googlesheets` - 구글시트 연결 테스트
-- `POST /api/test-googlesheets` - 테스트 데이터 저장
-- `POST /api/process-diagnosis` - AI 진단 처리
-- `POST /api/ai-diagnosis` - AI 분석 실행
-- `POST /api/chat` - AI 챗봇 대화
-
-## 🤝 기여하기
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📞 연락처
-
-- **이메일**: hongik423@gmail.com
-- **전화**: 010-9251-9743
-- **웹사이트**: [기업의별 경영지도센터](https://m-center-landingpage.vercel.app)
-
-## 📄 라이선스
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+> **25년 경험의 검증된 노하우로 기업 성장을 이끄는 M-CENTER**
 
 ---
 
-**🎯 기업의별 경영지도센터** - 기업의별, 성공을 설계하다
+## 🚀 **새로운 기능 (v2.0.0)**
 
-# 경영지도센터 통합 플랫폼
+### 🤖 **GEMINI AI 챗봇 시스템**
+- ✅ **별-AI상담사** 브랜딩으로 전문 상담 제공
+- ✅ Gemini 1.5-pro 모델 연결 완료
+- ✅ 한국어 자연스러운 대화 및 M-CENTER 서비스 전문 상담
+- ✅ 실시간 AI 응답 및 맞춤형 솔루션 제안
 
-Business Model Zen 프레임워크를 기반으로 한 기업 성장 단계별 맞춤형 경영지도 서비스를 제공하는 통합 디지털 플랫폼입니다.
+### 📄 **강화된 PDF 다운로드 시스템**
+- ✅ 온라인 결과보고서와 동일한 내용의 PDF 생성
+- ✅ 한글 완벽 지원 및 아름다운 디자인
+- ✅ 강화된 오류 처리 및 대안 다운로드 제공
+- ✅ 텍스트/HTML 보고서 대안 옵션
 
-## 🚀 새로운 기능: 정책자금 활용 서비스 추천 시스템
-
-### ✨ 핵심 기능
-AI 기반 종합 경영진단에서 **"정책자금 및 정부지원 활용"** 결과가 나왔을 때, 경영지도센터 6개 서비스영역 중 가장 적합한 **1개만 추천**하는 지능형 시스템입니다.
-
-### 🎯 주요 특징
-
-#### 1. 6개 서비스영역 중 1개 명확 추천
-- **BM ZEN 사업분석**: 비즈니스 모델 최적화
-- **AI 활용 생산성향상**: ChatGPT, 업무자동화 도구 활용
-- **경매활용 공장구매**: 부동산 경매를 통한 고정비 절감
-- **기술사업화/기술창업**: 기술 기반 사업화 지원
-- **인증지원**: 벤처/이노비즈 등 각종 인증 취득
-- **웹사이트 구축**: 전문 웹사이트를 통한 온라인 마케팅
-
-#### 2. 30일 내 핵심 과제 자동 생성
-```
-📅 Phase 1 (1-10일): 서비스 착수 준비 완료
-🎯 Phase 2 (11-30일): 경영지도센터 6개 서비스영역 중 [추천 서비스] 1개 최종 선택 및 착수 ⭐ 핵심 과제
-🚀 Phase 3 (31-90일): 첫 번째 가시적 성과 창출
-```
-
-#### 3. 지능형 추천 알고리즘
-- **키워드 매칭**: 정책자금 관련 키워드 자동 감지
-- **업종별 가중치**: 제조업, IT, 서비스업 등 업종별 최적화
-- **기업 규모 고려**: 10명 이하 ~ 50명 이상 규모별 맞춤 추천
-- **경영 단계 분석**: 창업기, 성장기, 확장기별 차별화
-
-#### 4. 정부지원 프로그램 자동 연계
-- **사업재편지원**: 최대 5,000만원 (70% 지원)
-- **AI도입지원**: 최대 3,000만원 (80% 지원)
-- **기술사업화지원**: TIPS 프로그램 최대 3억원
-- **벤처확인지원**: 연간 5,000만원 세제혜택
-
-### 🔧 시스템 구조
-
-```
-src/lib/utils/serviceRecommendationEngine.ts
-├── ServiceRecommendationEngine        # 핵심 추천 엔진
-├── GovernmentSupportReportGenerator   # 전용 보고서 생성기
-├── MCENTER_SERVICES                   # 6개 서비스 정의
-├── GOVERNMENT_SUPPORT_MAPPINGS        # 정책자금 매핑 규칙
-└── ActionPlan / ExpectedResults       # 액션플랜 & 예상 결과
-
-src/app/api/process-diagnosis/route.ts
-├── checkForGovernmentSupportKeywords  # 키워드 감지 함수
-├── generateOptimizedGovernmentSupportDiagnosis  # 특화 진단 생성
-└── POST handler 통합                 # AI + 추천엔진 통합 처리
-```
-
-### 📊 테스트 환경
-
-방문: `/diagnosis/test-government-support`
-
-#### 테스트 케이스
-1. **제조업 + 정책자금**: 공장 현대화 + AI 도입 → 경매활용 공장구매 추천
-2. **IT기업 + 기술혁신**: R&D 지원 + 정부지원 → 기술사업화/기술창업 추천  
-3. **서비스업 + 디지털전환**: 온라인 마케팅 강화 → 웹사이트 구축 추천
-
-### 🎯 사용 방법
-
-#### 1. 자동 감지 (권장)
-진단 신청 시 다음 키워드가 포함되면 자동으로 특화 시스템 실행:
-```
-정책자금, 정부지원, 정부사업, 지원사업, 창업지원, 
-중소기업지원, 기술개발지원, R&D지원, 벤처지원, 
-사업재편, AI지원, 디지털전환지원 등
-```
-
-#### 2. 수동 테스트
-```typescript
-import { ServiceRecommendationEngine } from '@/lib/utils/serviceRecommendationEngine';
-
-const recommendation = ServiceRecommendationEngine.recommendForGovernmentSupport(diagnosisData);
-```
-
-### 📋 출력 결과
-
-#### 1. 서비스 우선순위 매트릭스
-```
-🥇 1순위: [최적 서비스] - 즉시 적용 가능한 핵심 서비스
-🥈 2순위: [보조 서비스] - 1차 완료 후 연계 서비스  
-🥉 3순위: [추가 서비스] - 장기 전략 차원의 보완 서비스
-```
-
-#### 2. 정책자금 활용 전용 보고서
-- 진단 개요 및 기업 특성 분석
-- **6개 서비스영역 비교 분석표**
-- **30일 내 핵심 과제 액션플랜** ⭐
-- 정부지원 프로그램 연계 방안
-- 예상 성과 및 정량적 효과
-- 최종 결론 및 권고사항
-
-#### 3. 즉시 실행 가능한 액션플랜
-```
-✅ 7일 내: 무료 상담 신청 및 현황 진단
-🔥 30일 내: 경영지도센터 6개 서비스영역 중 [추천 서비스] 1개 최종 선택 및 착수
-📈 90일 내: 첫 번째 가시적 성과 측정 및 보고
-```
-
-### 🏆 기대 효과
-
-#### 사용자 관점
-- **명확한 방향성**: 6개 중 1개 명확한 추천으로 선택 고민 해결
-- **빠른 의사결정**: 30일 내 핵심 과제로 신속한 실행 가능
-- **정부지원 연계**: 최대 100% 정부지원으로 비용 부담 최소화
-
-#### 경영지도센터 관점  
-- **상담 효율성**: 체계적 추천으로 상담 시간 단축
-- **성공률 향상**: 맞춤 추천으로 프로젝트 성공률 증대
-- **일관성 보장**: 동일 조건에서 항상 동일한 추천 결과
-
-### 🔄 일관성 보장 규칙 시스템
-
-#### 추천 규칙의 우선순위
-1. **정책자금 키워드 매칭** (최우선)
-2. **업종별 적합성** (제조업 → 공장구매, IT → AI활용)
-3. **기업 규모** (소규모 → AI/웹사이트, 대규모 → 공장/기술창업)
-4. **경영 단계** (창업기 → 기술창업, 성장기 → 사업분석)
-
-#### 점수 산정 시스템
-```typescript
-// 정책자금 매핑: 90점
-// 업종 보너스: 최대 25점  
-// 규모 보너스: 최대 15점
-// 단계 보너스: 최대 20점
-// → 총 150점 만점으로 객관적 순위 결정
-```
+### 📊 **완성된 데이터 연계 시스템**
+- ✅ 구글시트 자동 연동 (진단신청자/상담신청자 별도 관리)
+- ✅ 관리자 메일 자동 발송 (hongik423@gmail.com)
+- ✅ 신청자 확인메일 자동 발송
+- ✅ GitHub 보안정책 완벽 준수
 
 ---
 
-## 💡 기존 기능
+## 🏢 **M-CENTER 6대 핵심 서비스**
 
-### 🎯 핵심 서비스
-- **AI 활용 생산성향상**: 업무 효율성 40% 향상
-- **경매활용 공장구매**: 시장가 대비 40% 절약
-- **기술사업화/기술창업**: 평균 5억원 자금 확보
-- **인증지원**: 연간 5,000만원 세제혜택
-- **웹사이트 구축**: 온라인 매출 30-50% 증대
-
-### 🤖 AI 진단 시스템
-- 자동화된 종합 진단
-- 업종별 맞춤 분석
-- 실시간 리포트 생성
-
-### 📊 성장 단계별 지원
-- Step 1 (1-3년): 안정적 기반 구축
-- Step 2 (3-7년): 성장 동력 강화  
-- Step 3 (7-10년): 시장 주도 지위
-- Step 4 (10년+): 지속가능 성장
-
-## 🛠️ 기술 스택
-
-### Frontend
-- **React 18** + **TypeScript**
-- **Next.js 14** (App Router)
-- **Tailwind CSS** + **shadcn/ui**
-- **Zustand** (상태관리)
-
-### Backend
-- **Next.js API Routes**
-- **Node.js** 백엔드 서비스
-- **Google Sheets API** (데이터 저장)
-
-### AI & 분석
-- **OpenAI GPT** (AI 진단)
-- **Custom Recommendation Engine** (서비스 추천)
-- **실시간 분석 시스템**
-
-## 🚀 빠른 시작
-
-### 설치
-```bash
-npm install
-```
-
-### 환경 설정
-```bash
-cp env.example.md .env.local
-```
-
-### 개발 서버 실행
-```bash
-npm run dev
-```
-
-### 테스트
-```bash
-# 정책자금 추천 시스템 테스트
-http://localhost:3000/diagnosis/test-government-support
-
-# 일반 진단 테스트  
-http://localhost:3000/diagnosis/test-enhanced-v2
-```
-
-## 📞 문의
-
-- **담당자**: 이후경 책임컨설턴트
-- **이메일**: hongik423@gmail.com
-- **전화**: 010-9251-9743
-- **회사**: 경영지도센터
+| 서비스 | 주요 성과 | 특징 |
+|--------|-----------|------|
+| 🏆 **BM ZEN 사업분석** | 매출 20-40% 증대 | 독자적 프레임워크, 95% 성공률 |
+| 🤖 **AI 생산성향상** | 업무효율 40-60% 향상 | ChatGPT 전문 활용, AI바우처 연계 |
+| 🏭 **경매활용 공장구매** | 부동산비용 30-50% 절감 | 25년 경매 노하우, 95% 안전 낙찰률 |
+| 🚀 **기술사업화/창업** | 평균 5억원 정부지원 | R&D 과제 78% 선정률, VC 네트워크 |
+| 📋 **인증지원** | 연간 5천만원 세제혜택 | ISO/벤처/연구소, 92% 취득률 |
+| 🌐 **웹사이트 구축** | 온라인 매출 30% 증대 | SEO 최적화, 전환율 향상 |
 
 ---
 
-*이 시스템은 "정책자금 및 정부지원 활용" 결과에 대해 경영지도센터 6개 서비스영역 중 가장 적합한 1개를 추천하여 30일 내 핵심 과제 실행을 지원하는 일관성 있는 규칙 시스템입니다.*
+## 🛠️ **기술 스택**
 
-# 🏆 M-CENTER 기업의별 경영지도센터 
+### **Frontend**
+- **Next.js 15.3.4** - 최신 App Router
+- **TypeScript 5.0** - 타입 안전성
+- **Tailwind CSS** - 유틸리티 기반 스타일링
+- **shadcn/ui** - 모던 UI 컴포넌트
+- **React Hook Form** - 폼 검증 및 관리
 
-> 25년 검증된 전문성 | 95% 성공률 | 정부지원 전문기관
+### **Backend & API**
+- **Google Gemini 1.5-pro** - AI 챗봇 시스템
+- **EmailJS** - 이메일 발송 시스템
+- **Google Apps Script** - 구글시트 연동
+- **Next.js API Routes** - 서버리스 API
 
-## 🤖 **AI 챗봇 기능**
+### **배포 & 인프라**
+- **GitHub Pages** - 정적 사이트 호스팅
+- **GitHub Actions** - CI/CD 자동화
+- **Vercel** - 대안 배포 플랫폼
 
-### ✨ **주요 특징**
-- 🎯 **실시간 AI 상담**: OpenAI GPT 모델 기반 지능형 상담
-- 🚀 **플로팅 챗봇**: 모든 페이지에서 접근 가능한 드래그 가능한 챗봇
-- 💬 **전용 챗봇 페이지**: `/chatbot` 경로의 전체 화면 상담
-- 📱 **반응형 디자인**: 모바일/데스크톱 최적화
+---
 
-### 🔧 **기술 스택**
-- **Frontend**: Next.js 15, React 18, TypeScript
-- **AI Engine**: OpenAI GPT-4 API
-- **UI Components**: shadcn/ui, Tailwind CSS
-- **상태 관리**: React Hooks
+## 📁 **프로젝트 구조**
 
-### 🌐 **AI 챗봇 체험하기**
-
-#### 1. **플로팅 챗봇**
-- 모든 페이지 우측 하단의 원형 버튼 클릭
-- 드래그로 위치 조정 가능
-- 빠른 액션 버튼 제공
-
-#### 2. **전용 챗봇 페이지**
 ```
-https://hongik423.github.io/m_center_landingpage/chatbot
+m_center_landingpage/
+├── 📁 src/
+│   ├── 📁 app/                    # Next.js App Router
+│   │   ├── 📁 api/               # API 라우트
+│   │   │   ├── chat/            # 🤖 GEMINI AI 챗봇
+│   │   │   ├── consultation/    # 상담 신청 처리
+│   │   │   └── simplified-diagnosis/ # 진단 신청 처리
+│   │   ├── 📁 services/          # 6대 서비스 페이지
+│   │   ├── 📁 chatbot/          # 🤖 AI 챗봇 페이지
+│   │   └── 📁 diagnosis/        # 진단 시스템
+│   ├── 📁 components/
+│   │   ├── 📁 ui/               # shadcn/ui 컴포넌트
+│   │   ├── 📁 layout/           # 레이아웃 컴포넌트
+│   │   ├── 📁 chatbot/          # 🤖 챗봇 컴포넌트
+│   │   └── 📁 diagnosis/        # 진단 시스템 컴포넌트
+│   └── 📁 lib/
+│       ├── 📁 config/           # 환경설정
+│       ├── 📁 stores/           # 상태 관리
+│       └── 📁 utils/            # 유틸리티 함수
+├── 📁 docs/                     # 📚 문서화
+├── 📁 public/                   # 정적 파일
+└── 📁 .github/workflows/        # GitHub Actions
 ```
 
-### 💡 **AI 상담 가능 분야**
-- ✅ **BM ZEN 사업분석** - 독자적 프레임워크
-- ✅ **AI 생산성향상** - 업무효율 40-60% 증대
-- ✅ **경매활용 공장구매** - 부동산비용 30-50% 절감
-- ✅ **기술사업화/창업** - 정부과제 선정률 78%
-- ✅ **인증지원** - 취득률 92% 업계 최고
-- ✅ **웹사이트 구축** - SEO 상위노출 보장
+---
 
 ## 🚀 **빠른 시작**
 
-### 로컬 개발 환경 설정
+### 1. **환경 설정**
 
 ```bash
+# 저장소 클론
+git clone https://github.com/hongik423/m_center_landingpage.git
+cd m_center_landingpage
+
 # 의존성 설치
 npm install
 
 # 환경변수 설정
-cp .env.example .env.local
-# OPENAI_API_KEY 설정 필요
-
-# 개발 서버 시작
-npm run dev
+cp .env.local.example .env.local
+# .env.local 파일에 API 키 입력
 ```
 
-### 환경변수 설정
+### 2. **환경변수 설정 (.env.local)**
+
 ```env
-OPENAI_API_KEY=your_openai_api_key_here
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+# 🤖 AI 챗봇
+GEMINI_API_KEY=your_gemini_api_key
+
+# 📧 이메일 시스템
+NEXT_PUBLIC_EMAILJS_SERVICE_ID=your_service_id
+NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=your_public_key
+
+# 📊 구글시트 연동
+NEXT_PUBLIC_GOOGLE_SCRIPT_URL=your_apps_script_url
+NEXT_PUBLIC_GOOGLE_SHEETS_ID=your_sheets_id
 ```
 
-## 📱 **주요 페이지**
+### 3. **개발 서버 실행**
 
-| 페이지 | 경로 | 설명 |
-|--------|------|------|
-| 메인 | `/` | 랜딩페이지 및 무료 진단 |
-| AI 챗봇 | `/chatbot` | 실시간 AI 상담 |
-| 서비스 | `/services/*` | 6개 핵심 서비스 |
-| 상담신청 | `/consultation` | 전문가 직접 상담 |
-| 진단 | `/diagnosis` | AI 무료 기업진단 |
+```bash
+# 개발 모드
+npm run dev
 
-## 🔗 **GitHub 기능**
-
-### GitHub Pages 자동 배포
-- ✅ GitHub Actions 워크플로우 설정됨
-- ✅ `master` 브랜치 푸시 시 자동 배포
-- ✅ 환경변수 보안 관리
-
-### 브랜치 전략
+# 빌드 및 배포
+npm run build
+npm start
 ```
-master (main) → 프로덕션 배포
-└── feature/* → 기능 개발
-└── hotfix/* → 긴급 수정
-```
-
-## 📞 **문의 및 지원**
-
-- **AI 챗봇**: 웹사이트 내 실시간 상담
-- **전문가 상담**: 010-9251-9743 (이후경 경영지도사)
-- **이메일**: hongik423@gmail.com
-- **GitHub Issues**: 기술적 문의 및 버그 리포트
-
-## 🏅 **M-CENTER 독보적 우수성**
-
-> 대한민국 최고 수준의 경영컨설팅 기관으로서 AI 기술을 활용한 혁신적인 상담 서비스를 제공합니다.
 
 ---
 
-**🤖 AI 상담사가 24시간 대기 중입니다. 지금 바로 상담을 시작해보세요!**
+## 🎯 **주요 페이지**
+
+| 페이지 | URL | 설명 |
+|--------|-----|------|
+| 🏠 **메인** | `/` | 서비스 소개 및 주요 기능 |
+| 🤖 **AI 챗봇** | `/chatbot` | 별-AI상담사와 실시간 상담 |
+| 📊 **무료 진단** | `/services/diagnosis` | AI 기반 기업 진단 시스템 |
+| 💼 **전문가 상담** | `/consultation` | 1:1 맞춤 상담 신청 |
+| 📋 **서비스 소개** | `/services/*` | 6대 핵심 서비스 상세 정보 |
+
+---
+
+## 📊 **성능 지표**
+
+- ⚡ **First Load JS**: 102 kB
+- 🚀 **빌드 시간**: 4-5초
+- 📄 **정적 페이지**: 33개
+- 🎯 **Lighthouse 점수**: 95+ (Performance)
+- 🔒 **보안 취약점**: 0개
+
+---
+
+## 🔧 **사용 가능한 스크립트**
+
+```bash
+npm run dev          # 개발 서버 시작
+npm run build        # 프로덕션 빌드
+npm run start        # 빌드된 앱 실행
+npm run lint         # ESLint 검사
+npm run type-check   # TypeScript 타입 검사
+```
+
+---
+
+## 📞 **문의 및 지원**
+
+### **M-CENTER 경영지도센터**
+- 📍 **주소**: 경기도 성남시 분당구
+- 📞 **대표 전화**: 010-9251-9743
+- 📧 **이메일**: hongik423@gmail.com
+- 🌐 **웹사이트**: [https://hongik423.github.io/m_center_landingpage/](https://hongik423.github.io/m_center_landingpage/)
+
+### **담당자 정보**
+- 👨‍💼 **이후경 책임컨설턴트**
+- 🏆 **25년 경영컨설팅 경력**
+- 📜 **중소벤처기업부 인증 컨설턴트**
+- 🎯 **1,000+ 기업 성공 컨설팅 경험**
+
+---
+
+## 📝 **라이선스**
+
+이 프로젝트는 M-CENTER 경영지도센터의 공식 랜딩페이지입니다.
+
+---
+
+## 🎉 **업데이트 히스토리**
+
+### **v2.0.0** (2025-06-20)
+- 🤖 GEMINI AI 챗봇 시스템 구축
+- 📄 PDF 다운로드 기능 강화
+- 🔧 시스템 안정화 및 성능 최적화
+
+### **v1.0.0** (2025-01-15)
+- 🚀 초기 랜딩페이지 구축
+- 📊 구글시트 연동 시스템
+- 📧 이메일 발송 시스템
+
+---
+
+**🎯 M-CENTER - 기업 성장의 든든한 동반자가 되어드리겠습니다!**
