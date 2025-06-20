@@ -638,6 +638,13 @@ function generateInvestmentAnalysis(input: EnhancedDiagnosisInput, strategic: st
  * 📝 Gemini AI 기반 1500자 이상 종합 진단 보고서 생성
  */
 export async function generateComprehensiveReport(input: EnhancedDiagnosisInput, analysisResult: AIAnalysisResult): Promise<string> {
+  const gemini = getGeminiClient();
+  
+  // API 키가 없으면 폴백 보고서 제공
+  if (!gemini) {
+    return generateFallbackReport(input, analysisResult);
+  }
+
   const prompt = `다음 기업 진단 데이터를 바탕으로 1500자 이상의 전문적인 종합 경영진단 보고서를 작성해주세요:
 
 기업 정보:
@@ -756,6 +763,13 @@ SWOT 분석:
  * 📊 Gemini AI 기반 업종별 벤치마킹 분석
  */
 export async function generateIndustryBenchmark(input: EnhancedDiagnosisInput, metrics: any): Promise<string> {
+  const gemini = getGeminiClient();
+  
+  // API 키가 없으면 폴백 분석 제공
+  if (!gemini) {
+    return '벤치마킹 분석을 위해서는 Gemini API 키가 필요합니다.';
+  }
+
   const prompt = `다음 기업의 업종별 벤치마킹 분석을 수행해주세요:
 
 기업 정보:
