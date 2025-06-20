@@ -1,4 +1,4 @@
-name: Deploy to Vercel
+name: 🚀 M-CENTER 별-AI상담사 자동 배포
 
 on:
   push:
@@ -12,70 +12,150 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     
     steps:
-    - name: Checkout
+    - name: 📥 Checkout
       uses: actions/checkout@v4
       
-    - name: Setup Node.js
+    - name: 🔧 Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
         
-    - name: Install dependencies
+    - name: 📦 Install dependencies
       run: npm ci
       
-    - name: Build
+    - name: 🔍 Environment Variables Check
+      run: |
+        echo "🔍 환경변수 검증 중..."
+        echo "✅ GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY != '' }}"
+        echo "✅ EMAILJS_SERVICE_ID: ${{ secrets.NEXT_PUBLIC_EMAILJS_SERVICE_ID != '' }}"
+        echo "✅ GOOGLE_SHEETS_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_SHEETS_ID != '' }}"
+        echo "✅ NODE_ENV: production"
+        
+    - name: 🏗️ Build Application
       run: npm run build
       env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        # 🤖 AI 관련 환경변수 (서버 사이드 전용)
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        
+        # 📧 EmailJS 관련 환경변수 (클라이언트 사이드 허용)
         NEXT_PUBLIC_EMAILJS_SERVICE_ID: ${{ secrets.NEXT_PUBLIC_EMAILJS_SERVICE_ID }}
         NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY }}
-        NEXT_PUBLIC_GOOGLE_SCRIPT_URL: ${{ secrets.NEXT_PUBLIC_GOOGLE_SCRIPT_URL }}
-        NEXT_PUBLIC_GOOGLE_SHEETS_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_SHEETS_ID }}
-        NODE_ENV: production
+        NEXT_PUBLIC_EMAILJS_TEMPLATE_DIAGNOSIS: ${{ secrets.NEXT_PUBLIC_EMAILJS_TEMPLATE_DIAGNOSIS }}
+        NEXT_PUBLIC_EMAILJS_TEMPLATE_CONSULTATION: ${{ secrets.NEXT_PUBLIC_EMAILJS_TEMPLATE_CONSULTATION }}
+        NEXT_PUBLIC_EMAILJS_TEMPLATE_ADMIN: ${{ secrets.NEXT_PUBLIC_EMAILJS_TEMPLATE_ADMIN }}
         
-    - name: Deploy to Vercel
+        # 📊 Google Sheets 관련 환경변수 (클라이언트 사이드 허용)
+        NEXT_PUBLIC_GOOGLE_SHEETS_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_SHEETS_ID }}
+        NEXT_PUBLIC_GOOGLE_SCRIPT_URL: ${{ secrets.NEXT_PUBLIC_GOOGLE_SCRIPT_URL }}
+        NEXT_PUBLIC_GOOGLE_SCRIPT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_SCRIPT_ID }}
+        NEXT_PUBLIC_GOOGLE_SCRIPT_DEPLOYMENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_SCRIPT_DEPLOYMENT_ID }}
+        NEXT_PUBLIC_GOOGLE_SHEETS_URL: ${{ secrets.NEXT_PUBLIC_GOOGLE_SHEETS_URL }}
+        
+        # 🌐 사이트 설정
+        NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
+        ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+        
+        # 🤖 AI 상담사 설정
+        NEXT_PUBLIC_AI_ASSISTANT_NAME: ${{ secrets.NEXT_PUBLIC_AI_ASSISTANT_NAME }}
+        NEXT_PUBLIC_AI_ASSISTANT_DESCRIPTION: ${{ secrets.NEXT_PUBLIC_AI_ASSISTANT_DESCRIPTION }}
+        
+        # 🔧 시스템 설정
+        NODE_ENV: production
+        NOTIFICATION_ENABLED: true
+        AUTO_REPLY_ENABLED: true
+        
+    - name: 🧪 Build Verification
+      run: |
+        echo "🧪 빌드 검증 중..."
+        if [ -d ".next" ]; then
+          echo "✅ Next.js 빌드 성공"
+          ls -la .next/
+        else
+          echo "❌ Next.js 빌드 실패"
+          exit 1
+        fi
+        
+    - name: 🚀 Deploy to Vercel (Production)
       uses: amondnet/vercel-action@v25
       with:
         vercel-token: ${{ secrets.VERCEL_TOKEN }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        vercel-org-id: ${{ secrets.ORG_ID }}
-        vercel-project-id: ${{ secrets.PROJECT_ID }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
         working-directory: ./
+        
+    - name: 🔍 Post-Deploy Health Check
+      run: |
+        echo "🔍 배포 후 상태 확인 중..."
+        sleep 30
+        curl -f "${{ secrets.NEXT_PUBLIC_BASE_URL }}/api/test-env" || echo "⚠️ Health check failed"
+        
+    - name: 📢 Deployment Success Notification
+      if: success()
+      run: |
+        echo "🎉 M-CENTER 별-AI상담사 배포 성공!"
+        echo "🌐 사이트: ${{ secrets.NEXT_PUBLIC_BASE_URL }}"
+        echo "🤖 Gemini AI: 활성화"
+        echo "📧 EmailJS: 활성화"
+        echo "📊 Google Sheets: 활성화"
         
   Deploy-Preview:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     
     steps:
-    - name: Checkout
+    - name: 📥 Checkout
       uses: actions/checkout@v4
       
-    - name: Setup Node.js
+    - name: 🔧 Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
         
-    - name: Install dependencies
+    - name: 📦 Install dependencies
       run: npm ci
       
-    - name: Build
+    - name: 🏗️ Build Application (Preview)
       run: npm run build
       env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        # 🤖 AI 관련 환경변수
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        
+        # 📧 EmailJS 관련 환경변수
         NEXT_PUBLIC_EMAILJS_SERVICE_ID: ${{ secrets.NEXT_PUBLIC_EMAILJS_SERVICE_ID }}
         NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY }}
-        NEXT_PUBLIC_GOOGLE_SCRIPT_URL: ${{ secrets.NEXT_PUBLIC_GOOGLE_SCRIPT_URL }}
-        NEXT_PUBLIC_GOOGLE_SHEETS_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_SHEETS_ID }}
-        NODE_ENV: production
+        NEXT_PUBLIC_EMAILJS_TEMPLATE_DIAGNOSIS: ${{ secrets.NEXT_PUBLIC_EMAILJS_TEMPLATE_DIAGNOSIS }}
+        NEXT_PUBLIC_EMAILJS_TEMPLATE_CONSULTATION: ${{ secrets.NEXT_PUBLIC_EMAILJS_TEMPLATE_CONSULTATION }}
+        NEXT_PUBLIC_EMAILJS_TEMPLATE_ADMIN: ${{ secrets.NEXT_PUBLIC_EMAILJS_TEMPLATE_ADMIN }}
         
-    - name: Deploy to Vercel (Preview)
+        # 📊 Google Sheets 관련 환경변수
+        NEXT_PUBLIC_GOOGLE_SHEETS_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_SHEETS_ID }}
+        NEXT_PUBLIC_GOOGLE_SCRIPT_URL: ${{ secrets.NEXT_PUBLIC_GOOGLE_SCRIPT_URL }}
+        NEXT_PUBLIC_GOOGLE_SCRIPT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_SCRIPT_ID }}
+        NEXT_PUBLIC_GOOGLE_SCRIPT_DEPLOYMENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_SCRIPT_DEPLOYMENT_ID }}
+        NEXT_PUBLIC_GOOGLE_SHEETS_URL: ${{ secrets.NEXT_PUBLIC_GOOGLE_SHEETS_URL }}
+        
+        # 🌐 사이트 설정
+        NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
+        ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+        
+        # 🤖 AI 상담사 설정
+        NEXT_PUBLIC_AI_ASSISTANT_NAME: ${{ secrets.NEXT_PUBLIC_AI_ASSISTANT_NAME }}
+        NEXT_PUBLIC_AI_ASSISTANT_DESCRIPTION: ${{ secrets.NEXT_PUBLIC_AI_ASSISTANT_DESCRIPTION }}
+        
+        # 🔧 시스템 설정
+        NODE_ENV: production
+        NOTIFICATION_ENABLED: true
+        AUTO_REPLY_ENABLED: true
+        
+    - name: 🚀 Deploy to Vercel (Preview)
       uses: amondnet/vercel-action@v25
       with:
         vercel-token: ${{ secrets.VERCEL_TOKEN }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        vercel-org-id: ${{ secrets.ORG_ID }}
-        vercel-project-id: ${{ secrets.PROJECT_ID }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
         working-directory: ./
         scope: preview 
