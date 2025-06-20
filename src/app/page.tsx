@@ -255,6 +255,132 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 🤖 중앙 AI 상담사 섹션 - 신규 추가 */}
+      <section className="py-12 md:py-20 bg-gradient-to-br from-indigo-50 to-purple-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12 md:mb-16">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-100 to-purple-100 px-3 md:px-4 py-2 rounded-full mb-4 md:mb-6">
+              <Brain className="w-4 h-4 md:w-5 md:h-5 text-indigo-600 animate-pulse" />
+              <span className="text-xs md:text-sm font-medium text-indigo-800">GEMINI AI 기반 스마트 상담</span>
+            </div>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 md:mb-4">
+              🧠 AI 상담사와 바로 채팅하기
+            </h2>
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4">
+              <strong>GEMINI AI</strong> 기반의 전문 상담사가 24시간 대기 중입니다.<br />
+              기업 성장에 관한 모든 궁금증을 바로 해결해보세요!
+            </p>
+          </div>
+          
+          <div className="max-w-4xl mx-auto">
+            <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
+              <CardContent className="p-6 md:p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 items-center">
+                  {/* 좌측: AI 상담사 소개 */}
+                  <div>
+                    <div className="flex items-center mb-4 md:mb-6">
+                      <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mr-4">
+                        <Brain className="w-6 h-6 md:w-8 md:h-8 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg md:text-xl font-bold text-gray-900">M-CENTER AI 상담사</h3>
+                        <p className="text-sm md:text-base text-gray-600">GEMINI AI • 24시간 상담 가능</p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3 md:space-y-4 mb-6">
+                      <div className="flex items-start gap-3">
+                        <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-sm md:text-base text-gray-900">전문 분야별 맞춤 상담</p>
+                          <p className="text-xs md:text-sm text-gray-600">BM분석, AI활용, 공장구매, 기술창업, 인증, 웹사이트</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-sm md:text-base text-gray-900">즉시 응답 및 정확한 정보</p>
+                          <p className="text-xs md:text-sm text-gray-600">25년 경험 기반 DB + Google GEMINI AI</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-sm md:text-base text-gray-900">전문가 연결 및 후속 상담</p>
+                          <p className="text-xs md:text-sm text-gray-600">필요시 경영지도사 직접 상담 (010-9251-9743)</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-xl">
+                      <h4 className="font-semibold text-sm md:text-base text-gray-900 mb-2">💬 상담 예시 질문:</h4>
+                      <ul className="text-xs md:text-sm text-gray-700 space-y-1">
+                        <li>• "우리 회사 매출을 늘리려면 어떻게 해야 하나요?"</li>
+                        <li>• "AI 도입으로 업무 효율을 높이고 싶어요"</li>
+                        <li>• "공장 구매를 저렴하게 하는 방법이 있나요?"</li>
+                        <li>• "정부지원 사업은 어떤 것들이 있나요?"</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* 우측: 즉시 채팅 시작 */}
+                  <div className="bg-gradient-to-br from-gray-50 to-indigo-50 p-4 md:p-6 rounded-2xl">
+                    <div className="text-center mb-4 md:mb-6">
+                      <h4 className="text-lg md:text-xl font-bold text-gray-900 mb-2">지금 바로 시작하세요!</h4>
+                      <p className="text-sm md:text-base text-gray-600">우측 하단 채팅 아이콘을 클릭하거나<br />아래 버튼을 눌러 상담을 시작하세요</p>
+                    </div>
+
+                    <div className="space-y-3 mb-6">
+                      <Button 
+                        className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white py-3 md:py-4 text-sm md:text-base h-auto shadow-lg"
+                        onClick={() => {
+                          // 플로팅 챗봇 활성화 (전역 상태나 이벤트 사용)
+                          const chatbot = document.querySelector('[data-floating-chatbot]') as HTMLElement;
+                          if (chatbot) {
+                            chatbot.click();
+                          } else {
+                            // 플로팅 챗봇이 없으면 챗봇 페이지로 이동
+                            router.push('/chatbot');
+                          }
+                        }}
+                      >
+                        <Brain className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                        AI 상담사와 채팅 시작하기
+                      </Button>
+                      
+                      <Button 
+                        variant="outline"
+                        className="w-full border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 py-2 md:py-3 text-sm md:text-base h-auto"
+                        onClick={() => router.push('/consultation')}
+                      >
+                        📞 전문가 직접 상담 신청 (010-9251-9743)
+                      </Button>
+                    </div>
+
+                    <div className="bg-white/80 p-3 rounded-xl border border-indigo-200">
+                      <div className="flex items-center justify-center gap-4 text-xs md:text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-3 h-3 md:w-4 md:h-4 text-green-500" />
+                          <span>24시간</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Shield className="w-3 h-3 md:w-4 md:h-4 text-green-500" />
+                          <span>무료</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Zap className="w-3 h-3 md:w-4 md:h-4 text-green-500" />
+                          <span>즉시 응답</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* 6대 핵심서비스 - 모바일 최적화 */}
       <section className="py-12 md:py-20 bg-white">
         <div className="container mx-auto px-4">

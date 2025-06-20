@@ -283,7 +283,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
 
 📞 **즉시 전문가 상담 가능**
 • 전화: 010-9251-9743 (이후경 경영지도사)
-• 이메일: lhk@injc.kr
+  • 이메일: hongik423@gmail.com
 
 다시 질문해주시거나 위 연락처로 직접 상담받으세요! 🙏`,
         sender: 'bot',
@@ -637,7 +637,7 @@ M-CENTER의 25년 전문 노하우로 최고의 솔루션을 제공해드리겠�
                 </Button>
                 <Button variant="ghost" size="sm" className="text-xs">
                   <Mail className="w-3 h-3 mr-1" />
-                  lhk@injc.kr
+                  hongik423@gmail.com
                 </Button>
               </div>
             </div>

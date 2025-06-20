@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,6 +29,12 @@ import {
   WifiOff
 } from 'lucide-react';
 
+// 🚀 성능 최적화: 컴포넌트 메모이제이션
+const OptimizedInput = memo(Input);
+const OptimizedTextarea = memo(Textarea);
+const OptimizedSelect = memo(Select);
+const OptimizedButton = memo(Button);
+
 export default function ConsultationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
@@ -48,13 +54,27 @@ export default function ConsultationPage() {
     privacyConsent: false
   });
 
-  const checkNetworkStatus = () => {
-    setIsOnline(navigator.onLine);
-    return navigator.onLine;
-  };
+  // 🚀 성능 최적화: 폼 검증 메모이제이션
+  const isFormValid = useMemo(() => {
+    return Boolean(
+      formData.consultationType?.trim() && 
+      formData.name?.trim() && 
+      formData.phone?.trim() && 
+      formData.email?.trim() && 
+      formData.company?.trim() && 
+      formData.privacyConsent
+    );
+  }, [formData]);
 
-  // 📧 **EmailJS용 도우미 함수들**
-  const getConsultationTypeText = (type: string) => {
+  // 🚀 성능 최적화: 네트워크 체크 메모이제이션
+  const checkNetworkStatus = useCallback(() => {
+    const isOnlineStatus = navigator.onLine;
+    setIsOnline(isOnlineStatus);
+    return isOnlineStatus;
+  }, []);
+
+  // 📧 **EmailJS용 도우미 함수들 - 메모이제이션**
+  const getConsultationTypeText = useCallback((type: string) => {
     const typeMap: Record<string, string> = {
       'phone': '전화 상담',
       'online': '온라인 화상 상담',
@@ -62,9 +82,9 @@ export default function ConsultationPage() {
       'email': '이메일 상담'
     };
     return typeMap[type] || type;
-  };
+  }, []);
 
-  const getConsultationAreaText = (area: string) => {
+  const getConsultationAreaText = useCallback((area: string) => {
     const areaMap: Record<string, string> = {
       'business-analysis': 'BM ZEN 사업분석',
       'ai-productivity': 'AI실무활용 생산성향상',
@@ -77,9 +97,9 @@ export default function ConsultationPage() {
       'other': '기타'
     };
     return areaMap[area] || area;
-  };
+  }, []);
 
-  const getPreferredTimeText = (time: string) => {
+  const getPreferredTimeText = useCallback((time: string) => {
     const timeMap: Record<string, string> = {
       'morning': '오전 (09:00-12:00)',
       'afternoon': '오후 (13:00-17:00)',
@@ -87,15 +107,49 @@ export default function ConsultationPage() {
       'flexible': '시간 조정 가능'
     };
     return timeMap[time] || time;
-  };
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // 🚀 성능 최적화: 입력 핸들러 메모이제이션
+  const handleInputChange = useCallback((field: string, value: string | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  }, []);
+
+  // 🚀 성능 최적화: 폼 초기화 메모이제이션
+  const resetForm = useCallback(() => {
+    setFormData({
+      consultationType: '',
+      name: '',
+      phone: '',
+      email: '',
+      company: '',
+      position: '',
+      consultationArea: '',
+      inquiryContent: '',
+      preferredTime: '',
+      privacyConsent: false
+    });
+  }, []);
+
+  // 🚀 성능 최적화: handleSubmit 메모이제이션 및 즉시 응답
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // 🚀 즉시 피드백: 중복 제출 방지 및 즉시 로딩 상태 설정
     if (isSubmitting) return;
 
+    // 🚀 즉시 응답: 버튼 클릭 시 즉시 로딩 상태 표시
     setIsSubmitting(true);
     setSubmitAttempts(prev => prev + 1);
+
+    // 🚀 즉시 피드백: 사용자에게 처리 시작 알림
+    toast({
+      title: "⚡ 상담 신청 처리 중...",
+      description: "잠시만 기다려 주세요.",
+      duration: 2000,
+    });
 
     try {
       if (!checkNetworkStatus()) {
@@ -238,19 +292,7 @@ export default function ConsultationPage() {
           });
         }, 1000);
 
-        setFormData({
-          consultationType: '',
-          name: '',
-          phone: '',
-          email: '',
-          company: '',
-          position: '',
-          consultationArea: '',
-          inquiryContent: '',
-          preferredTime: '',
-          privacyConsent: false
-        });
-
+        resetForm();
         setSubmitAttempts(0);
 
       } else {
@@ -317,14 +359,7 @@ export default function ConsultationPage() {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+  }, [isSubmitting, formData, toast, submitAttempts, checkNetworkStatus, getConsultationTypeText, getConsultationAreaText, getPreferredTimeText, resetForm]);
 
   // 🔧 네트워크 상태 감지 (useState → useEffect 수정)
   useEffect(() => {
@@ -380,7 +415,7 @@ export default function ConsultationPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         상담 유형 <span className="text-red-500">*</span>
                       </label>
-                      <Select 
+                      <OptimizedSelect 
                         value={formData.consultationType}
                         onValueChange={(value) => handleInputChange('consultationType', value)}
                       >
@@ -393,7 +428,7 @@ export default function ConsultationPage() {
                           <SelectItem value="visit">방문 상담</SelectItem>
                           <SelectItem value="email">이메일 상담</SelectItem>
                         </SelectContent>
-                      </Select>
+                      </OptimizedSelect>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -401,7 +436,7 @@ export default function ConsultationPage() {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           성명 <span className="text-red-500">*</span>
                         </label>
-                        <Input
+                        <OptimizedInput
                           type="text"
                           value={formData.name}
                           onChange={(e) => handleInputChange('name', e.target.value)}
@@ -413,7 +448,7 @@ export default function ConsultationPage() {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           연락처 <span className="text-red-500">*</span>
                         </label>
-                        <Input
+                        <OptimizedInput
                           type="tel"
                           value={formData.phone}
                           onChange={(e) => handleInputChange('phone', e.target.value)}
@@ -427,7 +462,7 @@ export default function ConsultationPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         이메일 <span className="text-red-500">*</span>
                       </label>
-                      <Input
+                      <OptimizedInput
                         type="email"
                         value={formData.email}
                         onChange={(e) => handleInputChange('email', e.target.value)}
@@ -441,7 +476,7 @@ export default function ConsultationPage() {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           회사명 <span className="text-red-500">*</span>
                         </label>
-                        <Input
+                        <OptimizedInput
                           type="text"
                           value={formData.company}
                           onChange={(e) => handleInputChange('company', e.target.value)}
@@ -453,7 +488,7 @@ export default function ConsultationPage() {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           직책
                         </label>
-                        <Input
+                        <OptimizedInput
                           type="text"
                           value={formData.position}
                           onChange={(e) => handleInputChange('position', e.target.value)}
@@ -466,7 +501,7 @@ export default function ConsultationPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         상담 분야
                       </label>
-                      <Select 
+                      <OptimizedSelect 
                         value={formData.consultationArea}
                         onValueChange={(value) => handleInputChange('consultationArea', value)}
                       >
@@ -484,14 +519,14 @@ export default function ConsultationPage() {
                           <SelectItem value="comprehensive">종합 컨설팅</SelectItem>
                           <SelectItem value="other">기타</SelectItem>
                         </SelectContent>
-                      </Select>
+                      </OptimizedSelect>
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         문의 내용
                       </label>
-                      <Textarea
+                      <OptimizedTextarea
                         value={formData.inquiryContent}
                         onChange={(e) => handleInputChange('inquiryContent', e.target.value)}
                         placeholder="상담받고 싶은 내용을 자세히 적어주세요..."
@@ -503,7 +538,7 @@ export default function ConsultationPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         희망 상담 시간
                       </label>
-                      <Select 
+                      <OptimizedSelect 
                         value={formData.preferredTime}
                         onValueChange={(value) => handleInputChange('preferredTime', value)}
                       >
@@ -516,7 +551,7 @@ export default function ConsultationPage() {
                           <SelectItem value="evening">저녁 (18:00-20:00)</SelectItem>
                           <SelectItem value="flexible">시간 조정 가능</SelectItem>
                         </SelectContent>
-                      </Select>
+                      </OptimizedSelect>
                     </div>
 
                     <div className="flex items-start space-x-2 p-4 bg-gray-50 rounded-lg">
@@ -536,28 +571,33 @@ export default function ConsultationPage() {
                       </div>
                     </div>
 
-                    <Button 
+                    <OptimizedButton 
                       type="submit" 
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold"
-                      disabled={isSubmitting || !isOnline}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                      disabled={isSubmitting || !isOnline || !isFormValid}
                     >
                       {isSubmitting ? (
                         <>
                           <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          상담 신청 처리 중...
+                          처리 중... 잠시만 기다려주세요
                         </>
                       ) : !isOnline ? (
                         <>
                           <WifiOff className="w-5 h-5 mr-2" />
-                          오프라인 상태
+                          인터넷 연결 필요
+                        </>
+                      ) : !isFormValid ? (
+                        <>
+                          <AlertCircle className="w-5 h-5 mr-2" />
+                          필수 정보를 입력해주세요
                         </>
                       ) : (
                         <>
                           <Zap className="w-5 h-5 mr-2" />
-                          무료 상담 신청하기
+                          즉시 무료 상담 신청
                         </>
                       )}
-                    </Button>
+                    </OptimizedButton>
 
                     {submitAttempts >= 2 && !isSubmitting && (
                       <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">

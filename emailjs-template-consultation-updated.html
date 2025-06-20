@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M-CENTER 상담 신청 접수 확인</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .header p {
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .greeting {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1f2937;
+        }
+        .info-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .info-row {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #374151;
+            min-width: 120px;
+            margin-right: 10px;
+        }
+        .info-value {
+            color: #6b7280;
+            flex: 1;
+        }
+        .status-box {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .status-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+        .status-description {
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+        }
+        .consultation-box {
+            background: #fffbeb;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .consultation-title {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .process-box {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .process-title {
+            font-weight: 600;
+            color: #0c4a6e;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .process-steps {
+            color: #0c4a6e;
+        }
+        .process-step {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        .process-step::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: #0ea5e9;
+        }
+        .contact-box {
+            background: #f9fafb;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .contact-title {
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 15px;
+        }
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4b5563;
+        }
+        .footer {
+            background: #f8fafc;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .highlight-box {
+            background: #dbeafe;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #1e40af;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+            .info-label {
+                min-width: auto;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <div class="header">
+            <h1>🤝 상담 신청 접수 완료</h1>
+            <p>M-CENTER 기업의별 경영지도센터</p>
+        </div>
+
+        <!-- 메인 콘텐츠 -->
+        <div class="content">
+            <div class="greeting">
+                안녕하세요 {{to_name}}님,
+            </div>
+
+            <p>
+                <strong>{{company_name}}</strong>의 <strong>{{consultation_type}}</strong> 상담 신청이 정상적으로 접수되었습니다.<br>
+                담당 전문가가 검토 후 <strong>24시간 내에</strong> 연락드리겠습니다.
+            </p>
+
+            <!-- 접수 상태 -->
+            <div class="status-box">
+                <div class="status-title">✅ {{status}}</div>
+                <div class="status-description">상담 신청이 성공적으로 처리되었습니다</div>
+            </div>
+
+            <!-- 신청 정보 -->
+            <div class="info-box">
+                <div class="info-row">
+                    <div class="info-label">👤 신청자:</div>
+                    <div class="info-value">{{to_name}}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">🏢 회사명:</div>
+                    <div class="info-value">{{company_name}}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">💼 상담 분야:</div>
+                    <div class="info-value">{{consultation_type}}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">📅 신청일시:</div>
+                    <div class="info-value">{{submission_date}}</div>
+                </div>
+                {{#appointment_date}}
+                <div class="info-row">
+                    <div class="info-label">🗓️ 희망 상담시간:</div>
+                    <div class="info-value">{{appointment_date}}</div>
+                </div>
+                {{/appointment_date}}
+            </div>
+
+            <!-- 상담 프로세스 안내 -->
+            <div class="process-box">
+                <div class="process-title">
+                    📋 상담 진행 프로세스
+                </div>
+                <div class="process-steps">
+                    <div class="process-step">신청 접수 완료 (현재 단계)</div>
+                    <div class="process-step">담당 전문가 배정 및 검토</div>
+                    <div class="process-step">24시간 내 전화 연락</div>
+                    <div class="process-step">상담 일정 조율</div>
+                    <div class="process-step">맞춤형 전문 상담 진행</div>
+                    <div class="process-step">솔루션 제안 및 후속 지원</div>
+                </div>
+            </div>
+
+            <!-- 상담 내용 안내 -->
+            <div class="consultation-box">
+                <div class="consultation-title">
+                    💡 상담에서 제공되는 내용
+                </div>
+                <div style="color: #78350f;">
+                    ✓ 현재 상황 분석 및 진단<br>
+                    ✓ 맞춤형 개선 방안 제시<br>
+                    ✓ 정부 지원사업 안내<br>
+                    ✓ 세제 혜택 및 인증 정보<br>
+                    ✓ 실무진 교육 및 컨설팅<br>
+                    ✓ 후속 지원 서비스 연계
+                </div>
+            </div>
+
+            <!-- 담당자 연락처 -->
+            <div class="contact-box">
+                <div class="contact-title">👨‍💼 담당 전문가</div>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <span>📋 이름:</span>
+                        <span>{{consultant_name}}</span>
+                    </div>
+                    <div class="contact-item">
+                        <span>📞 연락처:</span>
+                        <span>{{consultant_phone}}</span>
+                    </div>
+                    <div class="contact-item">
+                        <span>📧 이메일:</span>
+                        <span>{{consultant_email}}</span>
+                    </div>
+                    <div class="contact-item">
+                        <span>🕒 상담 가능시간:</span>
+                        <span>평일 09:00 - 18:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 추가 안내사항 -->
+            <div class="highlight-box">
+                <strong>📞 긴급 문의</strong><br>
+                상담 과정에서 급한 문의사항이 있으시면<br>
+                담당자에게 직접 연락 주시기 바랍니다.<br><br>
+                <strong>💼 준비사항</strong><br>
+                효과적인 상담을 위해 회사 현황 자료나<br>
+                구체적인 고민 사항을 미리 정리해 주세요.
+            </div>
+        </div>
+
+        <!-- 푸터 -->
+        <div class="footer">
+            <p><strong>M-CENTER 기업의별 경영지도센터</strong></p>
+            <p>본 메일은 상담 신청자에게 자동 발송되는 메일입니다.</p>
+            <p>© 2025 M-CENTER. All rights reserved.</p>
+        </div>
+    </div>
+
+    <!-- EmailJS 템플릿 필드 안내 -->
+    <!--
+    이 템플릿에서 사용되는 필드들:
+    
+    필수 필드:
+    - {{to_name}}: 수신자 이름
+    - {{to_email}}: 수신자 이메일 (EmailJS에서 자동 사용)
+    - {{company_name}}: 회사명
+    - {{consultation_type}}: 상담 분야
+    - {{submission_date}}: 신청일시
+    - {{status}}: 처리 상태 (예: "접수 완료")
+    - {{consultant_name}}: 담당자 이름
+    - {{consultant_phone}}: 담당자 연락처
+    - {{consultant_email}}: 담당자 이메일
+    
+    선택 필드:
+    - {{appointment_date}}: 희망 상담 시간
+    - {{message}}: 추가 메시지
+    
+    사용법:
+    1. EmailJS 대시보드에서 새 템플릿 생성
+    2. 템플릿 ID를 'template_consultation_conf'로 설정
+    3. 이 HTML 내용을 복사하여 붙여넣기
+    4. 필드 매핑 확인 후 저장
+    -->
+</body>
+</html> 

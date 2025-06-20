@@ -32,6 +32,7 @@ import { toast } from '@/hooks/use-toast';
 import { PremiumReportGenerator, type PremiumReportData } from '@/lib/utils/premiumReportGenerator';
 import { useReactToPrint } from 'react-to-print';
 import { safeGet, validateApiResponse } from '@/lib/utils/safeDataAccess';
+import { PDFGenerator } from '@/lib/utils/pdfGenerator';
 
 interface DiagnosisData {
   companyName: string;
@@ -130,77 +131,77 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
     timestamp: new Date().toISOString()
   });
 
-  // 1단계: 데이터 자체가 없는 경우
-  if (!data) {
-    console.error('❌ 진단 데이터가 전달되지 않았습니다');
-    return (
-      <div className="max-w-4xl mx-auto">
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="p-8 text-center">
-            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-red-800 mb-2">🚨 데이터 로딩 오류</h3>
-            <p className="text-red-600 mb-4">
-              진단 데이터가 전달되지 않았습니다.<br/>
-              GitHub Pages 환경에서 발생할 수 있는 일시적 오류입니다.
-            </p>
-            <div className="space-y-3">
-              <Button onClick={() => window.location.reload()} className="mr-2">
-                페이지 새로고침
-              </Button>
-              <Button variant="outline" onClick={() => window.location.href = '/services/diagnosis'}>
-                진단 페이지로 돌아가기
-              </Button>
-            </div>
-            <p className="text-xs text-gray-500 mt-4">
-              문제가 지속되면 010-9251-9743으로 연락주세요.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // 2단계: 데이터 구조 검증 및 정규화
-  let normalizedData: SimplifiedDiagnosisResultsProps['data'];
+  // 2단계: 안전한 데이터 정규화 (여러 형태의 응답 구조 지원)
+  let normalizedData: any = {};
+  
   try {
-    // 안전한 API 응답 검증
-    const validation = validateApiResponse(data);
-    
-    if (!validation.isValid) {
-      throw new Error(validation.error || '유효하지 않은 응답 데이터');
-    }
+    console.log('🔄 데이터 정규화 시작, 원본 구조:', {
+      hasSuccess: typeof data.success,
+      hasData: typeof data.data,
+      dataKeys: data.data ? Object.keys(data.data) : null,
+      hasDiagnosis: data.data?.diagnosis ? 'true' : 'false'
+    });
 
-    // 안전한 데이터 접근으로 정규화
-    const hasDirectDiagnosis = safeGet(data, 'diagnosis', null);
-    const hasNestedDiagnosis = safeGet(data, 'data.diagnosis', null);
-    const hasSuccessStructure = safeGet(data, 'success', null) !== null && safeGet(data, 'data', null);
-
-    if (hasSuccessStructure && hasNestedDiagnosis) {
-      // 정상적인 구조: { success, data: { diagnosis } }
-      normalizedData = data;
-    } else if (hasDirectDiagnosis) {
-      // 직접 전달된 경우: { diagnosis, summaryReport, ... }
-      normalizedData = {
-        success: true,
-        message: '진단 완료',
-        data: data as any
-      };
-    } else if (hasNestedDiagnosis) {
-      // 중첩된 구조: { data: { diagnosis } }
-      normalizedData = {
-        success: true,
-        message: '진단 완료',
-        data: safeGet(data, 'data', data as any)
-      };
+    // 🔧 다양한 API 응답 형태에 대응
+    if (data.success && data.data) {
+      // 정상적인 API 응답 구조
+      if (data.data.diagnosis) {
+        normalizedData = {
+          success: true,
+          message: data.message || '진단이 완료되었습니다.',
+          data: {
+            diagnosis: data.data.diagnosis,
+            summaryReport: data.data.summaryReport || '',
+            reportLength: data.data.reportLength || 0,
+            resultId: data.data.resultId || `DIAG_${Date.now()}`,
+            resultUrl: data.data.resultUrl || '',
+            submitDate: data.data.submitDate || new Date().toLocaleString('ko-KR'),
+            googleSheetsSaved: data.data.googleSheetsSaved || false,
+            processingTime: data.data.processingTime || '알 수 없음',
+            reportType: data.data.reportType || 'AI 진단 보고서'
+          }
+        };
+      }
+      // 백업: data 안에 직접 진단 정보가 있는 경우
+      else if ((data.data as any).companyName || (data.data as any).totalScore) {
+        normalizedData = {
+          success: true,
+          message: data.message || '진단이 완료되었습니다.',
+          data: {
+            diagnosis: data.data as any,
+            summaryReport: (data.data as any).summaryReport || '',
+            reportLength: (data.data as any).reportLength || 0,
+            resultId: (data.data as any).resultId || `DIAG_${Date.now()}`,
+            resultUrl: (data.data as any).resultUrl || '',
+            submitDate: (data.data as any).submitDate || new Date().toLocaleString('ko-KR'),
+            googleSheetsSaved: (data.data as any).googleSheetsSaved || false,
+            processingTime: (data.data as any).processingTime || '알 수 없음',
+            reportType: (data.data as any).reportType || 'AI 진단 보고서'
+          }
+        };
+      }
+      // 추가 백업: 중첩된 data 구조인 경우
+      else if ((data.data as any).data && (data.data as any).data.diagnosis) {
+        normalizedData = {
+          success: true,
+          message: data.message || '진단이 완료되었습니다.',
+          data: (data.data as any).data
+        };
+      }
+      else {
+        throw new Error('지원되지 않는 데이터 구조입니다.');
+      }
     } else {
-      throw new Error('진단 데이터를 찾을 수 없습니다');
+      throw new Error('API 응답 구조가 올바르지 않습니다.');
     }
 
     console.log('✅ 안전한 데이터 정규화 성공:', { 
       hasSuccess: safeGet(normalizedData, 'success', false),
       hasData: safeGet(normalizedData, 'data', null) !== null,
       hasDiagnosis: safeGet(normalizedData, 'data.diagnosis', null) !== null,
-      diagnosisKeys: safeGet(normalizedData, 'data.diagnosis', null) ? Object.keys(safeGet(normalizedData, 'data.diagnosis', {})) : null
+      diagnosisKeys: safeGet(normalizedData, 'data.diagnosis', null) ? Object.keys(safeGet(normalizedData, 'data.diagnosis', {})) : null,
+      companyName: safeGet(normalizedData, 'data.diagnosis.companyName', 'Unknown'),
+      totalScore: safeGet(normalizedData, 'data.diagnosis.totalScore', 0)
     });
 
   } catch (error) {
@@ -213,7 +214,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
             <h3 className="text-xl font-bold text-red-800 mb-2">🔧 데이터 구조 오류</h3>
             <p className="text-red-600 mb-4">
               진단 데이터의 구조가 예상과 다릅니다.<br/>
-              GitHub Pages 배포 환경에서 발생할 수 있는 호환성 문제입니다.
+              API 응답 형식 문제일 수 있습니다.
             </p>
             <div className="space-y-3">
               <Button onClick={() => window.location.reload()} className="mr-2">
@@ -277,7 +278,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
         mainConcerns: '경영 효율성 개선', // 기본값 사용
         expectedBenefits: '수익성 향상', // 기본값 사용
         contactManager: '이후경', // 기본값 추가
-        email: 'lhk@injc.kr', // 기본값 추가
+                  email: 'hongik423@gmail.com', // 기본값 추가
         detailedAnalysis: true
       };
 
@@ -426,6 +427,76 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
     }
   };
 
+  // 📄 실제 PDF 파일 다운로드 기능
+  const handlePDFDownload = async () => {
+    try {
+      console.log('📄 PDF 다운로드 시작');
+      setIsLoading(true);
+      
+      toast({
+        title: "PDF 생성 중...",
+        description: "잠시만 기다려주세요. PDF 파일을 생성하고 있습니다.",
+        duration: 3000,
+      });
+
+      // 진단 데이터를 PDFGenerator에 맞는 형태로 변환
+      const pdfDiagnosisData = {
+        companyName: diagnosis.companyName,
+        overallScore: diagnosis.totalScore,
+        marketPosition: diagnosis.marketPosition,
+        industryGrowth: diagnosis.industryGrowth,
+        quickAnalysis: {
+          strengths: diagnosis.strengths.map((item: any) => 
+            typeof item === 'string' ? item : item?.category || item?.reason || JSON.stringify(item)
+          ),
+          improvements: diagnosis.weaknesses.map((item: any) => 
+            typeof item === 'string' ? item : item?.category || item?.reason || JSON.stringify(item)
+          ),
+          opportunities: diagnosis.opportunities.map((item: any) => 
+            typeof item === 'string' ? item : item?.category || item?.reason || JSON.stringify(item)
+          )
+        },
+        actionPlan: diagnosis.actionPlan.map((item: any) => 
+          typeof item === 'string' ? item : item?.title || item?.category || item?.reason || JSON.stringify(item)
+        )
+      };
+
+      // PDFGenerator를 사용하여 PDF 생성
+      await PDFGenerator.generateDiagnosisPDF(pdfDiagnosisData, {
+        title: 'M-CENTER AI 기반 종합 경영진단 결과',
+        companyName: diagnosis.companyName,
+        includeDetails: true
+      });
+
+      toast({
+        title: "✅ PDF 다운로드 완료!",
+        description: "진단 결과 PDF 파일이 다운로드되었습니다.",
+        duration: 5000,
+      });
+
+    } catch (error) {
+      console.error('❌ PDF 다운로드 실패:', error);
+      
+      toast({
+        title: "PDF 다운로드 실패",
+        description: "PDF 생성 중 오류가 발생했습니다. 브라우저 호환성 문제일 수 있습니다.",
+        variant: "destructive",
+        duration: 5000,
+      });
+
+      // 대안으로 HTML 보고서 제공
+      const shouldTryAlternative = confirm(
+        'PDF 다운로드에 실패했습니다.\n\n대신 HTML 형태의 상세 보고서를 새 창에서 열어드릴까요?'
+      );
+      
+      if (shouldTryAlternative) {
+        handleDownload();
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleConsultationRequest = () => {
     // 상담 신청 페이지로 이동
     window.location.href = '/consultation';
@@ -515,10 +586,10 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                 주요 강점
               </h4>
               <ul className="space-y-2">
-                {diagnosis.strengths.map((strength: string, index: number) => (
+                {diagnosis.strengths.map((strength: any, index: number) => (
                   <li key={index} className="flex items-center gap-2 text-sm text-gray-700">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    {strength}
+                    {typeof strength === 'string' ? strength : strength.category || strength.reason || JSON.stringify(strength)}
                   </li>
                 ))}
               </ul>
@@ -706,7 +777,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4" />
-                  <span>{diagnosis.consultant?.email || 'lhk@injc.kr'}</span>
+                  <span>{diagnosis.consultant?.email || 'hongik423@gmail.com'}</span>
                 </div>
               </div>
             </div>
@@ -806,11 +877,21 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
           </div>
           
           <Button 
-            onClick={handleDownload}
+            onClick={handlePDFDownload}
+            disabled={isLoading}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
-            <Download className="w-4 h-4" />
-            결과보고서 PDF 다운로드
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 animate-spin rounded-full border-2 border-gray-300 border-t-white"></div>
+                PDF 생성 중...
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                결과보고서 PDF 다운로드
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -924,10 +1005,10 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                     💪 Strengths (강점)
                   </h4>
                   <ul className="space-y-2">
-                    {(data.data.diagnosis.strengths || []).map((item: string, index: number) => (
+                    {(data.data.diagnosis.strengths || []).map((item: any, index: number) => (
                       <li key={index} className="flex items-start gap-2 text-sm">
                         <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <span>{item}</span>
+                        <span>{typeof item === 'string' ? item : item?.category || item?.reason || JSON.stringify(item)}</span>
                       </li>
                     ))}
                   </ul>
@@ -938,10 +1019,10 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                     🔍 Weaknesses (약점)
                   </h4>
                   <ul className="space-y-2">
-                    {(data.data.diagnosis.weaknesses || []).map((item: string, index: number) => (
+                    {(data.data.diagnosis.weaknesses || []).map((item: any, index: number) => (
                       <li key={index} className="flex items-start gap-2 text-sm">
                         <span className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0">⚠️</span>
-                        <span>{item}</span>
+                        <span>{typeof item === 'string' ? item : item?.category || item?.reason || JSON.stringify(item)}</span>
                       </li>
                     ))}
                   </ul>
@@ -954,10 +1035,10 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                     🌟 Opportunities (기회)
                   </h4>
                   <ul className="space-y-2">
-                    {(data.data.diagnosis.opportunities || []).map((item: string, index: number) => (
+                    {(data.data.diagnosis.opportunities || []).map((item: any, index: number) => (
                       <li key={index} className="flex items-start gap-2 text-sm">
                         <Star className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                        <span>{item}</span>
+                        <span>{typeof item === 'string' ? item : item?.category || item?.reason || JSON.stringify(item)}</span>
                       </li>
                     ))}
                   </ul>
@@ -1036,19 +1117,19 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {(data.data.diagnosis.actionPlan || []).map((action, index: number) => (
+              {(data.data.diagnosis.actionPlan || []).map((action: any, index: number) => (
                 <div key={index} className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
                   <div className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-full text-sm font-semibold">
                     {index + 1}
                   </div>
                   <div className="flex-1">
                     <h4 className="font-semibold mb-1">
-                      {typeof action === 'string' ? action : (action.title || '실행 계획 항목')}
+                      {typeof action === 'string' ? action : (action?.title || action?.category || action?.reason || '실행 계획 항목')}
                     </h4>
-                    {typeof action === 'object' && action.description && (
+                    {typeof action === 'object' && action?.description && (
                       <p className="text-gray-700 text-sm mb-2">{action.description}</p>
                     )}
-                    {typeof action === 'object' && (action.timeframe || action.importance) && (
+                    {typeof action === 'object' && (action?.timeframe || action?.importance) && (
                       <div className="text-xs text-gray-500">
                         {action.timeframe && `기간: ${action.timeframe}`} 
                         {action.timeframe && action.importance && ' | '}
@@ -1072,10 +1153,10 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
               <div>
                 <h4 className="font-semibold mb-3 text-green-700">📈 정량적 효과</h4>
                 <ul className="space-y-2">
-                  {(data.data.diagnosis.expectedResults?.quantitative || []).map((result: string, index: number) => (
+                  {(data.data.diagnosis.expectedResults?.quantitative || []).map((result: any, index: number) => (
                     <li key={index} className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-green-600" />
-                      <span className="text-sm">{result}</span>
+                      <span className="text-sm">{typeof result === 'string' ? result : result?.category || result?.reason || JSON.stringify(result)}</span>
                     </li>
                   ))}
                 </ul>
@@ -1083,10 +1164,10 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
               <div>
                 <h4 className="font-semibold mb-3 text-blue-700">💡 정성적 효과</h4>
                 <ul className="space-y-2">
-                  {(data.data.diagnosis.expectedResults?.qualitative || []).map((result: string, index: number) => (
+                  {(data.data.diagnosis.expectedResults?.qualitative || []).map((result: any, index: number) => (
                     <li key={index} className="flex items-center gap-2">
                       <Star className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm">{result}</span>
+                      <span className="text-sm">{typeof result === 'string' ? result : result?.category || result?.reason || JSON.stringify(result)}</span>
                     </li>
                   ))}
                 </ul>

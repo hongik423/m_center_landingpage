@@ -10,6 +10,15 @@ import emailjs from '@emailjs/browser';
 const isBrowser = () => typeof window !== 'undefined';
 const isServer = () => typeof window === 'undefined';
 
+// 🔧 EmailJS 환경변수 (기본값 포함)
+const EMAIL_CONFIG = {
+  SERVICE_ID: process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 'service_qd9eycz',
+  PUBLIC_KEY: process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || '268NPLwN54rPvEias',
+  TEMPLATE_DIAGNOSIS: process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_DIAGNOSIS || 'template_diagnosis_conf',
+  TEMPLATE_CONSULTATION: process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_CONSULTATION || 'template_consultation_conf',
+  TEMPLATE_ADMIN: process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ADMIN || 'template_admin_notification'
+};
+
 // 템플릿 매개변수 타입 정의
 interface BaseTemplateParams {
   to_name: string;
@@ -61,26 +70,59 @@ interface EmailResult {
   isSimulation?: boolean;
 }
 
-// 🔧 서버 사이드 시뮬레이션 함수
-function simulateEmailSend(
-  serviceId: string, 
-  templateId: string, 
-  templateParams: any
-): Promise<EmailResult> {
-  return new Promise((resolve) => {
-    // 실제 네트워크 지연 시뮬레이션
-    setTimeout(() => {
-      resolve({
+// 🔧 서버 사이드에서 실제 EmailJS API 호출 (Node.js 환경)
+async function sendEmailViaAPI(serviceId: string, templateId: string, templateParams: any, publicKey: string): Promise<EmailResult> {
+  try {
+    console.log('📧 EmailJS API 직접 호출 시도:', {
+      serviceId: serviceId.substring(0, 8) + '...',
+      templateId: templateId.substring(0, 12) + '...',
+      publicKey: publicKey.substring(0, 8) + '...'
+    });
+
+    // 서버 사이드에서 EmailJS API 직접 호출
+    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        service_id: serviceId,
+        template_id: templateId,
+        user_id: publicKey,
+        template_params: templateParams
+      })
+    });
+
+    console.log('📡 EmailJS API 응답:', {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok
+    });
+
+    if (response.ok) {
+      const result = await response.text();
+      console.log('✅ EmailJS API 호출 성공:', result);
+      return {
         success: true,
-        messageId: `sim_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        service: 'simulation',
-        isSimulation: true
-      });
-    }, 500 + Math.random() * 1000); // 0.5-1.5초 지연
-  });
+        messageId: result || 'API_SUCCESS',
+        service: 'emailjs-api'
+      };
+    } else {
+      const errorText = await response.text();
+      console.error('❌ EmailJS API 오류 응답:', errorText);
+      throw new Error(`EmailJS API Error: ${response.status} ${response.statusText} - ${errorText}`);
+    }
+  } catch (error) {
+    console.error('EmailJS API 호출 실패:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'API 호출 실패',
+      service: 'emailjs-api'
+    };
+  }
 }
 
-// 🎯 진단 결과 확인 이메일 발송 (사용자용)
+// 🎯 진단 결과 확인 이메일 발송 (사용자용) - 직접 EmailJS 사용
 export async function sendDiagnosisConfirmation(
   userEmail: string,
   userName: string,
@@ -91,34 +133,16 @@ export async function sendDiagnosisConfirmation(
   diagnosisSummary?: string
 ): Promise<EmailResult> {
   try {
-    // 서버 사이드에서는 시뮬레이션 모드로 동작
-    if (isServer()) {
-      console.log('📧 진단 확인 이메일 발송 시작 (서버 사이드 시뮬레이션)');
-      console.log('📨 이메일 내용:', {
-        to: userEmail,
-        userName,
-        companyName,
-        businessType,
-        consultationType,
-        contactNumber,
-        diagnosisSummary: diagnosisSummary ? '포함됨' : '미포함'
-      });
-      
-      const result = await simulateEmailSend(
-        'diagnosis_service', 
-        'template_diagnosis_conf', 
-        { userEmail, userName, companyName }
-      );
-      
-      console.log('✅ 진단 확인 이메일 발송 성공 (시뮬레이션):', result);
-      return result;
-    }
-
-    // 브라우저 환경에서만 실제 EmailJS 사용
-    if (!process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 
-        !process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY) {
-      throw new Error('EmailJS 환경변수가 설정되지 않았습니다');
-    }
+    console.log('📧 진단 확인 이메일 발송 시작 (직접 EmailJS 사용)');
+    console.log('📨 이메일 내용:', {
+      to: userEmail,
+      userName,
+      companyName,
+      businessType,
+      consultationType,
+      contactNumber,
+      diagnosisSummary: diagnosisSummary ? '포함됨' : '미포함'
+    });
 
     const templateParams: DiagnosisTemplateParams = {
       to_name: userName,
@@ -128,7 +152,7 @@ export async function sendDiagnosisConfirmation(
       company_name: companyName,
       business_type: businessType,
       consultation_type: consultationType,
-      contact_number: contactNumber,
+      contact_number: contactNumber || '정보 없음',
       submission_date: new Date().toLocaleDateString('ko-KR', {
         year: 'numeric',
         month: 'long',
@@ -141,38 +165,74 @@ export async function sendDiagnosisConfirmation(
       next_steps: '담당 전문가가 24시간 내에 연락드려 상세한 진단 결과를 안내해드리겠습니다.'
     };
 
-    const emailResult = await emailjs.send(
-      process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-      'template_diagnosis_conf',
-      templateParams,
-      process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
-    );
+    let emailResult: EmailResult;
 
-    return {
-      success: true,
-      messageId: emailResult.text,
-      service: 'emailjs',
-      isSimulation: false
-    };
+    // 🔧 브라우저 환경을 우선으로 하고, 서버는 백업으로 사용
+    if (isBrowser()) {
+      try {
+        // 브라우저에서 EmailJS SDK 사용 (가장 안정적)
+        console.log('🌐 브라우저 환경에서 EmailJS SDK 사용');
+        
+        if (!EMAIL_CONFIG.SERVICE_ID || !EMAIL_CONFIG.PUBLIC_KEY) {
+          throw new Error('EmailJS 환경변수가 설정되지 않았습니다');
+        }
+
+        // EmailJS 초기화 확인
+        if (typeof emailjs === 'undefined' || !emailjs.send) {
+          throw new Error('EmailJS SDK가 로드되지 않았습니다');
+        }
+
+        const result = await emailjs.send(
+          EMAIL_CONFIG.SERVICE_ID,
+          EMAIL_CONFIG.TEMPLATE_DIAGNOSIS,
+          templateParams,
+          EMAIL_CONFIG.PUBLIC_KEY
+        );
+
+        emailResult = {
+          success: true,
+          messageId: result.text,
+          service: 'emailjs-browser'
+        };
+        
+        console.log('✅ 브라우저 EmailJS 호출 성공:', emailResult);
+      } catch (browserError) {
+        console.warn('⚠️ 브라우저 EmailJS 실패, 서버 API 시도:', browserError);
+        
+        // 브라우저 실패 시 서버 API 백업 시도
+        emailResult = await sendEmailViaAPI(
+          EMAIL_CONFIG.SERVICE_ID,
+          EMAIL_CONFIG.TEMPLATE_DIAGNOSIS,
+          templateParams,
+          EMAIL_CONFIG.PUBLIC_KEY
+        );
+      }
+    } else {
+      // 서버에서만 API 직접 호출 (브라우저 우선이므로 이 경우는 드물음)
+      console.log('🖥️ 서버 환경에서 EmailJS API 호출');
+      emailResult = await sendEmailViaAPI(
+        EMAIL_CONFIG.SERVICE_ID,
+        EMAIL_CONFIG.TEMPLATE_DIAGNOSIS,
+        templateParams,
+        EMAIL_CONFIG.PUBLIC_KEY
+      );
+    }
+
+    console.log('✅ 진단 확인 이메일 발송 성공:', emailResult);
+    return emailResult;
 
   } catch (error) {
-    console.error('진단 확인 이메일 발송 실패:', error);
-    
-    // 서버 사이드에서는 오류 대신 시뮬레이션으로 대체
-    if (isServer()) {
-      console.log('🔄 서버 사이드 오류 발생, 시뮬레이션 모드로 전환');
-      return await simulateEmailSend('diagnosis_service', 'template_diagnosis_conf', {});
-    }
+    console.error('❌ 진단 확인 이메일 발송 실패:', error);
     
     return {
       success: false,
       error: error instanceof Error ? error.message : '이메일 발송 중 오류가 발생했습니다',
-      service: 'emailjs'
+      service: isServer() ? 'emailjs-api' : 'emailjs-browser'
     };
   }
 }
 
-// 🎯 상담 신청 확인 이메일 발송 (사용자용)
+// 🎯 상담 신청 확인 이메일 발송 (사용자용) - 직접 EmailJS 사용
 export async function sendConsultationConfirmation(
   userEmail: string,
   userName: string,
@@ -182,33 +242,15 @@ export async function sendConsultationConfirmation(
   appointmentDate?: string
 ): Promise<EmailResult> {
   try {
-    // 서버 사이드에서는 시뮬레이션 모드로 동작
-    if (isServer()) {
-      console.log('📧 상담 확인 이메일 발송 시작 (서버 사이드 시뮬레이션)');
-      console.log('📨 이메일 내용:', {
-        to: userEmail,
-        userName,
-        companyName,
-        consultationType,
-        consultantName,
-        appointmentDate
-      });
-      
-      const result = await simulateEmailSend(
-        'consultation_service', 
-        'template_consultation_conf', 
-        { userEmail, userName, companyName }
-      );
-      
-      console.log('✅ 상담 확인 이메일 발송 성공 (시뮬레이션):', result);
-      return result;
-    }
-
-    // 브라우저 환경에서만 실제 EmailJS 사용
-    if (!process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 
-        !process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY) {
-      throw new Error('EmailJS 환경변수가 설정되지 않았습니다');
-    }
+    console.log('📧 상담 확인 이메일 발송 시작 (직접 EmailJS 사용)');
+    console.log('📨 이메일 내용:', {
+      to: userEmail,
+      userName,
+      companyName,
+      consultationType,
+      consultantName,
+      appointmentDate
+    });
 
     const templateParams: ConsultationTemplateParams = {
       to_name: userName,
@@ -226,42 +268,78 @@ export async function sendConsultationConfirmation(
       }),
       status: '접수 완료',
       message: `안녕하세요 ${userName}님,\n\n${companyName}의 ${consultationType} 상담 신청이 정상적으로 접수되었습니다.\n\n담당 전문가가 검토 후 24시간 내에 연락드리겠습니다.\n\n문의사항이 있으시면 언제든 연락주세요.\n\n감사합니다.\nM-CENTER 기업의별`,
-      consultant_name: consultantName || '담당 전문가',
+      consultant_name: consultantName || '이후경 경영지도사',
       appointment_date: appointmentDate || '별도 연락 예정'
     };
 
-    const emailResult = await emailjs.send(
-      process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-      'template_consultation_conf',
-      templateParams,
-      process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
-    );
+    let emailResult: EmailResult;
 
-    return {
-      success: true,
-      messageId: emailResult.text,
-      service: 'emailjs',
-      isSimulation: false
-    };
+    // 🔧 브라우저 환경을 우선으로 하고, 서버는 백업으로 사용
+    if (isBrowser()) {
+      try {
+        // 브라우저에서 EmailJS SDK 사용 (가장 안정적)
+        console.log('🌐 브라우저 환경에서 EmailJS SDK 사용');
+        
+        if (!EMAIL_CONFIG.SERVICE_ID || !EMAIL_CONFIG.PUBLIC_KEY) {
+          throw new Error('EmailJS 환경변수가 설정되지 않았습니다');
+        }
+
+        // EmailJS 초기화 확인
+        if (typeof emailjs === 'undefined' || !emailjs.send) {
+          throw new Error('EmailJS SDK가 로드되지 않았습니다');
+        }
+
+        const result = await emailjs.send(
+          EMAIL_CONFIG.SERVICE_ID,
+          EMAIL_CONFIG.TEMPLATE_CONSULTATION,
+          templateParams,
+          EMAIL_CONFIG.PUBLIC_KEY
+        );
+
+        emailResult = {
+          success: true,
+          messageId: result.text,
+          service: 'emailjs-browser'
+        };
+        
+        console.log('✅ 브라우저 EmailJS 호출 성공:', emailResult);
+      } catch (browserError) {
+        console.warn('⚠️ 브라우저 EmailJS 실패, 서버 API 시도:', browserError);
+        
+        // 브라우저 실패 시 서버 API 백업 시도
+        emailResult = await sendEmailViaAPI(
+          EMAIL_CONFIG.SERVICE_ID,
+          EMAIL_CONFIG.TEMPLATE_CONSULTATION,
+          templateParams,
+          EMAIL_CONFIG.PUBLIC_KEY
+        );
+      }
+    } else {
+      // 서버에서만 API 직접 호출 (브라우저 우선이므로 이 경우는 드물음)
+      console.log('🖥️ 서버 환경에서 EmailJS API 호출');
+      emailResult = await sendEmailViaAPI(
+        EMAIL_CONFIG.SERVICE_ID,
+        EMAIL_CONFIG.TEMPLATE_CONSULTATION,
+        templateParams,
+        EMAIL_CONFIG.PUBLIC_KEY
+      );
+    }
+
+    console.log('✅ 상담 확인 이메일 발송 성공:', emailResult);
+    return emailResult;
 
   } catch (error) {
-    console.error('상담 확인 이메일 발송 실패:', error);
-    
-    // 서버 사이드에서는 오류 대신 시뮬레이션으로 대체
-    if (isServer()) {
-      console.log('🔄 서버 사이드 오류 발생, 시뮬레이션 모드로 전환');
-      return await simulateEmailSend('consultation_service', 'template_consultation_conf', {});
-    }
+    console.error('❌ 상담 확인 이메일 발송 실패:', error);
     
     return {
       success: false,
       error: error instanceof Error ? error.message : '이메일 발송 중 오류가 발생했습니다',
-      service: 'emailjs'
+      service: isServer() ? 'emailjs-api' : 'emailjs-browser'
     };
   }
 }
 
-// 🎯 관리자 알림 이메일 발송
+// 🎯 관리자 알림 이메일 발송 - 직접 EmailJS 사용
 export async function sendAdminNotification(
   type: 'consultation' | 'diagnosis',
   customerName: string,
@@ -271,35 +349,17 @@ export async function sendAdminNotification(
   customerEmail?: string
 ): Promise<EmailResult> {
   try {
-    const adminEmail = 'lhk@injc.kr'; // M-CENTER 관리자 이메일
+    const adminEmail = 'hongik423@gmail.com'; // M-CENTER 관리자 이메일
     
-    // 서버 사이드에서는 시뮬레이션 모드로 동작
-    if (isServer()) {
-      console.log('📧 관리자 알림 이메일 발송 시작 (서버 사이드 시뮬레이션)');
-      console.log('📨 관리자 알림 내용:', {
-        type,
-        customerName,
-        companyName,
-        serviceType,
-        customerEmail,
-        details: details.substring(0, 100) + '...'
-      });
-      
-      const result = await simulateEmailSend(
-        'admin_notification', 
-        'template_admin_notification', 
-        { type, customerName, companyName }
-      );
-      
-      console.log('✅ 관리자 알림 이메일 발송 성공 (시뮬레이션):', result);
-      return result;
-    }
-
-    // 브라우저 환경에서만 실제 EmailJS 사용
-    if (!process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 
-        !process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY) {
-      throw new Error('EmailJS 환경변수가 설정되지 않았습니다');
-    }
+    console.log('📧 관리자 알림 이메일 발송 시작 (직접 EmailJS 사용)');
+    console.log('📨 관리자 알림 내용:', {
+      type,
+      customerName,
+      companyName,
+      serviceType,
+      customerEmail,
+      details: details.substring(0, 100) + '...'
+    });
 
     const templateParams: AdminNotificationParams = {
       to_email: adminEmail,
@@ -314,36 +374,73 @@ export async function sendAdminNotification(
         hour: '2-digit',
         minute: '2-digit'
       }),
-      details
+      details,
+      customer_email: customerEmail || '정보 없음'
     };
 
-    const emailResult = await emailjs.send(
-      process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-      'template_admin_notification',
-      templateParams,
-      process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
-    );
+    let emailResult: EmailResult;
 
-    return {
-      success: true,
-      messageId: emailResult.text,
-      service: 'emailjs',
-      isSimulation: false
-    };
+    // 🔧 브라우저 환경을 우선으로 하고, 서버는 백업으로 사용
+    if (isBrowser()) {
+      try {
+        // 브라우저에서 EmailJS SDK 사용 (가장 안정적)
+        console.log('🌐 브라우저 환경에서 EmailJS SDK 사용');
+        
+        if (!EMAIL_CONFIG.SERVICE_ID || !EMAIL_CONFIG.PUBLIC_KEY) {
+          throw new Error('EmailJS 환경변수가 설정되지 않았습니다');
+        }
+
+        // EmailJS 초기화 확인
+        if (typeof emailjs === 'undefined' || !emailjs.send) {
+          throw new Error('EmailJS SDK가 로드되지 않았습니다');
+        }
+
+        const result = await emailjs.send(
+          EMAIL_CONFIG.SERVICE_ID,
+          EMAIL_CONFIG.TEMPLATE_ADMIN,
+          templateParams,
+          EMAIL_CONFIG.PUBLIC_KEY
+        );
+
+        emailResult = {
+          success: true,
+          messageId: result.text,
+          service: 'emailjs-browser'
+        };
+        
+        console.log('✅ 브라우저 EmailJS 호출 성공:', emailResult);
+      } catch (browserError) {
+        console.warn('⚠️ 브라우저 EmailJS 실패, 서버 API 시도:', browserError);
+        
+        // 브라우저 실패 시 서버 API 백업 시도
+        emailResult = await sendEmailViaAPI(
+          EMAIL_CONFIG.SERVICE_ID,
+          EMAIL_CONFIG.TEMPLATE_ADMIN,
+          templateParams,
+          EMAIL_CONFIG.PUBLIC_KEY
+        );
+      }
+    } else {
+      // 서버에서만 API 직접 호출 (브라우저 우선이므로 이 경우는 드물음)
+      console.log('🖥️ 서버 환경에서 EmailJS API 호출');
+      emailResult = await sendEmailViaAPI(
+        EMAIL_CONFIG.SERVICE_ID,
+        EMAIL_CONFIG.TEMPLATE_ADMIN,
+        templateParams,
+        EMAIL_CONFIG.PUBLIC_KEY
+      );
+    }
+
+    console.log('✅ 관리자 알림 이메일 발송 성공:', emailResult);
+    return emailResult;
 
   } catch (error) {
-    console.error('관리자 알림 이메일 발송 실패:', error);
-    
-    // 서버 사이드에서는 오류 대신 시뮬레이션으로 대체
-    if (isServer()) {
-      console.log('🔄 서버 사이드 오류 발생, 시뮬레이션 모드로 전환');
-      return await simulateEmailSend('admin_notification', 'template_admin_notification', {});
-    }
+    console.error('❌ 관리자 알림 이메일 발송 실패:', error);
     
     return {
       success: false,
       error: error instanceof Error ? error.message : '이메일 발송 중 오류가 발생했습니다',
-      service: 'emailjs'
+      service: isServer() ? 'emailjs-api' : 'emailjs-browser'
     };
   }
 }
@@ -355,13 +452,9 @@ export function getEmailServiceStatus(): {
   canSendEmail: boolean;
   mode: 'production' | 'simulation';
 } {
-  const isConfigured = !!(
-    process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID && 
-    process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
-  );
-  
+  const isConfigured = !!(EMAIL_CONFIG.SERVICE_ID && EMAIL_CONFIG.PUBLIC_KEY);
   const environment = isBrowser() ? 'browser' : 'server';
-  const canSendEmail = isBrowser() && isConfigured;
+  const canSendEmail = isConfigured; // 서버/브라우저 모두 이메일 발송 가능
   const mode = canSendEmail ? 'production' : 'simulation';
   
   return {
@@ -529,6 +622,12 @@ export interface DiagnosisFormData {
   contactEmail: string;
   privacyConsent: boolean;
   submitDate?: string;
+  
+  // 🔧 진단 결과 정보 추가
+  diagnosisScore?: string | number;
+  recommendedServices?: string;
+  reportType?: string;
+  diagnosisFormType?: string;
 }
 
 export interface ConsultationFormData {
@@ -600,6 +699,8 @@ function validateConsultationData(formData: ConsultationFormData): { isValid: bo
 export const processDiagnosisSubmission = async (
   formData: DiagnosisFormData
 ): Promise<ProcessingResult> => {
+  console.log('🔄 진단 제출 통합 처리 시작');
+  
   const result: ProcessingResult = {
     sheetSaved: false,
     autoReplySent: false,
@@ -610,110 +711,147 @@ export const processDiagnosisSubmission = async (
   };
 
   try {
-    console.log('📊 진단 데이터 제출 처리 시작:', formData.companyName);
+    // 1단계: 구글시트 저장
+    console.log('📊 1단계: 구글시트에 진단 데이터 저장 중...');
+    
+    const { saveDiagnosisToGoogleSheets } = await import('./googleSheetsService');
+    const sheetResult = await saveDiagnosisToGoogleSheets({
+      // 구글시트 서비스가 요구하는 형식으로 변환
+      회사명: formData.companyName,
+      업종: formData.industry || '기타',
+      사업담당자: formData.contactName,
+      직원수: formData.employeeCount,
+      사업성장단계: formData.businessStage,
+      주요고민사항: formData.mainConcerns,
+      예상혜택: formData.expectedBudget || '미정',
+      진행사업장: '정보없음',
+      담당자명: formData.contactName,
+      연락처: formData.contactPhone,
+      이메일: formData.contactEmail,
+      개인정보동의: formData.privacyConsent ? '동의' : '미동의',
+      
+      // 영어 필드명 (하위 호환성)
+      companyName: formData.companyName,
+      industry: formData.industry || '기타',
+      businessManager: formData.contactName,
+      employeeCount: formData.employeeCount,
+      establishmentDifficulty: formData.businessStage,
+      mainConcerns: formData.mainConcerns,
+      expectedBenefits: formData.expectedBudget || '미정',
+      businessLocation: '정보없음',
+      contactName: formData.contactName,
+      contactPhone: formData.contactPhone,
+      contactEmail: formData.contactEmail,
+      privacyConsent: formData.privacyConsent
+    }, 'AI_무료진단');
 
-    // 1. 구글시트 저장 (최우선)
-    try {
-      console.log('📊 진단 데이터 구글시트 저장 시작');
-      
-      // 동적 import로 구글시트 서비스 사용
-      const { saveDiagnosisToGoogleSheets } = await import('./googleSheetsService');
-      const sheetResult = await saveDiagnosisToGoogleSheets({
-        companyName: formData.companyName,
-        industry: formData.industry,
-        businessManager: formData.contactName,
-        employeeCount: formData.employeeCount,
-        establishmentDifficulty: formData.businessStage,
-        mainConcerns: formData.mainConcerns,
-        expectedBenefits: formData.expectedBudget,
-        businessLocation: '',
-        contactName: formData.contactName,
-        contactPhone: formData.contactPhone,
-        contactEmail: formData.contactEmail,
-        privacyConsent: formData.privacyConsent
-      }, 'AI_무료진단');
-      
-      result.details.sheetResult = sheetResult;
-      
-      if (sheetResult.success) {
-        result.sheetSaved = true;
-        console.log('✅ 진단 데이터 구글시트 저장 성공');
-      } else {
-        result.errors.push(`구글시트 저장 실패: ${sheetResult.error}`);
-        console.error('❌ 진단 데이터 구글시트 저장 실패:', sheetResult.error);
-      }
-    } catch (sheetError) {
-      const errorMessage = sheetError instanceof Error ? sheetError.message : '구글시트 저장 중 알 수 없는 오류';
-      result.errors.push(`구글시트 저장 오류: ${errorMessage}`);
-      console.error('❌ 진단 데이터 구글시트 저장 오류:', sheetError);
+    result.sheetSaved = sheetResult.success;
+    result.details.sheetResult = sheetResult;
+
+    if (!sheetResult.success) {
+      result.errors.push(`구글시트 저장 실패: ${sheetResult.error}`);
+    } else {
+      console.log('✅ 구글시트 저장 성공');
     }
 
-    // 2. 자동 회신 이메일 발송 (실제 EmailJS 구현)
-    try {
-      console.log('📧 자동 회신 이메일 발송 시작');
-      
-      // EmailJS 환경변수 확인
-      const hasEmailConfig = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID && 
-                             process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
-      
-      if (hasEmailConfig) {
-        try {
-          // 🚨 서버 사이드에서는 EmailJS 사용 불가 (브라우저 전용)
-          console.log('⚠️ 서버 사이드에서는 EmailJS를 사용할 수 없습니다. 클라이언트에서 처리 필요.');
-          
-          // 서버에서는 이메일 발송을 생략하고 성공으로 처리
-          const emailResult = {
-            status: 200,
-            text: 'Server-side email skipped - client will handle'
-          };
-          
-          console.log('✅ EmailJS 자동 회신 이메일 발송 성공:', emailResult);
-          result.autoReplySent = true;
-          result.details.emailResult = emailResult;
-          
-        } catch (emailjsError) {
-          console.warn('⚠️ EmailJS 발송 실패:', emailjsError);
-          result.warnings.push('이메일 발송 실패, 하지만 신청은 정상 처리됨');
-          result.autoReplySent = false;
-        }
-      } else {
-        console.log('💡 EmailJS 설정 없음, 이메일 발송 생략');
-        result.autoReplySent = true; // GitHub Pages에서는 성공으로 처리
-        if (isDevelopment()) {
-          console.log('💡 개발환경: 이메일 발송 시뮬레이션');
-        }
-      }
-    } catch (emailError) {
-      const errorMessage = emailError instanceof Error ? emailError.message : '이메일 발송 중 알 수 없는 오류';
-      result.warnings.push(`이메일 발송 경고: ${errorMessage}`);
-      console.warn('⚠️ 자동 회신 이메일 발송 오류:', emailError);
-      result.autoReplySent = false;
+    // 2단계: 사용자 확인 이메일 발송
+    console.log('📧 2단계: 사용자 확인 이메일 발송 중...');
+    
+    // 🔧 진단 결과 정보 포함한 확인 메일
+    let diagnosisSummary = '진단 결과는 담당자 상담을 통해 제공됩니다.';
+    
+    if (formData.diagnosisScore && formData.recommendedServices) {
+      diagnosisSummary = `
+📊 AI 진단 결과 요약:
+• 진단 점수: ${formData.diagnosisScore}점 (100점 만점)
+• 추천 서비스: ${formData.recommendedServices}
+• 보고서 유형: ${formData.reportType || 'AI 무료진단'}
+
+담당 전문가가 상세한 분석 결과를 2-3일 내에 안내해드리겠습니다.
+추가 문의사항이 있으시면 언제든 연락 주세요.
+      `.trim();
+    }
+    
+    const userEmailResult = await sendDiagnosisConfirmation(
+      formData.contactEmail,
+      formData.contactName,
+      formData.companyName,
+      formData.industry || '기타',
+      '무료 경영진단',
+      formData.contactPhone,
+      diagnosisSummary
+    );
+
+    result.autoReplySent = userEmailResult.success;
+    result.details.emailResult = userEmailResult;
+
+    if (!userEmailResult.success) {
+      result.errors.push(`사용자 이메일 발송 실패: ${userEmailResult.error}`);
+    } else {
+      console.log('✅ 사용자 확인 이메일 발송 성공');
     }
 
-    // 3. 관리자 알림 이메일 발송 (선택사항)
-    try {
-      console.log('📧 관리자 알림 이메일 발송 시작');
-      result.adminNotified = true; // 임시로 true 설정
-      console.log('✅ 관리자 알림 이메일 발송 성공 (시뮬레이션)');
-    } catch (adminError) {
-      const errorMessage = adminError instanceof Error ? adminError.message : '관리자 알림 중 알 수 없는 오류';
-      result.warnings.push(`관리자 알림 경고: ${errorMessage}`);
-      console.warn('⚠️ 관리자 알림 이메일 발송 오류:', adminError);
+    // 3단계: 관리자 알림 이메일 발송
+    console.log('📧 3단계: 관리자 알림 이메일 발송 중...');
+    
+    const adminDetails = `
+[진단 신청 정보]
+• 회사명: ${formData.companyName}
+• 업종: ${formData.industry || '기타'}
+• 담당자: ${formData.contactName}
+• 연락처: ${formData.contactPhone}
+• 이메일: ${formData.contactEmail}
+• 직원수: ${formData.employeeCount}
+• 성장단계: ${formData.businessStage}
+• 주요고민: ${formData.mainConcerns}
+• 예상예산: ${formData.expectedBudget || '미정'}
+• 신청일시: ${formData.submitDate || new Date().toLocaleString('ko-KR')}
+
+${formData.diagnosisScore && formData.recommendedServices ? `
+[AI 진단 결과]
+• 진단 점수: ${formData.diagnosisScore}점 (100점 만점)
+• 추천 서비스: ${formData.recommendedServices}
+• 보고서 유형: ${formData.reportType || 'AI 무료진단'}
+• 진단 폼 유형: ${formData.diagnosisFormType || '일반진단'}
+
+⚠️ 고객에게 상세 분석 결과 안내가 필요합니다.
+` : ''}
+    `.trim();
+
+    const adminEmailResult = await sendAdminNotification(
+      'diagnosis',
+      formData.contactName,
+      formData.companyName,
+      '무료 경영진단',
+      adminDetails,
+      formData.contactEmail
+    );
+
+    result.adminNotified = adminEmailResult.success;
+    result.details.adminResult = adminEmailResult;
+
+    if (!adminEmailResult.success) {
+      result.errors.push(`관리자 이메일 발송 실패: ${adminEmailResult.error}`);
+    } else {
+      console.log('✅ 관리자 알림 이메일 발송 성공');
     }
 
-    console.log('📋 진단 데이터 제출 처리 결과:', {
-      sheetSaved: result.sheetSaved,
-      autoReplySent: result.autoReplySent,
-      adminNotified: result.adminNotified,
-      errorCount: result.errors.length,
-      warningCount: result.warnings.length
-    });
+    // 처리 결과 종합
+    const successCount = [result.sheetSaved, result.autoReplySent, result.adminNotified].filter(Boolean).length;
+    
+    console.log(`🎯 진단 제출 처리 완료: ${successCount}/3 성공`);
+    
+    if (successCount === 0) {
+      result.errors.push('모든 처리 단계에서 실패했습니다.');
+    } else if (successCount < 3) {
+      result.warnings.push(`${3 - successCount}개 기능에서 부분적 실패가 발생했습니다.`);
+    }
 
     return result;
 
   } catch (error) {
-    console.error('❌ 진단 데이터 제출 처리 중 전체 오류:', error);
-    result.errors.push(error instanceof Error ? error.message : '진단 데이터 제출 처리 중 알 수 없는 오류가 발생했습니다.');
+    console.error('❌ 진단 제출 처리 중 전체 오류:', error);
+    result.errors.push(error instanceof Error ? error.message : '알 수 없는 오류');
     return result;
   }
 };
@@ -730,6 +868,8 @@ export const processConsultationSubmission = async (
     resultUrl?: string;
   }
 ): Promise<ProcessingResult> => {
+  console.log('🔄 상담 신청 통합 처리 시작');
+  
   const result: ProcessingResult = {
     sheetSaved: false,
     autoReplySent: false,
@@ -740,101 +880,129 @@ export const processConsultationSubmission = async (
   };
 
   try {
-    // 1. 데이터 검증
-    const validation = validateConsultationData(formData);
-    if (!validation.isValid) {
-      result.errors.push(validation.error || '데이터 검증 실패');
-      return result;
+    // 1단계: 구글시트 저장
+    console.log('📊 1단계: 구글시트에 상담 신청 데이터 저장 중...');
+    
+    const { saveConsultationToGoogleSheets } = await import('./googleSheetsService');
+    const sheetResult = await saveConsultationToGoogleSheets({
+      // 구글시트 서비스가 요구하는 형식으로 변환
+      상담유형: formData.consultationType,
+      성명: formData.name,
+      연락처: formData.phone,
+      이메일: formData.email,
+      회사명: formData.company,
+      직책: formData.position || '정보없음', 
+      상담분야: formData.consultationArea || '종합상담',
+      문의내용: formData.inquiryContent || '상담 요청',
+      희망상담시간: formData.preferredTime || '협의',
+      개인정보동의: formData.privacyConsent ? '동의' : '미동의',
+      
+      // 영어 필드명 (하위 호환성)
+      consultationType: formData.consultationType,
+      name: formData.name,
+      phone: formData.phone,
+      email: formData.email,
+      company: formData.company,
+      position: formData.position,
+      consultationArea: formData.consultationArea,
+      inquiryContent: formData.inquiryContent,
+      preferredTime: formData.preferredTime,
+      privacyConsent: formData.privacyConsent,
+      
+      // 진단 연계 정보
+      isDiagnosisLinked: diagnosisInfo?.isLinked,
+      diagnosisScore: diagnosisInfo?.score,
+      recommendedService: diagnosisInfo?.primaryService
+    }, diagnosisInfo);
+
+    result.sheetSaved = sheetResult.success;
+    result.details.sheetResult = sheetResult;
+
+    if (!sheetResult.success) {
+      result.errors.push(`구글시트 저장 실패: ${sheetResult.error}`);
+    } else {
+      console.log('✅ 구글시트 저장 성공');
     }
 
-    // 2. 구글시트 저장 (최우선) - 구글시트 서비스에서 직접 호출
-    try {
-      console.log('📊 상담신청 구글시트 저장 시작');
-      
-      // 동적 import로 구글시트 서비스 사용
-      const { saveConsultationToGoogleSheets } = await import('./googleSheetsService');
-      const sheetResult = await saveConsultationToGoogleSheets(formData, diagnosisInfo);
-      result.details.sheetResult = sheetResult;
-      
-      if (sheetResult.success) {
-        result.sheetSaved = true;
-        console.log('✅ 상담신청 구글시트 저장 성공');
-      } else {
-        result.errors.push(`구글시트 저장 실패: ${sheetResult.error}`);
-        console.error('❌ 상담신청 구글시트 저장 실패:', sheetResult.error);
-      }
-    } catch (sheetError) {
-      const errorMessage = sheetError instanceof Error ? sheetError.message : '구글시트 저장 중 알 수 없는 오류';
-      result.errors.push(`구글시트 저장 오류: ${errorMessage}`);
-      console.error('❌ 상담신청 구글시트 저장 오류:', sheetError);
+    // 2단계: 사용자 확인 이메일 발송
+    console.log('📧 2단계: 사용자 확인 이메일 발송 중...');
+    
+    const userEmailResult = await sendConsultationConfirmation(
+      formData.email,
+      formData.name,
+      formData.company,
+      formData.consultationType,
+      '이후경 경영지도사',
+      '24시간 내 연락 예정'
+    );
+
+    result.autoReplySent = userEmailResult.success;
+    result.details.emailResult = userEmailResult;
+
+    if (!userEmailResult.success) {
+      result.errors.push(`사용자 이메일 발송 실패: ${userEmailResult.error}`);
+    } else {
+      console.log('✅ 사용자 확인 이메일 발송 성공');
     }
 
-    // 3. 자동 회신 이메일 발송 (실제 EmailJS 구현)
-    try {
-      console.log('📧 상담신청 자동 회신 이메일 발송 시작');
-      
-      // EmailJS 환경변수 확인
-      const hasEmailConfig = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID && 
-                             process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
-      
-      if (hasEmailConfig) {
-        try {
-          // 🚨 서버 사이드에서는 EmailJS 사용 불가 (브라우저 전용)
-          console.log('⚠️ 서버 사이드에서는 EmailJS를 사용할 수 없습니다. 클라이언트에서 처리 필요.');
-          
-          // 서버에서는 이메일 발송을 생략하고 성공으로 처리
-          const emailResult = {
-            status: 200,
-            text: 'Server-side email skipped - client will handle'
-          };
-          
-          console.log('✅ EmailJS 상담신청 자동 회신 이메일 발송 성공:', emailResult);
-          result.autoReplySent = true;
-          result.details.emailResult = emailResult;
-          
-        } catch (emailjsError) {
-          console.warn('⚠️ 상담신청 EmailJS 발송 실패:', emailjsError);
-          result.warnings.push('이메일 발송 실패, 하지만 신청은 정상 처리됨');
-          result.autoReplySent = false;
-        }
-      } else {
-        console.log('💡 EmailJS 설정 없음, 상담신청 이메일 발송 생략');
-        result.autoReplySent = true; // GitHub Pages에서는 성공으로 처리
-        if (isDevelopment()) {
-          console.log('💡 개발환경: 상담신청 이메일 발송 시뮬레이션');
-        }
-      }
-    } catch (emailError) {
-      const errorMessage = emailError instanceof Error ? emailError.message : '이메일 발송 중 알 수 없는 오류';
-      result.warnings.push(`이메일 발송 경고: ${errorMessage}`);
-      console.warn('⚠️ 상담신청 자동 회신 이메일 발송 오류:', emailError);
-      result.autoReplySent = false;
+    // 3단계: 관리자 알림 이메일 발송
+    console.log('📧 3단계: 관리자 알림 이메일 발송 중...');
+    
+    const adminDetails = `
+[상담 신청 정보]
+• 상담유형: ${formData.consultationType}
+• 성명: ${formData.name}
+• 연락처: ${formData.phone}
+• 이메일: ${formData.email}
+• 회사명: ${formData.company}
+• 직책: ${formData.position || '정보없음'}
+• 상담분야: ${formData.consultationArea || '종합상담'}
+• 문의내용: ${formData.inquiryContent || '상담 요청'}
+• 희망시간: ${formData.preferredTime || '협의'}
+• 신청일시: ${formData.submitDate || new Date().toLocaleString('ko-KR')}
+
+${diagnosisInfo?.isLinked ? `
+[진단 연계 정보]
+• 진단점수: ${diagnosisInfo.score}점
+• 추천서비스: ${diagnosisInfo.primaryService}
+• 결과URL: ${diagnosisInfo.resultUrl}
+` : ''}
+    `.trim();
+
+    const adminEmailResult = await sendAdminNotification(
+      'consultation',
+      formData.name,
+      formData.company,
+      formData.consultationType,
+      adminDetails,
+      formData.email
+    );
+
+    result.adminNotified = adminEmailResult.success;
+    result.details.adminResult = adminEmailResult;
+
+    if (!adminEmailResult.success) {
+      result.errors.push(`관리자 이메일 발송 실패: ${adminEmailResult.error}`);
+    } else {
+      console.log('✅ 관리자 알림 이메일 발송 성공');
     }
 
-    // 4. 관리자 알림 이메일 발송 (선택사항)
-    try {
-      console.log('📧 관리자 알림 이메일 발송 시작');
-      result.adminNotified = true; // 임시로 true 설정
-      console.log('✅ 관리자 알림 이메일 발송 성공 (시뮬레이션)');
-    } catch (adminError) {
-      const errorMessage = adminError instanceof Error ? adminError.message : '관리자 알림 중 알 수 없는 오류';
-      result.warnings.push(`관리자 알림 경고: ${errorMessage}`);
-      console.warn('⚠️ 관리자 알림 이메일 발송 오류:', adminError);
+    // 처리 결과 종합
+    const successCount = [result.sheetSaved, result.autoReplySent, result.adminNotified].filter(Boolean).length;
+    
+    console.log(`🎯 상담 신청 처리 완료: ${successCount}/3 성공`);
+    
+    if (successCount === 0) {
+      result.errors.push('모든 처리 단계에서 실패했습니다.');
+    } else if (successCount < 3) {
+      result.warnings.push(`${3 - successCount}개 기능에서 부분적 실패가 발생했습니다.`);
     }
-
-    console.log('📋 상담신청 처리 결과:', {
-      sheetSaved: result.sheetSaved,
-      autoReplySent: result.autoReplySent,
-      adminNotified: result.adminNotified,
-      errorCount: result.errors.length,
-      warningCount: result.warnings.length
-    });
 
     return result;
 
   } catch (error) {
-    console.error('❌ 상담신청 처리 중 전체 오류:', error);
-    result.errors.push(error instanceof Error ? error.message : '상담신청 처리 중 알 수 없는 오류가 발생했습니다.');
+    console.error('❌ 상담 신청 처리 중 전체 오류:', error);
+    result.errors.push(error instanceof Error ? error.message : '알 수 없는 오류');
     return result;
   }
 };

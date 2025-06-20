@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="120" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- 큰 별 (기업의별 로고) -->
+  <polygon points="100,10 110,40 140,40 118,58 128,88 100,70 72,88 82,58 60,40 90,40" 
+           fill="#000000" stroke="none"/>
+  
+  <!-- 작은 별 (우측 상단) -->
+  <polygon points="160,20 163,27 170,27 165,31 167,38 160,34 153,38 155,31 150,27 157,27" 
+           fill="#000000" stroke="none"/>
+  
+  <!-- 텍스트: 기업의별 -->
+  <text x="20" y="110" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#000000">기업의별</text>
+  
+  <!-- 등록상표 표시 -->
+  <text x="130" y="105" font-family="Arial, sans-serif" font-size="12" fill="#000000">®</text>
+</svg> 

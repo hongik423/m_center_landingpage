@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="240" height="80" viewBox="0 0 240 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- 별 아이콘 -->
+  <g transform="translate(10, 10)">
+    <polygon points="25,5 28,15 38,15 30,22 33,32 25,27 17,32 20,22 12,15 22,15" 
+             fill="#FFA500" stroke="none"/>
+  </g>
+  
+  <!-- 기업의별® 텍스트 -->
+  <text x="55" y="35" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#333333">기업의별</text>
+  <text x="140" y="30" font-family="Arial, sans-serif" font-size="10" fill="#333333">®</text>
+  
+  <!-- M-CENTER 텍스트 -->
+  <text x="55" y="55" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="#666666">M-CENTER</text>
+  
+  <!-- 경영지도센터 텍스트 -->
+  <text x="55" y="70" font-family="Arial, sans-serif" font-size="12" fill="#888888">경영지도센터</text>
+</svg> 

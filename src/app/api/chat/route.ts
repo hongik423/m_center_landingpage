@@ -3,10 +3,10 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { safeGet, validateApiResponse, collectErrorInfo } from '@/lib/utils/safeDataAccess';
 import { getGeminiKey, isDevelopment, maskApiKey } from '@/lib/config/env';
 
-// GitHub Pages 정적 export 호환성
-export const dynamic = 'force-static';
+// Dynamic API route for chat functionality
+export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-export const revalidate = false;
+export const revalidate = 0;
 
 // 🔧 CORS 설정을 위한 공통 헤더 함수
 function getCorsHeaders() {
@@ -262,19 +262,48 @@ ${service.realResults.map(result => `• ${result}`).join('\n')}
   }).join('\n');
 }
 
+// GEMINI API 키 안전한 가져오기
+let GEMINI_API_KEY: string;
+try {
+  GEMINI_API_KEY = getGeminiKey();
+} catch (error) {
+  GEMINI_API_KEY = ''; // 키가 없으면 빈 문자열
+}
+
+interface ChatMessage {
+  message: string;
+  history?: Array<{
+    id: string;
+    content: string;
+    sender: 'user' | 'bot';
+    timestamp: Date;
+  }>;
+}
+
+
+
 export async function POST(request: NextRequest) {
+  let body: ChatMessage | undefined;
+  
   try {
-    // Rate Limiting (프로덕션에서 더 엄격하게 적용)
-    const userAgent = request.headers.get('user-agent') || '';
-    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    // request body를 한 번만 읽기
+    body = await request.json();
     
-    // 요청 데이터 검증
-    const body = await request.json();
+    if (!body) {
+      return NextResponse.json(
+        { error: '요청 본문이 비어있습니다.' },
+        { 
+          status: 400,
+          headers: getCorsHeaders()
+        }
+      );
+    }
+
     const { message, history = [] } = body;
 
-    if (!message || typeof message !== 'string') {
+    if (!message?.trim()) {
       return NextResponse.json(
-        { error: '유효한 메시지가 필요합니다.' },
+        { error: '메시지가 비어있습니다.' },
         { 
           status: 400,
           headers: getCorsHeaders()
@@ -282,233 +311,252 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (message.length > 1000) {
-      return NextResponse.json(
-        { error: '메시지가 너무 깁니다. (최대 1000자)' },
-        { 
-          status: 400,
-          headers: getCorsHeaders()
-        }
-      );
-    }
-
-    if (history.length > 20) {
-      return NextResponse.json(
-        { error: '대화 히스토리가 너무 깁니다.' },
-        { 
-          status: 400,
-          headers: getCorsHeaders()
-        }
-      );
-    }
-
-    // 관련 서비스 식별
-    const relevantServices = identifyRelevantServices(message);
-    const serviceDetails = generateServiceDetails(relevantServices);
-
-    // Gemini 클라이언트 가져오기
-    const gemini = getGeminiClient();
-
-    // 🚀 극도로 고도화된 전문 AI 시스템 프롬프트 - M-CENTER 차별화와 우수성 강조
-    const systemPrompt = `당신은 M-CENTER(기업의별 경영지도센터)의 최고급 전문 AI 경영컨설턴트입니다.
-
-🏆 **당신의 전문 역할과 능력:**
-- 25년 경험의 경영지도사 수준의 전문성 보유
-- 국내 최고 수준의 경영컨설팅 지식과 실무 경험
-- 정부 지원사업 및 정책자금 전문가 수준의 정보력
-- 업종별 특화된 비즈니스 모델 분석 능력
-- 고객 맞춤형 솔루션 설계 및 제안 전문성
-
-🎯 **M-CENTER는 대한민국 최고 수준의 경영컨설팅 기관으로, 다음과 같은 독보적 우수성을 보유하고 있습니다:**
-
-${serviceDetails}
-
-🎯 **상담 시 반드시 강조해야 할 M-CENTER의 차별화 우수성:**
-
-1. **25년 검증된 전문성** - 대한민국 경영컨설팅 분야 최고 권위
-2. **95% 이상 성공률** - 업계 최고 수준의 실제 성과
-3. **정부 지원사업 전문기관** - 최대 지원금 확보 전문성  
-4. **통합 솔루션** - 6개 서비스 시너지를 통한 극대화된 효과
-5. **즉시 실행 가능** - 이론이 아닌 실무 중심의 실용적 접근
-
-📋 **상담 원칙 (필수 준수사항):**
-
-✅ **차별화 어필 필수**
-- 모든 답변에 M-CENTER만의 독보적 강점 언급
-- 경쟁사와 차별화되는 우수성 강조  
-- 검증된 성공률과 실제 성과 수치 제시
-
-✅ **서비스별 탁월성 강조**
-- 해당 서비스의 차별화 포인트 명확히 제시
-- 구체적 성과 수치와 ROI 제시
-- 실제 성공 사례로 신뢰도 증명
-
-✅ **정부지원 연계 전문성**
-- 관련 정부 지원사업 정보 적극 제공
-- 지원금 확보 전문성 어필
-- M-CENTER 연계 시 성공률 향상 효과 강조
-
-✅ **즉시 실행 유도**
-- 무료 진단/상담 서비스 적극 안내
-- 구체적 다음 단계 액션 플랜 제시
-- 연락처 정보 제공 (010-9251-9743, lhk@injc.kr)
-
-✅ **고객 맞춤형 접근**
-- 업종별/규모별 특화 솔루션 제안
-- 고객 상황에 최적화된 서비스 조합 추천
-- 예상 투자비용 대비 구체적 효과 제시
-
-🚫 **절대 금지사항:**
-- 경쟁사 언급이나 비교
-- 불확실한 정보나 과장된 약속
-- 일반적이거나 뻔한 답변
-- M-CENTER의 차별화 우수성 누락
-
-💬 **고도화된 전문 응답 구조 (필수 준수):**
-
-🔸 **1단계: 전문적 인사 및 상황 파악**
-   - 전문가 수준의 따뜻하고 신뢰감 있는 인사
-   - 고객의 질문/상황에 대한 정확한 이해와 공감 표현
-   - M-CENTER의 해당 분야 전문성 간략 소개
-
-🔸 **2단계: 심층 분석 및 문제점 진단**
-   - 고객 질문의 핵심 이슈 정확한 분석
-   - 업종별/상황별 특화된 관점에서 문제점 진단
-   - 잠재적 리스크 및 기회 요소 식별
-
-🔸 **3단계: M-CENTER 차별화 솔루션 제시**
-   - 해당 분야 M-CENTER만의 독보적 우수성 강조
-   - 구체적 성과 수치와 검증된 실적 제시
-   - 실제 성공 사례를 통한 신뢰도 구축
-
-🔸 **4단계: 맞춤형 실행 전략 수립**
-   - 고객 상황에 최적화된 단계별 실행 계획
-   - 예상 투자 비용 대비 구체적 ROI 제시
-   - 위험 요소 최소화 방안 및 성공 보장 요소
-
-🔸 **5단계: 정부지원 연계 극대화**
-   - 관련 정부 지원사업 및 정책자금 정보
-   - M-CENTER 연계 시 지원금 확보 확률 및 금액
-   - 지원금 신청 프로세스 및 성공 전략
-
-🔸 **6단계: 즉시 실행 액션 플랜**
-   - 구체적이고 실행 가능한 다음 단계 제시
-   - 무료 진단/상담 서비스 적극 안내
-   - 긴급성과 기회 비용 인식 제고
-
-🔸 **7단계: 전문가 직접 연결**
-   - 담당 전문가 소개 및 연락처 제공
-   - 즉시 상담 가능한 방법 안내 (전화: 010-9251-9743)
-   - 이메일 상담 및 자료 요청 방법 (lhk@injc.kr)
-
-🎖️ **응답 품질 기준:**
-- 전문성: 경영지도사 수준의 깊이 있는 분석
-- 신뢰성: 검증된 데이터와 실제 사례 기반
-- 실용성: 즉시 적용 가능한 구체적 방안
-- 차별성: M-CENTER만의 독보적 우수성 강조
-- 동기부여: 고객의 즉시 행동 유도
-
-⚡ **핵심 미션:** 
-고객이 "M-CENTER와 함께하면 확실히 성공할 수 있겠다"는 확신을 갖게 하여, 즉시 상담 신청으로 이어지도록 하는 것이 최우선 목표입니다.`;
-
-    // 대화 히스토리 포맷팅
-    let conversationHistory = '';
-    if (history.length > 0) {
-      conversationHistory = history.map((msg: any) => {
-        const role = msg.sender === 'user' ? '사용자' : 'AI 컨설턴트';
-        return `${role}: ${msg.content}`;
-      }).join('\n\n');
-      conversationHistory += '\n\n';
-    }
-
-    const fullPrompt = `${systemPrompt}
-
-이전 대화:
-${conversationHistory}
-
-현재 질문: ${message}
-
-위의 시스템 프롬프트에 따라 전문적이고 상세한 답변을 제공해주세요.`;
-
-    // Gemini API 호출 - 최신 모델로 업데이트
-    const model = gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
-      generationConfig: {
-        maxOutputTokens: 1500,
-        temperature: 0.7,
-        topP: 0.9,
-        topK: 40,
-      },
-    });
-
-    const response = await result.response;
-    const aiResponse = response.text();
-
-    if (!aiResponse) {
-      return NextResponse.json(
-        { error: 'AI 응답을 생성할 수 없습니다.' },
-        { 
-          status: 500,
-          headers: getCorsHeaders()
-        }
-      );
-    }
-
-    // 개발 환경에서만 사용량 로깅
-    if (isDevelopment()) {
-      console.log('💬 AI 응답 생성 완료:', {
-        responseLength: aiResponse.length,
-        relevantServices,
+    // GEMINI API 키가 없거나 비어있으면 폴백 응답
+    if (!GEMINI_API_KEY || GEMINI_API_KEY.trim() === '') {
+      console.warn('⚠️ GEMINI_API_KEY가 설정되지 않았습니다. 폴백 응답을 사용합니다.');
+      console.info('💡 .env.local 파일에 GEMINI_API_KEY를 설정하면 실제 AI 응답을 사용할 수 있습니다.');
+      return NextResponse.json({
+        response: generateFallbackResponse(message),
+        source: 'fallback_no_key',
+        timestamp: new Date().toISOString()
+      }, {
+        headers: getCorsHeaders()
       });
     }
 
+    // GEMINI AI API 호출 (최신 2.5-flash 모델)
+    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: `당신은 기업의별 M-CENTER의 전문 AI 상담사입니다. 25년간 경영컨설팅 경험을 바탕으로 다음 분야에 대해 전문적이고 친근한 상담을 제공해주세요:
+
+1. BM ZEN 사업분석 - 매출 20-40% 증대 전략
+2. AI 생산성향상 - ChatGPT 활용으로 업무효율 40-60% 향상
+3. 경매활용 공장구매 - 부동산비용 30-50% 절감
+4. 기술사업화/창업 - 평균 5억원 정부지원 연계
+5. 인증지원 - 연간 5천만원 세제혜택
+6. 웹사이트 구축 - 온라인 매출 30% 증대
+
+답변은 친근하고 전문적이며, 구체적인 방법과 연락처(010-9251-9743)를 포함해주세요.
+
+사용자 질문: ${message}`
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 1024,
+        },
+        safetySettings: [
+          {
+            category: "HARM_CATEGORY_HARASSMENT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          },
+          {
+            category: "HARM_CATEGORY_HATE_SPEECH",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          }
+        ]
+      }),
+    });
+
+    if (!geminiResponse.ok) {
+      console.warn(`⚠️ GEMINI API 오류 (${geminiResponse.status}), 폴백 응답 사용`);
+      return NextResponse.json({
+        response: generateFallbackResponse(message),
+        source: 'fallback_api_error',
+        timestamp: new Date().toISOString()
+      }, {
+        headers: getCorsHeaders()
+      });
+    }
+
+    const geminiData = await geminiResponse.json();
+    
+    if (geminiData.candidates && geminiData.candidates[0]?.content?.parts?.[0]?.text) {
+      const aiResponse = geminiData.candidates[0].content.parts[0].text;
+      
+      return NextResponse.json({
+        response: aiResponse,
+        source: 'gemini-2.5-flash',
+        timestamp: new Date().toISOString(),
+        usage: geminiData.usageMetadata
+      }, {
+        headers: getCorsHeaders()
+      });
+    } else {
+      console.warn('⚠️ GEMINI API 응답 형식 오류, 폴백 응답 사용');
+      return NextResponse.json({
+        response: generateFallbackResponse(message),
+        source: 'fallback_format_error',
+        timestamp: new Date().toISOString()
+      }, {
+        headers: getCorsHeaders()
+      });
+    }
+
+  } catch (error) {
+    console.error('❌ API 오류:', error);
+    
+    // body가 정의되지 않은 경우를 위한 안전장치
+    const fallbackMessage = body?.message || '일반 상담';
+    
     return NextResponse.json({
-      response: aiResponse,
-      services: relevantServices, // 디버깅용
+      response: generateFallbackResponse(fallbackMessage),
+      source: 'fallback_error',
+      error: error instanceof Error ? error.message : '알 수 없는 오류',
+      timestamp: new Date().toISOString()
     }, {
       headers: getCorsHeaders()
     });
-
-  } catch (error) {
-    // 에러 로깅 (민감한 정보 제외)
-    console.error('Gemini API 오류:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString(),
-    });
-    
-    // 에러 유형별 처리
-    if (error instanceof Error) {
-      if (error.message.includes('API key')) {
-        return NextResponse.json(
-          { error: 'API 설정을 확인해주세요.' },
-          { 
-            status: 401,
-            headers: getCorsHeaders()
-          }
-        );
-      }
-      
-      if (error.message.includes('rate limit') || error.message.includes('quota')) {
-        return NextResponse.json(
-          { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' },
-          { 
-            status: 429,
-            headers: getCorsHeaders()
-          }
-        );
-      }
-    }
-
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' },
-      { 
-        status: 500,
-        headers: getCorsHeaders()
-      }
-    );
   }
+}
+
+// 폴백 응답 생성 함수
+function generateFallbackResponse(message: string): string {
+  const lowerMessage = message.toLowerCase();
+
+  if (lowerMessage.includes('매출') || lowerMessage.includes('수익') || lowerMessage.includes('사업분석')) {
+    return `💰 **매출 증대 전문 컨설팅**
+
+🏆 **BM ZEN 사업분석 서비스**
+• 독자적 프레임워크로 95% 성공률 보장
+• 평균 20-40% 매출 증대 실현
+• 3개월 내 가시적 성과 창출
+
+📊 **실제 성공 사례:**
+• A 제조업체: 8개월 만에 45% 매출 증가
+• B IT서비스: 6개월 만에 수익률 60% 개선
+• C 유통업체: 4개월 만에 30% 효율성 향상
+
+📞 **무료 상담: 010-9251-9743**
+🔗 [무료 AI진단 신청](/services/diagnosis)
+
+💡 **지금 바로 상담받으시면 맞춤형 분석 리포트를 무료로 제공해드립니다!**`;
+  }
+
+  if (lowerMessage.includes('ai') || lowerMessage.includes('효율') || lowerMessage.includes('자동화') || lowerMessage.includes('생산성')) {
+    return `🤖 **AI 생산성향상 컨설팅**
+
+✨ **ChatGPT 전문 활용법**
+• 업무효율 40-60% 향상 보장
+• 인건비 25% 절감 효과
+• 실무진 1:1 맞춤 교육
+
+🎯 **정부지원 연계 서비스:**
+• AI 바우처 최대 2천만원 지원
+• 디지털 전환 100% 정부지원 가능
+• 스마트팩토리 구축 지원
+
+📈 **도입 효과:**
+• 문서작업 시간 70% 단축
+• 고객응대 품질 50% 향상
+• 데이터 분석 속도 80% 개선
+
+📞 **상담: 010-9251-9743**
+🔗 [AI 생산성 서비스](/services/ai-productivity)`;
+  }
+
+  if (lowerMessage.includes('공장') || lowerMessage.includes('부동산') || lowerMessage.includes('경매') || lowerMessage.includes('임대')) {
+    return `🏭 **경매활용 공장구매 컨설팅**
+
+💎 **25년 경매 전문 노하우**
+• 부동산비용 30-50% 절감 실현
+• 평균 40% 저가 매입 성공률
+• 95% 안전 낙찰률 보장
+
+🎯 **실제 성공 사례:**
+• 15억 공장을 9억에 낙찰 (40% 절약)
+• 연간 임대료 3억 → 자가 소유 전환
+• 물류창고 50% 비용절감 달성
+
+🔍 **전문 서비스:**
+• 경매물건 사전조사 및 분석
+• 법적 리스크 완벽 검토
+• 낙찰 후 등기까지 원스톱 지원
+
+📞 **상담: 010-9251-9743**
+🔗 [경매 컨설팅 상세정보](/services/factory-auction)`;
+  }
+
+  if (lowerMessage.includes('창업') || lowerMessage.includes('기술사업화') || lowerMessage.includes('정부지원')) {
+    return `🚀 **기술창업 & 사업화 컨설팅**
+
+💰 **정부지원 연계 서비스**
+• 평균 5억원 정부지원 확보
+• R&D 과제 기획부터 완료까지
+• 사업화 성공률 85% 달성
+
+🎯 **주요 지원 분야:**
+• 기술개발 (R&D) 최대 10억원
+• 사업화 자금 최대 5억원
+• 마케팅 지원 최대 2억원
+• 해외진출 최대 3억원
+
+📋 **성공 프로세스:**
+1. 기술 및 시장성 분석
+2. 정부과제 매칭 및 기획
+3. 사업계획서 작성 지원
+4. 발표 및 심사 대비
+
+📞 **상담: 010-9251-9743**
+🔗 [기술창업 지원](/services/tech-startup)`;
+  }
+
+  if (lowerMessage.includes('상담') || lowerMessage.includes('연락') || lowerMessage.includes('문의')) {
+    return `💬 **전문가 무료 상담 안내**
+
+📞 **즉시 상담 (24시간):**
+• 전화: 010-9251-9743 (이후경 경영지도사)
+• 이메일: hongik423@gmail.com
+• 카카오톡: M-CENTER 검색
+
+⚡ **온라인 신청:**
+• [무료 AI진단](/services/diagnosis) - 3분 완료
+• [전문가 상담](/consultation) - 맞춤형 솔루션
+• [서비스 상세보기](/services/business-analysis)
+
+🏆 **상담 전문가 소개:**
+• 이후경 경영지도사 (25년 경력)
+• 중소벤처기업부 인증 컨설턴트
+• 1,000+ 기업 성공 컨설팅 경험
+
+💡 **상담 혜택:**
+• 초기 상담 100% 무료
+• 맞춤형 솔루션 제안
+• 정부지원사업 연계 안내`;
+  }
+
+  return `✨ **기업의별 M-CENTER**에서 도움드리겠습니다!
+
+🎯 **맞춤형 솔루션 제공 분야:**
+
+• 📈 **매출 증대 컨설팅** - BM ZEN 사업분석으로 20-40% 성장
+• 🤖 **AI 생산성향상** - ChatGPT 활용으로 업무효율 60% 향상
+• 🏭 **경매활용 공장구매** - 30-50% 부동산비용 절감
+• 🚀 **기술창업 지원** - 평균 5억원 정부지원 연계
+• 📋 **각종 인증지원** - 연간 5천만원 세제혜택
+• 🌐 **웹사이트 구축** - 온라인 매출 30% 증대
+
+🏆 **25년 경험의 검증된 노하우**
+• 1,000+ 기업 성공 컨설팅
+• 95% 고객 만족도
+• 정부 인증 전문 컨설턴트
+
+더 구체적인 상담을 원하시면:
+📞 **즉시 상담: 010-9251-9743**
+🔗 **무료 진단: /services/diagnosis**
+💬 **온라인 상담: /consultation**`;
 }
 
 // 🔧 GET 요청 처리 (CORS 및 상태 확인)

@@ -5,6 +5,10 @@
 
 import { z } from 'zod';
 
+// 🔧 **실제 M-CENTER 구글시트 정보**
+const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX/exec';
+const GOOGLE_SHEETS_ID = '1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug';
+
 // 환경변수 스키마 정의
 const envSchema = z.object({
   // Gemini API (서버 사이드 전용)
@@ -59,45 +63,55 @@ export function getServerEnv(): EnvConfig {
  */
 export function getClientEnv() {
   return {
-    emailJsServiceId: process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-    emailJsPublicKey: process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
-    googleSheetsId: process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
-    googleScriptUrl: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
-    googleScriptId: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_ID,
-    baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
-    nodeEnv: process.env.NODE_ENV,
+    emailJsServiceId: process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 'service_qd9eycz',
+    emailJsPublicKey: process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || '268NPLwN54rPvEias',
+    emailJsTemplateDiagnosis: process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_DIAGNOSIS || 'template_diagnosis_conf',
+    emailJsTemplateConsultation: process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_CONSULTATION || 'template_consultation_conf',
+    emailJsTemplateAdmin: process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ADMIN || 'template_admin_notification',
+    googleSheetsId: process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID || GOOGLE_SHEETS_ID,
+    googleScriptUrl: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || DEFAULT_GOOGLE_SCRIPT_URL,
+    googleScriptId: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_ID || 'AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX',
+    baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://m-center-landingpage.vercel.app',
+    nodeEnv: process.env.NODE_ENV || 'production',
   };
 }
 
 /**
- * Gemini API Key (서버 전용)
+ * Gemini API Key (서버 전용) - 보안 강화
  * 클라이언트에서 절대 접근 불가
  */
 export function getGeminiKey(): string {
   const key = process.env.GEMINI_API_KEY;
   
   if (!key) {
-    console.warn('⚠️ GEMINI_API_KEY가 설정되지 않았습니다. 클라이언트 사이드 응답을 사용합니다.');
-    console.info('💡 실제 Gemini API를 사용하려면: 프로젝트 루트에 .env.local 파일을 생성하고');
-    console.info('   GEMINI_API_KEY=your-actual-api-key 를 추가하세요.');
-    throw new Error('GEMINI_API_KEY가 설정되지 않았습니다. 클라이언트 응답 모드로 작동합니다.');
+    console.warn('⚠️ GEMINI_API_KEY가 설정되지 않았습니다.');
+    console.info('💡 .env.local 파일에 GEMINI_API_KEY=AIzaSy... 를 추가하세요.');
+    return ''; // 빈 문자열 반환으로 폴백 모드 활성화
   }
   
   // 개발용 임시 키 체크
-  if (key.includes('temp') || key.includes('development') || key.includes('replace')) {
-    console.warn('⚠️ 개발용 임시 Gemini API Key가 설정되어 있습니다. 클라이언트 사이드 응답을 사용합니다.');
-    console.info('💡 실제 Gemini API를 사용하려면 실제 API 키로 교체하세요.');
-    throw new Error('개발용 임시 키입니다. 클라이언트 응답 모드로 작동합니다.');
+  if (key.includes('temp') || key.includes('development') || key.includes('replace') || key.includes('your-')) {
+    console.warn('⚠️ 개발용 임시 Gemini API Key가 설정되어 있습니다.');
+    console.info('💡 실제 Google AI Studio에서 발급받은 API 키로 교체하세요.');
+    return ''; // 빈 문자열 반환으로 폴백 모드 활성화
   }
   
   // API 키 형식 검증 (Gemini API 키는 AIza로 시작)
   if (!key.startsWith('AIza')) {
     console.error('❌ 유효하지 않은 Gemini API Key 형식입니다.');
-    console.error('💡 올바른 형식: AIza... 로 시작하는 키');
-    throw new Error('유효하지 않은 Gemini API Key 형식입니다');
+    console.error('💡 올바른 형식: AIzaSy... 로 시작하는 키');
+    console.error('💡 Google AI Studio (https://makersuite.google.com/app/apikey)에서 발급받으세요.');
+    return ''; // 빈 문자열 반환으로 폴백 모드 활성화
   }
   
-  console.log('✅ Gemini API Key 설정 완료:', maskApiKey(key));
+  // 키 길이 검증 (일반적으로 39자)
+  if (key.length < 30 || key.length > 50) {
+    console.error('❌ Gemini API Key 길이가 비정상적입니다.');
+    console.error('💡 올바른 키인지 확인하세요.');
+    return ''; // 빈 문자열 반환으로 폴백 모드 활성화
+  }
+  
+  console.log('✅ Gemini API Key 검증 완료:', maskApiKey(key));
   return key;
 }
 

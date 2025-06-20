@@ -2,7 +2,12 @@ import type { Config } from 'tailwindcss';
 
 const config = {
   darkMode: ['class'],
-  content: ['./src/**/*.{ts,tsx}'],
+  content: [
+    './pages/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './app/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}',
+  ],
   prefix: '',
   theme: {
     container: {
@@ -146,6 +151,19 @@ const config = {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.5' },
         },
+        'fast-bounce': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-4px)' }
+        },
+        'quick-pulse': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.8' }
+        },
+        'instant-shake': {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '25%': { transform: 'translateX(-2px)' },
+          '75%': { transform: 'translateX(2px)' }
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -153,6 +171,9 @@ const config = {
         'fade-in': 'fade-in 0.6s ease-out',
         'slide-in-left': 'slide-in-left 0.6s ease-out',
         'pulse-slow': 'pulse-slow 3s ease-in-out infinite',
+        'fast-bounce': 'fast-bounce 0.3s ease-in-out',
+        'quick-pulse': 'quick-pulse 0.8s ease-in-out infinite',
+        'instant-shake': 'instant-shake 0.4s ease-in-out',
       },
       fontFamily: {
         sans: [
@@ -204,6 +225,11 @@ const config = {
       },
       maxWidth: {
         '8xl': '88rem',
+      },
+      transitionDuration: {
+        '50': '50ms',
+        '75': '75ms',
+        '100': '100ms',
       }
     },
   },

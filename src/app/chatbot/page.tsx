@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Bot, MessageCircle, Zap, Brain, Clock, Send, User } from 'lucide-react';
+import { 
+  safeGet, 
+  validateApiResponse, 
+  checkApiCompatibility,
+  collectErrorInfo,
+  getBrowserInfo 
+} from '@/lib/utils/safeDataAccess';
 
 interface Message {
   id: string;
@@ -423,82 +430,213 @@ export default function ChatbotPage() {
 구체적으로 어떤 부분이 궁금하신지 말씀해 주시면 더 정확한 정보를 제공해드리겠습니다! 😊`;
   };
 
-  const handleSendMessage = async (text: string) => {
+  // 🚀 **강화된 메시지 전송 함수 - Gemini API 연동**
+  const handleSendMessage = useCallback(async (text: string) => {
     if (!text.trim()) return;
 
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content: text,
+      sender: 'user',
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue('');
+    setIsTyping(true);
+    setConnectionStatus('connecting');
+
+    console.log('🤖 Gemini AI 메시지 전송 시작:', { 
+      message: text.substring(0, 50) + '...', 
+      messageLength: text.length,
+      timestamp: new Date().toISOString()
+    });
+
     try {
-      setConnectionStatus('connecting');
+      // 🔧 **API 호출 안전성 체크**
+      const apiCompatibility = checkApiCompatibility('/api/chat');
+      const browserInfo = getBrowserInfo();
       
-      const userMessage: Message = {
-        id: Date.now().toString(),
-        content: text,
-        sender: 'user',
-        timestamp: new Date()
-      };
+      if (!apiCompatibility.canCall) {
+        console.warn('⚠️ API 호출 불가:', apiCompatibility.recommendation);
+        throw new Error(apiCompatibility.fallbackAction);
+      }
+      
+      // 🎯 **우선 API 상태 확인**
+      console.log('🔍 Gemini API 상태 확인 중...');
+      
+      try {
+        const statusResponse = await fetch('/api/chat', {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+        });
+        
+        if (statusResponse.ok) {
+          const statusData = await statusResponse.json();
+          console.log('✅ Gemini API 상태 확인 완료:', {
+            configured: statusData.configured,
+            environment: statusData.environment,
+            supportedMethods: statusData.supportedMethods
+          });
+          
+          if (!statusData.configured) {
+            throw new Error('Gemini API 키가 설정되지 않았습니다');
+          }
+        } else {
+          console.warn('⚠️ API 상태 확인 실패:', statusResponse.status);
+        }
+      } catch (statusError) {
+        console.warn('⚠️ API 상태 확인 중 오류:', statusError);
+        // 상태 확인 실패 시에도 계속 시도
+      }
+      
+      // 🚀 **Gemini API 호출**
+      console.log('🚀 Gemini API 호출 중...', { 
+        isGitHubPages: browserInfo.isGitHubPages,
+        userAgent: browserInfo.userAgent.substring(0, 50) + '...',
+        messageLength: text.length
+      });
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 25000); // 타임아웃 25초
+      
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache'
+        },
+        body: JSON.stringify({
+          message: text,
+          history: messages.slice(-5), // 최근 5개 메시지만 포함
+          context: 'chatbot-page' // 큰 챗봇 페이지 식별자
+        }),
+        signal: controller.signal
+      });
 
-      setMessages(prev => [...prev, userMessage]);
-      setInputValue('');
-      setIsTyping(true);
+      clearTimeout(timeoutId);
+      
+      console.log('📡 Gemini API 응답 상태:', { 
+        status: response.status, 
+        ok: response.ok,
+        headers: response.headers.get('content-type')
+      });
 
-      // 1-2초 지연 후 응답 (실제 AI 호출하는 것처럼 보이기 위해)
-      setTimeout(() => {
+      if (response.ok) {
+        let rawData;
+        
         try {
-          const botResponse = generateResponse(text);
+          const responseText = await response.text();
+          if (!responseText.trim()) {
+            throw new Error('Gemini API에서 빈 응답을 받았습니다');
+          }
+          
+          rawData = JSON.parse(responseText);
+        } catch (jsonError) {
+          console.error('⚠️ JSON 파싱 오류:', jsonError);
+          throw new Error('API 응답 형식이 잘못되었습니다');
+        }
+        
+        // 🔧 **안전한 데이터 검증 및 접근**
+        const validationResult = validateApiResponse(rawData);
+        
+        if (!validationResult.isValid) {
+          console.error('⚠️ API 응답 검증 실패:', validationResult.error);
+          throw new Error(validationResult.error || 'API 응답이 유효하지 않습니다');
+        }
+        
+        const data = validationResult.data;
+        const responseContent = safeGet<string>(data, 'response', '');
+        
+        if (responseContent && typeof responseContent === 'string' && responseContent.trim()) {
+          console.log('✅ Gemini API 응답 성공:', { 
+            responseLength: responseContent.length,
+            hasUsage: !!safeGet(data, 'usage'),
+            services: safeGet(data, 'services', []),
+            validationPassed: true
+          });
           
           const botMessage: Message = {
             id: (Date.now() + 1).toString(),
-            content: botResponse,
+            content: responseContent,
             sender: 'bot',
             timestamp: new Date()
           };
           
           setMessages(prev => [...prev, botMessage]);
           setConnectionStatus('connected');
-        } catch (error) {
-          console.error('응답 생성 오류:', error);
-          
-          const errorMessage: Message = {
-            id: (Date.now() + 1).toString(),
-            content: `죄송합니다. 일시적인 오류가 발생했습니다. 
-
-📞 **즉시 전문가 상담 가능**
-• 전화: 010-9251-9743 (이후경 경영지도사)
-• 이메일: hongik423@gmail.com
-
-다시 질문해주시거나 위 연락처로 직접 상담받으세요!`,
-            sender: 'bot',
-            timestamp: new Date()
-          };
-          
-          setMessages(prev => [...prev, errorMessage]);
-          setConnectionStatus('error');
-        } finally {
-          setIsTyping(false);
+          return;
+        } else {
+          console.error('⚠️ 응답 내용이 유효하지 않음:', { 
+            hasResponse: !!responseContent,
+            responseType: typeof responseContent,
+            responseLength: (responseContent as string)?.length || 0
+          });
+          throw new Error('API에서 유효한 응답 내용을 받지 못했습니다');
         }
-      }, 1500 + Math.random() * 1000); // 1.5-2.5초 랜덤 지연
+      } else {
+        let errorData = null;
+        try {
+          const errorText = await response.text();
+          if (errorText.trim()) {
+            errorData = JSON.parse(errorText);
+          }
+        } catch (parseError) {
+          console.warn('⚠️ 오류 응답 파싱 실패:', parseError);
+        }
+        
+        const errorMessage = safeGet(errorData, 'error', `HTTP ${response.status}: ${response.statusText}`);
+        throw new Error(errorMessage);
+      }
       
     } catch (error) {
-      console.error('메시지 전송 오류:', error);
-      setConnectionStatus('error');
-      setIsTyping(false);
+      // 🔧 **강화된 오류 정보 수집**
+      const errorInfo = collectErrorInfo(error, {
+        messageLength: text.length,
+        messageType: 'chatbot-page',
+        apiUrl: '/api/chat',
+        timestamp: new Date().toISOString()
+      });
       
-      const errorMessage: Message = {
+      console.warn('⚠️ Gemini API 오류, 클라이언트 응답 사용:', errorInfo);
+      
+      console.log('🤖 클라이언트 백업 응답 생성 중...');
+      
+      let clientResponse = generateResponse(text);
+      
+      const browserInfo = getBrowserInfo();
+      
+      // 개발 환경에서 디버그 정보 추가
+      if (browserInfo.isBrowser && (
+        window.location.hostname === 'localhost' || 
+        window.location.hostname === '127.0.0.1' ||
+        window.location.hostname.includes('192.168') ||
+        process.env.NODE_ENV === 'development'
+      )) {
+        const errorType = error instanceof Error && error.name === 'AbortError' ? 'Gemini API 타임아웃' : 'Gemini API 연결 오류';
+        clientResponse += `\n\n🔧 **개발자 정보:** ${errorType} 발생`;
+        
+        if (browserInfo.isGitHubPages) {
+          clientResponse += ` (GitHub Pages 환경)`;
+        }
+        
+        clientResponse += `, 클라이언트 백업 응답으로 대체됨`;
+      }
+      
+      const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: `연결에 문제가 발생했습니다. 
-
-📞 **대안 상담 방법**
-• 전화: 010-9251-9743 (즉시 연결)
-• 이메일: hongik423@gmail.com
-• 카카오톡: M-CENTER 검색
-
-전문가가 직접 도움드리겠습니다!`,
+        content: clientResponse,
         sender: 'bot',
         timestamp: new Date()
       };
       
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => [...prev, botMessage]);
+      setConnectionStatus(error instanceof Error && error.name === 'AbortError' ? 'error' : 'connected');
+    } finally {
+      setIsTyping(false);
     }
-  };
+  }, [messages]);
 
   return (
     <div className="min-h-screen bg-white">

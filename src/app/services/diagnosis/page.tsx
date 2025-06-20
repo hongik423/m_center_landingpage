@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -51,6 +52,19 @@ export default function FreeDiagnosisPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
         <Header />
+        {/* 기업의별® M-CENTER 경영지도센터 로고 */}
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center mb-4">
+            <Image
+              src="/company-logo-new.svg"
+              alt="기업의별® M-CENTER 경영지도센터"
+              width={240}
+              height={80}
+              className="h-16 w-auto"
+              priority
+            />
+          </div>
+        </div>
         <div className="container mx-auto px-4 py-8">
           <SimplifiedDiagnosisResults data={diagnosisResults} />
         </div>
@@ -63,6 +77,19 @@ export default function FreeDiagnosisPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
         <Header />
+        {/* 기업의별® M-CENTER 경영지도센터 로고 */}
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center mb-4">
+            <Image
+              src="/company-logo-new.svg"
+              alt="기업의별® M-CENTER 경영지도센터"
+              width={240}
+              height={80}
+              className="h-16 w-auto"
+              priority
+            />
+          </div>
+        </div>
         <div className="container mx-auto px-4 py-8">
           <SimplifiedDiagnosisForm 
             onComplete={handleDiagnosisComplete}

@@ -120,8 +120,9 @@ function validateEnvironment(): { isValid: boolean; error?: string } {
   return { isValid: true };
 }
 
-// 🔧 **GitHub Pages 호환 Google Script URL (환경변수가 없을 때 사용)**
-const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxuRHIf5gQKcL6RyD_TK8DgT3oL_q9VwY7cJ8j2oW9nP_k4xL1dAz7s5F/exec';
+// 🔧 **실제 M-CENTER 구글시트 Apps Script URL**
+const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX/exec';
+const GOOGLE_SHEETS_ID = '1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug';
 
 /**
  * AI 진단 데이터를 구글시트에 저장
@@ -154,6 +155,7 @@ export async function saveDiagnosisToGoogleSheets(
       폼타입: formType,
       API버전: 'v4.0_통합',
       요청시간: new Date().toISOString(),
+      신청구분: 'AI진단신청',
       
       // 진단 폼 데이터 (한국어 필드명)
       회사명: String(data.companyName || data.회사명 || ''),
@@ -168,6 +170,12 @@ export async function saveDiagnosisToGoogleSheets(
       연락처: String(data.contactPhone || data.연락처 || ''),
       이메일: String(data.contactEmail || data.이메일 || ''),
       개인정보동의: data.privacyConsent === true || data.개인정보동의 === '동의' ? '동의' : '미동의',
+      
+      // 🔧 진단 결과 정보 추가
+      진단점수: String((data as any).diagnosisScore || ''),
+      추천서비스: String((data as any).recommendedServices || ''),
+      보고서타입: String((data as any).reportType || ''),
+      진단폼타입: String((data as any).diagnosisFormType || formType),
       
       // Apps Script 처리용 메타데이터
       action: 'saveDiagnosis',
@@ -407,6 +415,7 @@ export async function saveConsultationToGoogleSheets(
       폼타입: '상담신청',
       API버전: 'v4.0_통합',
       요청시간: new Date().toISOString(),
+      신청구분: '상담신청',
       
       // 상담 신청 데이터 (한국어 필드명)
       상담유형: data.consultationType || data.상담유형 || '일반상담',

@@ -820,7 +820,7 @@ ${analysisResult.aiInsights.opportunityMapping.substring(0, 200)}... 특히 정�
 ---
 
 **📞 전담 컨설턴트:** 이후경 경영지도사 (010-9251-9743)
-**📧 이메일:** lhk@injc.kr
+**📧 이메일:** hongik423@gmail.com
 **🏢 M-CENTER 경영지도센터** | 25년 검증된 전문성
 
 *이 보고서는 M-CENTER의 독자적 AI 분석 시스템으로 생성되었습니다.*

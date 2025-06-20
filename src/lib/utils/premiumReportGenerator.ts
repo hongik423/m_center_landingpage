@@ -1175,7 +1175,7 @@ export class PremiumReportGenerator {
                 <div class="contact-card">
                     <div class="contact-title">📧 이메일 상담</div>
                     <div class="contact-details">
-                        lhk@injc.kr<br>
+                        hongik423@gmail.com<br>
                         24시간 접수 가능
                     </div>
                 </div>
@@ -1608,7 +1608,7 @@ export class PremiumReportGenerator {
     </div>
     <div class="footer">
         <p>📞 상담 문의: 010-9251-9743</p>
-        <p>📧 이메일: lhk@injc.kr</p>
+                        <p>📧 이메일: hongik423@gmail.com</p>
     </div>
 </body>
 </html>`;

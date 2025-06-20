@@ -19,6 +19,16 @@ interface SimplifiedDiagnosisRequest {
   expectedBenefits: string;
   privacyConsent: boolean;
   submitDate: string;
+  
+  // 진단 결과 정보 (프론트엔드에서 전송)
+  diagnosisResults?: {
+    totalScore: number;
+    categoryScores: any;
+    recommendedServices: any[];
+    strengths: any[];
+    weaknesses: any[];
+    reportType: string;
+  };
 }
 
 // 📊 신뢰할 수 있는 다중 지표 평가 체계
@@ -40,7 +50,142 @@ interface ScoreWeights {
   financialHealth: 0.10;
 }
 
-// 업종별 세분화된 분석 데이터 (신뢰도 향상)
+// 📊 업종 카테고리 매핑 (새로운 세분화된 업종을 기존 카테고리로 그룹화)
+const industryMapping: Record<string, string> = {
+  // 제조업 그룹
+  'electronics-manufacturing': 'manufacturing',
+  'automotive-manufacturing': 'manufacturing',
+  'machinery-manufacturing': 'manufacturing',
+  'chemical-manufacturing': 'manufacturing',
+  'food-manufacturing': 'food',
+  'textile-manufacturing': 'manufacturing',
+  'steel-manufacturing': 'manufacturing',
+  'medical-manufacturing': 'healthcare',
+  'other-manufacturing': 'manufacturing',
+  
+  // IT/소프트웨어 그룹
+  'software-development': 'it',
+  'web-mobile-development': 'it',
+  'system-integration': 'it',
+  'game-development': 'it',
+  'ai-bigdata': 'it',
+  'cloud-infrastructure': 'it',
+  'cybersecurity': 'it',
+  'fintech': 'finance',
+  
+  // 전문서비스업 그룹
+  'business-consulting': 'service',
+  'accounting-tax': 'service',
+  'legal-service': 'service',
+  'marketing-advertising': 'service',
+  'design-creative': 'service',
+  'hr-consulting': 'service',
+  
+  // 유통/도소매 그룹
+  'ecommerce': 'retail',
+  'offline-retail': 'retail',
+  'wholesale': 'retail',
+  'franchise': 'retail',
+  
+  // 건설/부동산 그룹
+  'architecture': 'construction',
+  'real-estate': 'service',
+  'interior-design': 'service',
+  
+  // 운송/물류 그룹
+  'logistics': 'service',
+  'transportation': 'service',
+  'warehouse': 'service',
+  
+  // 식음료/외식 그룹
+  'restaurant': 'food',
+  'cafe': 'food',
+  'food-service': 'food',
+  
+  // 의료/헬스케어 그룹
+  'hospital-clinic': 'healthcare',
+  'pharmacy': 'healthcare',
+  'beauty-wellness': 'healthcare',
+  'fitness': 'healthcare',
+  
+  // 교육 그룹
+  'education-school': 'education',
+  'private-academy': 'education',
+  'online-education': 'education',
+  'language-education': 'education',
+  
+  // 금융/보험 그룹
+  'banking': 'finance',
+  'insurance': 'finance',
+  'investment': 'finance',
+  
+  // 문화/엔터테인먼트 그룹
+  'entertainment': 'service',
+  'tourism-travel': 'service',
+  'sports': 'service',
+  
+  // 기타 서비스 그룹
+  'cleaning-facility': 'service',
+  'rental-lease': 'service',
+  'repair-maintenance': 'service',
+  'agriculture': 'other',
+  'energy': 'other',
+  
+  // 기존 업종 (하위 호환성)
+  'manufacturing': 'manufacturing',
+  'it': 'it',
+  'service': 'service',
+  'retail': 'retail',
+  'construction': 'construction',
+  'food': 'food',
+  'healthcare': 'healthcare',
+  'education': 'education',
+  'finance': 'finance',
+  'other': 'other'
+};
+
+// 📊 세부 업종별 특화 정보 (추가 보너스 및 특성)
+const detailedIndustryInfo: Record<string, {
+  displayName: string;
+  specialization: string[];
+  keyMetrics: { focus: string; multiplier: number }[];
+  trends: string[];
+}> = {
+  // 제조업 세분화
+  'electronics-manufacturing': {
+    displayName: '전자제품/반도체 제조업',
+    specialization: ['고정밀 생산', '품질관리', '기술혁신'],
+    keyMetrics: [{ focus: 'digitalReadiness', multiplier: 1.2 }, { focus: 'businessModel', multiplier: 1.1 }],
+    trends: ['반도체 국산화', '스마트팩토리', 'ESG 경영']
+  },
+  'automotive-manufacturing': {
+    displayName: '자동차/부품 제조업',
+    specialization: ['자동화 생산', '공급망 관리', '품질 인증'],
+    keyMetrics: [{ focus: 'operationalEfficiency', multiplier: 1.2 }, { focus: 'marketPosition', multiplier: 1.1 }],
+    trends: ['전기차 전환', '자율주행', '친환경 부품']
+  },
+  'software-development': {
+    displayName: '소프트웨어 개발',
+    specialization: ['개발 역량', '기술 스택', '프로젝트 관리'],
+    keyMetrics: [{ focus: 'digitalReadiness', multiplier: 1.3 }, { focus: 'growthPotential', multiplier: 1.2 }],
+    trends: ['클라우드 네이티브', 'DevOps', 'AI 통합']
+  },
+  'ecommerce': {
+    displayName: '온라인 쇼핑몰/이커머스',
+    specialization: ['디지털 마케팅', '고객 데이터 분석', '물류 최적화'],
+    keyMetrics: [{ focus: 'digitalReadiness', multiplier: 1.3 }, { focus: 'marketPosition', multiplier: 1.1 }],
+    trends: ['라이브커머스', '개인화 추천', '옴니채널']
+  },
+  'restaurant': {
+    displayName: '음식점/외식업',
+    specialization: ['고객 서비스', '품질 관리', '비용 최적화'],
+    keyMetrics: [{ focus: 'operationalEfficiency', multiplier: 1.2 }, { focus: 'marketPosition', multiplier: 1.1 }],
+    trends: ['배달 플랫폼', '무인 서비스', '푸드테크']
+  }
+  // 필요시 더 추가 가능
+};
+
+// 업종별 세분화된 분석 데이터 (기존 확장)
 const enhancedIndustryAnalysis = {
   'manufacturing': {
     marketGrowth: '7%',
@@ -310,21 +455,40 @@ const mCenterServices = {
   }
 };
 
-// 📊 정교한 점수 계산 함수
+// 📊 정교한 점수 계산 함수 (업종 매핑 활용)
 function calculateDetailedScore(data: SimplifiedDiagnosisRequest): {
   metrics: DetailedScoreMetrics;
   totalScore: number;
   reliabilityScore: number;
   evaluationBasis: string[];
 } {
-  const industryData = enhancedIndustryAnalysis[data.industry as keyof typeof enhancedIndustryAnalysis] || enhancedIndustryAnalysis['other'];
+  // 🔧 업종 매핑을 통해 기본 카테고리 결정
+  const mappedIndustry = industryMapping[data.industry] || 'other';
+  const industryData = enhancedIndustryAnalysis[mappedIndustry as keyof typeof enhancedIndustryAnalysis] || enhancedIndustryAnalysis['other'];
+  
+  // 🔧 세부 업종 정보 가져오기
+  const detailedInfo = detailedIndustryInfo[data.industry];
+  const industryDisplayName = detailedInfo?.displayName || data.industry;
+  
+  console.log(`📊 진단 대상: ${industryDisplayName} (매핑: ${data.industry} → ${mappedIndustry})`);
   
   // 1. 비즈니스 모델 적합성 (25%)
   let businessModelScore = industryData.keyMetrics.averageROI * 4; // 기본 점수
   
   // 업종별 가산점
-  if (data.industry === 'it' || data.industry === 'tech') businessModelScore += 5;
-  if (data.industry === 'manufacturing') businessModelScore += 3;
+  if (mappedIndustry === 'it' || data.industry.includes('development') || data.industry.includes('ai')) {
+    businessModelScore += 8;
+  }
+  if (mappedIndustry === 'manufacturing') businessModelScore += 5;
+  if (data.industry === 'ecommerce') businessModelScore += 6;
+  
+  // 세부 업종별 특화 보너스 적용
+  if (detailedInfo) {
+    const businessMetric = detailedInfo.keyMetrics.find(m => m.focus === 'businessModel');
+    if (businessMetric) {
+      businessModelScore *= businessMetric.multiplier;
+    }
+  }
   
   // 고민사항 분석 가산점
   const concerns = data.mainConcerns.toLowerCase();
@@ -341,6 +505,18 @@ function calculateDetailedScore(data: SimplifiedDiagnosisRequest): {
   if (growthRate >= 10) marketPositionScore += 8;
   else if (growthRate >= 7) marketPositionScore += 5;
   else if (growthRate >= 5) marketPositionScore += 2;
+  
+  // 특정 업종별 시장 위치 보너스
+  if (data.industry === 'ai-bigdata' || data.industry === 'cybersecurity') marketPositionScore += 10;
+  if (data.industry === 'ecommerce' || data.industry === 'fintech') marketPositionScore += 8;
+  
+  // 세부 업종별 특화 보너스 적용
+  if (detailedInfo) {
+    const marketMetric = detailedInfo.keyMetrics.find(m => m.focus === 'marketPosition');
+    if (marketMetric) {
+      marketPositionScore *= marketMetric.multiplier;
+    }
+  }
   
   // 기업 규모별 보정
   const sizeMultiplier: Record<string, number> = {
@@ -368,6 +544,20 @@ function calculateDetailedScore(data: SimplifiedDiagnosisRequest): {
   };
   operationalScore += stageBonus[data.growthStage] || 0;
   
+  // 특정 업종별 운영 효율성 보너스
+  if (data.industry === 'software-development' || data.industry === 'cloud-infrastructure') {
+    operationalScore += 8;
+  }
+  if (data.industry.includes('manufacturing')) operationalScore += 5;
+  
+  // 세부 업종별 특화 보너스 적용
+  if (detailedInfo) {
+    const operationalMetric = detailedInfo.keyMetrics.find(m => m.focus === 'operationalEfficiency');
+    if (operationalMetric) {
+      operationalScore *= operationalMetric.multiplier;
+    }
+  }
+  
   // 효율성 관련 고민사항 반영
   if (concerns.includes('효율') || concerns.includes('생산성')) operationalScore += 6;
   if (concerns.includes('자동화') || concerns.includes('시스템')) operationalScore += 4;
@@ -376,6 +566,20 @@ function calculateDetailedScore(data: SimplifiedDiagnosisRequest): {
 
   // 4. 성장 잠재력 (15%)
   let growthPotentialScore = industryData.keyMetrics.growthRate * 5;
+  
+  // 신기술 업종 보너스
+  if (data.industry === 'ai-bigdata' || data.industry === 'fintech' || 
+      data.industry === 'game-development' || data.industry === 'cybersecurity') {
+    growthPotentialScore += 12;
+  }
+  
+  // 세부 업종별 특화 보너스 적용
+  if (detailedInfo) {
+    const growthMetric = detailedInfo.keyMetrics.find(m => m.focus === 'growthPotential');
+    if (growthMetric) {
+      growthPotentialScore *= growthMetric.multiplier;
+    }
+  }
   
   // 예상혜택 분석
   const benefits = data.expectedBenefits.toLowerCase();
@@ -398,6 +602,20 @@ function calculateDetailedScore(data: SimplifiedDiagnosisRequest): {
   };
   digitalScore += digitalMaturity[industryData.digitalMaturity] || 5;
   
+  // IT/디지털 업종 특별 보너스
+  if (mappedIndustry === 'it' || data.industry.includes('digital') || 
+      data.industry === 'ecommerce' || data.industry === 'fintech') {
+    digitalScore += 15;
+  }
+  
+  // 세부 업종별 특화 보너스 적용
+  if (detailedInfo) {
+    const digitalMetric = detailedInfo.keyMetrics.find(m => m.focus === 'digitalReadiness');
+    if (digitalMetric) {
+      digitalScore *= digitalMetric.multiplier;
+    }
+  }
+  
   // 디지털 관련 고민사항
   if (concerns.includes('디지털') || concerns.includes('ai') || concerns.includes('온라인')) {
     digitalScore += 12;
@@ -418,6 +636,12 @@ function calculateDetailedScore(data: SimplifiedDiagnosisRequest): {
     '100+': 15
   };
   financialScore += financialStability[data.employeeCount] || 0;
+  
+  // 고수익 업종 보너스
+  if (data.industry === 'fintech' || data.industry === 'ai-bigdata' || 
+      data.industry === 'investment' || data.industry === 'cybersecurity') {
+    financialScore += 8;
+  }
   
   // 비용 관련 고민사항
   if (concerns.includes('비용') || concerns.includes('자금')) financialScore -= 5;
@@ -461,17 +685,21 @@ function calculateDetailedScore(data: SimplifiedDiagnosisRequest): {
   if (data.expectedBenefits.length > 50) reliabilityScore += 5;
   if (data.contactManager.length > 5) reliabilityScore += 5;
   
+  // 세부 업종 선택 시 신뢰도 보너스
+  if (detailedInfo) reliabilityScore += 5;
+  
   // 업종 데이터 신뢰도
   if (industryData.marketSize !== '150조원') reliabilityScore += 5; // 구체적 데이터 있음
   
   reliabilityScore = Math.min(95, reliabilityScore);
 
-  // 평가 근거 명시
+  // 평가 근거 명시 (세부 업종 정보 포함)
   const evaluationBasis = [
-    `업종별 벤치마크 기준 (${data.industry}: 우수 ${industryData.benchmarks.excellent}점)`,
+    `업종별 벤치마크 기준 (${industryDisplayName}: 우수 ${industryData.benchmarks.excellent}점)`,
     `6개 핵심 지표 가중평균 (비즈니스모델 25%, 시장위치 20%, 운영효율 20%, 성장잠재력 15%, 디지털준비도 10%, 재무건전성 10%)`,
     `기업규모별 보정계수 적용 (${data.employeeCount}명 기준)`,
     `성장단계별 평가기준 반영 (${data.growthStage} 단계)`,
+    `세부 업종별 특화 분석 적용 (${data.industry} 특성 반영)`,
     `업계 평균 대비 상대적 위치 평가`,
     `응답 품질 및 데이터 완성도 검증 (신뢰도 ${reliabilityScore}%)`
   ];
@@ -484,19 +712,42 @@ function calculateDetailedScore(data: SimplifiedDiagnosisRequest): {
   };
 }
 
-// 📊 정교한 간소화된 진단 분석 함수 (신뢰도 향상)
+// 📊 정교한 간소화된 진단 분석 함수 (업종 매핑 활용)
 function generateSimplifiedDiagnosis(data: SimplifiedDiagnosisRequest) {
-  // 업종별 기본 데이터 가져오기
-  const industryData = enhancedIndustryAnalysis[data.industry as keyof typeof enhancedIndustryAnalysis] || enhancedIndustryAnalysis['other'];
+  // 🔧 업종 매핑을 통해 기본 카테고리 결정
+  const mappedIndustry = industryMapping[data.industry] || 'other';
+  const industryData = enhancedIndustryAnalysis[mappedIndustry as keyof typeof enhancedIndustryAnalysis] || enhancedIndustryAnalysis['other'];
+  
+  // 🔧 세부 업종 정보 가져오기
+  const detailedInfo = detailedIndustryInfo[data.industry];
+  const industryDisplayName = detailedInfo?.displayName || data.industry;
   
   // 🎯 새로운 정교한 점수 계산 시스템 사용
   const scoreResult = calculateDetailedScore(data);
   const finalScore = scoreResult.totalScore;
 
-  // 고민사항 기반 서비스 추천
+  // 고민사항 기반 서비스 추천 (세부 업종별 최적화)
   const concerns = data.mainConcerns.toLowerCase();
   let recommendedServices = [...industryData.primaryServices];
   
+  // 🔧 세부 업종별 맞춤 서비스 추가
+  if (data.industry === 'ecommerce' || data.industry === 'offline-retail') {
+    recommendedServices.unshift('website');
+  }
+  if (data.industry.includes('manufacturing') || data.industry === 'logistics') {
+    recommendedServices.unshift('factory-auction');
+  }
+  if (data.industry.includes('development') || data.industry === 'ai-bigdata') {
+    recommendedServices.unshift('ai-productivity');
+  }
+  if (data.industry === 'fintech' || data.industry === 'banking') {
+    recommendedServices.push('certification');
+  }
+  if (data.industry === 'restaurant' || data.industry === 'cafe') {
+    recommendedServices.push('website');
+  }
+  
+  // 기존 로직 유지
   if (concerns.includes('매출') || concerns.includes('수익')) {
     recommendedServices.unshift('business-analysis');
   }
@@ -518,11 +769,11 @@ function generateSimplifiedDiagnosis(data: SimplifiedDiagnosisRequest) {
   const benchmarks = industryData.benchmarks;
   
   if (finalScore >= benchmarks.excellent) {
-    marketPosition = '업계 최상위 (상위 10%)';
+    marketPosition = `${industryDisplayName} 업계 최상위 (상위 10%)`;
   } else if (finalScore >= benchmarks.good) {
-    marketPosition = '업계 상위권 (상위 25%)';
+    marketPosition = `${industryDisplayName} 업계 상위권 (상위 25%)`;
   } else if (finalScore >= benchmarks.average) {
-    marketPosition = '업계 평균 수준';
+    marketPosition = `${industryDisplayName} 업계 평균 수준`;
   } else if (finalScore >= benchmarks.needsImprovement) {
     marketPosition = '개선 권장 영역';
   } else {
@@ -531,8 +782,8 @@ function generateSimplifiedDiagnosis(data: SimplifiedDiagnosisRequest) {
 
   const reliabilityScore = `${scoreResult.reliabilityScore}%`;
 
-  // 현안상황예측 생성 (업종, 고민사항, 예상혜택 종합 분석)
-  function generateCurrentSituationForecast(data: SimplifiedDiagnosisRequest, industryData: any): string {
+  // 현안상황예측 생성 (세부 업종별 맞춤화)
+  function generateCurrentSituationForecast(data: SimplifiedDiagnosisRequest, industryData: any, detailedInfo: any): string {
     const concerns = data.mainConcerns.toLowerCase();
     const benefits = data.expectedBenefits.toLowerCase();
     const industry = data.industry;
@@ -541,21 +792,37 @@ function generateSimplifiedDiagnosis(data: SimplifiedDiagnosisRequest) {
     
     let forecast = '';
     
-    // 업종별 기본 현안 분석
-    const industryForecastMap: { [key: string]: string } = {
-      'manufacturing': '제조업계는 스마트팩토리 전환과 ESG 경영이 핵심 이슈로 대두되고 있습니다. ',
-      'it': 'IT업계는 생성형 AI와 클라우드 기술의 급속한 발전으로 기술 격차가 확대되고 있습니다. ',
-      'service': '서비스업계는 디지털 전환과 고객 경험 개선이 생존의 핵심 요소가 되고 있습니다. ',
-      'retail': '유통/소매업계는 온라인-오프라인 융합과 라이브커머스 등 새로운 판매 채널이 급성장하고 있습니다. ',
-      'construction': '건설업계는 스마트 건설기술과 친환경 건축 수요 증가로 기술 혁신이 필수가 되고 있습니다. ',
-      'food': '식품/외식업계는 푸드테크와 배달 서비스 최적화가 경쟁력의 핵심이 되고 있습니다. ',
-      'healthcare': '의료/헬스케어업계는 디지털 헬스와 AI 진단 기술 도입이 가속화되고 있습니다. ',
-      'education': '교육업계는 에듀테크와 개인 맞춤형 학습 시스템이 표준이 되어가고 있습니다. ',
-      'finance': '금융업계는 핀테크와 디지털뱅킹으로 인한 금융 서비스 패러다임 변화가 진행되고 있습니다. ',
-      'other': '전반적으로 모든 업계에서 디지털 혁신과 고객 중심의 서비스 개선이 필수가 되고 있습니다. '
-    };
-    
-    forecast += industryForecastMap[industry] || industryForecastMap['other'];
+    // 🔧 세부 업종별 맞춤 현안 분석
+    if (detailedInfo) {
+      forecast += `${detailedInfo.displayName}은(는) `;
+      
+      // 세부 업종별 트렌드 반영
+      if (detailedInfo.trends.length > 0) {
+        forecast += `${detailedInfo.trends.slice(0, 2).join(', ')} 등의 핵심 트렌드가 급속히 발전하고 있는 분야입니다. `;
+      }
+      
+      // 전문 분야 강조
+      if (detailedInfo.specialization.length > 0) {
+        forecast += `특히 ${detailedInfo.specialization.join(', ')} 역량이 경쟁력의 핵심 요소로 작용하고 있습니다. `;
+      }
+    } else {
+      // 기본 업종별 현안 분석 (기존 로직 유지)
+      const industryForecastMap: { [key: string]: string } = {
+        'manufacturing': '제조업계는 스마트팩토리 전환과 ESG 경영이 핵심 이슈로 대두되고 있습니다. ',
+        'it': 'IT업계는 생성형 AI와 클라우드 기술의 급속한 발전으로 기술 격차가 확대되고 있습니다. ',
+        'service': '서비스업계는 디지털 전환과 고객 경험 개선이 생존의 핵심 요소가 되고 있습니다. ',
+        'retail': '유통/소매업계는 온라인-오프라인 융합과 라이브커머스 등 새로운 판매 채널이 급성장하고 있습니다. ',
+        'construction': '건설업계는 스마트 건설기술과 친환경 건축 수요 증가로 기술 혁신이 필수가 되고 있습니다. ',
+        'food': '식품/외식업계는 푸드테크와 배달 서비스 최적화가 경쟁력의 핵심이 되고 있습니다. ',
+        'healthcare': '의료/헬스케어업계는 디지털 헬스와 AI 진단 기술 도입이 가속화되고 있습니다. ',
+        'education': '교육업계는 에듀테크와 개인 맞춤형 학습 시스템이 표준이 되어가고 있습니다. ',
+        'finance': '금융업계는 핀테크와 디지털뱅킹으로 인한 금융 서비스 패러다임 변화가 진행되고 있습니다. ',
+        'other': '전반적으로 모든 업계에서 디지털 혁신과 고객 중심의 서비스 개선이 필수가 되고 있습니다. '
+      };
+      
+      const mappedIndustry = industryMapping[industry] || 'other';
+      forecast += industryForecastMap[mappedIndustry] || industryForecastMap['other'];
+    }
     
     // 고민사항 기반 현안 분석
     if (concerns.includes('매출') || concerns.includes('수익') || concerns.includes('성장')) {
@@ -579,14 +846,6 @@ function generateSimplifiedDiagnosis(data: SimplifiedDiagnosisRequest) {
       }
     }
     
-    if (concerns.includes('인력') || concerns.includes('채용') || concerns.includes('관리')) {
-      forecast += '인력 관리와 조직 운영의 효율화가 중요한 과제로 대두되고 있으며, ';
-    }
-    
-    if (concerns.includes('비용') || concerns.includes('절감') || concerns.includes('원가')) {
-      forecast += '비용 최적화와 원가 절감을 통한 경쟁력 확보가 필수적인 상황입니다. ';
-    }
-    
     // 기업 규모별 예측
     if (employeeCount === '1-5' || employeeCount === '6-10') {
       forecast += '소규모 기업으로서 선택과 집중을 통한 핵심 역량 강화가 중요하며, ';
@@ -596,24 +855,11 @@ function generateSimplifiedDiagnosis(data: SimplifiedDiagnosisRequest) {
       forecast += '중견기업으로서 규모의 경제를 활용한 효율성 극대화가 관건입니다. ';
     }
     
-    // 성장단계별 예측
-    if (growthStage === 'startup' || growthStage === 'early') {
-      forecast += '초기 단계 기업으로서 시장 검증과 비즈니스 모델 안정화가 우선 과제이며, ';
-    } else if (growthStage === 'growth') {
-      forecast += '성장기 기업으로서 확장 전략과 운영 효율화의 균형이 중요한 시점입니다. ';
-    } else if (growthStage === 'mature') {
-      forecast += '성숙기 기업으로서 혁신을 통한 재도약과 새로운 성장 동력 확보가 필요합니다. ';
-    } else if (growthStage === 'expansion') {
-      forecast += '확장기 기업으로서 지속가능한 성장을 위한 체계적인 관리 시스템 구축이 핵심입니다. ';
-    }
-    
     // 예상혜택 기반 결론
     if (benefits.includes('증대') || benefits.includes('성장')) {
       forecast += '현재 시점에서 적절한 전략적 접근을 통해 기대하는 성장 목표 달성이 충분히 가능할 것으로 판단됩니다.';
     } else if (benefits.includes('효율') || benefits.includes('개선')) {
       forecast += '체계적인 개선 방안 도입을 통해 목표하는 효율성 향상을 실현할 수 있을 것으로 예상됩니다.';
-    } else if (benefits.includes('절감') || benefits.includes('최적화')) {
-      forecast += '전문적인 분석과 최적화 방안을 통해 비용 절감 목표를 달성할 수 있을 것으로 보입니다.';
     } else {
       forecast += '현재 상황을 종합 분석할 때, 적절한 컨설팅을 통해 기업이 원하는 목표를 충분히 달성할 수 있을 것으로 판단됩니다.';
     }
@@ -621,23 +867,27 @@ function generateSimplifiedDiagnosis(data: SimplifiedDiagnosisRequest) {
     return forecast;
   }
 
-  const currentSituationForecast = generateCurrentSituationForecast(data, industryData);
+  const currentSituationForecast = generateCurrentSituationForecast(data, industryData, detailedInfo);
 
   return {
-    // 기본 진단 정보
+    // 기본 진단 정보 (세부 업종 정보 포함)
     companyName: data.companyName,
-    industry: data.industry,
+    industry: industryDisplayName, // 세부 업종명 표시
+    originalIndustryCode: data.industry, // 원본 업종 코드
+    mappedCategory: mappedIndustry, // 매핑된 카테고리
     employeeCount: data.employeeCount,
     growthStage: data.growthStage,
     totalScore: finalScore,
     marketPosition: marketPosition,
     reliabilityScore: reliabilityScore,
-    scoreDescription: `${data.companyName}은(는) ${industryData.marketGrowth} 성장률을 보이는 ${data.industry} 업계에서 ${marketPosition}의 경쟁력을 보유하고 있습니다.`,
+    scoreDescription: `${data.companyName}은(는) ${industryData.marketGrowth} 성장률을 보이는 ${industryDisplayName} 분야에서 ${marketPosition}의 경쟁력을 보유하고 있습니다.`,
     
-    // 📊 세부 지표 (신뢰도 향상)
+    // 📊 세부 지표 (업종별 특화 정보 포함)
     detailedMetrics: scoreResult.metrics,
     evaluationBasis: scoreResult.evaluationBasis,
     industryBenchmarks: industryData.benchmarks,
+    specialization: detailedInfo?.specialization || [],
+    industryTrends: detailedInfo?.trends || industryData.keyTrends,
     
     // 업계 분석 (확장)
     industryGrowth: industryData.marketGrowth,
@@ -645,12 +895,12 @@ function generateSimplifiedDiagnosis(data: SimplifiedDiagnosisRequest) {
     marketSize: industryData.marketSize,
     competitionLevel: industryData.competitionLevel,
     digitalMaturity: industryData.digitalMaturity,
-    keyTrends: industryData.keyTrends,
+    keyTrends: detailedInfo?.trends || industryData.keyTrends,
     industryChallenges: industryData.challenges,
     
-    // SWOT 간소화 분석 (프리미엄 보고서 호환)
+    // SWOT 간소화 분석 (업종별 맞춤화)
     strengths: [
-      `${data.industry} 업계에서의 전문성과 경험`,
+      `${industryDisplayName} 분야에서의 전문성과 경험`,
       `${data.employeeCount} 규모에 최적화된 조직 운영`,
       '시장 니즈에 대한 이해도',
       '기업 성장 의지와 개선 의욕'
@@ -665,7 +915,7 @@ function generateSimplifiedDiagnosis(data: SimplifiedDiagnosisRequest) {
       ...industryData.opportunities,
       '정부 지원사업 및 정책자금 활용',
       'M-CENTER 전문 서비스를 통한 경쟁력 강화',
-      '업계 디지털 전환 트렌드 적극 활용'
+      `${industryDisplayName} 특화 트렌드 적극 활용`
     ],
     threats: [
       '업계 내 경쟁 심화 및 시장 포화',
@@ -674,10 +924,10 @@ function generateSimplifiedDiagnosis(data: SimplifiedDiagnosisRequest) {
       '외부 경제 환경 변화 리스크'
     ],
     
-    // 현안상황예측 (개선된 부분)
+    // 현안상황예측 (세부 업종별 맞춤화)
     currentSituationForecast: currentSituationForecast,
     
-    // 맞춤 서비스 추천
+    // 맞춤 서비스 추천 (세부 업종별 최적화)
     recommendedServices: recommendedServices.map(serviceId => ({
       id: serviceId,
       ...mCenterServices[serviceId as keyof typeof mCenterServices]
@@ -793,55 +1043,72 @@ export async function POST(request: NextRequest) {
     console.log('📋 2000자 요약 보고서 생성 중...');
     const summaryReport = generateSummaryReport(diagnosisResult);
     
-    // 3단계: Google Sheets 저장 및 이메일 발송 (실패해도 진단 결과는 반환)
-    let googleSheetsSaved = false;
-    let emailSent = false;
-    let warnings: string[] = [];
-    
+    // 3단계: 통합 데이터 처리 (구글시트 저장 + 이메일 발송)
+    let processingResult = {
+      googleSheetsSaved: false,
+      userEmailSent: false,
+      adminEmailSent: false,
+      errors: [] as string[],
+      warnings: [] as string[]
+    };
+
     try {
-      console.log('💾 Google Sheets 저장 및 이메일 발송 시도...');
+      console.log('🔄 통합 데이터 처리 시작 (구글시트 + 이메일)...');
       
-      // emailService에서 사용하는 DiagnosisFormData 형식으로 변환
-      const diagnosisFormData: DiagnosisFormData = {
-        submitDate: data.submitDate,
+      // 진단 데이터 처리를 위한 표준화된 폼 데이터 생성
+      const diagnosisFormData = {
         companyName: data.companyName,
-        industry: data.industry,
+        industry: data.industry, 
         businessStage: data.growthStage,
         employeeCount: data.employeeCount,
-        establishedYear: '정보 없음', // 간소화 버전에서는 수집하지 않음
+        establishedYear: new Date().getFullYear().toString(),
         mainConcerns: data.mainConcerns,
-        expectedBudget: data.expectedBenefits, // expectedBenefits를 예산란으로 매핑
-        urgency: '보통', // 기본값
+        expectedBudget: '미정',
+        urgency: '보통',
         contactName: data.contactManager,
-        contactPhone: '정보 없음', // 간소화 버전에서는 수집하지 않음
+        contactPhone: '정보없음',
         contactEmail: data.email,
-        privacyConsent: data.privacyConsent
+        privacyConsent: data.privacyConsent,
+        submitDate: new Date().toLocaleString('ko-KR'),
+        
+        // 🔧 진단 결과 정보 추가 (구글시트 저장용)
+        diagnosisScore: data.diagnosisResults?.totalScore || diagnosisResult.totalScore,
+        recommendedServices: data.diagnosisResults?.recommendedServices?.map(s => s.name || s.id).join(', ') || 
+                           diagnosisResult.recommendedServices.map(s => s.name).join(', '),
+        reportType: data.diagnosisResults?.reportType || '간소화된_AI진단',
+        diagnosisFormType: 'AI_무료진단_레벨업시트' // 폼 타입 명시
       };
+
+      // processDiagnosisSubmission 사용하여 통합 처리
+      const { processDiagnosisSubmission } = await import('@/lib/utils/emailService');
+      const result = await processDiagnosisSubmission(diagnosisFormData);
       
-      // 통합 진단 신청 처리 (Google Sheets 저장 + 이메일 발송)
-      const processResult = await processDiagnosisSubmission(diagnosisFormData);
-      
-      googleSheetsSaved = processResult.sheetSaved;
-      emailSent = processResult.autoReplySent;
-      warnings = processResult.warnings || [];
-      
-      if (googleSheetsSaved) {
-        console.log('✅ Google Sheets 저장 성공');
-      } else {
-        console.warn('⚠️ Google Sheets 저장 실패:', processResult.errors);
-        warnings.push('구글시트 저장에 실패했지만 진단 결과는 정상적으로 생성되었습니다.');
-      }
-      
-      if (emailSent) {
-        console.log('📧 신청 확인 이메일 발송 성공');
-      } else {
-        console.warn('⚠️ 이메일 발송 실패:', processResult.errors);
-        warnings.push('이메일 발송에 실패했지만 진단 결과는 정상적으로 생성되었습니다.');
+      processingResult = {
+        googleSheetsSaved: result.sheetSaved,
+        userEmailSent: result.autoReplySent,
+        adminEmailSent: result.adminNotified,
+        errors: result.errors,
+        warnings: result.warnings || []
+      };
+
+      console.log('✅ 통합 데이터 처리 완료:', {
+        구글시트저장: result.sheetSaved,
+        사용자이메일: result.autoReplySent,
+        관리자이메일: result.adminNotified,
+        오류개수: result.errors.length,
+        진단점수: diagnosisFormData.diagnosisScore,
+        추천서비스: diagnosisFormData.recommendedServices.substring(0, 50) + '...'
+      });
+
+      // 일부 실패하더라도 경고로 처리 (진단은 성공)
+      if (result.errors.length > 0) {
+        processingResult.warnings.push(`일부 기능에서 오류 발생: ${result.errors.join(', ')}`);
       }
 
     } catch (dataProcessingError) {
-      console.warn('⚠️ 데이터 처리 중 오류 (진단 결과는 정상):', dataProcessingError);
-      warnings.push('일부 기능(구글시트/이메일)에서 오류가 발생했지만 진단 결과는 정상적으로 생성되었습니다.');
+      console.error('⚠️ 데이터 처리 중 오류 (진단 결과는 정상):', dataProcessingError);
+      processingResult.errors.push('데이터 저장/이메일 발송 중 오류가 발생했습니다.');
+      processingResult.warnings.push('진단 결과는 정상적으로 생성되었으나 일부 기능에서 문제가 발생했습니다.');
     }
 
     // 4단계: 진단 결과 생성 및 반환 (항상 성공)
@@ -866,10 +1133,14 @@ export async function POST(request: NextRequest) {
           hour: '2-digit', 
           minute: '2-digit' 
         }),
-        googleSheetsSaved,
+        // 처리 결과 상세 정보
+        googleSheetsSaved: processingResult.googleSheetsSaved,
+        userEmailSent: processingResult.userEmailSent,
+        adminEmailSent: processingResult.adminEmailSent,
         processingTime: `${processingTimeSeconds}초`,
         reportType: '🎨 프리미엄 AI 진단 보고서',
-        warnings: warnings.length > 0 ? warnings : undefined
+        warnings: processingResult.warnings.length > 0 ? processingResult.warnings : undefined,
+        errors: processingResult.errors.length > 0 ? processingResult.errors : undefined
       },
       timestamp: new Date().toISOString()
     });
