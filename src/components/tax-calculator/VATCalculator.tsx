@@ -370,7 +370,7 @@ export default function VATCalculator() {
                       <p>• {inputs.taxPeriod === 'first' ? '1~6월' : '7~12월'} 매출액을 입력하세요</p>
                       <p>• 부가가치율 {(getVATRateByBusiness(additionalInfo.businessCategory) * 100).toFixed(1)}% 적용 → 
                          예상세액: {additionalInfo.periodSales > 0 ? 
-                           Math.floor(additionalInfo.periodSales * getVATRateByBusiness(additionalInfo.businessCategory)).toLocaleString() : 0}원
+                           Math.floor(additionalInfo.periodSales * getVATRateByBusiness(additionalInfo.businessCategory)).toLocaleString('ko-KR') : 0}원
                       </p>
                     </div>
                   </div>
@@ -634,7 +634,7 @@ export default function VATCalculator() {
                           <TrendingUp className="w-12 h-12 text-red-500 mx-auto mb-3" />
                           <p className="text-sm text-gray-600 mb-2">납부할 세액</p>
                           <p className="text-3xl font-bold text-red-600">
-                            {result.vatPayable.toLocaleString()}원
+                            {Math.round(result.vatPayable).toLocaleString('ko-KR')}원
                           </p>
                         </>
                       ) : result.vatRefundable > 0 ? (
@@ -642,7 +642,7 @@ export default function VATCalculator() {
                           <TrendingDown className="w-12 h-12 text-green-500 mx-auto mb-3" />
                           <p className="text-sm text-gray-600 mb-2">환급받을 세액</p>
                           <p className="text-3xl font-bold text-green-600">
-                            {result.vatRefundable.toLocaleString()}원
+                            {Math.round(result.vatRefundable).toLocaleString('ko-KR')}원
                           </p>
                         </>
                       ) : (
@@ -664,7 +664,7 @@ export default function VATCalculator() {
                           <div className="flex justify-between items-start mb-2">
                             <span className="font-medium text-gray-900">{step.label}</span>
                             <span className="font-bold text-lg">
-                              {step.amount.toLocaleString()}원
+                              {Math.round(step.amount).toLocaleString('ko-KR')}원
                             </span>
                           </div>
                           {step.formula && (

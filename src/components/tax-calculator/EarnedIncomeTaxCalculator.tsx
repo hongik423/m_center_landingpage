@@ -123,68 +123,70 @@ const validateStep = (step: number, data: TaxCalculationData): { isValid: boolea
   return { isValid: errors.length === 0, errors };
 };
 
-// 세금 계산 함수
+// 세금 계산 함수 - 완전히 수정된 버전
 const calculateTax = (data: TaxCalculationData): TaxCalculationData['results'] => {
   const { annualSalary, dependents, elderlyDependents, disabledDependents } = data;
   
-  // 근로소득공제 (2024년 기준)
+  // 근로소득공제 (2024년 기준) - 정수로 반올림
   let earnedIncomeDeduction = 0;
   if (annualSalary <= 5000000) {
-    earnedIncomeDeduction = annualSalary * 0.7;
+    earnedIncomeDeduction = Math.round(annualSalary * 0.7);
   } else if (annualSalary <= 15000000) {
-    earnedIncomeDeduction = 3500000 + (annualSalary - 5000000) * 0.4;
+    earnedIncomeDeduction = Math.round(3500000 + (annualSalary - 5000000) * 0.4);
   } else if (annualSalary <= 45000000) {
-    earnedIncomeDeduction = 7500000 + (annualSalary - 15000000) * 0.15;
+    earnedIncomeDeduction = Math.round(7500000 + (annualSalary - 15000000) * 0.15);
   } else if (annualSalary <= 100000000) {
-    earnedIncomeDeduction = 12000000 + (annualSalary - 45000000) * 0.05;
+    earnedIncomeDeduction = Math.round(12000000 + (annualSalary - 45000000) * 0.05);
   } else {
-    earnedIncomeDeduction = 14750000 + (annualSalary - 100000000) * 0.02;
+    earnedIncomeDeduction = Math.round(14750000 + (annualSalary - 100000000) * 0.02);
   }
   
-  // 인적공제
+  // 인적공제 - 정수 계산
   const personalDeduction = (1 + dependents + elderlyDependents + disabledDependents) * 1500000;
   const additionalDeduction = elderlyDependents * 1000000 + disabledDependents * 2000000;
   
-  // 사회보험료 (추정치)
-  const socialInsurance = annualSalary * 0.087; // 국민연금 4.5% + 건강보험 3.545% + 고용보험 0.9%
+  // 사회보험료 (추정치) - 정수로 반올림
+  const socialInsurance = Math.round(annualSalary * 0.087);
   
-  // 표준공제 (건보료, 국민연금 등)
-  const standardDeduction = Math.max(socialInsurance, 1300000); // 최소 130만원
+  // 표준공제 - 정수 계산
+  const standardDeduction = Math.max(socialInsurance, 1300000);
   
   const totalDeductions = earnedIncomeDeduction + personalDeduction + additionalDeduction + standardDeduction;
   const taxableIncome = Math.max(0, annualSalary - totalDeductions);
   
-  // 종합소득세 계산 (2024년 기준)
+  // 종합소득세 계산 (2024년 기준) - 정수로 반올림
   let calculatedTax = 0;
   if (taxableIncome <= 14000000) {
-    calculatedTax = taxableIncome * 0.06;
+    calculatedTax = Math.round(taxableIncome * 0.06);
   } else if (taxableIncome <= 50000000) {
-    calculatedTax = 840000 + (taxableIncome - 14000000) * 0.15;
+    calculatedTax = Math.round(840000 + (taxableIncome - 14000000) * 0.15);
   } else if (taxableIncome <= 88000000) {
-    calculatedTax = 6240000 + (taxableIncome - 50000000) * 0.24;
+    calculatedTax = Math.round(6240000 + (taxableIncome - 50000000) * 0.24);
   } else if (taxableIncome <= 150000000) {
-    calculatedTax = 15360000 + (taxableIncome - 88000000) * 0.35;
+    calculatedTax = Math.round(15360000 + (taxableIncome - 88000000) * 0.35);
   } else if (taxableIncome <= 300000000) {
-    calculatedTax = 37060000 + (taxableIncome - 150000000) * 0.38;
+    calculatedTax = Math.round(37060000 + (taxableIncome - 150000000) * 0.38);
   } else if (taxableIncome <= 500000000) {
-    calculatedTax = 94060000 + (taxableIncome - 300000000) * 0.40;
+    calculatedTax = Math.round(94060000 + (taxableIncome - 300000000) * 0.40);
   } else if (taxableIncome <= 1000000000) {
-    calculatedTax = 174060000 + (taxableIncome - 500000000) * 0.42;
+    calculatedTax = Math.round(174060000 + (taxableIncome - 500000000) * 0.42);
   } else {
-    calculatedTax = 384060000 + (taxableIncome - 1000000000) * 0.45;
+    calculatedTax = Math.round(384060000 + (taxableIncome - 1000000000) * 0.45);
   }
   
-  // 지방소득세 (소득세의 10%)
-  const localIncomeTax = calculatedTax * 0.1;
+  // 지방소득세 (소득세의 10%) - 정수로 반올림
+  const localIncomeTax = Math.round(calculatedTax * 0.1);
   
-  // 세액공제
-  const totalTaxCredits = Math.min(data.rentExpense * 12 * 0.12, 750000) + // 월세 세액공제
-                         Math.min(data.donations, taxableIncome * 0.3) * 0.15 + // 기부금 세액공제
-                         Math.min(data.medicalExpense, Math.max(0, annualSalary * 0.03)) * 0.15; // 의료비 세액공제
+  // 세액공제 - 정수로 반올림
+  const rentCredit = Math.min(Math.round(data.rentExpense * 12 * 0.12), 750000);
+  const donationCredit = Math.round(Math.min(data.donations, taxableIncome * 0.3) * 0.15);
+  const medicalCredit = Math.round(Math.min(data.medicalExpense, Math.max(0, annualSalary * 0.03)) * 0.15);
+  const totalTaxCredits = rentCredit + donationCredit + medicalCredit;
   
   const finalTax = Math.max(0, calculatedTax + localIncomeTax - totalTaxCredits);
   const annualTakeHome = annualSalary - finalTax;
-  const monthlyTakeHome = annualTakeHome / 12;
+  // 🔥 월 실수령액 - 정수로 반올림하여 소수점 완전 제거
+  const monthlyTakeHome = Math.round(annualTakeHome / 12);
   
   return {
     grossIncome: annualSalary,
@@ -193,7 +195,7 @@ const calculateTax = (data: TaxCalculationData): TaxCalculationData['results'] =
     calculatedTax: calculatedTax + localIncomeTax,
     totalTaxCredits,
     finalTax,
-    monthlyTakeHome,
+    monthlyTakeHome, // 정수값 반환
     annualTakeHome
   };
 };
@@ -281,7 +283,7 @@ export default function EarnedIncomeTaxCalculatorComponent() {
                 <div>
                   <p className="text-sm font-medium text-blue-600">월 실수령액</p>
                   <p className="text-2xl font-bold text-blue-900">
-                    {results.monthlyTakeHome.toLocaleString()}원
+                    {Math.round(results.monthlyTakeHome).toLocaleString('ko-KR')}원
                   </p>
                 </div>
                 <DollarSign className="w-8 h-8 text-blue-600" />
@@ -295,7 +297,7 @@ export default function EarnedIncomeTaxCalculatorComponent() {
                 <div>
                   <p className="text-sm font-medium text-red-600">총 세금</p>
                   <p className="text-2xl font-bold text-red-900">
-                    {results.finalTax.toLocaleString()}원
+                    {Math.round(results.finalTax).toLocaleString('ko-KR')}원
                   </p>
                   <p className="text-xs text-red-600">실효세율: {taxRate}%</p>
                 </div>
@@ -310,7 +312,7 @@ export default function EarnedIncomeTaxCalculatorComponent() {
                 <div>
                   <p className="text-sm font-medium text-green-600">연 실수령액</p>
                   <p className="text-2xl font-bold text-green-900">
-                    {results.annualTakeHome.toLocaleString()}원
+                    {Math.round(results.annualTakeHome).toLocaleString('ko-KR')}원
                   </p>
                   <p className="text-xs text-green-600">수령률: {takeHomeRate}%</p>
                 </div>
@@ -330,27 +332,27 @@ export default function EarnedIncomeTaxCalculatorComponent() {
             <div className="space-y-3">
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="text-gray-600">연간 총소득</span>
-                <span className="font-medium">{results.grossIncome.toLocaleString()}원</span>
+                <span className="font-medium">{Math.round(results.grossIncome).toLocaleString('ko-KR')}원</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="text-gray-600">총 소득공제</span>
-                <span className="font-medium text-blue-600">-{results.totalDeductions.toLocaleString()}원</span>
+                <span className="font-medium text-blue-600">-{Math.round(results.totalDeductions).toLocaleString('ko-KR')}원</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="text-gray-600">과세표준</span>
-                <span className="font-medium">{results.taxableIncome.toLocaleString()}원</span>
+                <span className="font-medium">{Math.round(results.taxableIncome).toLocaleString('ko-KR')}원</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="text-gray-600">산출세액</span>
-                <span className="font-medium text-red-600">{results.calculatedTax.toLocaleString()}원</span>
+                <span className="font-medium text-red-600">{Math.round(results.calculatedTax).toLocaleString('ko-KR')}원</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="text-gray-600">총 세액공제</span>
-                <span className="font-medium text-green-600">-{results.totalTaxCredits.toLocaleString()}원</span>
+                <span className="font-medium text-green-600">-{Math.round(results.totalTaxCredits).toLocaleString('ko-KR')}원</span>
               </div>
               <div className="flex justify-between items-center py-2 border-t-2 border-gray-300 font-bold">
                 <span>최종 납부세액</span>
-                <span className="text-red-600">{results.finalTax.toLocaleString()}원</span>
+                <span className="text-red-600">{Math.round(results.finalTax).toLocaleString('ko-KR')}원</span>
               </div>
             </div>
           </CardContent>

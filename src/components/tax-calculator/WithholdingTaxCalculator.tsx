@@ -374,10 +374,10 @@ const WithholdingTaxCalculator: React.FC = () => {
               </div>
               <div className="text-right">
                 <div className="text-2xl font-bold text-emerald-600">
-                  {estimatedTax.toLocaleString()}원
+                  {Math.round(estimatedTax).toLocaleString('ko-KR')}원
                 </div>
                 <div className="text-sm text-emerald-600">
-                  실수령액: {(input.paymentAmount - estimatedTax).toLocaleString()}원
+                  실수령액: {Math.round(input.paymentAmount - estimatedTax).toLocaleString('ko-KR')}원
                 </div>
               </div>
             </div>
@@ -439,7 +439,7 @@ const WithholdingTaxCalculator: React.FC = () => {
                           {sample.category}
                         </Badge>
                         <span className="text-sm font-bold text-emerald-600">
-                          {sample.expectedResult.tax.toLocaleString()}원
+                          {Math.round(sample.expectedResult.tax).toLocaleString('ko-KR')}원
                         </span>
                       </div>
                       
@@ -452,7 +452,7 @@ const WithholdingTaxCalculator: React.FC = () => {
                         <div className="flex justify-between">
                           <span>지급액:</span>
                           <span className="font-medium">
-                            {sample.input.paymentAmount.toLocaleString()}원
+                            {Math.round(sample.input.paymentAmount).toLocaleString('ko-KR')}원
                           </span>
                         </div>
                         <div className="flex justify-between">
@@ -464,7 +464,7 @@ const WithholdingTaxCalculator: React.FC = () => {
                         <div className="flex justify-between">
                           <span>실수령액:</span>
                           <span className="font-medium text-blue-600">
-                            {sample.expectedResult.netAmount.toLocaleString()}원
+                            {Math.round(sample.expectedResult.netAmount).toLocaleString('ko-KR')}원
                           </span>
                         </div>
                       </div>
@@ -935,14 +935,14 @@ const WithholdingTaxCalculator: React.FC = () => {
                     <div className="text-center">
                       <div className="text-sm text-gray-600 mb-1">지급액</div>
                       <div className="text-2xl font-bold text-gray-900">
-                        {result.paymentAmount.toLocaleString()}원
+                        {Math.round(result.paymentAmount).toLocaleString('ko-KR')}원
                       </div>
                     </div>
                     
                     <div className="text-center">
                       <div className="text-sm text-gray-600 mb-1">원천징수세액</div>
                       <div className="text-2xl font-bold text-red-600">
-                        -{result.totalTax.toLocaleString()}원
+                        -{Math.round(result.totalTax).toLocaleString('ko-KR')}원
                       </div>
                       <div className="text-sm text-gray-500">
                         (세율: {(result.appliedRate * 100).toFixed(2)}%)
@@ -952,7 +952,7 @@ const WithholdingTaxCalculator: React.FC = () => {
                     <div className="text-center">
                       <div className="text-sm text-gray-600 mb-1">실수령액</div>
                       <div className="text-2xl font-bold text-emerald-600">
-                        {result.netAmount.toLocaleString()}원
+                        {Math.round(result.netAmount).toLocaleString('ko-KR')}원
                       </div>
                     </div>
                   </div>
@@ -977,7 +977,7 @@ const WithholdingTaxCalculator: React.FC = () => {
                           step.amount < 0 ? 'text-red-600' : 
                           step.label.includes('실수령') ? 'text-emerald-600' : 'text-gray-900'
                         }`}>
-                          {step.amount < 0 ? '-' : ''}{Math.abs(step.amount).toLocaleString()}원
+                          {step.amount < 0 ? '-' : ''}{Math.abs(Math.round(step.amount)).toLocaleString('ko-KR')}원
                         </div>
                       </div>
                     ))}
