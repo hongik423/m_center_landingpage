@@ -105,12 +105,12 @@ export class EarnedIncomeTaxCalculator {
     let deduction = DEDUCTION_AMOUNTS_2024.personal.basic; // 본인공제
     deduction += input.dependents * DEDUCTION_AMOUNTS_2024.personal.dependent; // 부양가족공제
     
-    if (input.isDisabled) {
-      deduction += DEDUCTION_AMOUNTS_2024.personal.disabled; // 장애인공제
+    if (input.disabledCount && input.disabledCount > 0) {
+      deduction += DEDUCTION_AMOUNTS_2024.personal.disabled * input.disabledCount; // 장애인공제
     }
     
-    if (input.isElderly) {
-      deduction += DEDUCTION_AMOUNTS_2024.personal.elderly; // 경로우대공제
+    if (input.elderlyCount && input.elderlyCount > 0) {
+      deduction += DEDUCTION_AMOUNTS_2024.personal.elderly * input.elderlyCount; // 경로우대공제
     }
     
     return deduction;
@@ -1395,16 +1395,16 @@ export class ComprehensiveIncomeTaxCalculator {
     let personalDeduction = DEDUCTION_AMOUNTS_2024.personal.basic; // 본인공제
     personalDeduction += input.dependents * DEDUCTION_AMOUNTS_2024.personal.dependent; // 부양가족공제
     
-    if (input.spouseDeduction) {
-      personalDeduction += DEDUCTION_AMOUNTS_2024.personal.spouse || 1500000; // 배우자공제
+    if (input.spouseCount && input.spouseCount > 0) {
+      personalDeduction += (DEDUCTION_AMOUNTS_2024.personal.spouse || 1500000) * input.spouseCount; // 배우자공제
     }
     
-    if (input.isDisabled) {
-      personalDeduction += DEDUCTION_AMOUNTS_2024.personal.disabled; // 장애인공제
+    if (input.disabledCount && input.disabledCount > 0) {
+      personalDeduction += DEDUCTION_AMOUNTS_2024.personal.disabled * input.disabledCount; // 장애인공제
     }
     
-    if (input.isElderly) {
-      personalDeduction += DEDUCTION_AMOUNTS_2024.personal.elderly; // 경로우대공제
+    if (input.elderlyCount && input.elderlyCount > 0) {
+      personalDeduction += DEDUCTION_AMOUNTS_2024.personal.elderly * input.elderlyCount; // 경로우대공제
     }
 
     // 2. 연금보험료공제
@@ -1589,9 +1589,9 @@ export class ComprehensiveIncomeTaxCalculator {
     // 인적공제
     let personalDeduction = DEDUCTION_AMOUNTS_2024.personal.basic;
     personalDeduction += input.dependents * DEDUCTION_AMOUNTS_2024.personal.dependent;
-    if (input.spouseDeduction) personalDeduction += 1500000;
-    if (input.isDisabled) personalDeduction += DEDUCTION_AMOUNTS_2024.personal.disabled;
-    if (input.isElderly) personalDeduction += DEDUCTION_AMOUNTS_2024.personal.elderly;
+    if (input.spouseCount && input.spouseCount > 0) personalDeduction += 1500000 * input.spouseCount;
+    if (input.disabledCount && input.disabledCount > 0) personalDeduction += DEDUCTION_AMOUNTS_2024.personal.disabled * input.disabledCount;
+    if (input.elderlyCount && input.elderlyCount > 0) personalDeduction += DEDUCTION_AMOUNTS_2024.personal.elderly * input.elderlyCount;
     
     deductions.push({ type: 'personal', label: '인적공제', amount: personalDeduction });
     

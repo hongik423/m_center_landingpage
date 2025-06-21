@@ -189,7 +189,7 @@ function NumberInput({
           onChange={handleChange}
           placeholder={placeholder}
           disabled={disabled}
-          className={`pr-8 ${isOverLimit ? 'border-orange-400 bg-orange-50' : ''}`}
+          className={`pr-8 text-right font-mono ${isOverLimit ? 'border-orange-400 bg-orange-50' : ''}`}
         />
         {suffix && (
           <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">
@@ -240,9 +240,9 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
     
     // 인적공제
     dependents: 0,
-    spouseDeduction: false,
-    isDisabled: false,
-    isElderly: false,
+    spouseCount: 0,
+    disabledCount: 0,
+    elderlyCount: 0,
     
     // 소득공제
     personalPensionContribution: 0,
@@ -313,18 +313,20 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
       rentalExpenses: 0,
       earnedIncomeDeduction: 0,
       dependents: 0,
-      spouseDeduction: false,
-      isDisabled: false,
-      isElderly: false,
+      spouseCount: 0,
+      disabledCount: 0,
+      elderlyCount: 0,
       personalPensionContribution: 0,
       pensionSavings: 0,
       housingFund: 0,
       medicalExpenses: 0,
       educationExpenses: 0,
       donationAmount: 0,
-      creditCardUsage: 0,
-      childTaxCredit: 0,
-      earnedIncomeTaxCredit: 0,
+          creditCardUsage: 0,
+    childrenCount: 0,
+    childrenUnder6Count: 0,
+    childTaxCredit: 0,
+    earnedIncomeTaxCredit: 0,
       previousYearTaxPaid: 0,
       isSmallBusiness: false
     });
@@ -344,9 +346,9 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
       rentalExpenses: 3000000,        // 300만원
       earnedIncomeDeduction: 14000000, // 근로소득공제
       dependents: 2,                  // 부양가족 2명
-      spouseDeduction: true,          // 배우자 있음
-      isDisabled: false,
-      isElderly: false,
+      spouseCount: 1,                 // 배우자 1명
+      disabledCount: 0,               // 장애인 0명
+      elderlyCount: 0,                // 경로우대자 0명
       personalPensionContribution: 4000000,  // 400만원
       pensionSavings: 0,
       housingFund: 240000,            // 24만원
@@ -354,12 +356,29 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
       educationExpenses: 1000000,     // 100만원
       donationAmount: 1000000,        // 100만원
       creditCardUsage: 15000000,      // 1500만원
-      childTaxCredit: 0,
+      childrenCount: 2,               // 자녀 2명
+      childrenUnder6Count: 0,         // 6세 이하 0명  
+      childTaxCredit: 0,              // 자동계산
       earnedIncomeTaxCredit: 0,
       previousYearTaxPaid: 5000000,   // 기납부세액 500만원
       isSmallBusiness: false
     });
   };
+
+  // 자녀세액공제 자동 계산
+  useEffect(() => {
+    const basicChildCredit = inputs.childrenCount * 150000; // 기본 15만원/명
+    const under6Credit = inputs.childrenUnder6Count * 120000; // 6세 이하 추가 12만원/명
+    const totalChildCredit = basicChildCredit + under6Credit;
+    
+    // 6세 이하 자녀가 전체 자녀보다 많으면 조정
+    const adjustedUnder6Count = Math.min(inputs.childrenUnder6Count, inputs.childrenCount);
+    const adjustedCredit = inputs.childrenCount * 150000 + adjustedUnder6Count * 120000;
+    
+    if (inputs.childTaxCredit !== adjustedCredit) {
+      updateInput('childTaxCredit', adjustedCredit);
+    }
+  }, [inputs.childrenCount, inputs.childrenUnder6Count]);
 
   // 총소득이 있을 때만 자동 계산
   useEffect(() => {
@@ -427,62 +446,109 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
                 <h4 className="font-medium text-gray-900 border-b pb-2">소득 유형별 금액</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <NumberInput
-                    label="이자소득"
+                    label="이자소득 (연간)"
                     value={inputs.interestIncome}
                     onChange={(value) => updateInput('interestIncome', value)}
                     placeholder="예적금 이자 등"
+                    suffix="원/년"
                     max={50000000000}
                     allInputs={inputs}
                   />
                   <NumberInput
-                    label="배당소득"
+                    label="배당소득 (연간)"
                     value={inputs.dividendIncome}
                     onChange={(value) => updateInput('dividendIncome', value)}
                     placeholder="주식 배당금 등"
+                    suffix="원/년"
                     max={50000000000}
                     allInputs={inputs}
                   />
                   <NumberInput
-                    label="사업소득"
+                    label="사업소득 (연간)"
                     value={inputs.businessIncome}
                     onChange={(value) => updateInput('businessIncome', value)}
                     placeholder="사업 수입금액"
+                    suffix="원/년"
                     max={50000000000}
                     allInputs={inputs}
                   />
                   <NumberInput
-                    label="부동산임대소득"
+                    label="부동산임대소득 (연간)"
                     value={inputs.realEstateRentalIncome}
                     onChange={(value) => updateInput('realEstateRentalIncome', value)}
                     placeholder="임대료 수입"
+                    suffix="원/년"
                     max={50000000000}
                     allInputs={inputs}
                   />
                   <NumberInput
-                    label="근로소득"
+                    label="근로소득 (연간)"
                     value={inputs.earnedIncome}
                     onChange={(value) => updateInput('earnedIncome', value)}
                     placeholder="급여, 상여 등"
+                    suffix="원/년"
                     max={50000000000}
                     allInputs={inputs}
                   />
                   <NumberInput
-                    label="연금소득"
+                    label="연금소득 (연간)"
                     value={inputs.pensionIncome}
                     onChange={(value) => updateInput('pensionIncome', value)}
                     placeholder="연금 수급액"
+                    suffix="원/년"
                     max={50000000000}
                     allInputs={inputs}
                   />
                   <NumberInput
-                    label="기타소득"
+                    label="기타소득 (연간)"
                     value={inputs.otherIncome}
                     onChange={(value) => updateInput('otherIncome', value)}
                     placeholder="강의료, 원고료 등"
+                    suffix="원/년"
                     max={50000000000}
                     allInputs={inputs}
                     className="md:col-span-2"
                   />
+                </div>
+
+                {/* 종합소득 합계 표시 */}
+                <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Calculator className="w-5 h-5 text-blue-600" />
+                      <span className="font-semibold text-blue-900">종합소득 합계</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-blue-900 font-mono">
+                        {(inputs.interestIncome + inputs.dividendIncome + inputs.businessIncome + 
+                          inputs.realEstateRentalIncome + inputs.earnedIncome + inputs.pensionIncome + 
+                          inputs.otherIncome).toLocaleString('ko-KR')}원
+                      </div>
+                      <div className="text-sm text-blue-600 mt-1">
+                        총 수입금액 (연간)
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* 소득별 세부 내역 */}
+                  <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                    {[
+                      { label: '이자', value: inputs.interestIncome },
+                      { label: '배당', value: inputs.dividendIncome },
+                      { label: '사업', value: inputs.businessIncome },
+                      { label: '임대', value: inputs.realEstateRentalIncome },
+                      { label: '근로', value: inputs.earnedIncome },
+                      { label: '연금', value: inputs.pensionIncome },
+                      { label: '기타', value: inputs.otherIncome }
+                    ].filter(item => item.value > 0).map((item, index) => (
+                      <div key={index} className="bg-white p-2 rounded">
+                        <div className="text-blue-600 font-medium">{item.label}</div>
+                        <div className="text-blue-900 font-mono text-right">
+                          {item.value.toLocaleString('ko-KR')}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -493,28 +559,31 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
                 <h4 className="font-medium text-gray-900 border-b pb-2">필요경비</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <NumberInput
-                    label="사업소득 필요경비"
+                    label="사업소득 필요경비 (연간)"
                     value={inputs.businessExpenses}
                     onChange={(value) => updateInput('businessExpenses', value)}
+                    suffix="원/년"
                     max={inputs.businessIncome || 50000000000}
                     warningMessage="필요경비는 사업소득을 초과할 수 없습니다"
                     relatedIncome={inputs.businessIncome}
                     allInputs={inputs}
                   />
                   <NumberInput
-                    label="임대소득 필요경비"
+                    label="임대소득 필요경비 (연간)"
                     value={inputs.rentalExpenses}
                     onChange={(value) => updateInput('rentalExpenses', value)}
+                    suffix="원/년"
                     max={inputs.realEstateRentalIncome || 50000000000}
                     warningMessage="필요경비는 임대소득을 초과할 수 없습니다"
                     relatedIncome={inputs.realEstateRentalIncome}
                     allInputs={inputs}
                   />
                   <NumberInput
-                    label="근로소득공제"
+                    label="근로소득공제 (연간)"
                     value={inputs.earnedIncomeDeduction}
                     onChange={(value) => updateInput('earnedIncomeDeduction', value)}
                     placeholder="급여 근로소득공제"
+                    suffix="원/년"
                     max={20000000}
                     limitInfo="최대 2천만원"
                     allInputs={inputs}
@@ -543,36 +612,39 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
                     suffix="명"
                   />
                   <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="spouse"
-                        checked={inputs.spouseDeduction}
-                        onCheckedChange={(checked) => updateInput('spouseDeduction', checked)}
-                      />
-                      <Label htmlFor="spouse" className="text-sm">
-                        배우자 공제 (150만원)
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="disabled"
-                        checked={inputs.isDisabled}
-                        onCheckedChange={(checked) => updateInput('isDisabled', checked)}
-                      />
-                      <Label htmlFor="disabled" className="text-sm">
-                        장애인 공제 (200만원)
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="elderly"
-                        checked={inputs.isElderly}
-                        onCheckedChange={(checked) => updateInput('isElderly', checked)}
-                      />
-                      <Label htmlFor="elderly" className="text-sm">
-                        경로우대 공제 (100만원)
-                      </Label>
-                    </div>
+                    <NumberInput
+                      label="배우자 수"
+                      value={inputs.spouseCount}
+                      onChange={(value) => updateInput('spouseCount', value)}
+                      suffix="명"
+                      min={0}
+                      max={1}
+                      placeholder="0~1명"
+                      limitInfo="150만원/명"
+                      allInputs={inputs}
+                    />
+                    <NumberInput
+                      label="장애인 수"
+                      value={inputs.disabledCount}
+                      onChange={(value) => updateInput('disabledCount', value)}
+                      suffix="명"
+                      min={0}
+                      max={20}
+                      placeholder="0명"
+                      limitInfo="200만원/명"
+                      allInputs={inputs}
+                    />
+                    <NumberInput
+                      label="경로우대자 수 (65세 이상)"
+                      value={inputs.elderlyCount}
+                      onChange={(value) => updateInput('elderlyCount', value)}
+                      suffix="명"
+                      min={0}
+                      max={20}
+                      placeholder="0명"
+                      limitInfo="100만원/명"
+                      allInputs={inputs}
+                    />
                   </div>
                 </div>
               </div>
@@ -584,58 +656,65 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
                 <h4 className="font-medium text-gray-900 border-b pb-2">소득공제</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <NumberInput
-                    label="개인연금"
+                    label="개인연금 (연간)"
                     value={inputs.personalPensionContribution}
                     onChange={(value) => updateInput('personalPensionContribution', value)}
+                    suffix="원/년"
                     max={COMPREHENSIVE_TAX_LIMITS_2024.comprehensiveDeductions.pensionInsurance}
                     limitInfo={formatCurrency(COMPREHENSIVE_TAX_LIMITS_2024.comprehensiveDeductions.pensionInsurance)}
                     warningMessage="개인연금 납입한도를 초과했습니다"
                     allInputs={inputs}
                   />
                   <NumberInput
-                    label="연금저축"
+                    label="연금저축 (연간)"
                     value={inputs.pensionSavings}
                     onChange={(value) => updateInput('pensionSavings', value)}
+                    suffix="원/년"
                     max={COMPREHENSIVE_TAX_LIMITS_2024.taxCredits.pensionSavings}
                     limitInfo={formatCurrency(COMPREHENSIVE_TAX_LIMITS_2024.taxCredits.pensionSavings)}
                     warningMessage="연금저축 납입한도를 초과했습니다"
                     allInputs={inputs}
                   />
                   <NumberInput
-                    label="주택청약저축"
+                    label="주택청약저축 (연간)"
                     value={inputs.housingFund}
                     onChange={(value) => updateInput('housingFund', value)}
+                    suffix="원/년"
                     max={2400000}
                     limitInfo="240만원"
                     warningMessage="주택청약저축 납입한도를 초과했습니다"
                     allInputs={inputs}
                   />
                   <NumberInput
-                    label="의료비"
+                    label="의료비 (연간)"
                     value={inputs.medicalExpenses}
                     onChange={(value) => updateInput('medicalExpenses', value)}
+                    suffix="원/년"
                     max={100000000}
                     allInputs={inputs}
                   />
                   <NumberInput
-                    label="교육비"
+                    label="교육비 (연간)"
                     value={inputs.educationExpenses}
                     onChange={(value) => updateInput('educationExpenses', value)}
+                    suffix="원/년"
                     max={COMPREHENSIVE_TAX_LIMITS_2024.comprehensiveDeductions.educationChild * 10}
                     limitInfo="자녀당 300만원 (본인 무제한)"
                     allInputs={inputs}
                   />
                   <NumberInput
-                    label="기부금"
+                    label="기부금 (연간)"
                     value={inputs.donationAmount}
                     onChange={(value) => updateInput('donationAmount', value)}
+                    suffix="원/년"
                     max={500000000}
                     allInputs={inputs}
                   />
                   <NumberInput
-                    label="신용카드 사용액"
+                    label="신용카드 사용액 (연간)"
                     value={inputs.creditCardUsage}
                     onChange={(value) => updateInput('creditCardUsage', value)}
+                    suffix="원/년"
                     max={500000000}
                     allInputs={inputs}
                     className="md:col-span-2"
@@ -649,27 +728,46 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
               <div className="space-y-4">
                 <h4 className="font-medium text-gray-900 border-b pb-2">세액공제 및 기타</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <NumberInput
+                      label="자녀 수"
+                      value={inputs.childrenCount}
+                      onChange={(value) => updateInput('childrenCount', value)}
+                      suffix="명"
+                      min={0}
+                      max={20}
+                      placeholder="0명"
+                      limitInfo="15만원/명 (기본)"
+                      allInputs={inputs}
+                    />
+                    <NumberInput
+                      label="6세 이하 자녀 수"
+                      value={inputs.childrenUnder6Count}
+                      onChange={(value) => updateInput('childrenUnder6Count', value)}
+                      suffix="명"
+                      min={0}
+                      max={inputs.childrenCount || 20}
+                      placeholder="0명"
+                      limitInfo="추가 12만원/명"
+                      warningMessage="6세 이하 자녀는 총 자녀 수를 초과할 수 없습니다"
+                      allInputs={inputs}
+                    />
+                  </div>
                   <NumberInput
-                    label="자녀세액공제"
-                    value={inputs.childTaxCredit}
-                    onChange={(value) => updateInput('childTaxCredit', value)}
-                    max={COMPREHENSIVE_TAX_LIMITS_2024.taxCredits.childTaxCredit * 10}
-                    limitInfo="자녀 1명당 15만원"
-                    allInputs={inputs}
-                  />
-                  <NumberInput
-                    label="기타세액공제"
+                    label="기타세액공제 (연간)"
                     value={inputs.earnedIncomeTaxCredit}
                     onChange={(value) => updateInput('earnedIncomeTaxCredit', value)}
+                    suffix="원/년"
                     max={COMPREHENSIVE_TAX_LIMITS_2024.taxCredits.earnedIncomeTaxCreditLimit}
                     limitInfo={formatCurrency(COMPREHENSIVE_TAX_LIMITS_2024.taxCredits.earnedIncomeTaxCreditLimit)}
                     allInputs={inputs}
                   />
                   <NumberInput
-                    label="기납부세액"
+                    label="기납부세액 (연간)"
                     value={inputs.previousYearTaxPaid}
                     onChange={(value) => updateInput('previousYearTaxPaid', value)}
                     placeholder="원천징수세액 등"
+                    suffix="원/년"
                     max={100000000}
                     allInputs={inputs}
                   />
@@ -732,38 +830,60 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
                   <div className="space-y-4">
                     <div className="bg-green-50 p-4 rounded-xl">
                       <div className="text-sm text-green-600 font-medium">종합소득결정세액</div>
-                      <div className="text-2xl font-bold text-green-900">
+                      <div className="text-2xl font-bold text-green-900 font-mono">
                         {formatCurrency(results.determinedTax)}
                       </div>
+                      <div className="text-sm text-green-600 mt-1">최종 납부할 세액</div>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-blue-50 p-3 rounded-lg">
-                        <div className="text-sm text-blue-600">총소득금액</div>
-                        <div className="text-base font-semibold text-blue-900">
+                        <div className="text-sm text-blue-600">총수입금액</div>
+                        <div className="text-base font-semibold text-blue-900 font-mono">
+                          {formatCurrency(results.totalIncome)}
+                        </div>
+                        <div className="text-xs text-blue-500 mt-1">필요경비 차감 전</div>
+                      </div>
+                      <div className="bg-cyan-50 p-3 rounded-lg">
+                        <div className="text-sm text-cyan-600">총소득금액</div>
+                        <div className="text-base font-semibold text-cyan-900 font-mono">
                           {formatCurrency(results.totalGrossIncome)}
                         </div>
+                        <div className="text-xs text-cyan-500 mt-1">필요경비 차감 후</div>
                       </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
                       <div className="bg-purple-50 p-3 rounded-lg">
-                        <div className="text-sm text-purple-600">과세표준</div>
-                        <div className="text-base font-semibold text-purple-900">
+                        <div className="text-sm text-purple-600">종합소득공제</div>
+                        <div className="text-base font-semibold text-purple-900 font-mono">
+                          {formatCurrency(results.totalDeductibleAmount)}
+                        </div>
+                        <div className="text-xs text-purple-500 mt-1">인적공제+소득공제</div>
+                      </div>
+                      <div className="bg-indigo-50 p-3 rounded-lg">
+                        <div className="text-sm text-indigo-600">과세표준</div>
+                        <div className="text-base font-semibold text-indigo-900 font-mono">
                           {formatCurrency(results.taxableIncome)}
                         </div>
+                        <div className="text-xs text-indigo-500 mt-1">세금 계산 기준</div>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-red-50 p-3 rounded-lg">
                         <div className="text-sm text-red-600">산출세액</div>
-                        <div className="text-base font-semibold text-red-900">
+                        <div className="text-base font-semibold text-red-900 font-mono">
                           {formatCurrency(results.progressiveTax)}
                         </div>
+                        <div className="text-xs text-red-500 mt-1">누진세율 적용</div>
                       </div>
                       <div className="bg-yellow-50 p-3 rounded-lg">
                         <div className="text-sm text-yellow-600">지방소득세</div>
-                        <div className="text-base font-semibold text-yellow-900">
+                        <div className="text-base font-semibold text-yellow-900 font-mono">
                           {formatCurrency(results.localIncomeTax)}
                         </div>
+                        <div className="text-xs text-yellow-500 mt-1">소득세의 10%</div>
                       </div>
                     </div>
 
@@ -771,18 +891,20 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
                     {results.additionalTax > 0 && (
                       <div className="bg-orange-50 p-4 rounded-xl">
                         <div className="text-sm text-orange-600 font-medium">추가납부세액</div>
-                        <div className="text-xl font-bold text-orange-900">
+                        <div className="text-xl font-bold text-orange-900 font-mono">
                           {formatCurrency(results.additionalTax)}
                         </div>
+                        <div className="text-sm text-orange-600 mt-1">기납부세액 대비 부족분</div>
                       </div>
                     )}
 
                     {results.refundTax > 0 && (
                       <div className="bg-cyan-50 p-4 rounded-xl">
                         <div className="text-sm text-cyan-600 font-medium">환급세액</div>
-                        <div className="text-xl font-bold text-cyan-900">
+                        <div className="text-xl font-bold text-cyan-900 font-mono">
                           {formatCurrency(results.refundTax)}
                         </div>
+                        <div className="text-sm text-cyan-600 mt-1">기납부세액 대비 초과분</div>
                       </div>
                     )}
 
@@ -793,18 +915,20 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
                           <Percent className="w-4 h-4 mr-1" />
                           실효세율
                         </div>
-                        <div className="text-base font-semibold text-gray-900">
+                        <div className="text-base font-semibold text-gray-900 font-mono">
                           {results.effectiveRate.toFixed(2)}%
                         </div>
+                        <div className="text-xs text-gray-500 mt-1">세액 ÷ 총소득</div>
                       </div>
                       <div className="bg-indigo-50 p-3 rounded-lg">
                         <div className="text-sm text-indigo-600 flex items-center">
                           <TrendingUp className="w-4 h-4 mr-1" />
                           한계세율
                         </div>
-                        <div className="text-base font-semibold text-indigo-900">
+                        <div className="text-base font-semibold text-indigo-900 font-mono">
                           {results.marginalRate.toFixed(1)}%
                         </div>
+                        <div className="text-xs text-indigo-500 mt-1">구간별 최고세율</div>
                       </div>
                     </div>
                   </div>

@@ -98,9 +98,9 @@ export interface ComprehensiveIncomeTaxInput extends TaxCalculationInput {
   
   // 인적공제
   dependents: number;                      // 부양가족 수
-  spouseDeduction: boolean;                // 배우자공제 여부
-  isDisabled: boolean;                     // 장애인 여부
-  isElderly: boolean;                      // 경로우대 여부
+  spouseCount: number;                     // 배우자 수
+  disabledCount: number;                   // 장애인 수
+  elderlyCount: number;                    // 경로우대자 수
   
   // 소득공제
   personalPensionContribution: number;     // 개인연금 납입액
@@ -112,7 +112,9 @@ export interface ComprehensiveIncomeTaxInput extends TaxCalculationInput {
   creditCardUsage: number;                 // 신용카드 사용액
   
   // 세액공제
-  childTaxCredit: number;                  // 자녀세액공제
+  childrenCount: number;                   // 자녀 수
+  childrenUnder6Count: number;             // 6세 이하 자녀 수
+  childTaxCredit: number;                  // 자녀세액공제 (자동계산)
   earnedIncomeTaxCredit: number;           // 근로소득세액공제
   
   // 기타
