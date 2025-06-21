@@ -30,9 +30,9 @@ const nextConfig: NextConfig = {
     ],
   },
   
-  // GitHub Pages용 경로 설정 (GitHub Pages 배포 시에만)
-  basePath: (isProd && isGitHubPages) ? `/${repoName}` : '',
-  assetPrefix: (isProd && isGitHubPages) ? `/${repoName}/` : '',
+  // GitHub Pages용 경로 설정 (임시 비활성화)
+  // basePath: (isProd && isGitHubPages) ? `/${repoName}` : '',
+  // assetPrefix: (isProd && isGitHubPages) ? `/${repoName}/` : '',
   
   // 환경변수 설정
   env: {
