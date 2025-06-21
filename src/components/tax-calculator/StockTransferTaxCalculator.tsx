@@ -918,7 +918,7 @@ export default function StockTransferTaxCalculator() {
       }
       
       // 숫자로 변환 가능한 경우에만 업데이트
-      const numValue = parseFloat(inputValue);
+      const numValue = Math.round(parseFloat(inputValue));
       if (!isNaN(numValue)) {
         // min/max 범위 체크
         let finalValue = numValue;
@@ -936,7 +936,7 @@ export default function StockTransferTaxCalculator() {
     const handleBlur = () => {
       setIsFocused(false);
       // 포커스 해제 시 유효한 숫자가 아니면 0으로 설정
-      const numValue = parseFloat(localValue);
+      const numValue = Math.round(parseFloat(localValue));
       if (isNaN(numValue) || localValue === '') {
         setLocalValue('0');
         handleInputChange(field, 0);
@@ -1928,7 +1928,7 @@ export default function StockTransferTaxCalculator() {
                           type="number"
                           placeholder="0"
                           value={formData.stockQuantity || ''}
-                          onChange={(e) => handleInputChange('stockQuantity', Number(e.target.value))}
+                          onChange={(e) => handleInputChange('stockQuantity', Math.round(Number(e.target.value)))}
                         />
                       </div>
 
@@ -1938,7 +1938,7 @@ export default function StockTransferTaxCalculator() {
                           type="number"
                           placeholder="0"
                           value={formData.pricePerShare || ''}
-                          onChange={(e) => handleInputChange('pricePerShare', Number(e.target.value))}
+                          onChange={(e) => handleInputChange('pricePerShare', Math.round(Number(e.target.value)))}
                         />
                       </div>
 

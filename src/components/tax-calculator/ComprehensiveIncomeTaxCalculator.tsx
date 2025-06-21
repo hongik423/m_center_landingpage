@@ -78,7 +78,7 @@ function NumberInput({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value.replace(/[^\d]/g, '');
-    const numValue = parseInt(inputValue) || 0;
+    const numValue = Math.round(parseInt(inputValue) || 0);
     
     // 최대값 제한 적용
     let finalValue = numValue;

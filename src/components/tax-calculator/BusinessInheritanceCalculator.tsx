@@ -397,7 +397,7 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                     id="totalInheritanceValue"
                     type="number"
                     value={inputs.totalInheritanceValue || ''}
-                    onChange={(e) => updateInput('totalInheritanceValue', Number(e.target.value))}
+                                          onChange={(e) => updateInput('totalInheritanceValue', Math.round(Number(e.target.value)))}
                     placeholder="예: 5000000000"
                   />
                 </div>
@@ -407,7 +407,7 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                     id="businessAssetValue"
                     type="number"
                     value={inputs.businessAssetValue || ''}
-                    onChange={(e) => updateInput('businessAssetValue', Number(e.target.value))}
+                                          onChange={(e) => updateInput('businessAssetValue', Math.round(Number(e.target.value)))}
                     placeholder="예: 4000000000"
                   />
                 </div>
@@ -417,7 +417,7 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                     id="personalAssetValue"
                     type="number"
                     value={inputs.personalAssetValue || ''}
-                    onChange={(e) => updateInput('personalAssetValue', Number(e.target.value))}
+                                          onChange={(e) => updateInput('personalAssetValue', Math.round(Number(e.target.value)))}
                     placeholder="예: 1000000000"
                   />
                 </div>
@@ -427,7 +427,7 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                     id="debtsAndExpenses"
                     type="number"
                     value={inputs.debtsAndExpenses || ''}
-                    onChange={(e) => updateInput('debtsAndExpenses', Number(e.target.value))}
+                                          onChange={(e) => updateInput('debtsAndExpenses', Math.round(Number(e.target.value)))}
                     placeholder="예: 200000000"
                   />
                 </div>
@@ -465,7 +465,7 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                     id="businessPeriod"
                     type="number"
                     value={inputs.businessPeriod || ''}
-                    onChange={(e) => updateInput('businessPeriod', Number(e.target.value))}
+                                          onChange={(e) => updateInput('businessPeriod', Math.round(Number(e.target.value)))}
                     placeholder="예: 10"
                   />
                 </div>
@@ -475,7 +475,7 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                     id="employeeCount"
                     type="number"
                     value={inputs.employeeCount || ''}
-                    onChange={(e) => updateInput('employeeCount', Number(e.target.value))}
+                                          onChange={(e) => updateInput('employeeCount', Math.round(Number(e.target.value)))}
                     placeholder="예: 50"
                   />
                 </div>
@@ -485,7 +485,7 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                     id="annualRevenue"
                     type="number"
                     value={inputs.annualRevenue || ''}
-                    onChange={(e) => updateInput('annualRevenue', Number(e.target.value))}
+                                          onChange={(e) => updateInput('annualRevenue', Math.round(Number(e.target.value)))}
                     placeholder="예: 10000000000"
                   />
                 </div>

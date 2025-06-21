@@ -49,7 +49,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value.replace(/[^\d]/g, '');
-    const numericValue = parseInt(inputValue) || 0;
+    const numericValue = Math.round(parseInt(inputValue) || 0);
     
     setDisplayValue(formatNumber(numericValue));
     

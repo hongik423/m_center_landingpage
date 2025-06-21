@@ -65,7 +65,7 @@ export default function VATCalculator() {
   const handleInputChange = (field: keyof VATInput, value: string | number) => {
     setInputs(prev => ({
       ...prev,
-      [field]: typeof value === 'string' ? parseFloat(value) || 0 : value
+      [field]: typeof value === 'string' ? Math.round(parseFloat(value) || 0) : Math.round(value)
     }));
     
     // 에러 초기화
@@ -82,7 +82,7 @@ export default function VATCalculator() {
   const handleAdditionalInfoChange = (field: string, value: string | number) => {
     setAdditionalInfo(prev => ({
       ...prev,
-      [field]: typeof value === 'string' ? (field === 'businessCategory' ? value : parseFloat(value) || 0) : value
+      [field]: typeof value === 'string' ? (field === 'businessCategory' ? value : Math.round(parseFloat(value) || 0)) : Math.round(value)
     }));
   };
 
