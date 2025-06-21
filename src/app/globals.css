@@ -9,23 +9,23 @@
 @layer base {
   :root {
     /* 기업 신뢰성을 나타내는 깊은 네이비 - Primary */
-    --primary: 214 88% 59%; /* #3b82f6 */
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
     
     /* 성장과 성공을 상징하는 그린 - Secondary */
-    --secondary: 142 76% 36%; /* #22c55e */
-    --secondary-foreground: 355 7% 97%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
     
     /* 혁신과 AI를 나타내는 퍼플 - Accent */
-    --accent: 262 83% 58%; /* #a855f7 */
-    --accent-foreground: 210 40% 98%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
     
     /* 경고/알림 색상 */
     --warning: 45 93% 47%; /* #f59e0b */
     --warning-foreground: 26 83% 14%;
     
     /* 오류 색상 */
-    --destructive: 0 84% 60%; /* #ef4444 */
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     
     /* 중성 색상 */
@@ -60,7 +60,7 @@
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
     --primary-foreground: 222.2 84% 4.9%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -72,7 +72,7 @@
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 224.3 76.3% 94.1%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -285,6 +285,52 @@
     min-height: 44px;
     min-width: 44px;
   }
+  
+  /* 🔧 모바일 터치 최적화 */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* 부드러운 스크롤 */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* 터치 피드백 개선 */
+  .touch-feedback {
+    -webkit-tap-highlight-color: rgba(59, 130, 246, 0.1);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* 모바일 입력 필드 최적화 */
+  .mobile-input {
+    font-size: 16px; /* iOS 줌 방지 */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+  
+  /* 모바일 버튼 스타일 */
+  .mobile-button {
+    min-height: 48px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* 스크롤 인디케이터 숨김 (필요시) */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* 전역 버튼 최적화 */
@@ -303,12 +349,6 @@ input, textarea, select {
 a {
   @apply touch-manipulation;
   -webkit-tap-highlight-color: transparent;
-}
-
-/* 스크롤 성능 최적화 */
-.smooth-scroll {
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
 }
 
 /* 애니메이션 성능 최적화 */
@@ -420,5 +460,37 @@ a {
   button {
     @apply text-base md:text-lg;
     font-weight: 600;
+  }
+}
+
+/* 🔧 모바일 반응형 애니메이션 성능 최적화 */
+@media (max-width: 768px) {
+  /* 애니메이션 최적화 */
+  .hover\:shadow-lg:hover {
+    box-shadow: none;
+  }
+  
+  .hover\:-translate-y-1:hover {
+    transform: none;
+  }
+  
+  /* 모바일에서 불필요한 호버 효과 제거 */
+  .hover\:bg-white\/20:hover {
+    background-color: transparent;
+  }
+}
+
+/* 🔧 고해상도 디스플레이 최적화 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .retina-optimized {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: pixelated;
+  }
+}
+
+/* 🔧 다크 모드 고려 */
+@media (prefers-color-scheme: dark) {
+  .auto-dark {
+    color-scheme: dark;
   }
 }

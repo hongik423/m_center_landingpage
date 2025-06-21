@@ -79,7 +79,7 @@ const nextConfig: NextConfig = {
       ];
     },
 
-    // 🔧 헤더 설정으로 CORS 및 보안 강화
+    // 🔧 헤더 설정으로 CORS 및 보안 강화 + 캐시 무효화
     async headers() {
       return [
         {
@@ -91,27 +91,33 @@ const nextConfig: NextConfig = {
             { key: 'Access-Control-Max-Age', value: '86400' },
           ],
         },
-        // 보안 헤더 추가
+        // 🔧 캐시 무효화를 위한 헤더 (모든 페이지)
         {
           source: '/(.*)',
           headers: [
+            { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+            { key: 'Pragma', value: 'no-cache' },
+            { key: 'Expires', value: '0' },
             { key: 'X-Frame-Options', value: 'DENY' },
             { key: 'X-Content-Type-Options', value: 'nosniff' },
             { key: 'X-XSS-Protection', value: '1; mode=block' },
             { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           ],
         },
-        // 정적 자산에 대한 캐싱 헤더
+        // 🔧 정적 자산에 대한 단기 캐싱 (업데이트 반영을 위해)
         {
-          source: '/:path*.svg',
+          source: '/:path*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2)',
           headers: [
-            { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+            { key: 'Cache-Control', value: 'public, max-age=3600, stale-while-revalidate=86400' },
           ],
         },
+        // 🔧 HTML 파일은 캐시하지 않음
         {
-          source: '/:path*.png',
+          source: '/:path*\\.html',
           headers: [
-            { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+            { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+            { key: 'Pragma', value: 'no-cache' },
+            { key: 'Expires', value: '0' },
           ],
         },
         // 존재하지 않는 .txt 파일에 대한 404 헤더

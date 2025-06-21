@@ -63,6 +63,16 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
+        {/* 🔧 모바일 뷰포트 최적화 */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+        
+        {/* 🔧 캐시 무효화를 위한 메타 태그들 */}
+        <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
+        <meta name="last-modified" content={new Date().toISOString()} />
+        <meta name="version" content={`v${Date.now()}`} />
+        
         {/* 🔧 리소스 프리로딩 최적화 - 즉시 사용되는 이미지만 preload */}
         {/* star-counselor-icon.svg는 사용자가 챗봇 클릭 시에만 필요하므로 preload 제거 */}
         
