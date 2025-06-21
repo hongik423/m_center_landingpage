@@ -30,7 +30,7 @@ export default function FloatingChatbot() {
 • 📈 매출 증대 전략 - BM ZEN 사업분석
 • 🤖 AI 생산성향상 - ChatGPT 활용법  
 • 🏭 공장/부동산 - 경매활용 구매전략
-• �� 기술창업 - 사업화 및 정부지원
+• 🚀 기술창업 - 사업화 및 정부지원
 • 🧮 세금계산기 - 11개 전문 계산기 제공
 
 💬 궁금한 것을 자유롭게 물어보세요!
@@ -250,6 +250,7 @@ export default function FloatingChatbot() {
                   onClick={() => handleSendMessage(inputValue)}
                   disabled={!inputValue.trim() || isTyping}
                   className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 disabled:opacity-50 transition-all duration-200"
+                  title="메시지 전송"
                 >
                   <Send className="w-4 h-4" />
                 </button>
