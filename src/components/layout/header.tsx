@@ -2,9 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { getLogoPath } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -78,60 +76,60 @@ export default function Header() {
 
   return (
     <>
-      {/* 토스 스타일 플로팅 헤더 */}
-      <header className="fixed top-0 left-0 right-0 z-50 toss-header-blur">
-        <div className="container mx-auto px-4 lg:px-6">
+      {/* 현대적 플로팅 헤더 */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-b border-gray-100/50 shadow-sm">
+        <div className="container mx-auto px-4 lg:px-8">
           <nav className="flex items-center justify-between h-20">
-            {/* 로고 섹션 - 토스 스타일 */}
+            {/* 브랜드 로고 - 현대적 텍스트 스타일 */}
             <div className="flex items-center">
-              <Link href="/" className="flex items-center space-x-2.5 group">
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-1 rounded-lg shadow-sm border border-blue-100/50 group-hover:shadow-md transition-all duration-300 animate-toss-glow flex items-center">
-                  <Image
-                    src={getLogoPath()}
-                    alt="기업의별 로고"
-                    width={40}
-                    height={40}
-                    className="h-10 w-10 hover:scale-105 transition-transform duration-300 object-contain"
-                    style={{ width: "auto", height: "auto" }}
-                    priority
-                  />
-                </div>
-                <div className="flex flex-col justify-center">
-                  <span className="text-base font-title text-gray-900 group-hover:text-blue-600 transition-colors duration-300 leading-tight">
-                    기업의별
-                  </span>
-                  <span className="text-xs font-medium text-gray-500 -mt-0.5 leading-tight">
-                    경영지도센터
-                  </span>
+              <Link href="/" className="group">
+                <div className="relative">
+                  {/* 메인 브랜드 텍스트 */}
+                  <div className="flex flex-col">
+                    <div className="flex items-center space-x-1">
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                        <span className="text-white font-bold text-sm">★</span>
+                      </div>
+                      <span className="text-xl font-black bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 bg-clip-text text-transparent group-hover:from-blue-600 group-hover:via-indigo-600 group-hover:to-purple-600 transition-all duration-300">
+                        기업의별
+                      </span>
+                    </div>
+                    <span className="text-sm font-semibold text-gray-600 group-hover:text-blue-600 transition-colors duration-300 ml-9 -mt-1">
+                      경영지도센터
+                    </span>
+                  </div>
+                  
+                  {/* 호버 효과 */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300 -z-10"></div>
                 </div>
               </Link>
             </div>
 
-            {/* 데스크톱 네비게이션 - 토스 스타일 */}
-            <div className="hidden lg:flex items-center space-x-1">
-              <Link href="/" className="toss-nav-item">
-                홈
+            {/* 데스크톱 네비게이션 - 현대적 스타일 */}
+            <div className="hidden lg:flex items-center space-x-2">
+              <Link href="/" className="nav-item">
+                🏠 홈
               </Link>
               
-              {/* 서비스소개 드롭다운 - 토스 스타일 */}
+              {/* 서비스소개 드롭다운 - 현대적 스타일 */}
               <DropdownMenu>
-                <DropdownMenuTrigger className="toss-nav-item flex items-center group">
-                  서비스소개
+                <DropdownMenuTrigger className="nav-item flex items-center group">
+                  🛠️ 서비스소개
                   <ChevronDown className="ml-1 w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-96 toss-dropdown">
-                  <div className="grid grid-cols-1 gap-2">
+                <DropdownMenuContent className="w-[420px] p-4 bg-white/95 backdrop-blur-xl border border-gray-100/50 shadow-2xl rounded-2xl">
+                  <div className="grid grid-cols-2 gap-3">
                     {services.map((service) => (
                       <DropdownMenuItem key={service.id} asChild>
-                        <Link href={service.href} className="toss-service-card">
-                          <div className="toss-service-icon mr-4">
-                            <service.icon className="w-6 h-6 text-white" />
+                        <Link href={service.href} className="service-card">
+                          <div className="service-icon mr-3">
+                            <service.icon className="w-5 h-5 text-white" />
                           </div>
                           <div className="flex-1">
-                            <div className="font-semibold text-gray-900 text-sm mb-1">
+                            <div className="font-bold text-gray-900 text-sm mb-1">
                               {service.title}
                             </div>
-                            <div className="text-xs text-gray-600">
+                            <div className="text-xs text-gray-600 leading-relaxed">
                               {service.description}
                             </div>
                           </div>
@@ -139,24 +137,34 @@ export default function Header() {
                       </DropdownMenuItem>
                     ))}
                   </div>
+                  
+                  {/* 하단 CTA */}
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <div className="text-center">
+                      <p className="text-xs text-gray-500 mb-2">더 많은 서비스를 확인하세요</p>
+                      <Link href="/services" className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
+                        전체 서비스 보기 →
+                      </Link>
+                    </div>
+                  </div>
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <Link href="/cases" className="toss-nav-item">
-                성공사례
+              <Link href="/cases" className="nav-item">
+                🏆 성공사례
               </Link>
-              <Link href="/about" className="toss-nav-item">
-                회사소개
+              <Link href="/about" className="nav-item">
+                🏢 회사소개
               </Link>
-              <Link href="/support" className="toss-nav-item">
-                고객지원
+              <Link href="/support" className="nav-item">
+                💬 고객지원
               </Link>
             </div>
 
-            {/* 액션 버튼들 - 토스 스타일 */}
+            {/* 액션 버튼들 - 현대적 스타일 */}
             <div className="hidden lg:flex items-center space-x-3">
               <Button 
-                className="toss-button-outline text-sm"
+                className="action-btn-outline text-sm"
                 onClick={() => router.push('/tax-calculator')}
               >
                 <Zap className="w-4 h-4 mr-2" />
@@ -164,7 +172,7 @@ export default function Header() {
               </Button>
               
               <Button 
-                className="toss-button-primary text-sm"
+                className="action-btn-primary text-sm"
                 onClick={() => router.push('/services/diagnosis')}
               >
                 <Sparkles className="w-4 h-4 mr-2" />
@@ -172,7 +180,7 @@ export default function Header() {
               </Button>
               
               <Button 
-                className="toss-button-secondary text-sm"
+                className="action-btn-secondary text-sm"
                 onClick={() => router.push('/consultation')}
               >
                 <Phone className="w-4 h-4 mr-2" />
@@ -180,7 +188,7 @@ export default function Header() {
               </Button>
               
               <Button
-                className="toss-button-outline text-sm"
+                className="action-btn-tertiary text-sm"
                 onClick={() => router.push('/chatbot')}
               >
                 <Bot className="w-4 h-4 mr-2" />
@@ -188,18 +196,18 @@ export default function Header() {
               </Button>
             </div>
 
-            {/* 모바일 메뉴 버튼 - 토스 스타일 */}
+            {/* 모바일 메뉴 버튼 - 현대적 스타일 */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="lg:hidden w-10 h-10 rounded-xl hover:bg-blue-50/50 transition-colors duration-200"
+                  className="lg:hidden w-10 h-10 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 border border-gray-200/50"
                 >
-                  <Menu className="w-5 h-5" />
+                  <Menu className="w-5 h-5 text-gray-700" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80 toss-mobile-menu">
+              <SheetContent side="right" className="w-80 bg-white/95 backdrop-blur-xl border-l border-gray-100/50">
                 <div className="py-6">
                   <div className="space-y-6">
                     {/* 🏆 주요 기능 - 최상단 배치 */}
@@ -211,7 +219,7 @@ export default function Header() {
                       <div className="space-y-3">
                         {/* 세금계산기 - 특별 강조 */}
                         <Button 
-                          className="w-full toss-button-primary text-left justify-start h-auto p-4 relative overflow-hidden"
+                          className="w-full mobile-btn-primary text-left justify-start h-auto p-4 relative overflow-hidden"
                           onClick={() => {
                             router.push('/tax-calculator');
                             setIsMobileMenuOpen(false);
@@ -219,7 +227,7 @@ export default function Header() {
                         >
                           <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-orange-400/20"></div>
                           <div className="relative flex items-center w-full">
-                            <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center mr-3 shadow-sm">
+                            <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mr-3 shadow-lg">
                               <Zap className="w-6 h-6 text-white" />
                             </div>
                             <div className="flex-1 text-left">
@@ -231,13 +239,13 @@ export default function Header() {
                         
                         {/* 무료AI진단 */}
                         <Button 
-                          className="w-full toss-button-secondary text-left justify-start h-auto p-3.5"
+                          className="w-full mobile-btn-secondary text-left justify-start h-auto p-3.5"
                           onClick={() => {
                             router.push('/services/diagnosis');
                             setIsMobileMenuOpen(false);
                           }}
                         >
-                          <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mr-3 shadow-sm">
+                          <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mr-3 shadow-lg">
                             <Sparkles className="w-5 h-5 text-white" />
                           </div>
                           <div className="flex-1 text-left">
@@ -248,13 +256,13 @@ export default function Header() {
 
                         {/* 무료상담 */}
                         <Button 
-                          className="w-full toss-button-outline text-left justify-start h-auto p-3"
+                          className="w-full mobile-btn-outline text-left justify-start h-auto p-3"
                           onClick={() => {
                             router.push('/consultation');
                             setIsMobileMenuOpen(false);
                           }}
                         >
-                          <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-500 rounded-lg flex items-center justify-center mr-3">
+                          <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-500 rounded-xl flex items-center justify-center mr-3 shadow-md">
                             <Phone className="w-4 h-4 text-white" />
                           </div>
                           <div className="flex-1 text-left">
@@ -265,13 +273,13 @@ export default function Header() {
 
                         {/* AI챗봇 */}
                         <Button
-                          className="w-full toss-button-outline text-left justify-start h-auto p-3"
+                          className="w-full mobile-btn-outline text-left justify-start h-auto p-3"
                           onClick={() => {
                             router.push('/chatbot');
                             setIsMobileMenuOpen(false);
                           }}
                         >
-                          <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-lg flex items-center justify-center mr-3">
+                          <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-xl flex items-center justify-center mr-3 shadow-md">
                             <Bot className="w-4 h-4 text-white" />
                           </div>
                           <div className="flex-1 text-left">
@@ -330,19 +338,19 @@ export default function Header() {
                     {/* 전체 서비스 목록 */}
                     <div>
                       <h3 className="font-bold text-gray-900 mb-3 text-base">🛠️ 전체 서비스</h3>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-3">
                         {services.map((service) => (
                           <Link
                             key={service.id}
                             href={service.href}
-                            className="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100"
+                            className="flex flex-col items-center p-3 rounded-xl hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 border border-gray-100 hover:border-blue-200 hover:shadow-md"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
-                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mb-2 shadow-sm">
-                              <service.icon className="w-4 h-4 text-white" />
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mb-2 shadow-lg hover:shadow-xl transition-shadow duration-200">
+                              <service.icon className="w-5 h-5 text-white" />
                             </div>
                             <div className="text-center">
-                              <div className="font-medium text-xs text-gray-900 leading-tight mb-1">
+                              <div className="font-bold text-xs text-gray-900 leading-tight mb-1">
                                 {service.title}
                               </div>
                               <div className="text-xs text-gray-500 leading-tight">

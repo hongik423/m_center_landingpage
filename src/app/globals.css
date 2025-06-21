@@ -186,6 +186,78 @@
     @apply bg-white/95 backdrop-blur-xl border-l border-gray-100/50;
     @apply supports-[backdrop-filter]:bg-white/90;
   }
+
+  /* 🎨 현대적 네비게이션 스타일 */
+  .nav-item {
+    @apply px-4 py-2.5 text-gray-700 hover:text-blue-600 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50;
+    @apply rounded-xl font-medium transition-all duration-200 border border-transparent hover:border-blue-100;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:ring-offset-1;
+  }
+
+  .service-card {
+    @apply flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50;
+    @apply cursor-pointer transition-all duration-200 border border-transparent hover:border-blue-100/50 hover:shadow-sm;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:ring-offset-1;
+  }
+  
+  .service-icon {
+    @apply w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl;
+    @apply flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-200;
+  }
+
+  /* 액션 버튼 스타일 */
+  .action-btn-primary {
+    @apply bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800;
+    @apply text-white font-semibold rounded-xl px-5 py-2.5;
+    @apply shadow-lg hover:shadow-xl transition-all duration-200;
+    @apply transform hover:-translate-y-0.5 active:translate-y-0;
+    @apply border-0 focus:ring-2 focus:ring-blue-500/30 focus:ring-offset-2;
+  }
+  
+  .action-btn-secondary {
+    @apply bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800;
+    @apply text-white font-semibold rounded-xl px-5 py-2.5;
+    @apply shadow-lg hover:shadow-xl transition-all duration-200;
+    @apply transform hover:-translate-y-0.5 active:translate-y-0;
+    @apply border-0 focus:ring-2 focus:ring-emerald-500/30 focus:ring-offset-2;
+  }
+  
+  .action-btn-outline {
+    @apply bg-white/80 hover:bg-white border border-gray-200 hover:border-gray-300;
+    @apply text-gray-700 hover:text-gray-900 font-semibold rounded-xl px-5 py-2.5;
+    @apply shadow-sm hover:shadow-md transition-all duration-200;
+    @apply backdrop-blur-sm focus:ring-2 focus:ring-gray-500/20 focus:ring-offset-2;
+  }
+
+  .action-btn-tertiary {
+    @apply bg-gradient-to-r from-purple-600 to-pink-700 hover:from-purple-700 hover:to-pink-800;
+    @apply text-white font-semibold rounded-xl px-5 py-2.5;
+    @apply shadow-lg hover:shadow-xl transition-all duration-200;
+    @apply transform hover:-translate-y-0.5 active:translate-y-0;
+    @apply border-0 focus:ring-2 focus:ring-purple-500/30 focus:ring-offset-2;
+  }
+
+  /* 모바일 버튼 스타일 */
+  .mobile-btn-primary {
+    @apply bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800;
+    @apply text-white font-semibold rounded-xl;
+    @apply shadow-lg hover:shadow-xl transition-all duration-200;
+    @apply border-0;
+  }
+  
+  .mobile-btn-secondary {
+    @apply bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800;
+    @apply text-white font-semibold rounded-xl;
+    @apply shadow-lg hover:shadow-xl transition-all duration-200;
+    @apply border-0;
+  }
+  
+  .mobile-btn-outline {
+    @apply bg-white/90 hover:bg-white border border-gray-200 hover:border-gray-300;
+    @apply text-gray-700 hover:text-gray-900 font-semibold rounded-xl;
+    @apply shadow-sm hover:shadow-md transition-all duration-200;
+    @apply backdrop-blur-sm;
+  }
   
   .shadow-custom {
     box-shadow: 0 4px 20px -2px rgba(59, 130, 246, 0.15);
