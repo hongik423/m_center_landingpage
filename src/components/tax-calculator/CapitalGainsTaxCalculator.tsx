@@ -158,8 +158,8 @@ export default function CapitalGainsTaxCalculatorComponent() {
     hasSchoolDistrict: false,
     isReconstructionArea: false,
     isMultipleHouses: false,
-    age: 0,
-    householdMembers: 0,
+    age: 35,
+    householdMembers: 1,
     totalHousesOwned: 1,
     isNonResident: false,
     isForeignerExemption: false,
@@ -170,6 +170,20 @@ export default function CapitalGainsTaxCalculatorComponent() {
       isInheritedProperty: false as boolean,
       isSelfConstruction: false as boolean,
       isPublicLandCompensation: false as boolean
+    }
+  });
+
+  // 추가 상태: 계산된 값들
+  const [calculatedValues, setCalculatedValues] = useState({
+    holdingPeriodYears: 0,
+    holdingPeriodMonths: 0,
+    holdingPeriodDays: 0,
+    isLongTermHolding: false,
+    autoDetectedHeavyTax: {
+      isMultipleHouses: false,
+      isSpeculationArea: false,
+      isAdjustmentArea: false,
+      heavyTaxRate: 0
     }
   });
 
@@ -190,6 +204,85 @@ export default function CapitalGainsTaxCalculatorComponent() {
       }
     }));
   };
+
+  // 🔄 자동 계산 로직 함수들
+  const calculateHoldingPeriod = useCallback((acquisitionDate: string, saleDate: string) => {
+    if (!acquisitionDate || !saleDate) return { years: 0, months: 0, days: 0 };
+    
+    const acquisition = new Date(acquisitionDate);
+    const sale = new Date(saleDate);
+    
+    if (sale <= acquisition) return { years: 0, months: 0, days: 0 };
+    
+    let years = sale.getFullYear() - acquisition.getFullYear();
+    let months = sale.getMonth() - acquisition.getMonth();
+    let days = sale.getDate() - acquisition.getDate();
+    
+    if (days < 0) {
+      months--;
+      const lastMonth = new Date(sale.getFullYear(), sale.getMonth(), 0);
+      days += lastMonth.getDate();
+    }
+    
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+    
+    return { years, months, days };
+  }, []);
+
+  // 🏠 자동 중과세 판정 로직
+  const autoDetectHeavyTax = useCallback((totalHouses: number, holdingYears: number, propertyType: string) => {
+    const heavyTaxInfo = {
+      isMultipleHouses: totalHouses >= 2,
+      isSpeculationArea: false, // 사용자가 직접 체크
+      isAdjustmentArea: false, // 사용자가 직접 체크
+      heavyTaxRate: 0
+    };
+
+    // 다주택자 중과세 계산
+    if (totalHouses >= 3) {
+      heavyTaxInfo.heavyTaxRate += 30; // 3주택 이상: +30%p
+    } else if (totalHouses >= 2) {
+      heavyTaxInfo.heavyTaxRate += 20; // 2주택: +20%p
+    }
+
+    // 단기 보유 중과세 (투기 목적 추정)
+    if (holdingYears < 1) {
+      heavyTaxInfo.heavyTaxRate = Math.max(heavyTaxInfo.heavyTaxRate, 70); // 1년 미만: 70%
+    } else if (holdingYears < 2) {
+      heavyTaxInfo.heavyTaxRate = Math.max(heavyTaxInfo.heavyTaxRate, 60); // 2년 미만: 60%
+    }
+
+    return heavyTaxInfo;
+  }, []);
+
+  // 📊 1세대1주택 비과세 자동 판정
+  const checkOneHouseExemption = useCallback((
+    totalHouses: number, 
+    residenceYears: number, 
+    salePrice: number,
+    age: number
+  ) => {
+    const requirements = {
+      isOneHouse: totalHouses === 1,
+      hasResidenceYears: residenceYears >= 2,
+      isPriceEligible: salePrice <= 1200000000, // 12억원 이하
+      isAgeEligible: age >= 18,
+      exemptionType: 'none' as 'full' | 'partial' | 'none'
+    };
+
+    if (requirements.isOneHouse && requirements.hasResidenceYears) {
+      if (salePrice <= 1200000000) {
+        requirements.exemptionType = 'full'; // 완전 비과세
+      } else if (salePrice <= 3000000000) {
+        requirements.exemptionType = 'partial'; // 일부 과세
+      }
+    }
+
+    return requirements;
+  }, []);
 
   const calculate = useCallback(async () => {
     setIsCalculating(true);
@@ -231,8 +324,8 @@ export default function CapitalGainsTaxCalculatorComponent() {
       hasSchoolDistrict: false,
       isReconstructionArea: false,
       isMultipleHouses: false,
-      age: 0,
-      householdMembers: 0,
+      age: 35,
+      householdMembers: 1,
       totalHousesOwned: 1,
       isNonResident: false,
       isForeignerExemption: false,
@@ -243,6 +336,18 @@ export default function CapitalGainsTaxCalculatorComponent() {
         isInheritedProperty: false as boolean,
         isSelfConstruction: false as boolean,
         isPublicLandCompensation: false as boolean
+      }
+    });
+    setCalculatedValues({
+      holdingPeriodYears: 0,
+      holdingPeriodMonths: 0,
+      holdingPeriodDays: 0,
+      isLongTermHolding: false,
+      autoDetectedHeavyTax: {
+        isMultipleHouses: false,
+        isSpeculationArea: false,
+        isAdjustmentArea: false,
+        heavyTaxRate: 0
       }
     });
     setResults(null);
@@ -279,9 +384,94 @@ export default function CapitalGainsTaxCalculatorComponent() {
         isPublicLandCompensation: false as boolean
       }
     });
+    
+    // 샘플 데이터의 자동 계산 값도 설정
+    setTimeout(() => {
+      const holdingPeriod = calculateHoldingPeriod('2020-01-01', '2024-12-01');
+      setCalculatedValues(prev => ({
+        ...prev,
+        holdingPeriodYears: holdingPeriod.years,
+        holdingPeriodMonths: holdingPeriod.months,
+        holdingPeriodDays: holdingPeriod.days,
+        isLongTermHolding: holdingPeriod.years >= 2,
+        autoDetectedHeavyTax: {
+          isMultipleHouses: false,
+          isSpeculationArea: false,
+          isAdjustmentArea: false,
+          heavyTaxRate: 0
+        }
+      }));
+    }, 100);
   };
 
-  // 유효한 데이터가 있을 때만 자동 계산
+  // 🔄 실시간 자동 계산 시스템
+  useEffect(() => {
+    // 1. 보유기간 자동 계산
+    if (inputs.acquisitionDate && inputs.saleDate) {
+      const holdingPeriod = calculateHoldingPeriod(inputs.acquisitionDate, inputs.saleDate);
+      
+      setCalculatedValues(prev => ({
+        ...prev,
+        holdingPeriodYears: holdingPeriod.years,
+        holdingPeriodMonths: holdingPeriod.months,
+        holdingPeriodDays: holdingPeriod.days,
+        isLongTermHolding: holdingPeriod.years >= 2
+      }));
+
+      // inputs에도 보유기간 업데이트
+      setInputs(prev => ({
+        ...prev,
+        holdingPeriodYears: holdingPeriod.years
+      }));
+    }
+  }, [inputs.acquisitionDate, inputs.saleDate, calculateHoldingPeriod]);
+
+  // 🏠 자동 중과세 판정 시스템
+  useEffect(() => {
+    const heavyTaxInfo = autoDetectHeavyTax(
+      inputs.totalHousesOwned, 
+      calculatedValues.holdingPeriodYears, 
+      inputs.propertyType
+    );
+    
+    setCalculatedValues(prev => ({
+      ...prev,
+      autoDetectedHeavyTax: heavyTaxInfo
+    }));
+
+    // 자동으로 다주택자 체크박스 업데이트
+    if (heavyTaxInfo.isMultipleHouses !== inputs.isMultipleHouses) {
+      setInputs(prev => ({
+        ...prev,
+        isMultipleHouses: heavyTaxInfo.isMultipleHouses
+      }));
+    }
+  }, [inputs.totalHousesOwned, calculatedValues.holdingPeriodYears, inputs.propertyType, autoDetectHeavyTax, inputs.isMultipleHouses]);
+
+  // 📊 1세대1주택 자동 판정 시스템  
+  useEffect(() => {
+    const exemptionCheck = checkOneHouseExemption(
+      inputs.totalHousesOwned,
+      inputs.residenceYears,
+      inputs.salePrice,
+      inputs.age
+    );
+
+    // 1세대1주택 조건 충족 시 자동 체크
+    if (exemptionCheck.isOneHouse && !inputs.isOneHouseOneFamily) {
+      setInputs(prev => ({
+        ...prev,
+        isOneHouseOneFamily: true
+      }));
+    } else if (!exemptionCheck.isOneHouse && inputs.isOneHouseOneFamily) {
+      setInputs(prev => ({
+        ...prev,
+        isOneHouseOneFamily: false
+      }));
+    }
+  }, [inputs.totalHousesOwned, inputs.residenceYears, inputs.salePrice, inputs.age, checkOneHouseExemption, inputs.isOneHouseOneFamily]);
+
+  // 💰 메인 세금 계산 (기존 로직 개선)
   useEffect(() => {
     if (inputs.salePrice > 0 && inputs.acquisitionPrice > 0 && inputs.saleDate && inputs.acquisitionDate) {
       const timer = setTimeout(() => {
@@ -306,14 +496,22 @@ export default function CapitalGainsTaxCalculatorComponent() {
               </div>
               <div>
                 <CardTitle className="text-xl font-bold text-gray-900">
-                  양도소득세 계산기
+                  🤖 AI 자동판정 양도소득세 계산기
                 </CardTitle>
                 <CardDescription className="text-gray-600">
-                  2024년 세율 기준 · 부동산 양도소득세 계산
+                  2024년 최신 세율 기준 · 실시간 자동 계산 및 판정 시스템
                 </CardDescription>
-                <p className="text-sm text-blue-600 mt-2">
-                  💡 "샘플 데이터" 버튼을 클릭하여 예시 데이터로 테스트해보세요
-                </p>
+                <div className="mt-2 space-y-1">
+                  <p className="text-sm text-blue-600">
+                    💡 "샘플 데이터" 버튼을 클릭하여 예시 데이터로 테스트해보세요
+                  </p>
+                  <div className="flex items-center space-x-4 text-xs text-green-600">
+                    <span>🔄 보유기간 자동계산</span>
+                    <span>🏠 1세대1주택 자동판정</span>
+                    <span>⚠️ 중과세 자동감지</span>
+                    <span>📊 실시간 세율 미리보기</span>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -537,7 +735,7 @@ export default function CapitalGainsTaxCalculatorComponent() {
 
               {/* 양도 및 취득 정보 */}
               <div className="space-y-4">
-                <h4 className="font-medium text-gray-900 border-b pb-2">양도 및 취득 정보</h4>
+                <h4 className="font-medium text-gray-900 border-b pb-2">💰 양도 및 취득 정보</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <NumberInput
                     label="양도가액"
@@ -550,13 +748,14 @@ export default function CapitalGainsTaxCalculatorComponent() {
                   
                   <div>
                     <Label htmlFor="saleDate" className="text-sm font-medium text-gray-700 mb-2 block">
-                      양도일
+                      양도일 📅
                     </Label>
                     <Input
                       id="saleDate"
                       type="date"
                       value={inputs.saleDate}
                       onChange={(e) => updateInput('saleDate', e.target.value)}
+                      className="text-right font-mono"
                     />
                   </div>
 
@@ -571,16 +770,63 @@ export default function CapitalGainsTaxCalculatorComponent() {
                   
                   <div>
                     <Label htmlFor="acquisitionDate" className="text-sm font-medium text-gray-700 mb-2 block">
-                      취득일
+                      취득일 📅
                     </Label>
                     <Input
                       id="acquisitionDate"
                       type="date"
                       value={inputs.acquisitionDate}
                       onChange={(e) => updateInput('acquisitionDate', e.target.value)}
+                      className="text-right font-mono"
                     />
                   </div>
                 </div>
+
+                {/* 📊 실시간 보유기간 디스플레이 */}
+                {inputs.acquisitionDate && inputs.saleDate && (
+                  <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="w-5 h-5 text-indigo-600" />
+                        <span className="text-sm font-medium text-indigo-800">실시간 보유기간 계산</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-indigo-900">
+                          {calculatedValues.holdingPeriodYears}년 {calculatedValues.holdingPeriodMonths}개월 {calculatedValues.holdingPeriodDays}일
+                        </div>
+                        <div className="text-xs text-indigo-600">
+                          {calculatedValues.isLongTermHolding ? '✅ 장기보유 (2년 이상)' : '⚠️ 단기보유 (2년 미만)'}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* 보유기간별 세율 미리보기 */}
+                    <div className="mt-3 pt-3 border-t border-indigo-200">
+                      <div className="grid grid-cols-3 gap-4 text-xs">
+                        <div className="text-center">
+                          <div className="font-medium text-indigo-700">기본세율</div>
+                          <div className="text-indigo-900">
+                            {calculatedValues.holdingPeriodYears < 1 ? '70%' : 
+                             calculatedValues.holdingPeriodYears < 2 ? '60%' : '6~45%'}
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-indigo-700">장기보유공제</div>
+                          <div className="text-indigo-900">
+                            {Math.min(calculatedValues.holdingPeriodYears - 2, 20) * 4}%
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-indigo-700">양도차익</div>
+                          <div className="text-indigo-900">
+                            {inputs.salePrice > inputs.acquisitionPrice ? 
+                              formatCurrency(inputs.salePrice - inputs.acquisitionPrice) : '0원'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <Separator />
@@ -630,7 +876,7 @@ export default function CapitalGainsTaxCalculatorComponent() {
             <CardContent className="space-y-6">
               {/* 종합적인 부동산 소유정보 */}
               <div className="space-y-4">
-                <h4 className="font-medium text-gray-900 border-b pb-2">📊 종합 부동산 소유정보</h4>
+                <h4 className="font-medium text-gray-900 border-b pb-2">📊 종합 부동산 소유정보 및 자동 판정</h4>
                 <div className="bg-gray-50 p-4 rounded-lg space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <NumberInput
@@ -660,14 +906,106 @@ export default function CapitalGainsTaxCalculatorComponent() {
                       min={1}
                       helpText="세대 전체 주택 보유 현황"
                     />
-                    <NumberInput
-                      label="보유기간"
-                      value={inputs.holdingPeriodYears}
-                      onChange={(value) => updateInput('holdingPeriodYears', value)}
-                      suffix="년"
-                      max={100}
-                      helpText="해당 부동산 보유 기간"
-                    />
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        자동계산 보유기간 🔄
+                      </Label>
+                      <div className="h-10 px-3 py-2 bg-blue-50 border border-blue-200 rounded-md flex items-center justify-end">
+                        <span className="text-sm font-mono text-blue-900">
+                          {calculatedValues.holdingPeriodYears}년 {calculatedValues.holdingPeriodMonths}개월
+                        </span>
+                      </div>
+                      <p className="text-xs text-blue-600 mt-1">
+                        💡 양도일-취득일 기준 자동계산
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 🤖 AI 자동 판정 결과 */}
+                  <div className="mt-4 p-4 bg-white rounded-lg border border-gray-200">
+                    <div className="flex items-center mb-3">
+                      <div className="w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-2">
+                        <span className="text-white text-xs font-bold">AI</span>
+                      </div>
+                      <span className="text-sm font-semibold text-gray-900">실시간 자동 판정 결과</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* 1세대1주택 판정 */}
+                      <div className={`p-3 rounded-lg border-2 ${
+                        inputs.totalHousesOwned === 1 ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'
+                      }`}>
+                        <div className="text-xs font-medium mb-1">
+                          {inputs.totalHousesOwned === 1 ? '✅ 1세대1주택' : '❌ 다주택자'}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          {inputs.totalHousesOwned === 1 ? 
+                            `비과세 가능성: ${inputs.salePrice <= 1200000000 ? '높음' : '일부'}` :
+                            `중과세 적용: +${calculatedValues.autoDetectedHeavyTax.heavyTaxRate}%p`
+                          }
+                        </div>
+                      </div>
+
+                      {/* 보유기간 판정 */}
+                      <div className={`p-3 rounded-lg border-2 ${
+                        calculatedValues.isLongTermHolding ? 'border-blue-300 bg-blue-50' : 'border-orange-300 bg-orange-50'
+                      }`}>
+                        <div className="text-xs font-medium mb-1">
+                          {calculatedValues.isLongTermHolding ? '✅ 장기보유' : '⚠️ 단기보유'}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          {calculatedValues.isLongTermHolding ? 
+                            `장기보유공제: ${Math.min((calculatedValues.holdingPeriodYears - 2) * 4, 80)}%` :
+                            `중과세율: ${calculatedValues.holdingPeriodYears < 1 ? '70%' : '60%'}`
+                          }
+                        </div>
+                      </div>
+
+                      {/* 중과세 위험도 판정 */}
+                      <div className={`p-3 rounded-lg border-2 ${
+                        calculatedValues.autoDetectedHeavyTax.heavyTaxRate === 0 ? 'border-green-300 bg-green-50' : 
+                        calculatedValues.autoDetectedHeavyTax.heavyTaxRate <= 20 ? 'border-yellow-300 bg-yellow-50' :
+                        'border-red-300 bg-red-50'
+                      }`}>
+                        <div className="text-xs font-medium mb-1">
+                          {calculatedValues.autoDetectedHeavyTax.heavyTaxRate === 0 ? '✅ 일반과세' : 
+                           calculatedValues.autoDetectedHeavyTax.heavyTaxRate <= 20 ? '⚠️ 경미한 중과세' : '🚨 높은 중과세'}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          추가세율: +{calculatedValues.autoDetectedHeavyTax.heavyTaxRate}%p
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 상세 분석 */}
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <div className="text-xs text-gray-700">
+                        <div className="flex items-center justify-between mb-1">
+                          <span>🏠 주택 보유 현황:</span>
+                          <span className="font-medium">
+                            {inputs.totalHousesOwned}채 보유
+                            {inputs.totalHousesOwned >= 2 && ` (${inputs.totalHousesOwned >= 3 ? '3주택 이상' : '2주택'})`}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span>📅 보유 기간:</span>
+                          <span className="font-medium">
+                            {calculatedValues.holdingPeriodYears}년 {calculatedValues.holdingPeriodMonths}개월
+                            {calculatedValues.isLongTermHolding ? ' (장기)' : ' (단기)'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span>💰 예상 세율:</span>
+                          <span className="font-medium">
+                            {calculatedValues.holdingPeriodYears < 1 ? '70%' : 
+                             calculatedValues.holdingPeriodYears < 2 ? '60%' : '6~45%'}
+                            {calculatedValues.autoDetectedHeavyTax.heavyTaxRate > 0 && 
+                              ` (+${calculatedValues.autoDetectedHeavyTax.heavyTaxRate}%p)`
+                            }
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -734,28 +1072,53 @@ export default function CapitalGainsTaxCalculatorComponent() {
               <div className="space-y-4">
                 <h4 className="font-medium text-gray-900 border-b pb-2">⚠️ 2024년 중과세 및 특별 규정</h4>
                 <div className="bg-red-50 p-4 rounded-lg space-y-4">
-                  <div className="text-xs text-red-700 mb-3">
-                    📢 2024년 주요 변경사항: 1세대1주택 비과세 한도 9억원 → 12억원 상향 조정
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-xs text-red-700">
+                      📢 2024년 주요 변경사항: 1세대1주택 비과세 한도 9억원 → 12억원 상향 조정
+                    </div>
+                    <div className="flex items-center text-xs">
+                      <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-blue-500 rounded-full mr-1"></div>
+                      <span className="text-gray-600">AI 자동 판정 적용</span>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-3">
-                      <div className="bg-white p-3 rounded-lg border border-red-200">
-                        <div className="text-sm font-semibold text-red-800 mb-2">🏘️ 다주택자 중과세</div>
+                      <div className={`bg-white p-3 rounded-lg border-2 ${
+                        calculatedValues.autoDetectedHeavyTax.isMultipleHouses ? 'border-red-400 bg-red-50' : 'border-gray-200'
+                      }`}>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="text-sm font-semibold text-red-800">🏘️ 다주택자 중과세</div>
+                          {calculatedValues.autoDetectedHeavyTax.isMultipleHouses && (
+                            <div className="flex items-center text-xs">
+                              <div className="w-2 h-2 bg-red-500 rounded-full mr-1 animate-pulse"></div>
+                              <span className="text-red-600 font-medium">자동 감지</span>
+                            </div>
+                          )}
+                        </div>
                         <div className="space-y-2">
                           <div className="flex items-center space-x-2">
                             <Checkbox
                               id="multipleHouses"
                               checked={inputs.isMultipleHouses}
                               onCheckedChange={(checked) => updateInput('isMultipleHouses', checked)}
+                              disabled={calculatedValues.autoDetectedHeavyTax.isMultipleHouses}
                             />
                             <Label htmlFor="multipleHouses" className="text-xs">
                               2주택 이상 보유 (기본세율 + 20%p)
+                              {calculatedValues.autoDetectedHeavyTax.isMultipleHouses && (
+                                <span className="ml-2 text-red-600 font-medium">[자동 적용됨]</span>
+                              )}
                             </Label>
                           </div>
                           <div className="text-xs text-red-600 ml-6">
                             • 2주택: 기본세율 + 20%p<br/>
-                            • 3주택 이상: 기본세율 + 30%p
+                            • 3주택 이상: 기본세율 + 30%p<br/>
+                            {calculatedValues.autoDetectedHeavyTax.isMultipleHouses && (
+                              <span className="font-medium text-red-700">
+                                → 현재 {inputs.totalHousesOwned}주택으로 +{calculatedValues.autoDetectedHeavyTax.heavyTaxRate >= 30 ? '30' : '20'}%p 적용
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
