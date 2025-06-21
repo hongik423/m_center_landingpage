@@ -1536,19 +1536,19 @@ const CorporateTaxCalculatorComponent: React.FC = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm text-gray-600">총수입금액</p>
-                        <p className="text-lg font-semibold">{result.grossIncome.toLocaleString()}원</p>
+                        <p className="text-lg font-semibold">{Math.round(result.grossIncome).toLocaleString('ko-KR')}원</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-600">총비용</p>
-                        <p className="text-lg font-semibold">{result.totalExpenses.toLocaleString()}원</p>
+                        <p className="text-lg font-semibold">{Math.round(result.totalExpenses).toLocaleString('ko-KR')}원</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-600">과세표준</p>
-                        <p className="text-lg font-semibold">{result.taxableIncome.toLocaleString()}원</p>
+                        <p className="text-lg font-semibold">{Math.round(result.taxableIncome).toLocaleString('ko-KR')}원</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-600">세액공제 전 법인세</p>
-                        <p className="text-lg font-semibold">{result.taxBeforeCredits.toLocaleString()}원</p>
+                        <p className="text-lg font-semibold">{Math.round(result.taxBeforeCredits).toLocaleString('ko-KR')}원</p>
                       </div>
                     </div>
 
@@ -1559,27 +1559,27 @@ const CorporateTaxCalculatorComponent: React.FC = () => {
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div className="flex justify-between">
                           <span>연구개발비:</span>
-                          <span>{result.taxCredits.rdCredit.toLocaleString()}원</span>
+                          <span>{Math.round(result.taxCredits.rdCredit).toLocaleString('ko-KR')}원</span>
                         </div>
                         <div className="flex justify-between">
                           <span>설비투자:</span>
-                          <span>{result.taxCredits.equipmentCredit.toLocaleString()}원</span>
+                          <span>{Math.round(result.taxCredits.equipmentCredit).toLocaleString('ko-KR')}원</span>
                         </div>
                         <div className="flex justify-between">
                           <span>고용증대:</span>
-                          <span>{result.taxCredits.employmentCredit.toLocaleString()}원</span>
+                          <span>{Math.round(result.taxCredits.employmentCredit).toLocaleString('ko-KR')}원</span>
                         </div>
                         <div className="flex justify-between">
                           <span>창업기업:</span>
-                          <span>{result.taxCredits.startupCredit.toLocaleString()}원</span>
+                          <span>{Math.round(result.taxCredits.startupCredit).toLocaleString('ko-KR')}원</span>
                         </div>
                         <div className="flex justify-between">
                           <span>외국납부세액:</span>
-                          <span>{result.taxCredits.foreignCredit.toLocaleString()}원</span>
+                          <span>{Math.round(result.taxCredits.foreignCredit).toLocaleString('ko-KR')}원</span>
                         </div>
                         <div className="flex justify-between font-semibold">
                           <span>총 세액공제:</span>
-                          <span>{result.taxCredits.totalCredits.toLocaleString()}원</span>
+                          <span>{Math.round(result.taxCredits.totalCredits).toLocaleString('ko-KR')}원</span>
                         </div>
                       </div>
                     </div>
@@ -1590,17 +1590,17 @@ const CorporateTaxCalculatorComponent: React.FC = () => {
                       <div className="flex justify-between items-center">
                         <span className="text-lg font-semibold">최종 법인세:</span>
                         <span className="text-2xl font-bold text-blue-600">
-                          {result.finalTax.toLocaleString()}원
+                          {Math.round(result.finalTax).toLocaleString('ko-KR')}원
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span>지방소득세 (10%):</span>
-                        <span className="font-semibold">{result.localIncomeTax.toLocaleString()}원</span>
+                        <span className="font-semibold">{Math.round(result.localIncomeTax).toLocaleString('ko-KR')}원</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-lg font-semibold">총 납부세액:</span>
                         <span className="text-xl font-bold text-red-600">
-                          {result.totalTax.toLocaleString()}원
+                          {Math.round(result.totalTax).toLocaleString('ko-KR')}원
                         </span>
                       </div>
                       <div className="flex justify-between text-sm text-gray-600">
@@ -1614,11 +1614,11 @@ const CorporateTaxCalculatorComponent: React.FC = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm text-gray-600">중간예납세액</p>
-                        <p className="font-semibold">{result.interimPayment.toLocaleString()}원</p>
+                        <p className="font-semibold">{Math.round(result.interimPayment).toLocaleString('ko-KR')}원</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-600">추가 납부세액</p>
-                        <p className="font-semibold">{result.finalPayment.toLocaleString()}원</p>
+                        <p className="font-semibold">{Math.round(result.finalPayment).toLocaleString('ko-KR')}원</p>
                       </div>
                     </div>
                   </div>
@@ -1676,7 +1676,7 @@ const CorporateTaxCalculatorComponent: React.FC = () => {
                               <div className="text-sm">{advice.description}</div>
                               {advice.expectedSaving > 0 && (
                                 <div className="text-sm font-semibold text-green-600">
-                                  예상 절세액: {advice.expectedSaving.toLocaleString()}원
+                                  예상 절세액: {Math.round(advice.expectedSaving).toLocaleString('ko-KR')}원
                                 </div>
                               )}
                             </div>

@@ -6,32 +6,38 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * 숫자를 한국어 천 단위 구분기호로 포맷팅
+ * 숫자를 한국어 천 단위 구분기호로 포맷팅 (정수 반올림 적용)
  */
 export const formatNumber = (amount: number | string): string => {
   const num = typeof amount === 'string' ? parseFloat(amount) || 0 : amount;
-  return new Intl.NumberFormat('ko-KR').format(num);
+  // 🔥 정수로 반올림하여 소수점 완전 제거
+  const roundedNum = Math.round(num);
+  return new Intl.NumberFormat('ko-KR').format(roundedNum);
 };
 
 /**
- * 숫자를 한국 원화 통화 형식으로 포맷팅
+ * 숫자를 한국 원화 통화 형식으로 포맷팅 (정수 반올림 적용)
  */
 export const formatCurrency = (amount: number | string): string => {
   const num = typeof amount === 'string' ? parseFloat(amount) || 0 : amount;
+  // 🔥 정수로 반올림하여 소수점 완전 제거
+  const roundedNum = Math.round(num);
   return new Intl.NumberFormat('ko-KR', {
     style: 'currency',
     currency: 'KRW',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
-  }).format(num);
+  }).format(roundedNum);
 };
 
 /**
- * 숫자를 한국어 천 단위 구분기호와 함께 "원" 단위로 포맷팅
+ * 숫자를 한국어 천 단위 구분기호와 함께 "원" 단위로 포맷팅 (정수 반올림 적용)
  */
 export const formatWon = (amount: number | string): string => {
   const num = typeof amount === 'string' ? parseFloat(amount) || 0 : amount;
-  return `${formatNumber(num)}원`;
+  // 🔥 정수로 반올림하여 소수점 완전 제거
+  const roundedNum = Math.round(num);
+  return `${formatNumber(roundedNum)}원`;
 };
 
 /**

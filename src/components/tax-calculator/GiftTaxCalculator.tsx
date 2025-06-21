@@ -1181,10 +1181,10 @@ export default function GiftTaxCalculatorComponent() {
                       <Info className="h-4 w-4 text-yellow-600" />
                       <AlertDescription className="text-yellow-800">
                         <strong>📊 10년 합산과세 적용:</strong><br />
-                        • 기존 증여액: {result.cumulativeTaxation.previousGifts.toLocaleString()}원<br />
-                        • 이번 증여액: {result.cumulativeTaxation.currentGift.toLocaleString()}원<br />
-                        • 총 합산액: {result.cumulativeTaxation.totalGifts.toLocaleString()}원<br />
-                        • 기납부 세액: {result.cumulativeTaxation.previousTaxPaid.toLocaleString()}원
+                                                  • 기존 증여액: {Math.round(result.cumulativeTaxation.previousGifts).toLocaleString('ko-KR')}원<br />
+                          • 이번 증여액: {Math.round(result.cumulativeTaxation.currentGift).toLocaleString('ko-KR')}원<br />
+                          • 총 합산액: {Math.round(result.cumulativeTaxation.totalGifts).toLocaleString('ko-KR')}원<br />
+                          • 기납부 세액: {Math.round(result.cumulativeTaxation.previousTaxPaid).toLocaleString('ko-KR')}원
                       </AlertDescription>
                     </Alert>
                   )}
