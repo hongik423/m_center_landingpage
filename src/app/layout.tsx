@@ -63,6 +63,11 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
+        {/* 🔧 UTF-8 인코딩 명시적 설정 - GitHub Pages 한글 깨짐 방지 */}
+        <meta charSet="UTF-8" />
+        <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta httpEquiv="Content-Language" content="ko" />
+        
         {/* 🔧 모바일 뷰포트 최적화 */}
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
         
@@ -81,6 +86,20 @@ export default function RootLayout({
           type="text/javascript"
           src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"
           async
+        />
+        
+        {/* 🔧 한글 폰트 프리로드 - GitHub Pages 한글 렌더링 최적화 */}
+        <link 
+          rel="preload" 
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" 
+          as="style" 
+          crossOrigin="anonymous"
+        />
+        <link 
+          rel="preload" 
+          href="https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@latest/css/SpoqaHanSansNeo.css" 
+          as="style" 
+          crossOrigin="anonymous"
         />
         
         {/* 🔧 성능 최적화: DNS 프리페치 */}
