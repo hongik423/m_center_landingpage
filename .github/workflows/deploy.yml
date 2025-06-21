@@ -33,8 +33,12 @@ jobs:
         echo "✅ NODE_ENV: production"
         
     - name: 🏗️ Build Application
-      run: npm run build
+      run: |
+        npm run build
+        touch out/.nojekyll
       env:
+        # 🔧 GitHub Pages 정적 빌드 활성화
+        GITHUB_PAGES: true
         # 🤖 AI 관련 환경변수 (서버 사이드 전용)
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         
@@ -75,6 +79,15 @@ jobs:
           echo "❌ Next.js 빌드 실패"
           exit 1
         fi
+        if [ -d "out" ]; then
+          echo "✅ 정적 파일 생성 성공"
+          ls -la out/
+          echo "📄 index.html 확인:"
+          ls -la out/index.html
+        else
+          echo "❌ 정적 파일 생성 실패"
+          exit 1
+        fi
         
     - name: 📤 Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
@@ -82,6 +95,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./out
         force_orphan: true
+        enable_jekyll: false
         cname: # GitHub Pages 커스텀 도메인이 있다면 여기에 입력
         
     - name: 🔍 Post-Deploy Health Check
