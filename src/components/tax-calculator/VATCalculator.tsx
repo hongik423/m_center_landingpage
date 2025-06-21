@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { NumberInput } from '@/components/ui/number-input';
 import { 
   Calculator, 
   DollarSign, 
@@ -239,14 +240,13 @@ export default function VATCalculator() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="annualSales">연매출액 (원)</Label>
-                  <Input
-                    id="annualSales"
-                    type="number"
-                    placeholder="예: 50000000"
-                    value={additionalInfo.annualSales || ''}
-                    onChange={(e) => handleAdditionalInfoChange('annualSales', e.target.value)}
-                    className="mt-1"
+                  <NumberInput
+                    label="연매출액 💰"
+                    value={additionalInfo.annualSales || 0}
+                    onChange={(value) => handleAdditionalInfoChange('annualSales', value)}
+                    placeholder="50,000,000"
+                    suffix="원/년"
+                    min={0}
                   />
                   <p className="text-sm text-gray-500 mt-1">
                     사업자 유형 자동 판정에 사용됩니다
@@ -357,18 +357,15 @@ export default function VATCalculator() {
                 {/* 간이과세자 매출액 입력 */}
                 {inputs.businessType === 'simplified' && (
                   <div>
-                    <Label htmlFor="periodSales">과세기간 매출액 (원)</Label>
-                    <Input
-                      id="periodSales"
-                      type="number"
-                      placeholder="예: 30000000"
-                      value={additionalInfo.periodSales || ''}
-                      onChange={(e) => handleAdditionalInfoChange('periodSales', e.target.value)}
-                      className={`mt-1 ${errors.periodSales ? 'border-red-500' : ''}`}
+                    <NumberInput
+                      label="과세기간 매출액 📊"
+                      value={additionalInfo.periodSales || 0}
+                      onChange={(value) => handleAdditionalInfoChange('periodSales', value)}
+                      placeholder="30,000,000"
+                      suffix="원"
+                      min={0}
+                      error={errors.periodSales}
                     />
-                    {errors.periodSales && (
-                      <p className="text-sm text-red-600 mt-1">{errors.periodSales}</p>
-                    )}
                     <div className="text-sm text-blue-600 mt-1">
                       <p>• {inputs.taxPeriod === 'first' ? '1~6월' : '7~12월'} 매출액을 입력하세요</p>
                       <p>• 부가가치율 {(getVATRateByBusiness(additionalInfo.businessCategory) * 100).toFixed(1)}% 적용 → 
@@ -382,18 +379,15 @@ export default function VATCalculator() {
                 {/* 일반과세자 매출세액 입력 */}
                 {inputs.businessType === 'general' && (
                   <div>
-                    <Label htmlFor="outputVAT">매출세액 (원)</Label>
-                    <Input
-                      id="outputVAT"
-                      type="number"
-                      placeholder="예: 5000000"
-                      value={inputs.outputVAT || ''}
-                      onChange={(e) => handleInputChange('outputVAT', e.target.value)}
-                      className={`mt-1 ${errors.outputVAT ? 'border-red-500' : ''}`}
+                    <NumberInput
+                      label="매출세액 💸"
+                      value={inputs.outputVAT || 0}
+                      onChange={(value) => handleInputChange('outputVAT', value)}
+                      placeholder="5,000,000"
+                      suffix="원"
+                      min={0}
+                      error={errors.outputVAT}
                     />
-                    {errors.outputVAT && (
-                      <p className="text-sm text-red-600 mt-1">{errors.outputVAT}</p>
-                    )}
                     <p className="text-sm text-gray-500 mt-1">
                       매출액 × 10% = 매출세액
                     </p>
@@ -401,19 +395,16 @@ export default function VATCalculator() {
                 )}
 
                 <div>
-                  <Label htmlFor="inputVAT">매입세액 (원)</Label>
-                  <Input
-                    id="inputVAT"
-                    type="number"
-                    placeholder="예: 1000000"
-                    value={inputs.inputVAT || ''}
-                    onChange={(e) => handleInputChange('inputVAT', e.target.value)}
-                    className={`mt-1 ${errors.inputVAT ? 'border-red-500' : ''}`}
+                  <NumberInput
+                    label="매입세액 🛒"
+                    value={inputs.inputVAT || 0}
+                    onChange={(value) => handleInputChange('inputVAT', value)}
+                    placeholder="1,000,000"
+                    suffix="원"
+                    min={0}
+                    error={errors.inputVAT}
                     disabled={inputs.businessType === 'exempt'}
                   />
-                  {errors.inputVAT && (
-                    <p className="text-sm text-red-600 mt-1">{errors.inputVAT}</p>
-                  )}
                   {inputs.businessType !== 'exempt' && (
                     <p className="text-sm text-gray-500 mt-1">
                       매입액 × 10% = 매입세액

@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
+import { NumberInput } from '@/components/ui/number-input';
 import {
   Calculator,
   FileText,
@@ -563,17 +564,16 @@ const WithholdingTaxCalculator: React.FC = () => {
                   {/* 지급액 */}
                   <div className="space-y-2">
                     <Label htmlFor="paymentAmount">지급액 (원)</Label>
-                    <Input
-                      id="paymentAmount"
-                      type="number"
-                      value={input.paymentAmount || ''}
-                      onChange={(e) => setInput(prev => ({ ...prev, paymentAmount: parseInt(e.target.value) || 0 }))}
+                    <NumberInput
+                      label=""
+                      value={input.paymentAmount || 0}
+                      onChange={(value) => setInput(prev => ({ ...prev, paymentAmount: value }))}
                       placeholder="지급액을 입력하세요"
-                      className={errors.paymentAmount ? 'border-red-300' : ''}
+                      suffix="원"
+                      min={0}
+                      max={100000000}
+                      error={errors.paymentAmount}
                     />
-                    {errors.paymentAmount && (
-                      <p className="text-sm text-red-600">{errors.paymentAmount}</p>
-                    )}
                     <div className="text-xs text-gray-500">
                       💡 한도: 월 1억원까지 입력 가능
                     </div>
@@ -608,13 +608,14 @@ const WithholdingTaxCalculator: React.FC = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="dependents">부양가족 수 (명)</Label>
-                        <Input
-                          id="dependents"
-                          type="number"
-                          min="0"
-                          value={input.dependents || ''}
-                          onChange={(e) => setInput(prev => ({ ...prev, dependents: parseInt(e.target.value) || 0 }))}
+                        <NumberInput
+                          label=""
+                          value={input.dependents || 0}
+                          onChange={(value) => setInput(prev => ({ ...prev, dependents: value }))}
                           placeholder="0"
+                          suffix="명"
+                          min={0}
+                          max={20}
                         />
                         <div className="text-xs text-blue-600">
                           💰 1명당 월 15만원 공제
@@ -623,13 +624,14 @@ const WithholdingTaxCalculator: React.FC = () => {
                       
                       <div className="space-y-2">
                         <Label htmlFor="childrenUnder20">20세 이하 자녀 수 (명)</Label>
-                        <Input
-                          id="childrenUnder20"
-                          type="number"
-                          min="0"
-                          value={input.childrenUnder20 || ''}
-                          onChange={(e) => setInput(prev => ({ ...prev, childrenUnder20: parseInt(e.target.value) || 0 }))}
+                        <NumberInput
+                          label=""
+                          value={input.childrenUnder20 || 0}
+                          onChange={(value) => setInput(prev => ({ ...prev, childrenUnder20: value }))}
                           placeholder="0"
+                          suffix="명"
+                          min={0}
+                          max={20}
                         />
                         <div className="text-xs text-blue-600">
                           🎓 추가 월 15만원 공제
@@ -742,12 +744,13 @@ const WithholdingTaxCalculator: React.FC = () => {
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="annualTotalInterest">연간 총 금융소득 (원)</Label>
-                      <Input
-                        id="annualTotalInterest"
-                        type="number"
-                        value={input.annualTotalInterest || ''}
-                        onChange={(e) => setInput(prev => ({ ...prev, annualTotalInterest: parseInt(e.target.value) || 0 }))}
+                      <NumberInput
+                        label=""
+                        value={input.annualTotalInterest || 0}
+                        onChange={(value) => setInput(prev => ({ ...prev, annualTotalInterest: value }))}
                         placeholder="연간 총 이자·배당소득"
+                        suffix="원/년"
+                        min={0}
                       />
                       <div className="text-xs text-orange-600">
                         🔥 연간 2천만원 초과시 종합소득세 신고 대상

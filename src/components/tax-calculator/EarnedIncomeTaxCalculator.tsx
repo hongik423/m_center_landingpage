@@ -381,25 +381,16 @@ export default function EarnedIncomeTaxCalculatorComponent() {
       case 0: // 기본 정보
         return (
           <div className="space-y-6">
-            <InputGuide
-              label="연간 총급여액(세전)"
-              description="연말정산 급여명세서상의 총급여액을 입력하세요"
-              required
+            <NumberInput
+              label="연간 총급여액(세전) *"
               value={data.annualSalary}
-              unit="원"
-              example="5,000만원"
-              hint="보너스, 상여금 포함 연간 총액을 입력하세요"
+              onChange={(value) => updateData('annualSalary', value)}
+              placeholder="예: 50,000,000"
+              suffix="원"
+              min={0}
+              required={true}
               error={!data.annualSalary ? validation.errors.find(e => e.includes('연봉')) : undefined}
-              success={data.annualSalary > 0 ? '입력 완료' : undefined}
-            >
-              <Input
-                type="number"
-                placeholder="예: 50000000"
-                value={data.annualSalary || ''}
-                onChange={(e) => updateData('annualSalary', Number(e.target.value))}
-                className="text-right"
-              />
-            </InputGuide>
+            />
 
             <InputGuide
               label="근무형태"
@@ -422,25 +413,17 @@ export default function EarnedIncomeTaxCalculatorComponent() {
               </Select>
             </InputGuide>
 
-            <InputGuide
-              label="근무개월수"
-              description="해당 연도에 근무한 개월수를 입력하세요"
-              required
+            <NumberInput
+              label="근무개월수 *"
               value={data.workingMonths}
-              unit="개월"
-              hint="신입사원이나 중도입사자는 실제 근무개월수를 입력하세요"
+              onChange={(value) => updateData('workingMonths', value)}
+              placeholder="12"
+              suffix="개월"
+              min={1}
+              max={12}
+              required={true}
               error={validation.errors.find(e => e.includes('근무개월수'))}
-              success={data.workingMonths > 0 && data.workingMonths <= 12 ? '입력 완료' : undefined}
-            >
-              <Input
-                type="number"
-                min="1"
-                max="12"
-                placeholder="12"
-                value={data.workingMonths || ''}
-                onChange={(e) => updateData('workingMonths', Number(e.target.value))}
-              />
-            </InputGuide>
+            />
           </div>
         );
 
@@ -457,54 +440,32 @@ export default function EarnedIncomeTaxCalculatorComponent() {
               </p>
             </div>
 
-            <InputGuide
+            <NumberInput
               label="일반 부양가족 수"
-              description="만 20세 이하 직계비속, 만 60세 이상 직계존속 등"
               value={data.dependents}
-              unit="명"
-              hint="연간 소득 100만원 이하인 부양가족만 해당"
-              example="배우자, 자녀, 부모님 등"
-            >
-              <Input
-                type="number"
-                min="0"
-                placeholder="0"
-                value={data.dependents || ''}
-                onChange={(e) => updateData('dependents', Number(e.target.value))}
-              />
-            </InputGuide>
+              onChange={(value) => updateData('dependents', value)}
+              placeholder="0"
+              suffix="명"
+              min={0}
+            />
 
-            <InputGuide
+            <NumberInput
               label="만 70세 이상 부양가족 수"
-              description="추가공제 100만원이 적용됩니다"
               value={data.elderlyDependents}
-              unit="명"
-              hint="경로우대 추가공제 대상"
-            >
-              <Input
-                type="number"
-                min="0"
-                placeholder="0"
-                value={data.elderlyDependents || ''}
-                onChange={(e) => updateData('elderlyDependents', Number(e.target.value))}
-              />
-            </InputGuide>
+              onChange={(value) => updateData('elderlyDependents', value)}
+              placeholder="0"
+              suffix="명"
+              min={0}
+            />
 
-            <InputGuide
+            <NumberInput
               label="장애인 부양가족 수"
-              description="추가공제 200만원이 적용됩니다"
               value={data.disabledDependents}
-              unit="명"
-              hint="장애인등록증 또는 장애인증명서 보유자"
-            >
-              <Input
-                type="number"
-                min="0"
-                placeholder="0"
-                value={data.disabledDependents || ''}
-                onChange={(e) => updateData('disabledDependents', Number(e.target.value))}
-              />
-            </InputGuide>
+              onChange={(value) => updateData('disabledDependents', value)}
+              placeholder="0"
+              suffix="명"
+              min={0}
+            />
           </div>
         );
 
@@ -521,54 +482,32 @@ export default function EarnedIncomeTaxCalculatorComponent() {
               </p>
             </div>
 
-            <InputGuide
-              label="월세액"
-              description="월세 거주자의 경우 연간 월세액의 12% 세액공제"
+            <NumberInput
+              label="월세액 💰"
               value={data.rentExpense}
-              unit="원/월"
-              hint="연 최대 75만원까지 공제 가능"
-              example="80만원"
-            >
-              <Input
-                type="number"
-                placeholder="800000"
-                value={data.rentExpense || ''}
-                onChange={(e) => updateData('rentExpense', Number(e.target.value))}
-                className="text-right"
-              />
-            </InputGuide>
+              onChange={(value) => updateData('rentExpense', value)}
+              placeholder="800,000"
+              suffix="원/월"
+              min={0}
+            />
 
-            <InputGuide
-              label="기부금액"
-              description="연간 기부한 총액 (종교단체, 사회복지법인 등)"
+            <NumberInput
+              label="기부금액 🤲"
               value={data.donations}
-              unit="원"
-              hint="소득의 30% 한도 내에서 15% 세액공제"
-            >
-              <Input
-                type="number"
-                placeholder="1000000"
-                value={data.donations || ''}
-                onChange={(e) => updateData('donations', Number(e.target.value))}
-                className="text-right"
-              />
-            </InputGuide>
+              onChange={(value) => updateData('donations', value)}
+              placeholder="1,000,000"
+              suffix="원/년"
+              min={0}
+            />
 
-            <InputGuide
-              label="의료비"
-              description="본인 및 부양가족의 의료비 (총급여의 3% 초과분)"
+            <NumberInput
+              label="의료비 🏥"
               value={data.medicalExpense}
-              unit="원"
-              hint="초과분에 대해 15% 세액공제"
-            >
-              <Input
-                type="number"
-                placeholder="2000000"
-                value={data.medicalExpense || ''}
-                onChange={(e) => updateData('medicalExpense', Number(e.target.value))}
-                className="text-right"
-              />
-            </InputGuide>
+              onChange={(value) => updateData('medicalExpense', value)}
+              placeholder="2,000,000"
+              suffix="원/년"
+              min={0}
+            />
           </div>
         );
 
