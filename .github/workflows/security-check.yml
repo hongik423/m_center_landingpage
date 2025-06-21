@@ -139,7 +139,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🔍 의존성 리뷰
-        uses: actions/dependency-review-action@v3
+        uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: moderate
 
