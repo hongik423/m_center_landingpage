@@ -123,100 +123,111 @@ const validateStep = (step: number, data: TaxCalculationData): { isValid: boolea
   return { isValid: errors.length === 0, errors };
 };
 
-// 세금 계산 함수 - 2024년 기준 정확한 계산 로직
+// 세금 계산 함수 - 월급 기준 원천징수 계산 로직
 const calculateTax = (data: TaxCalculationData): TaxCalculationData['results'] => {
   const { annualSalary, dependents, elderlyDependents, disabledDependents } = data;
   
-  // 🔥 1. 근로소득공제 (2024년 기준) - 정수로 반올림
-  let earnedIncomeDeduction = 0;
-  if (annualSalary <= 5000000) {
-    earnedIncomeDeduction = Math.round(annualSalary * 0.7);
-  } else if (annualSalary <= 15000000) {
-    earnedIncomeDeduction = Math.round(3500000 + (annualSalary - 5000000) * 0.4);
-  } else if (annualSalary <= 45000000) {
-    earnedIncomeDeduction = Math.round(7500000 + (annualSalary - 15000000) * 0.15);
-  } else if (annualSalary <= 100000000) {
-    earnedIncomeDeduction = Math.round(12000000 + (annualSalary - 45000000) * 0.05);
+  // 🔥 월급 계산 (연봉 ÷ 12)
+  const monthlySalary = Math.round(annualSalary / 12);
+  
+  // 🔥 1. 월급 기준 근로소득공제 (2024년 기준)
+  let monthlyEarnedIncomeDeduction = 0;
+  const yearlyForDeduction = monthlySalary * 12; // 공제 계산용 연환산
+  
+  if (yearlyForDeduction <= 5000000) {
+    monthlyEarnedIncomeDeduction = Math.round(monthlySalary * 0.7);
+  } else if (yearlyForDeduction <= 15000000) {
+    monthlyEarnedIncomeDeduction = Math.round((3500000 + (yearlyForDeduction - 5000000) * 0.4) / 12);
+  } else if (yearlyForDeduction <= 45000000) {
+    monthlyEarnedIncomeDeduction = Math.round((7500000 + (yearlyForDeduction - 15000000) * 0.15) / 12);
+  } else if (yearlyForDeduction <= 100000000) {
+    monthlyEarnedIncomeDeduction = Math.round((12000000 + (yearlyForDeduction - 45000000) * 0.05) / 12);
   } else {
-    earnedIncomeDeduction = Math.round(14750000 + (annualSalary - 100000000) * 0.02);
+    monthlyEarnedIncomeDeduction = Math.round((14750000 + (yearlyForDeduction - 100000000) * 0.02) / 12);
   }
   
-  // 🔥 2. 인적공제 (2024년 기준)
-  const personalDeduction = (1 + dependents + elderlyDependents + disabledDependents) * 1500000;
-  const additionalDeduction = elderlyDependents * 1000000 + disabledDependents * 2000000;
+  // 🔥 2. 월 기준 인적공제 (2024년 기준)
+  const monthlyPersonalDeduction = Math.round((1 + dependents + elderlyDependents + disabledDependents) * 1500000 / 12);
+  const monthlyAdditionalDeduction = Math.round((elderlyDependents * 1000000 + disabledDependents * 2000000) / 12);
   
-  // 🔥 3. 사회보험료 공제 (2024년 기준 - 상한선 적용)
-  const nationalPensionLimit = 5130000; // 연 513만원 상한
-  const nationalPension = Math.min(Math.round(annualSalary * 0.045), nationalPensionLimit);
+  // 🔥 3. 월 기준 사회보험료 공제 (2024년 기준 - 월별 상한선 적용)
+  const monthlyNationalPensionLimit = Math.round(5130000 / 12); // 월 42.75만원 상한
+  const monthlyNationalPension = Math.min(Math.round(monthlySalary * 0.045), monthlyNationalPensionLimit);
   
-  const healthInsurance = Math.round(annualSalary * 0.03545); // 건강보험 3.545%
-  const employmentInsurance = Math.round(annualSalary * 0.009); // 고용보험 0.9%
+  const monthlyHealthInsurance = Math.round(monthlySalary * 0.03545); // 건강보험 3.545%
+  const monthlyEmploymentInsurance = Math.round(monthlySalary * 0.009); // 고용보험 0.9%
   
-  const totalSocialInsurance = nationalPension + healthInsurance + employmentInsurance;
+  const monthlyTotalSocialInsurance = monthlyNationalPension + monthlyHealthInsurance + monthlyEmploymentInsurance;
   
-  // 🔥 4. 표준공제 (사회보험료 포함하지 않음)
-  const standardDeduction = 1300000; // 기본 130만원
+  // 🔥 4. 월 기준 표준공제
+  const monthlyStandardDeduction = Math.round(1300000 / 12); // 월 10.83만원
   
-  // 🔥 5. 특별공제 (여기서는 기본값만 적용)
-  const specialDeduction = 0; // 추후 확장 가능
+  // 🔥 5. 월별 총 공제액
+  const monthlyTotalDeductions = monthlyEarnedIncomeDeduction + monthlyPersonalDeduction + monthlyAdditionalDeduction + 
+                                monthlyTotalSocialInsurance + monthlyStandardDeduction;
   
-  // 🔥 6. 기타공제 (개인연금저축공제 등)
-  const otherDeductions = 0; // 추후 확장 가능
+  const monthlyTaxableIncome = Math.max(0, monthlySalary - monthlyTotalDeductions);
   
-  const totalDeductions = earnedIncomeDeduction + personalDeduction + additionalDeduction + 
-                         totalSocialInsurance + standardDeduction + specialDeduction + otherDeductions;
+  // 🔥 6. 월 기준 종합소득세 계산 (연환산 후 12분할)
+  const yearlyTaxableForCalc = monthlyTaxableIncome * 12;
+  let yearlyIncomeTax = 0;
   
-  const taxableIncome = Math.max(0, annualSalary - totalDeductions);
-  
-  // 🔥 7. 종합소득세 계산 (2024년 기준) - 정수로 반올림
-  let incomeTax = 0;
-  if (taxableIncome <= 14000000) {
-    incomeTax = Math.round(taxableIncome * 0.06);
-  } else if (taxableIncome <= 50000000) {
-    incomeTax = Math.round(840000 + (taxableIncome - 14000000) * 0.15);
-  } else if (taxableIncome <= 88000000) {
-    incomeTax = Math.round(6240000 + (taxableIncome - 50000000) * 0.24);
-  } else if (taxableIncome <= 150000000) {
-    incomeTax = Math.round(15360000 + (taxableIncome - 88000000) * 0.35);
-  } else if (taxableIncome <= 300000000) {
-    incomeTax = Math.round(37060000 + (taxableIncome - 150000000) * 0.38);
-  } else if (taxableIncome <= 500000000) {
-    incomeTax = Math.round(94060000 + (taxableIncome - 300000000) * 0.40);
-  } else if (taxableIncome <= 1000000000) {
-    incomeTax = Math.round(174060000 + (taxableIncome - 500000000) * 0.42);
+  if (yearlyTaxableForCalc <= 14000000) {
+    yearlyIncomeTax = Math.round(yearlyTaxableForCalc * 0.06);
+  } else if (yearlyTaxableForCalc <= 50000000) {
+    yearlyIncomeTax = Math.round(840000 + (yearlyTaxableForCalc - 14000000) * 0.15);
+  } else if (yearlyTaxableForCalc <= 88000000) {
+    yearlyIncomeTax = Math.round(6240000 + (yearlyTaxableForCalc - 50000000) * 0.24);
+  } else if (yearlyTaxableForCalc <= 150000000) {
+    yearlyIncomeTax = Math.round(15360000 + (yearlyTaxableForCalc - 88000000) * 0.35);
+  } else if (yearlyTaxableForCalc <= 300000000) {
+    yearlyIncomeTax = Math.round(37060000 + (yearlyTaxableForCalc - 150000000) * 0.38);
+  } else if (yearlyTaxableForCalc <= 500000000) {
+    yearlyIncomeTax = Math.round(94060000 + (yearlyTaxableForCalc - 300000000) * 0.40);
+  } else if (yearlyTaxableForCalc <= 1000000000) {
+    yearlyIncomeTax = Math.round(174060000 + (yearlyTaxableForCalc - 500000000) * 0.42);
   } else {
-    incomeTax = Math.round(384060000 + (taxableIncome - 1000000000) * 0.45);
+    yearlyIncomeTax = Math.round(384060000 + (yearlyTaxableForCalc - 1000000000) * 0.45);
   }
   
-  // 🔥 8. 지방소득세 (소득세의 10%) - 정수로 반올림
-  const localIncomeTax = Math.round(incomeTax * 0.1);
+  // 월별 소득세 및 지방소득세
+  const monthlyIncomeTax = Math.round(yearlyIncomeTax / 12);
+  const monthlyLocalIncomeTax = Math.round(monthlyIncomeTax * 0.1);
   
-  // 🔥 9. 세액공제 (2024년 기준) - 정수로 반올림
-  const rentCredit = Math.min(Math.round(data.rentExpense * 12 * 0.12), 750000); // 월세 세액공제 최대 75만원
+  // 🔥 7. 월 기준 세액공제 (2024년 기준)
+  const monthlyRentCredit = Math.min(Math.round(data.rentExpense * 0.12), Math.round(750000 / 12)); // 월세 세액공제
+  const monthlyDonationCredit = Math.round(Math.min(data.donations / 12, (monthlyTaxableIncome * 12) * 0.3 / 12) * 0.15);
   
-  const donationCredit = Math.round(Math.min(data.donations, taxableIncome * 0.3) * 0.15); // 기부금 세액공제
+  // 월 기준 의료비 세액공제: 월 총급여의 3% 초과분에 대해 15% 공제
+  const monthlyMedicalThreshold = Math.round(monthlySalary * 0.03);
+  const monthlyMedicalExpense = data.medicalExpense / 12;
+  const monthlyMedicalDeductible = Math.max(0, monthlyMedicalExpense - monthlyMedicalThreshold);
+  const monthlyMedicalCredit = Math.round(monthlyMedicalDeductible * 0.15);
   
-  // 🔥 의료비 세액공제 수정: 총급여의 3% 초과분에 대해 15% 공제
-  const medicalThreshold = Math.round(annualSalary * 0.03);
-  const medicalDeductible = Math.max(0, data.medicalExpense - medicalThreshold);
-  const medicalCredit = Math.round(medicalDeductible * 0.15);
+  const monthlyTotalTaxCredits = monthlyRentCredit + monthlyDonationCredit + monthlyMedicalCredit;
   
-  const totalTaxCredits = rentCredit + donationCredit + medicalCredit;
+  // 🔥 8. 최종 월 기준 세금 및 실수령액 계산
+  const monthlyTotalTax = monthlyIncomeTax + monthlyLocalIncomeTax;
+  const monthlyFinalTax = Math.max(0, monthlyTotalTax - monthlyTotalTaxCredits);
+  const monthlyTakeHome = monthlySalary - monthlyFinalTax - monthlyTotalSocialInsurance;
   
-  const totalTax = incomeTax + localIncomeTax;
-  const finalTax = Math.max(0, totalTax - totalTaxCredits);
-  const annualTakeHome = annualSalary - finalTax - totalSocialInsurance; // 사회보험료도 차감
-  const monthlyTakeHome = Math.round(annualTakeHome / 12);
+  // 연간 환산값들 (표시용)
+  const annualTotalDeductions = monthlyTotalDeductions * 12;
+  const annualTaxableIncome = monthlyTaxableIncome * 12;
+  const annualTotalTax = monthlyTotalTax * 12;
+  const annualTotalTaxCredits = monthlyTotalTaxCredits * 12;
+  const annualFinalTax = monthlyFinalTax * 12;
+  const annualTakeHome = monthlyTakeHome * 12;
   
   return {
     grossIncome: annualSalary,
-    totalDeductions,
-    taxableIncome,
-    calculatedTax: totalTax,
-    totalTaxCredits,
-    finalTax,
-    monthlyTakeHome,
-    annualTakeHome
+    totalDeductions: annualTotalDeductions,
+    taxableIncome: annualTaxableIncome,
+    calculatedTax: annualTotalTax,
+    totalTaxCredits: annualTotalTaxCredits,
+    finalTax: annualFinalTax,
+    monthlyTakeHome: monthlyTakeHome,
+    annualTakeHome: annualTakeHome
   };
 };
 
