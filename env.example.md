@@ -44,6 +44,12 @@ NEXT_PUBLIC_EMAILJS_SERVICE_ID=service_qd9eycz
 NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=268NPLwN54rPvEias
 
 # ===========================================
+# Gemini AI API 설정 (AI 챗봇용) - 필수
+# ===========================================
+# Google Gemini API 키 (AI 상담사 챗봇용)
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# ===========================================
 # OpenAI API 설정 (AI 진단용)
 # ===========================================
 # OpenAI API 키
@@ -85,6 +91,7 @@ NEXT_PUBLIC_GOOGLE_SHEETS_ID=1LQNeT0abhMHXktrNjRbxl2XEFWVCwcYr5kVTAcRvpfM
 NEXT_PUBLIC_GOOGLE_SHEETS_URL=https://docs.google.com/spreadsheets/d/1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug/edit?usp=sharing
 NEXT_PUBLIC_EMAILJS_SERVICE_ID=service_qd9eycz
 NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=268NPLwN54rPvEias
+GEMINI_API_KEY=your_gemini_api_key_here
 OPENAI_API_KEY=sk-proj-YOUR_OPENAI_API_KEY_HERE
 NODE_ENV=development
 NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
@@ -116,6 +123,13 @@ npm run dev
 - 이메일 자동 발송 확인
 
 ## 🔑 API 키 발급 방법
+
+### 🤖 Google Gemini API 키 발급 (AI 상담사용 - 필수)
+1. [Google AI Studio](https://aistudio.google.com/) 접속
+2. "Get API Key" 클릭
+3. 새 프로젝트 생성 또는 기존 프로젝트 선택
+4. "Create API Key" 클릭하여 키 생성
+5. 생성된 키를 복사하여 `GEMINI_API_KEY`에 설정
 
 ### 🚀 Google Apps Script 설정 (필수)
 1. [Google Apps Script](https://script.google.com/) 접속
@@ -196,6 +210,7 @@ npm run build
 ### GitHub Secrets 설정
 ```yaml
 # Repository > Settings > Secrets and variables > Actions
+GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 GOOGLE_SCRIPT_URL: ${{ secrets.GOOGLE_SCRIPT_URL }}
 GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
