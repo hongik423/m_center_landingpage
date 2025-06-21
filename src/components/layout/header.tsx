@@ -87,16 +87,17 @@ export default function Header() {
                 <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-2 rounded-2xl shadow-sm border border-blue-100/50 group-hover:shadow-md transition-all duration-300 animate-toss-glow">
                   <Image
                     src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/LOGO.JPG`}
-                    alt="기업의별 M-CENTER 로고"
+                    alt="경영지도센터 M-CENTER 로고"
                     width={48}
                     height={48}
                     className="h-12 w-12 hover:scale-105 transition-transform duration-300 object-contain rounded-lg"
+                    style={{ width: "auto", height: "auto" }}
                     priority
                   />
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xl font-title text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
-                    기업의별
+                    경영지도센터
                   </span>
                   <span className="text-xs font-medium text-gray-500 -mt-0.5">
                     M-CENTER
@@ -153,6 +154,14 @@ export default function Header() {
 
             {/* 액션 버튼들 - 토스 스타일 */}
             <div className="hidden lg:flex items-center space-x-3">
+              <Button 
+                className="toss-button-outline text-sm"
+                onClick={() => router.push('/tax-calculator')}
+              >
+                <Zap className="w-4 h-4 mr-2" />
+                세금계산기
+              </Button>
+              
               <Button 
                 className="toss-button-primary text-sm"
                 onClick={() => router.push('/services/diagnosis')}
@@ -249,6 +258,17 @@ export default function Header() {
 
                     {/* 모바일 액션 버튼들 */}
                     <div className="space-y-3 pt-6 border-t border-gray-100">
+                      <Button 
+                        className="w-full toss-button-outline"
+                        onClick={() => {
+                          router.push('/tax-calculator');
+                          setIsMobileMenuOpen(false);
+                        }}
+                      >
+                        <Zap className="w-4 h-4 mr-2" />
+                        세금계산기
+                      </Button>
+                      
                       <Button 
                         className="w-full toss-button-primary"
                         onClick={() => {
