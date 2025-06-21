@@ -85,23 +85,23 @@ export default function Header() {
             {/* 로고 섹션 - 토스 스타일 */}
             <div className="flex items-center">
               <Link href="/" className="flex items-center space-x-2.5 group">
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-1 rounded-lg shadow-sm border border-blue-100/50 group-hover:shadow-md transition-all duration-300 animate-toss-glow">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-1 rounded-lg shadow-sm border border-blue-100/50 group-hover:shadow-md transition-all duration-300 animate-toss-glow flex items-center">
                   <Image
                     src={getLogoPath()}
                     alt="기업의별 로고"
-                    width={28}
-                    height={28}
-                    className="h-7 w-7 hover:scale-105 transition-transform duration-300 object-contain"
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 hover:scale-105 transition-transform duration-300 object-contain"
                     style={{ width: "auto", height: "auto" }}
                     priority
                   />
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-base font-title text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
+                <div className="flex flex-col justify-center">
+                  <span className="text-base font-title text-gray-900 group-hover:text-blue-600 transition-colors duration-300 leading-tight">
                     기업의별
                   </span>
-                  <span className="text-xs font-medium text-gray-500 -mt-0.5">
-                    BUSINESS STAR
+                  <span className="text-xs font-medium text-gray-500 -mt-0.5 leading-tight">
+                    경영지도센터
                   </span>
                 </div>
               </Link>
