@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Mail, MapPin, Facebook, Youtube, Instagram } from 'lucide-react';
-import { getImagePath } from '@/lib/utils';
+import { getImagePath, getLogoPath } from '@/lib/utils';
 
 export default function Footer() {
   return (

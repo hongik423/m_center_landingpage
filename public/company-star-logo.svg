@@ -1,16 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="200" height="120" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
-  <!-- 큰 별 (기업의별 로고) -->
-  <polygon points="100,10 110,40 140,40 118,58 128,88 100,70 72,88 82,58 60,40 90,40" 
-           fill="#000000" stroke="none"/>
+<svg width="200" height="300" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- 작은 별 (상단) -->
+  <path d="M180 30 L185 40 L196 40 L187 47 L190 58 L180 51 L170 58 L173 47 L164 40 L175 40 Z" 
+        fill="#000000"/>
   
-  <!-- 작은 별 (우측 상단) -->
-  <polygon points="160,20 163,27 170,27 165,31 167,38 160,34 153,38 155,31 150,27 157,27" 
-           fill="#000000" stroke="none"/>
+  <!-- 큰 별 (중앙) -->
+  <path d="M100 70 L115 105 L155 105 L125 130 L140 165 L100 140 L60 165 L75 130 L45 105 L85 105 Z" 
+        fill="#000000"/>
   
-  <!-- 텍스트: 기업의별 -->
-  <text x="20" y="110" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#000000">기업의별</text>
-  
-  <!-- 등록상표 표시 -->
-  <text x="130" y="105" font-family="Arial, sans-serif" font-size="12" fill="#000000">®</text>
+  <!-- 기업의별 텍스트 -->
+  <g fill="#000000" font-family="Arial, sans-serif" font-weight="bold">
+    <!-- 기 -->
+    <g transform="translate(20, 200)">
+      <rect x="0" y="0" width="25" height="3" />
+      <rect x="0" y="8" width="25" height="3" />
+      <rect x="0" y="16" width="25" height="3" />
+      <rect x="0" y="24" width="25" height="3" />
+      <rect x="11" y="0" width="3" height="30" />
+      <rect x="28" y="8" width="3" height="15" />
+      <rect x="28" y="26" width="8" height="3" />
+    </g>
+    
+    <!-- 업 -->
+    <g transform="translate(45, 200)">
+      <rect x="0" y="0" width="3" height="30" />
+      <rect x="8" y="0" width="3" height="30" />
+      <rect x="16" y="0" width="3" height="30" />
+      <rect x="24" y="0" width="3" height="30" />
+      <rect x="0" y="8" width="27" height="3" />
+      <rect x="0" y="18" width="27" height="3" />
+    </g>
+    
+    <!-- 의 -->
+    <g transform="translate(78, 200)">
+      <circle cx="8" cy="8" r="6" fill="none" stroke="#000000" stroke-width="3"/>
+      <rect x="5" y="18" width="6" height="3" />
+      <rect x="18" y="0" width="3" height="30" />
+      <rect x="24" y="8" width="8" height="3" />
+      <rect x="24" y="18" width="8" height="3" />
+    </g>
+    
+    <!-- 별 -->
+    <g transform="translate(110, 200)">
+      <rect x="0" y="0" width="25" height="3" />
+      <rect x="0" y="8" width="25" height="3" />
+      <rect x="11" y="0" width="3" height="18" />
+      <rect x="0" y="16" width="8" height="3" />
+      <rect x="17" y="16" width="8" height="3" />
+      <rect x="3" y="22" width="19" height="3" />
+      <rect x="8" y="26" width="9" height="3" />
+    </g>
+    
+    <!-- ® 등록상표 -->
+    <g transform="translate(145, 200)">
+      <circle cx="8" cy="15" r="12" fill="none" stroke="#000000" stroke-width="2"/>
+      <text x="8" y="20" text-anchor="middle" font-size="14" font-weight="bold">®</text>
+    </g>
+  </g>
 </svg> 

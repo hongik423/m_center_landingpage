@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { getLogoPath } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -86,21 +87,21 @@ export default function Header() {
               <Link href="/" className="flex items-center space-x-2.5 group">
                 <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-1 rounded-lg shadow-sm border border-blue-100/50 group-hover:shadow-md transition-all duration-300 animate-toss-glow">
                   <Image
-                    src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/LOGO.JPG`}
-                    alt="경영지도센터 M-CENTER 로고"
+                    src={getLogoPath()}
+                    alt="기업의별 로고"
                     width={28}
                     height={28}
-                    className="h-7 w-7 hover:scale-105 transition-transform duration-300 object-contain rounded-md"
+                    className="h-7 w-7 hover:scale-105 transition-transform duration-300 object-contain"
                     style={{ width: "auto", height: "auto" }}
                     priority
                   />
                 </div>
                 <div className="flex flex-col">
                   <span className="text-base font-title text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
-                    경영지도센터
+                    기업의별
                   </span>
                   <span className="text-xs font-medium text-gray-500 -mt-0.5">
-                    M-CENTER
+                    BUSINESS STAR
                   </span>
                 </div>
               </Link>

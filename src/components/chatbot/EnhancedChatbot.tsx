@@ -40,7 +40,7 @@ import {
   Globe
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { getImagePath } from '@/lib/utils';
+import { getImagePath, getLogoPath } from '@/lib/utils';
 
 interface Message {
   id: string;
