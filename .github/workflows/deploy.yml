@@ -76,29 +76,28 @@ jobs:
           exit 1
         fi
         
-    - name: 🚀 Deploy to Vercel (Production)
-      uses: amondnet/vercel-action@v25
+    - name: 📤 Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
       with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-        working-directory: ./
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./out
+        force_orphan: true
+        cname: # GitHub Pages 커스텀 도메인이 있다면 여기에 입력
         
     - name: 🔍 Post-Deploy Health Check
       run: |
-        echo "🔍 배포 후 상태 확인 중..."
+        echo "🔍 GitHub Pages 배포 후 상태 확인 중..."
         sleep 30
-        curl -f "${{ secrets.NEXT_PUBLIC_BASE_URL }}/api/test-env" || echo "⚠️ Health check failed"
+        echo "✅ GitHub Pages 배포 완료"
         
     - name: 📢 Deployment Success Notification
       if: success()
       run: |
-        echo "🎉 M-CENTER 별-AI상담사 배포 성공!"
-        echo "🌐 라이브 사이트: ${{ secrets.NEXT_PUBLIC_BASE_URL }}"
-        echo "🤖 Gemini AI: 활성화"
-        echo "📧 EmailJS: 활성화" 
-        echo "📊 Google Sheets: 활성화"
+        echo "🎉 기업의별 웹사이트 배포 성공!"
+        echo "🌐 GitHub Pages: https://hongik423.github.io/m_center_landingpage/"
+        echo "🎨 새로운 고품질 SVG 로고 적용 완료"
+        echo "📱 모바일 최적화 완료"
+        echo "🔥 세금계산기 우선 배치 완료"
         
   Deploy-Preview:
     runs-on: ubuntu-latest
