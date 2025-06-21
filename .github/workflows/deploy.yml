@@ -32,10 +32,12 @@ jobs:
         echo "✅ GOOGLE_SHEETS_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_SHEETS_ID != '' }}"
         echo "✅ NODE_ENV: production"
         
-    - name: 🏗️ Build Application
+    - name: 🏗️ Build Application for GitHub Pages
       run: |
-        npm run build
+        npm run build:github
         touch out/.nojekyll
+        echo "🔍 빌드 완료, out 디렉토리 확인:"
+        ls -la out/
       env:
         # 🔧 GitHub Pages 정적 빌드 활성화
         GITHUB_PAGES: true
@@ -72,18 +74,22 @@ jobs:
     - name: 🧪 Build Verification
       run: |
         echo "🧪 빌드 검증 중..."
-        if [ -d ".next" ]; then
-          echo "✅ Next.js 빌드 성공"
-          ls -la .next/
-        else
-          echo "❌ Next.js 빌드 실패"
-          exit 1
-        fi
         if [ -d "out" ]; then
           echo "✅ 정적 파일 생성 성공"
           ls -la out/
           echo "📄 index.html 확인:"
-          ls -la out/index.html
+          if [ -f "out/index.html" ]; then
+            echo "✅ index.html 존재"
+            ls -la out/index.html
+          else
+            echo "❌ index.html 누락"
+            exit 1
+          fi
+          echo "📄 404.html 생성:"
+          if [ ! -f "out/404.html" ]; then
+            cp out/index.html out/404.html
+            echo "✅ 404.html 생성 완료"
+          fi
         else
           echo "❌ 정적 파일 생성 실패"
           exit 1
@@ -131,7 +137,7 @@ jobs:
       run: npm ci
       
     - name: 🏗️ Build Application (Preview)
-      run: npm run build
+      run: npm run build:github
       env:
         # 🤖 AI 관련 환경변수
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

@@ -77,7 +77,7 @@ export default function Header() {
   return (
     <>
       {/* 현대적 플로팅 헤더 */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-b border-gray-100/50 shadow-sm">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
         <div className="container mx-auto px-4 lg:px-8">
           <nav className="flex items-center justify-between h-20">
             {/* 브랜드 로고 - 현대적 텍스트 스타일 */}
@@ -117,7 +117,7 @@ export default function Header() {
                   🛠️ 서비스소개
                   <ChevronDown className="ml-1 w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-[420px] p-4 bg-white/95 backdrop-blur-xl border border-gray-100/50 shadow-2xl rounded-2xl">
+                <DropdownMenuContent className="w-[420px] p-4 bg-white border border-gray-200 shadow-2xl rounded-2xl">
                   <div className="grid grid-cols-2 gap-3">
                     {services.map((service) => (
                       <DropdownMenuItem key={service.id} asChild>
@@ -207,7 +207,7 @@ export default function Header() {
                   <Menu className="w-5 h-5 text-gray-700" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80 bg-white/95 backdrop-blur-xl border-l border-gray-100/50">
+              <SheetContent side="right" className="w-80 bg-white border-l border-gray-200">
                 <div className="py-6">
                   <div className="space-y-6">
                     {/* 🏆 주요 기능 - 최상단 배치 */}

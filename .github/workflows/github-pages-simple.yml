@@ -1,0 +1,70 @@
+name: 🚀 GitHub Pages 배포 (별-AI상담사)
+
+on:
+  push:
+    branches: ["main", "master"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        with:
+          static_site_generator: next
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build with Next.js
+        run: npm run build:github
+        env:
+          # 🤖 Gemini AI 상담사 설정
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          
+          # 📧 EmailJS 설정 (기본값 사용)
+          NEXT_PUBLIC_EMAILJS_SERVICE_ID: service_qd9eycz
+          NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: 268NPLwN54rPvEias
+          
+          # 📊 Google Apps Script 설정 (기본값 사용)
+          NEXT_PUBLIC_GOOGLE_SHEETS_ID: 1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug
+          NEXT_PUBLIC_GOOGLE_SCRIPT_URL: https://script.google.com/macros/s/AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX/exec
+          
+          # 🌐 사이트 설정
+          NODE_ENV: production
+          GITHUB_PAGES: true
+          
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./out"
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 

@@ -472,6 +472,8 @@ a {
     font-size: 16px; /* 기본 폰트 크기를 16px로 설정 */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-variant-ligatures: common-ligatures;
   }
   
   body {
@@ -479,6 +481,9 @@ a {
     font-size: 1.0625rem; /* 17px - 기본 텍스트 크기 증가 */
     line-height: 1.7;
     letter-spacing: -0.01em; /* 약간의 자간 조정으로 가독성 향상 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   
   /* 제목 요소들의 크기 조정 */
