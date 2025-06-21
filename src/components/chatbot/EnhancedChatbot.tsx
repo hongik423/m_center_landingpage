@@ -82,6 +82,11 @@ const QUICK_RESPONSES = [
     category: "service"
   },
   {
+    text: "세금계산기 사용법은?",
+    icon: <Badge className="w-4 h-4" />,
+    category: "tax"
+  },
+  {
     text: "비용이 궁금해요",
     icon: <Badge className="w-4 h-4" />,
     category: "cost"
@@ -186,6 +191,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
 • **BM ZEN 사업분석** - 국내 유일 프레임워크, 매출 20-40% 증대
 • **AI 활용 생산성향상** - 국내 TOP 3 전문성, 업무효율 40-60% 향상
 • **경매활용 공장구매** - 25년 전문 노하우, 부동산비용 30-50% 절감
+• **전문 세금계산기** - 11개 계산기 완비, 2024년 최신 세법 반영
 
 💡 **확실한 성과를 보장**하는 차별화된 전문성으로 도움드리겠습니다!
 궁금한 점이나 상담이 필요하시면 언제든 말씀해 주세요! 😊`,
