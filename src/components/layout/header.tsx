@@ -83,20 +83,20 @@ export default function Header() {
           <nav className="flex items-center justify-between h-20">
             {/* 로고 섹션 - 토스 스타일 */}
             <div className="flex items-center">
-              <Link href="/" className="flex items-center space-x-3 group">
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-1.5 rounded-xl shadow-sm border border-blue-100/50 group-hover:shadow-md transition-all duration-300 animate-toss-glow">
+              <Link href="/" className="flex items-center space-x-2.5 group">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-1 rounded-lg shadow-sm border border-blue-100/50 group-hover:shadow-md transition-all duration-300 animate-toss-glow">
                   <Image
                     src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/LOGO.JPG`}
                     alt="경영지도센터 M-CENTER 로고"
-                    width={36}
-                    height={36}
-                    className="h-9 w-9 hover:scale-105 transition-transform duration-300 object-contain rounded-lg"
+                    width={28}
+                    height={28}
+                    className="h-7 w-7 hover:scale-105 transition-transform duration-300 object-contain rounded-md"
                     style={{ width: "auto", height: "auto" }}
                     priority
                   />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-lg font-title text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
+                  <span className="text-base font-title text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
                     경영지도센터
                   </span>
                   <span className="text-xs font-medium text-gray-500 -mt-0.5">
