@@ -199,108 +199,158 @@ export default function Header() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-80 toss-mobile-menu">
-                <div className="py-8">
-                  <div className="space-y-8">
-                    {/* 모바일 서비스 목록 */}
+                <div className="py-6">
+                  <div className="space-y-6">
+                    {/* 🏆 주요 기능 - 최상단 배치 */}
                     <div>
-                      <h3 className="font-bold text-gray-900 mb-4 text-lg">서비스소개</h3>
+                      <div className="flex items-center mb-4">
+                        <Zap className="w-5 h-5 text-yellow-500 mr-2" />
+                        <h3 className="font-bold text-gray-900 text-lg">인기 서비스</h3>
+                      </div>
                       <div className="space-y-3">
+                        {/* 세금계산기 - 특별 강조 */}
+                        <Button 
+                          className="w-full toss-button-primary text-left justify-start h-auto p-4 relative overflow-hidden"
+                          onClick={() => {
+                            router.push('/tax-calculator');
+                            setIsMobileMenuOpen(false);
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-orange-400/20"></div>
+                          <div className="relative flex items-center w-full">
+                            <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center mr-3 shadow-sm">
+                              <Zap className="w-6 h-6 text-white" />
+                            </div>
+                            <div className="flex-1 text-left">
+                              <div className="font-bold text-white text-base">🔥 세금계산기</div>
+                              <div className="text-xs text-blue-100 mt-0.5">모든 세금 계산을 한 번에!</div>
+                            </div>
+                          </div>
+                        </Button>
+                        
+                        {/* 무료AI진단 */}
+                        <Button 
+                          className="w-full toss-button-secondary text-left justify-start h-auto p-3.5"
+                          onClick={() => {
+                            router.push('/services/diagnosis');
+                            setIsMobileMenuOpen(false);
+                          }}
+                        >
+                          <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mr-3 shadow-sm">
+                            <Sparkles className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <div className="font-semibold text-white text-sm">⭐ 무료AI진단</div>
+                            <div className="text-xs text-indigo-200 mt-0.5">기업 맞춤 분석 리포트</div>
+                          </div>
+                        </Button>
+
+                        {/* 무료상담 */}
+                        <Button 
+                          className="w-full toss-button-outline text-left justify-start h-auto p-3"
+                          onClick={() => {
+                            router.push('/consultation');
+                            setIsMobileMenuOpen(false);
+                          }}
+                        >
+                          <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-500 rounded-lg flex items-center justify-center mr-3">
+                            <Phone className="w-4 h-4 text-white" />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <div className="font-semibold text-gray-900 text-sm">📞 무료상담</div>
+                            <div className="text-xs text-gray-600">전문가 1:1 상담</div>
+                          </div>
+                        </Button>
+
+                        {/* AI챗봇 */}
+                        <Button
+                          className="w-full toss-button-outline text-left justify-start h-auto p-3"
+                          onClick={() => {
+                            router.push('/chatbot');
+                            setIsMobileMenuOpen(false);
+                          }}
+                        >
+                          <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-lg flex items-center justify-center mr-3">
+                            <Bot className="w-4 h-4 text-white" />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <div className="font-semibold text-gray-900 text-sm">🤖 AI챗봇</div>
+                            <div className="text-xs text-gray-600">24시간 상담 지원</div>
+                          </div>
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* 구분선 */}
+                    <div className="border-t border-gray-200"></div>
+                    
+                    {/* 페이지 메뉴 */}
+                    <div>
+                      <h3 className="font-bold text-gray-900 mb-3 text-base">📚 페이지 메뉴</h3>
+                      <div className="space-y-2">
+                        <Link
+                          href="/"
+                          className="flex items-center px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-gray-700 hover:text-blue-600"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <span className="mr-3">🏠</span>
+                          홈
+                        </Link>
+                        <Link
+                          href="/cases"
+                          className="flex items-center px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-gray-700 hover:text-blue-600"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <span className="mr-3">🏆</span>
+                          성공사례
+                        </Link>
+                        <Link
+                          href="/about"
+                          className="flex items-center px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-gray-700 hover:text-blue-600"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <span className="mr-3">🏢</span>
+                          회사소개
+                        </Link>
+                        <Link
+                          href="/support"
+                          className="flex items-center px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-gray-700 hover:text-blue-600"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <span className="mr-3">💬</span>
+                          고객지원
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* 구분선 */}
+                    <div className="border-t border-gray-200"></div>
+                    
+                    {/* 전체 서비스 목록 */}
+                    <div>
+                      <h3 className="font-bold text-gray-900 mb-3 text-base">🛠️ 전체 서비스</h3>
+                      <div className="grid grid-cols-2 gap-2">
                         {services.map((service) => (
                           <Link
                             key={service.id}
                             href={service.href}
-                            className="toss-service-card"
+                            className="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
-                              <service.icon className="w-5 h-5 text-white" />
+                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mb-2 shadow-sm">
+                              <service.icon className="w-4 h-4 text-white" />
                             </div>
-                            <div>
-                              <div className="font-semibold text-sm text-gray-900">{service.title}</div>
-                              <div className="text-xs text-gray-600 mt-0.5">{service.description}</div>
+                            <div className="text-center">
+                              <div className="font-medium text-xs text-gray-900 leading-tight mb-1">
+                                {service.title}
+                              </div>
+                              <div className="text-xs text-gray-500 leading-tight">
+                                {service.description}
+                              </div>
                             </div>
                           </Link>
                         ))}
                       </div>
-                    </div>
-                    
-                    {/* 모바일 네비게이션 */}
-                    <div className="space-y-2">
-                      <Link
-                        href="/"
-                        className="toss-nav-item block"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        홈
-                      </Link>
-                      <Link
-                        href="/cases"
-                        className="toss-nav-item block"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        성공사례
-                      </Link>
-                      <Link
-                        href="/about"
-                        className="toss-nav-item block"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        회사소개
-                      </Link>
-                      <Link
-                        href="/support"
-                        className="toss-nav-item block"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        고객지원
-                      </Link>
-                    </div>
-
-                    {/* 모바일 액션 버튼들 */}
-                    <div className="space-y-3 pt-6 border-t border-gray-100">
-                      <Button 
-                        className="w-full toss-button-outline"
-                        onClick={() => {
-                          router.push('/tax-calculator');
-                          setIsMobileMenuOpen(false);
-                        }}
-                      >
-                        <Zap className="w-4 h-4 mr-2" />
-                        세금계산기
-                      </Button>
-                      
-                      <Button 
-                        className="w-full toss-button-primary"
-                        onClick={() => {
-                          router.push('/services/diagnosis');
-                          setIsMobileMenuOpen(false);
-                        }}
-                      >
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        무료AI진단신청
-                      </Button>
-                      
-                      <Button 
-                        className="w-full toss-button-secondary"
-                        onClick={() => {
-                          router.push('/consultation');
-                          setIsMobileMenuOpen(false);
-                        }}
-                      >
-                        <Phone className="w-4 h-4 mr-2" />
-                        무료상담신청
-                      </Button>
-                      
-                      <Button
-                        className="w-full toss-button-outline"
-                        onClick={() => {
-                          router.push('/chatbot');
-                          setIsMobileMenuOpen(false);
-                        }}
-                      >
-                        <Bot className="w-4 h-4 mr-2" />
-                        AI챗봇
-                      </Button>
                     </div>
                   </div>
                 </div>
