@@ -1,11 +1,11 @@
+// GitHub Pages 정적 빌드 지원
+export const dynamic = 'force-static';
+export const revalidate = false;
+
 import { NextRequest, NextResponse } from 'next/server';
 import { saveToGoogleSheets } from '@/lib/utils/googleSheetsService';
 import { processDiagnosisSubmission, type DiagnosisFormData } from '@/lib/utils/emailService';
 import { CONSULTANT_INFO, CONTACT_INFO, COMPANY_INFO } from '@/lib/config/branding';
-
-// GitHub Pages 정적 export 호환성
-export const dynamic = 'force-static';
-export const revalidate = false;
 
 interface SimplifiedDiagnosisRequest {
   companyName: string;

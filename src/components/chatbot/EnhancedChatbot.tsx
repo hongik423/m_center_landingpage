@@ -35,9 +35,12 @@ import {
   CheckCircle,
   AlertCircle,
   ArrowRight,
-  Building2
+  Building2,
+  Users,
+  Globe
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { getImagePath } from '@/lib/utils';
 
 interface Message {
   id: string;
@@ -386,7 +389,7 @@ M-CENTER의 25년 전문 노하우로 최고의 솔루션을 제공해드리겠�
                           <CardTitle className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center relative" style={{ backgroundColor: '#4285F4' }}>
                   <img 
-                    src="/star-counselor-icon.svg" 
+                    src={getImagePath('/star-counselor-icon.svg')} 
                     alt="별-AI상담사" 
                     className="w-10 h-10 rounded-full"
                   />
@@ -419,7 +422,7 @@ M-CENTER의 25년 전문 노하우로 최고의 솔루션을 제공해드리겠�
                 {message.sender === 'bot' && (
                   <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 relative" style={{ backgroundColor: '#4285F4' }}>
                     <img 
-                      src="/star-counselor-icon.svg" 
+                      src={getImagePath('/star-counselor-icon.svg')} 
                       alt="별-AI상담사" 
                       className="w-8 h-8 rounded-full"
                     />
@@ -506,7 +509,7 @@ M-CENTER의 25년 전문 노하우로 최고의 솔루션을 제공해드리겠�
               <div className="flex gap-3 justify-start">
                 <div className="w-8 h-8 rounded-full flex items-center justify-center relative" style={{ backgroundColor: '#4285F4' }}>
                   <img 
-                    src="/star-counselor-icon.svg" 
+                    src={getImagePath('/star-counselor-icon.svg')} 
                     alt="별-AI상담사" 
                     className="w-8 h-8 rounded-full"
                   />

@@ -1,7 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send } from 'lucide-react';
+import { Send, MessageCircle, X, Minimize2, Maximize2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import EnhancedChatbot from '@/components/chatbot/EnhancedChatbot';
+import { getImagePath } from '@/lib/utils';
 
 interface Message {
   id: string;
@@ -131,9 +136,9 @@ export default function FloatingChatbot() {
               style={{ backgroundColor: '#4285F4', boxShadow: '0 25px 50px -12px rgba(66, 133, 244, 0.4)' }}
             >
               <img 
-                src="/star-counselor-icon.svg" 
-                alt="별-AI상담사" 
-                className="w-12 h-12"
+                src={getImagePath('/star-counselor-icon.svg')}
+                alt="AI 상담사" 
+                className="w-8 h-8"
               />
               <div className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ backgroundColor: '#4285F4' }}></div>
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse flex items-center justify-center">
@@ -175,9 +180,9 @@ export default function FloatingChatbot() {
               <div className="flex items-center space-x-3 pr-10">
                 <div className="relative">
                   <img 
-                    src="/star-counselor-icon.svg" 
-                    alt="별-AI상담사" 
-                    className="w-10 h-10 rounded-full"
+                    src={getImagePath('/star-counselor-icon.svg')}
+                    alt="AI 상담사" 
+                    className="w-8 h-8"
                   />
                   <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full border-2 border-white flex items-center justify-center">
                     <span className="text-xs">⭐</span>

@@ -22,6 +22,7 @@ import {
   Award,
   ArrowRight
 } from 'lucide-react';
+import { getImagePath } from '@/lib/utils';
 
 export default function FreeDiagnosisPage() {
   const [currentStep, setCurrentStep] = useState<'intro' | 'form' | 'results'>('intro');
@@ -56,7 +57,7 @@ export default function FreeDiagnosisPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center mb-4">
             <Image
-              src="/company-logo-new.svg"
+              src={getImagePath('/company-logo-new.svg')}
               alt="기업의별® M-CENTER 경영지도센터"
               width={240}
               height={80}
@@ -81,7 +82,7 @@ export default function FreeDiagnosisPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center mb-4">
             <Image
-              src="/company-logo-new.svg"
+              src={getImagePath('/company-logo-new.svg')}
               alt="기업의별® M-CENTER 경영지도센터"
               width={240}
               height={80}

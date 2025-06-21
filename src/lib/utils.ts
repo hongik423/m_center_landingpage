@@ -131,3 +131,24 @@ export const validateNumberInput = (
   
   return { isValid: true };
 };
+
+// 🔧 GitHub Pages 호환 이미지 경로 처리
+export function getImagePath(imagePath: string): string {
+  // 클라이언트 사이드에서만 실행
+  if (typeof window === 'undefined') {
+    return imagePath;
+  }
+  
+  // 이미 전체 URL이면 그대로 반환
+  if (imagePath.startsWith('http') || imagePath.startsWith('//')) {
+    return imagePath;
+  }
+  
+  // 절대 경로가 아니면 / 추가
+  const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  
+  // 환경변수에서 base path 가져오기
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+  
+  return `${basePath}${cleanPath}`;
+}

@@ -1,6 +1,7 @@
+import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Mail, MapPin, Facebook, Youtube, Instagram } from 'lucide-react';
+import { getImagePath } from '@/lib/utils';
 
 export default function Footer() {
   return (
@@ -10,13 +11,10 @@ export default function Footer() {
           {/* 회사 정보 */}
           <div>
             <div className="flex items-center space-x-3 mb-4">
-              <Image
-                src="/logo-gyeongji.svg"
-                alt="기업의별 로고"
-                width={120}
-                height={32}
-                className="h-8 w-auto brightness-0 invert"
-                style={{ width: 'auto', height: '32px' }}
+              <img 
+                src={getImagePath('/logo-gyeongji.svg')}
+                alt="경지컨설팅 로고" 
+                className="h-8 w-auto"
               />
             </div>
             <div className="mb-2">

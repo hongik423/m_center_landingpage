@@ -15,6 +15,7 @@ import {
   collectErrorInfo,
   getBrowserInfo 
 } from '@/lib/utils/safeDataAccess';
+import { getImagePath } from '@/lib/utils';
 
 interface Message {
   id: string;
@@ -731,7 +732,7 @@ export default function ChatbotPage() {
                     <div className="flex items-center justify-between p-4 border-b bg-purple-600 text-white rounded-t-lg">
                       <div className="flex items-center space-x-3">
                         <img 
-                          src="/star-counselor-icon.svg" 
+                          src={getImagePath('/star-counselor-icon.svg')} 
                           alt="별-AI상담사" 
                           className="w-8 h-8 rounded-full"
                         />
