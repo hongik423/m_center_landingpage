@@ -16,9 +16,29 @@
 # next.js
 /.next/
 /out/
+/_next/
 
 # production
 /build
+
+# Static export files (빌드된 HTML 파일들)
+*.html
+!public/*.html
+index.txt
+
+# Build artifacts
+robots.txt
+sitemap.xml
+favicon.ico
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+!public/**
+!src/**
+!docs/**
 
 # misc
 .DS_Store
