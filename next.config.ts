@@ -5,7 +5,7 @@ const isGitHubPages = process.env.GITHUB_PAGES === 'true';
 const repoName = 'm_center_landingpage';
 
 const nextConfig: NextConfig = {
-  // ⚠️ 중요: 개발 환경에서는 절대 static export 사용하지 않음
+  // ⚠️ 중요: Vercel 배포 시에는 static export 비활성화 (API 라우트 사용)
   // GitHub Pages 배포 시에만 static export 활성화
   ...(isProd && isGitHubPages && {
     output: 'export',
