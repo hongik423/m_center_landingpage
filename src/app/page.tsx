@@ -27,7 +27,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-// 서비스 데이터
+// 서비스 데이터 - 수정됨
 const services = [
   {
     id: 'business-analysis',
@@ -36,7 +36,7 @@ const services = [
     description: '세무사를 위한 비즈니스 혁신 솔루션',
     icon: Brain,
     color: 'bg-gradient-to-r from-blue-500 to-purple-600 text-white',
-    href: '/services/business-analysis',
+    href: '/services',
     benefits: ['95% 성공률 보장', '세무사 수익 4배 증가', '5단계 BM ZEN 프레임워크'],
     featured: true
   },
@@ -47,7 +47,7 @@ const services = [
     description: '20주 프로그램으로 AI 혁신 완성',
     icon: Brain,
     color: 'bg-purple-100 text-purple-600',
-    href: '/services/ai-productivity',
+    href: '/chatbot',
     benefits: ['정부 100% 지원', '20주 집중 프로그램', '업무 효율성 40% 향상']
   },
   {
@@ -57,7 +57,7 @@ const services = [
     description: '경매 활용 스마트 투자 전략',
     icon: Factory,
     color: 'bg-orange-100 text-orange-600',
-    href: '/services/factory-auction',
+    href: '/services',
     benefits: ['투자비 40% 절약', '전문가 동행', '완전 위탁 진행']
   },
   {
@@ -67,7 +67,7 @@ const services = [
     description: '정부지원 연계 기술사업화',
     icon: Rocket,
     color: 'bg-green-100 text-green-600',
-    href: '/services/tech-startup',
+    href: '/services',
     benefits: ['평균 5억원 확보', '성공률 85%', '3년 사후관리']
   },
   {
@@ -77,7 +77,7 @@ const services = [
     description: '벤처·ISO·ESG 통합 인증',
     icon: Award,
     color: 'bg-blue-100 text-blue-600',
-    href: '/services/certification',
+    href: '/services',
     benefits: ['5천만원 세제혜택', '통합 인증 관리', '100% 취득 보장']
   },
   {
@@ -87,7 +87,7 @@ const services = [
     description: 'AI 기반 디지털 혁신',
     icon: Globe,
     color: 'bg-indigo-100 text-indigo-600',
-    href: '/services/website',
+    href: '/services',
     benefits: ['매출 30% 증대', 'AI 기반 최적화', '무료 1년 관리']
   }
 ];
@@ -232,14 +232,14 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center px-4">
               <Button 
                 className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white text-base md:text-lg px-6 md:px-8 py-3 md:py-4 h-auto font-semibold shadow-lg touch-manipulation"
-                onClick={() => router.push('/services/business-analysis')}
+                onClick={() => router.push('/services')}
               >
                 🌟 BM ZEN 사업분석 시작하기
                 <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
               </Button>
               <Button 
                 className="btn-primary text-base md:text-lg px-6 md:px-8 py-3 md:py-4 h-auto touch-manipulation"
-                onClick={() => router.push('/services/diagnosis')}
+                onClick={() => router.push('/diagnosis')}
               >
                 ⚡ 무료 AI진단 신청
                 <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
@@ -715,7 +715,7 @@ export default function Home() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center">
               <Button 
-                onClick={() => router.push('/services/diagnosis')}
+                onClick={() => router.push('/diagnosis')}
                     className="bg-white text-blue-600 hover:bg-gray-50 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 h-auto touch-manipulation"
               >
                     <Brain className="w-4 h-4 md:w-5 md:h-5 mr-2" />
