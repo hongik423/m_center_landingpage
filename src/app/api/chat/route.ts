@@ -3,9 +3,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { safeGet, validateApiResponse, collectErrorInfo } from '@/lib/utils/safeDataAccess';
 import { getGeminiKey, isDevelopment, maskApiKey } from '@/lib/config/env';
 
-// GitHub Pages 호환을 위한 정적 설정
-export const dynamic = 'force-static';
-export const runtime = 'edge';
+// API 라우트 설정 - 동적 처리 필요
+export const dynamic = 'force-dynamic';
 export const revalidate = false;
 
 // 🔧 CORS 설정을 위한 공통 헤더 함수

@@ -3,7 +3,7 @@ import { saveDiagnosisToGoogleSheets, saveConsultationToGoogleSheets } from '@/l
 import { sendDiagnosisConfirmation, sendConsultationConfirmation } from '@/lib/utils/emailService';
 import { getClientEnv } from '@/lib/config/env';
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 export const revalidate = false;
 
 /**

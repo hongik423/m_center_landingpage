@@ -1,5 +1,5 @@
 // GitHub Pages 정적 빌드 지원
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 export const revalidate = false;
 
 import { NextRequest, NextResponse } from 'next/server';
