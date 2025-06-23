@@ -35,7 +35,16 @@ export default function TestGoogleAppsScriptPage() {
     setIsLoading(true);
     try {
       const result = await checkGoogleScriptStatus();
-      setStatus(result);
+      
+      // Google Apps Script 응답을 우리 타입에 맞게 변환
+      const mappedStatus: GoogleScriptStatus = {
+        success: result.success,
+        status: result.success ? 'connected' : 'disconnected',
+        message: result.message,
+        timestamp: result.timestamp
+      };
+      
+      setStatus(mappedStatus);
     } catch (error) {
       setStatus({
         success: false,

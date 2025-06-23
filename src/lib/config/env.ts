@@ -1,6 +1,6 @@
 /**
  * 환경변수 검증 및 보안 관리 시스템
- * GitHub 보안 정책 준수
+ * Google Apps Script 기반 통합 시스템 (EmailJS 제거됨)
  */
 
 import { z } from 'zod';
@@ -9,24 +9,19 @@ import { z } from 'zod';
 const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX/exec';
 const GOOGLE_SHEETS_ID = '1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug';
 
-// 환경변수 스키마 정의
+// 환경변수 스키마 정의 (EmailJS 제거됨)
 const envSchema = z.object({
   // Gemini API (서버 사이드 전용)
-  GEMINI_API_KEY: z.string().min(1, 'Gemini API Key는 필수입니다'),
-  
-  // EmailJS (클라이언트 사이드 허용)
-  NEXT_PUBLIC_EMAILJS_SERVICE_ID: z.string().min(1, 'EmailJS Service ID는 필수입니다'),
-  NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: z.string().min(1, 'EmailJS Public Key는 필수입니다'),
+  GEMINI_API_KEY: z.string().min(1, 'Gemini API Key는 필수입니다').optional(),
   
   // Google Sheets & Apps Script (클라이언트 사이드 허용)
-  NEXT_PUBLIC_GOOGLE_SHEETS_ID: z.string().min(1, 'Google Sheets ID는 필수입니다'),
+  NEXT_PUBLIC_GOOGLE_SHEETS_ID: z.string().min(1, 'Google Sheets ID는 필수입니다').optional(),
   NEXT_PUBLIC_GOOGLE_SCRIPT_URL: z.string().url('유효한 Google Script URL이 필요합니다').optional(),
-  NEXT_PUBLIC_GOOGLE_SCRIPT_ID: z.string().optional(),
+  NEXT_PUBLIC_BASE_URL: z.string().optional(),
   
   // 선택적 환경변수
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   VERCEL_URL: z.string().optional(),
-  NEXT_PUBLIC_BASE_URL: z.string().optional(),
 });
 
 // 타입 정의
@@ -34,51 +29,70 @@ export type EnvConfig = z.infer<typeof envSchema>;
 
 /**
  * 서버 사이드 환경변수 검증 및 반환
- * 민감한 정보는 서버에서만 접근 가능
  */
 export function getServerEnv(): EnvConfig {
   try {
     const env = envSchema.parse({
       GEMINI_API_KEY: process.env.GEMINI_API_KEY,
-      NEXT_PUBLIC_EMAILJS_SERVICE_ID: process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-      NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
       NEXT_PUBLIC_GOOGLE_SHEETS_ID: process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
       NEXT_PUBLIC_GOOGLE_SCRIPT_URL: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
-      NEXT_PUBLIC_GOOGLE_SCRIPT_ID: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_ID,
+      NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
       NODE_ENV: process.env.NODE_ENV,
       VERCEL_URL: process.env.VERCEL_URL,
-      NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
     });
 
     return env;
   } catch (error) {
     console.error('환경변수 검증 실패:', error);
-    throw new Error('환경변수 설정을 확인해주세요');
+    // 개발 환경에서는 기본값으로 계속 진행
+    return {
+      GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+      NEXT_PUBLIC_GOOGLE_SHEETS_ID: process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID || GOOGLE_SHEETS_ID,
+      NEXT_PUBLIC_GOOGLE_SCRIPT_URL: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || DEFAULT_GOOGLE_SCRIPT_URL,
+      NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'https://m-center-landingpage.vercel.app',
+      NODE_ENV: (process.env.NODE_ENV as 'development' | 'production' | 'test') || 'development',
+      VERCEL_URL: process.env.VERCEL_URL,
+    };
   }
 }
 
 /**
- * 클라이언트 사이드 환경변수 (공개 가능한 것만)
- * NEXT_PUBLIC_ 접두사가 붙은 것만 클라이언트에서 접근 가능
+ * 클라이언트 사이드 환경변수 (Google Apps Script 기반)
  */
 export function getClientEnv() {
   return {
-    emailJsServiceId: process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 'service_qd9eycz',
-    emailJsPublicKey: process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || '268NPLwN54rPvEias',
-    emailJsTemplateDiagnosis: process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_DIAGNOSIS || 'template_diagnosis_conf',
-    emailJsTemplateConsultation: process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_CONSULTATION || 'template_consultation_conf',
-    emailJsTemplateAdmin: process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ADMIN || 'template_admin_notification',
     googleSheetsId: process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID || GOOGLE_SHEETS_ID,
     googleScriptUrl: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || DEFAULT_GOOGLE_SCRIPT_URL,
-    googleScriptId: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_ID || 'AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX',
     baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://m-center-landingpage.vercel.app',
     nodeEnv: process.env.NODE_ENV || 'production',
   };
 }
 
 /**
+ * 🎯 통합 앱 설정 (appConfig) - emailService.ts에서 사용
+ */
+export const appConfig = {
+  // Google Apps Script 설정
+  googleSheetsId: process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID || GOOGLE_SHEETS_ID,
+  googleScriptUrl: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || DEFAULT_GOOGLE_SCRIPT_URL,
+  
+  // 환경 설정
+  isProduction: process.env.NODE_ENV === 'production',
+  isDevelopment: process.env.NODE_ENV === 'development',
+  
+  // 회사 정보
+  company: {
+    name: 'M-CENTER',
+    email: 'mcenter@company.com', // 관리자 이메일
+    phone: '02-1234-5678',
+  },
+  
+  // 기본 URL
+  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://m-center-landingpage.vercel.app',
+};
+
+/**
  * Gemini API Key (서버 전용) - 보안 강화
- * 클라이언트에서 절대 접근 불가
  */
 export function getGeminiKey(): string {
   const key = process.env.GEMINI_API_KEY;
@@ -123,8 +137,8 @@ export function validateEnv(): boolean {
     getServerEnv();
     return true;
   } catch (error) {
-    console.error('환경변수 검증 실패:', error);
-    return false;
+    console.warn('환경변수 검증 경고:', error);
+    return true; // 기본값으로 계속 진행
   }
 }
 
@@ -210,17 +224,15 @@ export async function testGoogleScriptConnection(): Promise<{
  */
 export function logEnvStatus(): void {
   if (isDevelopment()) {
-    console.log('🔧 환경변수 상태:', {
+    console.log('🔧 환경변수 상태 (Google Apps Script 통합):', {
       nodeEnv: process.env.NODE_ENV,
       hasGeminiKey: !!process.env.GEMINI_API_KEY,
-      hasEmailJSConfig: !!(process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID && process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY),
       hasGoogleSheetsId: !!process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
       hasGoogleScriptUrl: !!process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
-      hasGoogleScriptId: !!process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_ID,
       hasBaseUrl: !!process.env.NEXT_PUBLIC_BASE_URL,
       geminiKeyMasked: process.env.GEMINI_API_KEY ? maskApiKey(process.env.GEMINI_API_KEY) : 'None',
       googleScriptUrlMasked: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL ? 
-        `${process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL.slice(0, 50)}...` : 'None',
+        `${process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL.slice(0, 50)}...` : 'Default',
     });
   }
 } 

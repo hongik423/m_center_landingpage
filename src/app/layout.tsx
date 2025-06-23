@@ -1,12 +1,10 @@
-'use client';
-
-import './globals.css';
+import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import './globals.css';
 import Providers from './providers';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import FloatingChatbot from '@/components/layout/floating-chatbot';
-import type { Metadata } from 'next';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -83,17 +81,7 @@ export default function RootLayout({
         <meta name="last-modified" content={new Date().toISOString()} />
         <meta name="version" content={`v${Date.now()}`} />
         
-        {/* 🔧 리소스 프리로딩 최적화 - 즉시 사용되는 이미지만 preload */}
-        {/* star-counselor-icon.svg는 사용자가 챗봇 클릭 시에만 필요하므로 preload 제거 */}
-        
-        {/* EmailJS 라이브러리 로드 */}
-        <script
-          type="text/javascript"
-          src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"
-          async
-        />
-        
-        {/* 🔧 한글 폰트 프리로드 - GitHub Pages 한글 렌더링 최적화 */}
+        {/* 🔧 한글 폰트 최적화 - GitHub Pages 한글 렌더링 */}
         <link 
           rel="preconnect" 
           href="https://cdn.jsdelivr.net" 
@@ -102,32 +90,17 @@ export default function RootLayout({
         <link 
           rel="stylesheet" 
           href="https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@latest/css/SpoqaHanSansNeo.css"
-          media="print"
-          onLoad={(e) => { (e.target as HTMLLinkElement).media = 'all'; }}
         />
         <link 
           rel="stylesheet" 
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
-          media="print"
-          onLoad={(e) => { (e.target as HTMLLinkElement).media = 'all'; }}
         />
-        <noscript>
-          <link 
-            rel="stylesheet" 
-            href="https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@latest/css/SpoqaHanSansNeo.css"
-          />
-          <link 
-            rel="stylesheet" 
-            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
-          />
-        </noscript>
         
-        {/* 🔧 성능 최적화: DNS 프리페치 */}
+        {/* 🔧 성능 최적화: DNS 프리페치 - Google Apps Script 기반 */}
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
         <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
-        <link rel="dns-prefetch" href="//api.emailjs.com" />
-        
-        {/* 🛡️ 보안 헤더는 next.config.ts에서 HTTP 헤더로 설정 */}
+        <link rel="dns-prefetch" href="//script.google.com" />
+        <link rel="dns-prefetch" href="//generativelanguage.googleapis.com" />
         
         {/* PWA 메타 태그 */}
         <meta name="theme-color" content="#2563eb" />

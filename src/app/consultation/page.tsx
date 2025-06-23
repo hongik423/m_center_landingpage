@@ -73,7 +73,7 @@ export default function ConsultationPage() {
     return isOnlineStatus;
   }, []);
 
-  // 📧 **EmailJS용 도우미 함수들 - 메모이제이션**
+  // 🔧 **텍스트 변환 도우미 함수들 - 메모이제이션**
   const getConsultationTypeText = useCallback((type: string) => {
     const typeMap: Record<string, string> = {
       'phone': '전화 상담',
@@ -297,88 +297,22 @@ export default function ConsultationPage() {
         }
       }
       
-      // 📧 **API 성공 시 즉시 EmailJS로 확인 메일 발송**
+      // 📧 **Google Apps Script에서 자동 이메일 발송 처리됨**
       if (result.success) {
-        try {
-          console.log('📧 상담신청 확인 메일 발송 시작');
-          
-          // 🔧 브라우저 환경에서만 EmailJS 실행 (안전한 로딩 확인)
-          if (typeof window !== 'undefined') {
-            // EmailJS 라이브러리 로딩 대기
-            let emailjsLoaded = false;
-            let attempts = 0;
-            const maxAttempts = 10;
-            
-            while (!emailjsLoaded && attempts < maxAttempts) {
-              if (window.emailjs) {
-                emailjsLoaded = true;
-                break;
-              }
-              await new Promise(resolve => setTimeout(resolve, 100));
-              attempts++;
-            }
-            
-            if (emailjsLoaded && window.emailjs) {
-              // EmailJS 초기화
-              window.emailjs.init('268NPLwN54rPvEias');
-              
-              // 상담신청 확인 메일 템플릿 데이터 준비
-              const emailParams = {
-              to_name: consultationData.name,
-              to_email: consultationData.email,
-              company_name: consultationData.company,
-              consultation_type: getConsultationTypeText(consultationData.consultationType),
-              consultation_area: getConsultationAreaText(consultationData.consultationArea),
-              preferred_time: getPreferredTimeText(consultationData.preferredTime),
-              inquiry_content: consultationData.inquiryContent,
-              consultation_date: new Date().toLocaleDateString('ko-KR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              }),
-              consultant_name: '이후경 경영지도사',
-              consultant_phone: '010-9251-9743',
-              consultant_email: 'hongik423@gmail.com',
-              reply_message: '담당 컨설턴트가 24시간 내에 연락드려 상담 일정을 조율하겠습니다. 빠른 상담을 원하시면 직접 연락주세요.'
-            };
-            
-            console.log('📧 상담신청 확인 메일 발송 데이터:', emailParams);
-            
-            const emailResult = await window.emailjs.send(
-              'service_qd9eycz',
-              'template_consultation_conf',
-              emailParams
-            );
-            
-            console.log('✅ 상담신청 확인 메일 발송 성공:', emailResult);
-            
-            // API 결과에 이메일 발송 정보 추가
-            result.emailSent = true;
-            result.emailInfo = {
-              recipient: consultationData.email,
-              status: emailResult.status,
-              text: emailResult.text,
-              timestamp: new Date().toISOString()
-            };
-              
-            } else {
-              console.warn('⚠️ EmailJS 라이브러리 로딩 실패 또는 시간 초과');
-              result.emailSent = false;
-              result.emailError = 'EmailJS 라이브러리 로딩 실패';
-            }
-          } else {
-            console.warn('⚠️ 브라우저 환경이 아닙니다.');
-            result.emailSent = false;
-            result.emailError = '브라우저 환경 아님';
-          }
-          
-        } catch (emailError) {
-          console.error('❌ 상담신청 확인 메일 발송 실패:', emailError);
-          
-          // 이메일 발송 실패해도 상담신청은 유지
-          result.emailSent = false;
-          result.emailError = emailError instanceof Error ? emailError.message : '이메일 발송 오류';
-        }
+        console.log('✅ Google Apps Script 자동 이메일 처리 완료:', {
+          success: result.success,
+          service: result.data?.service || 'Google Apps Script',
+          features: result.data?.features || []
+        });
+        
+        // Google Apps Script에서 자동으로 이메일이 발송되므로 별도 처리 불필요
+        result.emailSent = result.success;
+        result.emailInfo = {
+          recipient: consultationData.email,
+          service: 'Google Apps Script',
+          processed: result.success,
+          timestamp: new Date().toISOString()
+        };
       }
       
       const isSuccessful = result.success;
@@ -412,27 +346,8 @@ export default function ConsultationPage() {
       } else {
         console.error('❌ 상담신청 완전 실패:', result.error || result.details?.errors);
         
-        // 📧 실패 시에도 EmailJS로 알림 시도
-        if (typeof window !== 'undefined' && window.emailjs) {
-          try {
-            console.log('📧 관리자에게 실패 알림 전송');
-            await window.emailjs.send(
-              'service_qd9eycz',
-              'template_admin_notification',
-              {
-                notification_type: '상담신청 처리 실패',
-                company_name: consultationData.company,
-                user_name: consultationData.name,
-                user_email: consultationData.email,
-                error_details: result.error || '시스템 처리 실패',
-                timestamp: new Date().toLocaleString('ko-KR'),
-                fallback_data: JSON.stringify(consultationData, null, 2)
-              }
-            );
-          } catch (emailError) {
-            console.error('관리자 알림 이메일 발송 실패:', emailError);
-          }
-        }
+        // 📧 Google Apps Script에서 실패 알림도 자동 처리됨
+        console.log('📧 Google Apps Script에서 관리자 알림 자동 처리');
         
         throw new Error(result.error || 'SUBMISSION_FAILED');
       }

@@ -33,9 +33,9 @@ const nextConfig: NextConfig = {
     ],
   },
   
-  // GitHub Pages용 경로 설정 - 활성화
+  // 🔧 GitHub Pages용 경로 설정 - 강화된 설정
   basePath: (isProd && isGitHubPages) ? `/${repoName}` : '',
-  assetPrefix: (isProd && isGitHubPages) ? `/${repoName}/` : '',
+  assetPrefix: (isProd && isGitHubPages) ? `https://hongik423.github.io/${repoName}/` : '',
   
   // 환경변수 설정
   env: {
@@ -145,7 +145,7 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['lucide-react'],
   },
   
-  // 웹팩 설정 - 단순화
+  // 🔧 웹팩 설정 - GitHub Pages 404 오류 해결
   webpack: (config, { dev, isServer }) => {
     // 🔧 개발 환경에서 ChunkLoadError 방지를 위한 최소 설정
     if (dev) {
@@ -153,7 +153,7 @@ const nextConfig: NextConfig = {
       config.cache = false;
     }
     
-    // GitHub Pages 빌드 시에만 추가 설정
+    // GitHub Pages 빌드 시 정적 파일 경로 최적화
     if (isProd && isGitHubPages) {
       // 서버 사이드에서 브라우저 전용 모듈 제외
       if (isServer) {
@@ -178,6 +178,34 @@ const nextConfig: NextConfig = {
         util: false,
         process: false,
         buffer: false,
+      };
+      
+      // 🔧 GitHub Pages에서 정적 chunk 경로 강제 설정
+      config.output = {
+        ...config.output,
+        publicPath: `https://hongik423.github.io/${repoName}/_next/`,
+        assetModuleFilename: 'static/media/[hash][ext][query]',
+      };
+      
+      // 🔧 청크 분할 최적화
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          ...config.optimization?.splitChunks,
+          cacheGroups: {
+            default: {
+              minChunks: 2,
+              priority: -20,
+              reuseExistingChunk: true,
+            },
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              priority: -10,
+              chunks: 'all',
+            },
+          },
+        },
       };
       
       // 소스맵 비활성화

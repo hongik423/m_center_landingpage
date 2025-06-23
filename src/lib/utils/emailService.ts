@@ -10,6 +10,22 @@
 
 import { appConfig } from '../config/env';
 
+// 🔧 타입 정의
+export interface DiagnosisFormData {
+  company: string;
+  name: string;
+  phone: string;
+  email: string;
+  businessType: string;
+  employees?: number;
+  annualRevenue?: string;
+  mainIssues?: string[];
+  goals?: string[];
+  urgency?: string;
+  privacyConsent: boolean;
+  [key: string]: any;
+}
+
 // 🔧 Google Apps Script 기반 통합 서비스
 const GOOGLE_SCRIPT_CONFIG = {
   SHEETS_ID: appConfig.googleSheetsId,
@@ -263,4 +279,10 @@ export function getEmailServiceConfig() {
 
 // 🎯 레거시 함수들 (하위 호환성)
 export const sendDiagnosisConfirmationEmail = submitDiagnosisToGoogle;
-export const sendConsultationConfirmationEmail = submitConsultationToGoogle; 
+export const sendConsultationConfirmationEmail = submitConsultationToGoogle;
+
+// 🎯 API 호환 함수들 (API 라우트에서 사용)
+export const processConsultationSubmission = submitConsultationToGoogle;
+export const processDiagnosisSubmission = submitDiagnosisToGoogle;
+export const sendDiagnosisConfirmation = submitDiagnosisToGoogle;
+export const sendConsultationConfirmation = submitConsultationToGoogle; 

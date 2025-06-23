@@ -77,6 +77,21 @@ jobs:
             echo "🗑️ CNAME 파일 제거"
           fi
           
+          # 🔧 _next 폴더 보호 (GitHub Pages Jekyll 무시 방지)
+          if [ -d "./out/_next" ]; then
+            find ./out/_next -name ".*" -type f -delete
+            echo "✅ _next 폴더 숨김파일 제거"
+          fi
+          
+          # 🔧 HTML 파일에서 절대 경로 확인
+          if [ -f "./out/index.html" ]; then
+            if grep -q "/_next/static" "./out/index.html"; then
+              echo "✅ 절대 경로 확인됨"
+            else
+              echo "⚠️ 상대 경로 발견 - 수동 확인 필요"
+            fi
+          fi
+          
           # 404.html 확인/생성
           if [ ! -f "./out/404.html" ] && [ -f "./public/404.html" ]; then
             cp ./public/404.html ./out/404.html
@@ -91,17 +106,31 @@ jobs:
             fi
           done
           
+          # 🔧 정적 파일 권한 설정 (GitHub Pages 호환)
+          find ./out -type f -name "*.js" -exec chmod 644 {} \;
+          find ./out -type f -name "*.css" -exec chmod 644 {} \;
+          echo "✅ 정적 파일 권한 설정 완료"
+          
           # 빌드 결과 확인
           echo "🔍 빌드 결과:"
           echo "- 총 파일 수: $(find ./out -type f | wc -l)"
           echo "- 정적 자산: $(find ./out/_next/static -type f 2>/dev/null | wc -l || echo 0)"
           echo "- HTML 파일: $(find ./out -name "*.html" | wc -l)"
+          echo "- JS 파일: $(find ./out -name "*.js" | wc -l)"
+          echo "- CSS 파일: $(find ./out -name "*.css" | wc -l)"
           
           # 중요 파일 존재 확인
           echo "🔍 핵심 파일 확인:"
           [ -f "./out/index.html" ] && echo "✅ index.html" || echo "❌ index.html 누락"
           [ -f "./out/.nojekyll" ] && echo "✅ .nojekyll" || echo "❌ .nojekyll 누락"
           [ -d "./out/_next" ] && echo "✅ _next 디렉토리" || echo "❌ _next 디렉토리 누락"
+          [ -d "./out/_next/static" ] && echo "✅ _next/static 디렉토리" || echo "❌ _next/static 디렉토리 누락"
+          
+          # 🔧 _next/static 하위 구조 확인
+          if [ -d "./out/_next/static" ]; then
+            echo "📁 _next/static 구조:"
+            ls -la ./out/_next/static/ | head -10
+          fi
           
       - name: 📤 GitHub Pages 아티팩트 업로드
         uses: actions/upload-pages-artifact@v3

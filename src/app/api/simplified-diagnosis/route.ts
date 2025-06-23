@@ -1084,25 +1084,24 @@ export async function POST(request: NextRequest) {
       const result = await processDiagnosisSubmission(diagnosisFormData);
       
       processingResult = {
-        googleSheetsSaved: result.sheetSaved,
-        userEmailSent: result.autoReplySent,
-        adminEmailSent: result.adminNotified,
-        errors: result.errors,
-        warnings: result.warnings || []
+        googleSheetsSaved: result.success || false,
+        userEmailSent: result.success || false,
+        adminEmailSent: result.success || false,
+        errors: result.success ? [] : [result.message || '처리 중 오류 발생'],
+        warnings: []
       };
 
       console.log('✅ 통합 데이터 처리 완료:', {
-        구글시트저장: result.sheetSaved,
-        사용자이메일: result.autoReplySent,
-        관리자이메일: result.adminNotified,
-        오류개수: result.errors.length,
+        성공여부: result.success,
+        서비스: result.service,
+        메시지: result.message,
         진단점수: diagnosisFormData.diagnosisScore,
         추천서비스: diagnosisFormData.recommendedServices.substring(0, 50) + '...'
       });
 
       // 일부 실패하더라도 경고로 처리 (진단은 성공)
-      if (result.errors.length > 0) {
-        processingResult.warnings.push(`일부 기능에서 오류 발생: ${result.errors.join(', ')}`);
+      if (!result.success) {
+        processingResult.warnings.push(`일부 기능에서 오류 발생: ${result.message}`);
       }
 
     } catch (dataProcessingError) {

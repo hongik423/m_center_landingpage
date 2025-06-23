@@ -43,35 +43,29 @@ export async function POST(request: NextRequest) {
     const result = await processConsultationSubmission(formData);
 
     console.log('✅ 상담신청 처리 완료:', {
-      sheetSaved: result.sheetSaved,
-      autoReplySent: result.autoReplySent,
-      adminNotified: result.adminNotified,
-      errorCount: result.errors.length
+      success: result.success,
+      message: result.message,
+      service: result.service,
+      features: result.features?.length || 0
     });
 
     // 결과 반환
-    if (result.sheetSaved) {
+    if (result.success) {
       return NextResponse.json({
         success: true,
-        message: '상담 신청이 성공적으로 처리되었습니다.',
+        message: result.message,
         data: {
-          sheetSaved: result.sheetSaved,
-          autoReplySent: result.autoReplySent,
-          adminNotified: result.adminNotified,
-          details: result.details
+          service: result.service,
+          features: result.features,
+          details: result.data
         },
         timestamp: new Date().toISOString()
       });
     } else {
       return NextResponse.json({
         success: false,
-        error: '상담신청 처리에 실패했습니다.',
-        details: {
-          errors: result.errors,
-          sheetSaved: result.sheetSaved,
-          autoReplySent: result.autoReplySent,
-          adminNotified: result.adminNotified
-        }
+        error: result.message || '상담신청 처리에 실패했습니다.',
+        details: result.data
       }, { status: 500 });
     }
 

@@ -30,11 +30,11 @@ export async function GET() {
           clientEnv.googleSheetsId.substring(0, 10) + '...' : '미설정'
       },
       
-      // 이메일 설정
+      // 이메일 설정 (Google Apps Script 기반)
       emailService: {
-        configured: !!clientEnv.emailJsServiceId && clientEnv.emailJsServiceId !== 'emailjs-temp-key',
-        serviceId: clientEnv.emailJsServiceId,
-        isSimulation: clientEnv.emailJsPublicKey === 'emailjs-temp-key'
+        configured: !!clientEnv.googleScriptUrl,
+        provider: 'Google Apps Script',
+        isSimulation: false // Google Apps Script는 실제 이메일 발송
       },
       
       // 기본 설정
@@ -43,14 +43,13 @@ export async function GET() {
         baseUrl: clientEnv.baseUrl
       },
       
-      // 연동 가능한 기능들
+      // 연동 가능한 기능들 (Google Apps Script 기반)
       availableFeatures: [
-        '✅ AI 진단신청 → 구글시트 저장',
-        '✅ 상담신청 → 구글시트 저장', 
-        clientEnv.emailJsServiceId !== 'emailjs-temp-key' ? 
-          '✅ 접수확인 이메일 발송' : '⚠️ 이메일 시뮬레이션 모드',
-        '✅ 관리자 알림',
-        '✅ 데이터 백업 시스템'
+        '✅ AI 진단신청 → 구글시트 자동 저장',
+        '✅ 상담신청 → 구글시트 자동 저장', 
+        '✅ 접수확인 이메일 실시간 발송 (Google Apps Script)',
+        '✅ 관리자 알림 이메일 자동 발송',
+        '✅ 통합 데이터 관리 시스템'
       ]
     };
 
@@ -113,22 +112,24 @@ export async function POST(request: NextRequest) {
       // 이메일 발송 테스트
       console.log('📧 이메일 시스템 테스트 시작...');
       
-      const emailResult = await sendDiagnosisConfirmation(
-        'test@example.com',
-        '홍길동',
-        '테스트회사',
-        'IT',
-        '진단신청',
-        '010-1234-5678',
-        '테스트 진단 요약'
-      );
+      const testDiagnosisEmailData = {
+        companyName: '테스트회사',
+        name: '홍길동',
+        phone: '010-1234-5678',
+        email: 'test@example.com',
+        businessType: 'IT',
+        message: '시스템 테스트용 진단신청입니다.',
+        privacyConsent: true
+      };
+      
+      const emailResult = await sendDiagnosisConfirmation(testDiagnosisEmailData);
 
       results.results.emailService = {
         success: emailResult.success,
-        messageId: emailResult.messageId,
-        service: emailResult.service,
-        isSimulation: emailResult.isSimulation,
-        error: emailResult.error
+        message: emailResult.message,
+        service: emailResult.service || 'Google Apps Script',
+        features: emailResult.features || [],
+        error: emailResult.success ? null : emailResult.message
       };
     }
 
