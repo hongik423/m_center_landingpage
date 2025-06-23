@@ -2,10 +2,16 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
-  "installCommand": "npm install",
+  "installCommand": "npm ci",
   "outputDirectory": "out",
   "trailingSlash": true,
   "cleanUrls": true,
+  "env": {
+    "NEXT_PUBLIC_GOOGLE_SHEETS_ID": "@next_public_google_sheets_id",
+    "NEXT_PUBLIC_GOOGLE_SCRIPT_URL": "@next_public_google_script_url", 
+    "NEXT_PUBLIC_BASE_URL": "@next_public_base_url",
+    "GEMINI_API_KEY": "@gemini_api_key"
+  },
   "headers": [
     {
       "source": "/(.*)",
@@ -32,17 +38,34 @@
           "value": "public, max-age=31536000, immutable"
         }
       ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods", 
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
     }
   ],
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
+      "source": "/health",
+      "destination": "/api/health"
     }
   ],
   "functions": {
-    "src/app/api/*/route.ts": {
-      "runtime": "nodejs18.x"
+    "src/app/api/**/*.ts": {
+      "maxDuration": 30
     }
   }
 } 

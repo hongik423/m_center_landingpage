@@ -2,51 +2,21 @@
 
 /**
  * Vercel 환경 변수 자동 설정 스크립트
- * M-CENTER 별-AI상담사 Gemini API 활성화
+ * M-CENTER Google Apps Script 기반 통합 시스템
  */
 
-const { execSync } = require('child_process');
+import { execSync } from 'child_process';
 
 const envVars = [
   {
-    name: 'NEXT_PUBLIC_EMAILJS_SERVICE_ID',
-    value: 'service_qd9eycz',
-    description: 'EmailJS 서비스 ID'
-  },
-  {
-    name: 'NEXT_PUBLIC_EMAILJS_PUBLIC_KEY',
-    value: '268NPLwN54rPvEias',
-    description: 'EmailJS 공개 키'
-  },
-  {
-    name: 'NEXT_PUBLIC_EMAILJS_TEMPLATE_DIAGNOSIS',
-    value: 'template_diagnosis_conf',
-    description: 'EmailJS 진단 템플릿'
-  },
-  {
-    name: 'NEXT_PUBLIC_EMAILJS_TEMPLATE_CONSULTATION',
-    value: 'template_consultation_conf',
-    description: 'EmailJS 상담 템플릿'
-  },
-  {
-    name: 'NEXT_PUBLIC_EMAILJS_TEMPLATE_ADMIN',
-    value: 'template_admin_notification',
-    description: 'EmailJS 관리자 템플릿'
-  },
-  {
     name: 'NEXT_PUBLIC_GOOGLE_SHEETS_ID',
     value: '1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug',
-    description: 'Google Sheets ID'
+    description: 'Google Sheets ID (구글시트 데이터 저장)'
   },
   {
     name: 'NEXT_PUBLIC_GOOGLE_SCRIPT_URL',
     value: 'https://script.google.com/macros/s/AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX/exec',
-    description: 'Google Apps Script URL'
-  },
-  {
-    name: 'NEXT_PUBLIC_GOOGLE_SCRIPT_ID',
-    value: 'AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX',
-    description: 'Google Apps Script ID'
+    description: 'Google Apps Script URL (이메일 발송 및 데이터 처리)'
   },
   {
     name: 'NEXT_PUBLIC_BASE_URL',
@@ -55,7 +25,7 @@ const envVars = [
   }
 ];
 
-console.log('🚀 M-CENTER 별-AI상담사 Vercel 환경 변수 설정 시작...\n');
+console.log('🚀 M-CENTER Google Apps Script 통합 시스템 환경 변수 설정 시작...\n');
 
 function setVercelEnv(name, value, description) {
   try {
@@ -83,6 +53,11 @@ async function setupEnvironment() {
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
   
+  console.log('📧 이메일 시스템: Google Apps Script 통합 완료!');
+  console.log('   ✅ 구글시트 자동 저장');
+  console.log('   ✅ 관리자 알림 이메일');
+  console.log('   ✅ 신청자 확인 이메일');
+  console.log('');
   console.log('⚠️  중요: GEMINI_API_KEY는 수동으로 설정해야 합니다!');
   console.log('📋 다음 명령어를 실행하세요:');
   console.log('');
@@ -93,6 +68,8 @@ async function setupEnvironment() {
   console.log('');
   console.log('🎯 설정 완료 후 배포:');
   console.log('vercel --prod');
+  console.log('');
+  console.log('✨ EmailJS 제거 완료 - 이제 Google Apps Script만으로 안정적 운영!');
 }
 
 setupEnvironment().catch(console.error); 

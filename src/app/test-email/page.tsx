@@ -1,227 +1,227 @@
 'use client';
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
-import { checkEmailServiceStatus, initEmailJS } from '@/lib/utils/emailService';
-import emailjs from '@emailjs/browser';
+import { Button } from '@/components/ui/button';
+import { checkGoogleScriptStatus, getEmailServiceConfig } from '@/lib/utils/emailService';
+import { Mail, CheckCircle, AlertCircle, Loader2, Settings, Database, Send } from 'lucide-react';
 
-export default function TestEmailPage() {
-  const [testing, setTesting] = useState(false);
-  const [results, setResults] = useState<any>(null);
-  const [testEmail, setTestEmail] = useState('hongik423@gmail.com');
-  const { toast } = useToast();
+interface GoogleScriptStatus {
+  success: boolean;
+  status: 'connected' | 'disconnected' | 'checking';
+  message: string;
+  timestamp?: string;
+}
 
-  const checkEmailJSConfig = async () => {
-    setTesting(true);
-    const testResults: any = {};
+export default function TestGoogleAppsScriptPage() {
+  const [status, setStatus] = useState<GoogleScriptStatus>({
+    success: false,
+    status: 'checking',
+    message: '연결 상태 확인 중...'
+  });
+  const [emailServiceConfig, setEmailServiceConfig] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    // 초기 상태 확인
+    checkConnectionStatus();
     
+    // 이메일 서비스 설정 가져오기
+    const config = getEmailServiceConfig();
+    setEmailServiceConfig(config);
+  }, []);
+
+  const checkConnectionStatus = async () => {
+    setIsLoading(true);
     try {
-      // 1. 환경변수 확인
-      const status = checkEmailServiceStatus();
-      testResults.envConfig = status;
-      
-      // 2. EmailJS 초기화 시도
-      try {
-        const initResult = initEmailJS();
-        testResults.initialization = { success: initResult };
-      } catch (error) {
-        testResults.initialization = { 
-          success: false, 
-          error: error instanceof Error ? error.message : '초기화 실패' 
-        };
-      }
-
-      // 3. 간단한 테스트 이메일 발송
-      if (testResults.initialization.success && testEmail) {
-        try {
-          const templateParams = {
-            to_email: testEmail,
-            to_name: '테스트 사용자',
-            company_name: '테스트 회사',
-            industry: '테스트 업종',
-            contact_name: '테스트 담당자',
-            contact_phone: '010-1234-5678',
-            submit_date: new Date().toLocaleString('ko-KR'),
-            admin_email: 'hongik423@gmail.com'
-          };
-
-          console.log('🧪 테스트 이메일 발송 시도:', templateParams);
-
-          const result = await emailjs.send(
-            process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-            'template_diagnosis_confirmation',
-            templateParams
-          );
-
-          testResults.testEmail = {
-            success: true,
-            status: result.status,
-            text: result.text
-          };
-
-          toast({
-            title: '✅ 테스트 이메일 발송 성공!',
-            description: `${testEmail}로 테스트 이메일을 발송했습니다.`
-          });
-
-        } catch (emailError) {
-          testResults.testEmail = {
-            success: false,
-            error: emailError instanceof Error ? emailError.message : '이메일 발송 실패'
-          };
-
-          toast({
-            title: '❌ 테스트 이메일 발송 실패',
-            description: '콘솔에서 상세 오류를 확인하세요.',
-            variant: 'destructive'
-          });
-        }
-      }
-
-      setResults(testResults);
-      console.log('📧 EmailJS 테스트 결과:', testResults);
-
+      const result = await checkGoogleScriptStatus();
+      setStatus(result);
     } catch (error) {
-      console.error('EmailJS 테스트 중 오류:', error);
-      setResults({
-        error: error instanceof Error ? error.message : '테스트 실행 실패'
+      setStatus({
+        success: false,
+        status: 'disconnected',
+        message: `연결 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`
       });
     } finally {
-      setTesting(false);
+      setIsLoading(false);
+    }
+  };
+
+  const getStatusIcon = (success: boolean) => {
+    if (isLoading) return <Loader2 className="h-5 w-5 animate-spin text-blue-500" />;
+    return success ? 
+      <CheckCircle className="h-5 w-5 text-green-500" /> : 
+      <AlertCircle className="h-5 w-5 text-red-500" />;
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'connected': return 'text-green-600 bg-green-50 border-green-200';
+      case 'disconnected': return 'text-red-600 bg-red-50 border-red-200';
+      case 'checking': return 'text-blue-600 bg-blue-50 border-blue-200';
+      default: return 'text-gray-600 bg-gray-50 border-gray-200';
     }
   };
 
   return (
-    <div className="container mx-auto p-8">
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle>📧 EmailJS 설정 테스트</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                테스트 이메일 주소:
-              </label>
-              <Input
-                type="email"
-                value={testEmail}
-                onChange={(e) => setTestEmail(e.target.value)}
-                placeholder="test@example.com"
-              />
-            </div>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="text-center mb-8">
+          <Mail className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Google Apps Script 연결 테스트
+          </h1>
+          <p className="text-gray-600">
+            M-CENTER 통합 이메일 시스템의 연결 상태를 확인합니다
+          </p>
+        </div>
 
-            <Button 
-              onClick={checkEmailJSConfig}
-              disabled={testing || !testEmail}
-              className="w-full"
-            >
-              {testing ? '테스트 중...' : 'EmailJS 설정 테스트'}
-            </Button>
-          </div>
-
-          {results && (
-            <div className="space-y-4 mt-6">
-              <h3 className="text-lg font-semibold">테스트 결과</h3>
-              
-              {/* 환경변수 확인 */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium">1. 환경변수 설정</h4>
-                <div className="mt-2">
-                  <span className={`inline-block px-2 py-1 rounded text-sm ${
-                    results.envConfig?.configured 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {results.envConfig?.configured ? '✅ 설정됨' : '❌ 누락됨'}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* 연결 상태 카드 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Database className="h-5 w-5" />
+                연결 상태
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className={`p-4 rounded-lg border ${getStatusColor(status.status)}`}>
+                <div className="flex items-center gap-3 mb-2">
+                  {getStatusIcon(status.success)}
+                  <span className="font-semibold">
+                    {status.status === 'connected' ? '연결됨' : 
+                     status.status === 'checking' ? '확인 중' : '연결 실패'}
                   </span>
-                  {results.envConfig?.missing?.length > 0 && (
-                    <div className="text-sm text-red-600 mt-1">
-                      누락된 환경변수: {results.envConfig.missing.join(', ')}
-                    </div>
-                  )}
                 </div>
+                <p className="text-sm">{status.message}</p>
+                {status.timestamp && (
+                  <p className="text-xs mt-2 opacity-75">
+                    마지막 확인: {new Date(status.timestamp).toLocaleString('ko-KR')}
+                  </p>
+                )}
               </div>
 
-              {/* EmailJS 초기화 */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium">2. EmailJS 초기화</h4>
-                <div className="mt-2">
-                  <span className={`inline-block px-2 py-1 rounded text-sm ${
-                    results.initialization?.success 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {results.initialization?.success ? '✅ 성공' : '❌ 실패'}
-                  </span>
-                  {results.initialization?.error && (
-                    <div className="text-sm text-red-600 mt-1">
-                      오류: {results.initialization.error}
-                    </div>
-                  )}
-                </div>
-              </div>
+              <Button 
+                onClick={checkConnectionStatus}
+                disabled={isLoading}
+                className="w-full"
+                variant={status.success ? "outline" : "default"}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    연결 확인 중...
+                  </>
+                ) : (
+                  <>
+                    <Settings className="h-4 w-4 mr-2" />
+                    연결 상태 재확인
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
 
-              {/* 테스트 이메일 발송 */}
-              {results.testEmail && (
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium">3. 테스트 이메일 발송</h4>
-                  <div className="mt-2">
-                    <span className={`inline-block px-2 py-1 rounded text-sm ${
-                      results.testEmail.success 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {results.testEmail.success ? '✅ 성공' : '❌ 실패'}
-                    </span>
-                    {results.testEmail.error && (
-                      <div className="text-sm text-red-600 mt-1">
-                        오류: {results.testEmail.error}
+          {/* 서비스 설정 정보 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Send className="h-5 w-5" />
+                서비스 설정 정보
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {emailServiceConfig && (
+                <>
+                  <div className="space-y-3">
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                      <h4 className="font-semibold text-green-800 mb-2">
+                        📧 {emailServiceConfig.provider}
+                      </h4>
+                      <ul className="text-sm text-green-700 space-y-1">
+                        {emailServiceConfig.features.map((feature: string, index: number) => (
+                          <li key={index} className="flex items-center gap-2">
+                            <CheckCircle className="h-3 w-3" />
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3 text-sm">
+                      <div className="bg-gray-50 p-3 rounded">
+                        <strong>시트 ID:</strong> {emailServiceConfig.config.sheetsId}
                       </div>
-                    )}
-                    {results.testEmail.status && (
-                      <div className="text-sm text-green-600 mt-1">
-                        상태: {results.testEmail.status}
+                      <div className="bg-gray-50 p-3 rounded">
+                        <strong>스크립트 URL:</strong> {emailServiceConfig.config.scriptUrl}
                       </div>
-                    )}
+                      <div className="bg-gray-50 p-3 rounded">
+                        <strong>알림 이메일:</strong> {emailServiceConfig.config.notificationEmail}
+                      </div>
+                      <div className="bg-gray-50 p-3 rounded">
+                        <strong>환경:</strong> {emailServiceConfig.status.isProduction ? '운영' : '개발'}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </>
               )}
+            </CardContent>
+          </Card>
+        </div>
 
-              {/* 전체 결과 (JSON) */}
-              <details className="bg-gray-50 p-4 rounded-lg">
-                <summary className="font-medium cursor-pointer">상세 결과 (JSON)</summary>
-                <pre className="text-xs mt-2 overflow-auto bg-white p-2 rounded border">
-                  {JSON.stringify(results, null, 2)}
-                </pre>
-              </details>
+        {/* 기능 설명 */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>🚀 Google Apps Script 통합 시스템</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <Database className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                <h3 className="font-semibold mb-1">구글시트 저장</h3>
+                <p className="text-sm text-gray-600">
+                  진단신청과 상담신청 데이터를 자동으로 구글시트에 저장
+                </p>
+              </div>
+              <div className="text-center">
+                <Mail className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                <h3 className="font-semibold mb-1">자동 이메일 발송</h3>
+                <p className="text-sm text-gray-600">
+                  관리자 알림과 신청자 확인 이메일을 자동 발송
+                </p>
+              </div>
+              <div className="text-center">
+                <CheckCircle className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+                <h3 className="font-semibold mb-1">안정적 운영</h3>
+                <p className="text-sm text-gray-600">
+                  EmailJS 제거로 단순화된 안정적인 시스템 운영
+                </p>
+              </div>
             </div>
-          )}
+          </CardContent>
+        </Card>
 
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h4 className="font-semibold text-blue-900 mb-2">💡 EmailJS 운영 방식</h4>
-            <ul className="text-sm text-blue-800 space-y-1">
-              <li>• <strong>EmailJS 템플릿:</strong> template_diagnosis_confirmation (진단 신청 확인) 만 사용</li>
-              <li>• <strong>관리자 알림:</strong> 구글 Apps Script에서 자동 처리</li>
-              <li>• <strong>진단 결과:</strong> 다운로드 방식으로 제공 (이메일 발송 안 함)</li>
-              <li>• 서비스 ID: service_qd9eycz</li>
-              <li>• Public Key: 268NPLwN54rPvEias</li>
-            </ul>
-          </div>
-
-          <div className="bg-green-50 p-4 rounded-lg">
-            <h4 className="font-semibold text-green-900 mb-2">✅ 설정 확인사항</h4>
-            <ul className="text-sm text-green-800 space-y-1">
-              <li>• EmailJS 대시보드에서 template_diagnosis_confirmation 템플릿 생성</li>
-              <li>• Gmail 서비스 연결 확인</li>
-              <li>• 구글 Apps Script 트리거 설정 확인 (관리자 알림용)</li>
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
+        {/* 상태별 안내 메시지 */}
+        {status.status === 'disconnected' && (
+          <Card className="mt-6 border-red-200 bg-red-50">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-red-800 mb-2">연결 문제 해결 방법</h3>
+                  <ul className="text-sm text-red-700 space-y-1">
+                    <li>1. 환경변수 NEXT_PUBLIC_GOOGLE_SCRIPT_URL 확인</li>
+                    <li>2. Google Apps Script 웹앱 배포 상태 확인</li>
+                    <li>3. 구글시트 권한 설정 확인</li>
+                    <li>4. 네트워크 연결 상태 확인</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 } 

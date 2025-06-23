@@ -12,7 +12,8 @@ import { Toaster } from '@/components/ui/toaster';
 import ErrorBoundary from '@/components/ui/error-boundary';
 import { useEffect, useState } from 'react';
 import { validateEnv, logEnvStatus, isDevelopment } from '@/lib/config/env';
-import { initEmailJS } from '@/lib/utils/emailService';
+import { checkGoogleScriptStatus, getEmailServiceConfig } from '@/lib/utils/emailService';
+import React, { createContext, useContext, ReactNode } from 'react';
 
 function makeQueryClient() {
   return new QueryClient({
@@ -72,130 +73,127 @@ function ThemeProviderWrapper({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function Providers({ children }: { children: React.ReactNode }) {
-  const [isEnvValid, setIsEnvValid] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+// 애플리케이션 컨텍스트
+interface AppContextType {
+  emailServiceConfig: any;
+  googleScriptStatus: any;
+}
 
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 60 * 1000, // 1분
-            gcTime: 5 * 60 * 1000, // 5분 (cacheTime → gcTime으로 변경됨)
-            retry: 1,
-            refetchOnWindowFocus: false,
-          },
-        },
-      })
-  );
+const AppContext = createContext<AppContextType | undefined>(undefined);
 
-  // 환경변수 검증 및 초기화
+export function useAppContext() {
+  const context = useContext(AppContext);
+  if (context === undefined) {
+    throw new Error('useAppContext must be used within an AppProvider');
+  }
+  return context;
+}
+
+interface ProvidersProps {
+  children: ReactNode;
+}
+
+export default function Providers({ children }: ProvidersProps) {
+  const [emailServiceConfig, setEmailServiceConfig] = React.useState<any>(null);
+  const [googleScriptStatus, setGoogleScriptStatus] = React.useState<any>(null);
+
   useEffect(() => {
-    const initializeApp = async () => {
+    // Google Apps Script 시스템 초기화 및 상태 확인
+    const initializeGoogleAppsScript = async () => {
       try {
-        // 개발 환경에서만 상세 로깅
-        if (isDevelopment()) {
-          console.log('🚀 애플리케이션 초기화 중...');
-        }
+        // 이메일 서비스 설정 가져오기
+        const config = getEmailServiceConfig();
+        setEmailServiceConfig(config);
 
-        // 환경변수 검증 (클라이언트 사이드용)
-        const clientEnvCheck = {
-          hasEmailJSServiceId: !!process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-          hasEmailJSPublicKey: !!process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
-          hasGoogleSheetsId: !!process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
-        };
+        // Google Apps Script 연결 상태 확인
+        const status = await checkGoogleScriptStatus();
+        setGoogleScriptStatus(status);
 
-        const isClientEnvValid = Object.values(clientEnvCheck).every(Boolean);
-
-        if (!isClientEnvValid && isDevelopment()) {
-          console.log('💡 일부 환경변수가 미설정됨 (프로덕션에서는 시뮬레이션 모드로 동작):', {
-            emailJS: clientEnvCheck.hasEmailJSServiceId && clientEnvCheck.hasEmailJSPublicKey,
-            googleSheets: clientEnvCheck.hasGoogleSheetsId,
-          });
-        }
-
-        // EmailJS 초기화
-        const emailJSInitialized = initEmailJS();
-        
-        if (isDevelopment()) {
-          logEnvStatus();
-          console.log('📧 EmailJS 초기화:', emailJSInitialized ? '성공' : '실패');
-        }
-
-        setIsEnvValid(isClientEnvValid);
-        setIsInitialized(true);
-
-        if (isDevelopment()) {
-          console.log('✅ 애플리케이션 초기화 완료');
-        }
+        console.log('🚀 Google Apps Script 시스템 초기화 완료');
+        console.log('📧 이메일 서비스:', config.provider);
+        console.log('🔗 연결 상태:', status.status);
 
       } catch (error) {
-        console.error('❌ 애플리케이션 초기화 실패:', error);
-        setIsEnvValid(false);
-        setIsInitialized(true);
+        console.warn('⚠️ Google Apps Script 초기화 중 경고:', error);
+        
+        setEmailServiceConfig({
+          provider: 'Google Apps Script',
+          status: { hasConfig: false },
+          features: ['오프라인 백업 지원']
+        });
+
+        setGoogleScriptStatus({
+          success: false,
+          status: 'disconnected',
+          message: '연결 확인 실패'
+        });
       }
     };
 
-    initializeApp();
+    initializeGoogleAppsScript();
   }, []);
 
-  // 환경변수 오류 상태 UI
-  if (isInitialized && !isEnvValid && isDevelopment()) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-red-50">
-        <div className="max-w-md p-6 bg-white rounded-lg shadow-lg border border-red-200">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-red-600 text-2xl">⚠️</span>
-            </div>
-            <h2 className="text-xl font-bold text-red-900 mb-2">
-              환경변수 설정 필요
-            </h2>
-            <p className="text-red-700 mb-4 text-sm">
-              일부 필수 환경변수가 설정되지 않았습니다.
-              <br />
-              개발을 계속하려면 <code className="bg-red-100 px-1 rounded">.env.local</code> 파일을 확인해주세요.
-            </p>
-            <div className="text-left bg-red-50 p-3 rounded mb-4">
-              <p className="text-xs text-red-600 font-mono">
-                필수 환경변수:
-                <br />• NEXT_PUBLIC_EMAILJS_SERVICE_ID
-                <br />• NEXT_PUBLIC_EMAILJS_PUBLIC_KEY  
-                <br />• NEXT_PUBLIC_GOOGLE_SHEETS_ID
-              </p>
-            </div>
-            <button 
-              onClick={() => window.location.reload()}
-              className="w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-            >
-              설정 후 새로고침
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // 환경변수 상태 확인
+  const checkEnvStatus = () => {
+    const status = {
+      hasGoogleSheetsId: !!process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
+      hasGoogleScriptUrl: !!process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
+      hasGeminiKey: !!process.env.GEMINI_API_KEY,
+      environment: process.env.NODE_ENV,
+    };
 
-  // 초기화 중 로딩 화면
-  if (!isInitialized) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">애플리케이션 초기화 중...</p>
-        </div>
-      </div>
-    );
-  }
+    // 개발 환경에서 환경변수 상태 로그
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 환경변수 상태:', status);
+    }
+
+    return status;
+  };
+
+  // 환경변수 누락 알림 (개발 환경에서만)
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      const envStatus = checkEnvStatus();
+      
+      if (!envStatus.hasGoogleSheetsId || !envStatus.hasGoogleScriptUrl) {
+        console.warn('⚠️ 필수 환경변수가 누락되었습니다:');
+        if (!envStatus.hasGoogleSheetsId) {
+          console.warn('  - NEXT_PUBLIC_GOOGLE_SHEETS_ID 누락');
+        }
+        if (!envStatus.hasGoogleScriptUrl) {
+          console.warn('  - NEXT_PUBLIC_GOOGLE_SCRIPT_URL 누락');
+        }
+        console.warn('📋 설정 가이드: /docs/환경변수_설정_가이드.md 참조');
+      }
+    }
+  }, []);
+
+  const contextValue = {
+    emailServiceConfig: emailServiceConfig || { provider: 'Google Apps Script' },
+    googleScriptStatus: googleScriptStatus || { status: 'checking' },
+  };
 
   return (
     <ThemeProviderWrapper>
-      <QueryClientProvider client={queryClient}>
-        <ErrorBoundary>
-          {children}
-        </ErrorBoundary>
-        <Toaster />
+      <QueryClientProvider client={getQueryClient()}>
+        <AppContext.Provider value={contextValue}>
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
+          <Toaster />
+          
+          {/* 개발 환경에서 시스템 상태 표시 */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="fixed bottom-4 right-4 z-50 bg-black/80 text-white p-2 rounded text-xs max-w-xs">
+              <div className="font-semibold">🚀 M-CENTER 시스템</div>
+              <div>📧 이메일: {emailServiceConfig?.provider || 'Loading...'}</div>
+              <div>🔗 연결: {googleScriptStatus?.status || 'Checking...'}</div>
+              <div className="text-green-400 mt-1">
+                ✅ Google Apps Script 통합 완료
+              </div>
+            </div>
+          )}
+        </AppContext.Provider>
       </QueryClientProvider>
     </ThemeProviderWrapper>
   );

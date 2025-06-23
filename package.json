@@ -18,14 +18,10 @@
     "pre-commit": "npm run security-check && npm run build",
     "ai:generate-report": "node scripts/ai-report-generator.js",
     "ai:train-chatbot": "node scripts/ai-chatbot-trainer.js",
-    "ai:analyze-performance": "node scripts/ai-performance-analyzer.js",
-    "ai:send-email": "node scripts/ai-email-sender.js",
-    "ai:full-automation": "npm run ai:generate-report && npm run ai:train-chatbot && npm run ai:analyze-performance",
     "test:chatbot": "echo 'AI 챗봇 성능 테스트 실행 중...' && node -e \"console.log('✅ 챗봇 테스트 완료')\"",
     "setup:ai": "npm install @google/generative-ai && echo '🤖 AI 스크립트 설정 완료'"
   },
   "dependencies": {
-    "@emailjs/browser": "^4.4.1",
     "@google/generative-ai": "^0.20.0",
     "@hookform/resolvers": "^4",
     "@radix-ui/react-accordion": "^1.2.3",

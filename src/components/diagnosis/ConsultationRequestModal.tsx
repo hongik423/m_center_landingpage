@@ -1,12 +1,23 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
   X, 
@@ -17,9 +28,12 @@ import {
   MessageCircle,
   AlertCircle,
   User,
-  Building
+  Building,
+  Send,
+  Loader2
 } from 'lucide-react';
-import { processConsultationSubmission } from '@/lib/utils/emailService';
+import { processConsultationSubmission, submitConsultationToGoogle } from '@/lib/utils/emailService';
+import { useToast } from '@/hooks/use-toast';
 
 interface ConsultationRequestModalProps {
   isOpen: boolean;
