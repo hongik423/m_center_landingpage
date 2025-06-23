@@ -100,6 +100,8 @@ export function getGeminiKey(): string {
   if (!key) {
     console.warn('⚠️ GEMINI_API_KEY가 설정되지 않았습니다.');
     console.info('💡 .env.local 파일에 GEMINI_API_KEY=AIzaSy... 를 추가하세요.');
+    console.info('🔗 Gemini API 키 발급: https://makersuite.google.com/app/apikey');
+    console.info('📝 설정 후 개발 서버를 재시작하세요: npm run dev');
     return ''; // 빈 문자열 반환으로 폴백 모드 활성화
   }
   

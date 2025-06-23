@@ -348,19 +348,31 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // GEMINI AI API 호출 (안정적인 1.5-pro 모델)
+    // GEMINI AI API 호출 (향상된 재시도 로직)
     console.log('🚀 GEMINI API 호출 시작:', { messageLength: message.length, hasApiKey: !!GEMINI_API_KEY });
-    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
+    
+    const maxRetries = 3;
+    let lastError: any = null;
+    
+    for (let retryCount = 0; retryCount < maxRetries; retryCount++) {
+      try {
+        if (retryCount > 0) {
+          console.log(`🔄 재시도 ${retryCount}/${maxRetries - 1}...`);
+          // 재시도 시 잠시 대기 (1초 * 재시도 횟수)
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+        }
+
+        const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [
               {
-                text: `당신은 **기업의별 M-CENTER**의 전문 AI 상담사입니다. 25년간 축적된 경영컨설팅 전문성을 바탕으로 아래 서비스에 대해 친근하면서도 전문적인 상담을 제공해주세요:
+                parts: [
+                  {
+                    text: `당신은 **기업의별 M-CENTER**의 전문 AI 상담사입니다. 25년간 축적된 경영컨설팅 전문성을 바탕으로 아래 서비스에 대해 친근하면서도 전문적인 상담을 제공해주세요:
 
 🏆 **M-CENTER 6대 핵심 서비스**
 1. **BM ZEN 사업분석** - 독자적 프레임워크로 매출 20-40% 증대 (95% 성공률)
@@ -381,80 +393,93 @@ export async function POST(request: NextRequest) {
 🎯 **사용자 질문**: ${message}
 
 **M-CENTER만의 차별화된 우수성과 구체적인 도움 방안을 중심으로 전문적이고 도움이 되는 답변을 제공해주세요.**`
+                  }
+                ]
+              }
+            ],
+            generationConfig: {
+              temperature: 0.7,
+              topK: 40,
+              topP: 0.95,
+              maxOutputTokens: 1024,
+            },
+            safetySettings: [
+              {
+                category: "HARM_CATEGORY_HARASSMENT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+              },
+              {
+                category: "HARM_CATEGORY_HATE_SPEECH",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
               }
             ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 1024,
-        },
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_HATE_SPEECH",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          }
-        ]
-      }),
-    });
+          }),
+        });
 
-    console.log('📡 GEMINI API 응답 상태:', { 
-      status: geminiResponse.status, 
-      ok: geminiResponse.ok,
-      statusText: geminiResponse.statusText,
-      headers: geminiResponse.headers.get('content-type')
-    });
+        console.log('📡 GEMINI API 응답 상태:', { 
+          status: geminiResponse.status, 
+          ok: geminiResponse.ok,
+          statusText: geminiResponse.statusText,
+          retryCount
+        });
 
-    if (!geminiResponse.ok) {
-      const errorText = await geminiResponse.text();
-      console.error(`❌ GEMINI API 오류 (${geminiResponse.status}):`, errorText);
-      return NextResponse.json({
-        response: generateFallbackResponse(message),
-        source: 'fallback_api_error',
-        error: `API Error ${geminiResponse.status}: ${errorText}`,
-        timestamp: new Date().toISOString()
-      }, {
-        headers: getCorsHeaders()
-      });
+        // 성공적인 응답 처리
+        if (geminiResponse.ok) {
+          const geminiData = await geminiResponse.json();
+          
+          if (geminiData.candidates && geminiData.candidates[0]?.content?.parts?.[0]?.text) {
+            const aiResponse = geminiData.candidates[0].content.parts[0].text;
+            console.log('✅ GEMINI API 성공:', { responseLength: aiResponse.length, retryCount });
+            
+            return NextResponse.json({
+              response: aiResponse,
+              source: 'gemini-1.5-pro',
+              timestamp: new Date().toISOString(),
+              retryCount,
+              usage: geminiData.usageMetadata
+            }, {
+              headers: getCorsHeaders()
+            });
+          } else {
+            throw new Error('응답 형식 오류: 예상된 데이터 구조를 찾을 수 없습니다');
+          }
+        }
+        
+        // 오류 응답 처리
+        const errorText = await geminiResponse.text();
+        lastError = new Error(`API Error ${geminiResponse.status}: ${errorText}`);
+        
+        // 503 (서버 과부하) 등 재시도 가능한 오류는 계속 시도
+        if (geminiResponse.status === 503 || geminiResponse.status === 429) {
+          console.warn(`⚠️ Gemini API ${geminiResponse.status} 오류 - 재시도 ${retryCount + 1}/${maxRetries}`);
+          console.warn('💡 Google Gemini 서버가 과부하 상태입니다. 잠시 후 재시도됩니다.');
+          continue;
+        }
+        
+        // 다른 오류는 즉시 fallback 응답
+        throw lastError;
+
+      } catch (error) {
+        lastError = error;
+        console.error(`❌ GEMINI API 시도 ${retryCount + 1} 실패:`, error);
+        
+        // 마지막 재시도가 아니면 계속 시도
+        if (retryCount < maxRetries - 1) {
+          continue;
+        }
+      }
     }
-
-    const geminiData = await geminiResponse.json();
-    console.log('🔍 GEMINI API 응답 데이터:', JSON.stringify(geminiData, null, 2));
     
-    if (geminiData.candidates && geminiData.candidates[0]?.content?.parts?.[0]?.text) {
-      const aiResponse = geminiData.candidates[0].content.parts[0].text;
-      console.log('✅ GEMINI API 성공:', { responseLength: aiResponse.length });
-      
-      return NextResponse.json({
-        response: aiResponse,
-        source: 'gemini-1.5-pro',
-        timestamp: new Date().toISOString(),
-        usage: geminiData.usageMetadata
-      }, {
-        headers: getCorsHeaders()
-      });
-    } else {
-      console.warn('⚠️ GEMINI API 응답 형식 오류:', { 
-        hasCandidates: !!geminiData.candidates,
-        candidatesLength: geminiData.candidates?.length,
-        firstCandidate: geminiData.candidates?.[0],
-        rawData: geminiData
-      });
-      return NextResponse.json({
-        response: generateFallbackResponse(message),
-        source: 'fallback_format_error',
-        debugInfo: { geminiData },
-        timestamp: new Date().toISOString()
-      }, {
-        headers: getCorsHeaders()
-      });
-    }
+    // 모든 재시도 실패 시 fallback 응답
+    console.error('❌ GEMINI API 모든 재시도 실패, fallback 응답 사용');
+    return NextResponse.json({
+      response: generateFallbackResponse(message),
+      source: 'fallback_all_retries_failed',
+      error: lastError?.message || '알 수 없는 오류',
+      timestamp: new Date().toISOString()
+    }, {
+      headers: getCorsHeaders()
+    });
 
   } catch (error) {
     console.error('❌ API 오류:', error);

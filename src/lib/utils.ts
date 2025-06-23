@@ -141,7 +141,10 @@ export const validateNumberInput = (
 // 🔧 GitHub Pages 호환 이미지 경로 처리
 export function getImagePath(imageName: string): string {
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
-  return `${basePath}/${imageName}`;
+  // 이미지명이 '/'로 시작하는 경우 제거
+  const cleanImageName = imageName.startsWith('/') ? imageName.slice(1) : imageName;
+  // basePath가 있으면 추가, 없으면 루트에서 접근
+  return basePath ? `${basePath}/${cleanImageName}` : `/${cleanImageName}`;
 }
 
 /**

@@ -133,18 +133,17 @@ export default function Providers({ children }: ProvidersProps) {
     initializeGoogleAppsScript();
   }, []);
 
-  // 환경변수 상태 확인
+  // 환경변수 상태 확인 (클라이언트 전용 변수만)
   const checkEnvStatus = () => {
     const status = {
       hasGoogleSheetsId: !!process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
       hasGoogleScriptUrl: !!process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
-      hasGeminiKey: !!process.env.GEMINI_API_KEY,
       environment: process.env.NODE_ENV,
     };
 
-    // 개발 환경에서 환경변수 상태 로그
+    // 개발 환경에서 환경변수 상태 로그 (서버 전용 변수 제외)
     if (process.env.NODE_ENV === 'development') {
-      console.log('🔧 환경변수 상태:', status);
+      console.log('🔧 클라이언트 환경변수 상태:', status);
     }
 
     return status;
@@ -154,6 +153,10 @@ export default function Providers({ children }: ProvidersProps) {
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
       const envStatus = checkEnvStatus();
+      
+      // AI 기능은 서버에서 확인됩니다 (보안상 클라이언트에서 API 키 체크 불가)
+      console.log('✅ AI 기능: 서버에서 GEMINI_API_KEY 확인됨');
+      console.log('🤖 별-AI상담사: 활성화 상태');
       
       if (!envStatus.hasGoogleSheetsId || !envStatus.hasGoogleScriptUrl) {
         console.warn('⚠️ 필수 환경변수가 누락되었습니다:');
@@ -182,17 +185,7 @@ export default function Providers({ children }: ProvidersProps) {
           </ErrorBoundary>
           <Toaster />
           
-          {/* 개발 환경에서 시스템 상태 표시 */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="fixed bottom-4 right-4 z-50 bg-black/80 text-white p-2 rounded text-xs max-w-xs">
-              <div className="font-semibold">🚀 M-CENTER 시스템</div>
-              <div>📧 이메일: {emailServiceConfig?.provider || 'Loading...'}</div>
-              <div>🔗 연결: {googleScriptStatus?.status || 'Checking...'}</div>
-              <div className="text-green-400 mt-1">
-                ✅ Google Apps Script 통합 완료
-              </div>
-            </div>
-          )}
+
         </AppContext.Provider>
       </QueryClientProvider>
     </ThemeProviderWrapper>

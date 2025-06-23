@@ -223,7 +223,7 @@ export default function Home() {
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">
               Business Model Zen으로<br />
-              <span className="text-gradient">기업 성장의 5단계</span>를 완성하세요
+              <span className="text-blue-600">기업 성장의 5단계</span>를 완성하세요
             </h1>
             <p className="text-lg md:text-xl text-gray-600 mb-6 md:mb-8 max-w-2xl mx-auto leading-relaxed px-2">
               AI, 공장구매, 기술창업, 인증, 웹사이트 - 6대 영역 통합 솔루션으로 

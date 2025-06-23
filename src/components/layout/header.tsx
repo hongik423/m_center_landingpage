@@ -24,6 +24,7 @@ import {
   Zap,
   Sparkles
 } from 'lucide-react';
+import { getImagePath } from '@/lib/utils';
 
 const services = [
   {
@@ -100,17 +101,18 @@ export default function Header() {
                 <div className="relative">
                   {/* 메인 브랜드 텍스트 */}
                   <div className="flex flex-col">
-                    <div className="flex items-center space-x-1">
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
-                        <span className="text-white font-bold text-sm">★</span>
+                    <div className="flex items-end space-x-3">
+                      <div className="w-16 h-16 flex items-center justify-center">
+                        <img 
+                          src={getImagePath('/company-star-logo.svg')} 
+                          alt="경영지도센터 로고" 
+                          className="w-16 h-16 object-contain transition-transform duration-300 group-hover:scale-110"
+                        />
                       </div>
-                      <span className="text-xl font-black bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 bg-clip-text text-transparent group-hover:from-blue-600 group-hover:via-indigo-600 group-hover:to-purple-600 transition-all duration-300">
-                        기업의별
+                      <span className="text-sm font-black text-gray-800 group-hover:text-blue-600 transition-colors duration-300 mb-1.5">
+                        경영지도센터
                       </span>
                     </div>
-                    <span className="text-sm font-semibold text-gray-600 group-hover:text-blue-600 transition-colors duration-300 ml-9 -mt-1">
-                      경영지도센터
-                    </span>
                   </div>
                   
                   {/* 호버 효과 */}
@@ -233,17 +235,20 @@ export default function Header() {
                       <div className="space-y-3">
                         {/* 세금계산기 - 특별 강조 */}
                         <Button 
-                          className="w-full mobile-btn-primary text-left justify-start h-auto p-4 relative overflow-hidden"
+                          className="w-full mobile-btn-primary text-left justify-start h-auto p-4 relative overflow-hidden animate-pulse-slow"
                           onClick={() => handleMobileNavigation('/tax-calculator')}
                         >
-                          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-orange-400/20"></div>
+                          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/30 to-orange-400/30"></div>
                           <div className="relative flex items-center w-full">
-                            <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mr-3 shadow-lg">
-                              <Zap className="w-6 h-6 text-white" />
+                            <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mr-3 shadow-xl animate-bounce">
+                              <Zap className="w-7 h-7 text-white" />
                             </div>
                             <div className="flex-1 text-left">
-                              <div className="font-bold text-white text-base">🔥 세금계산기</div>
-                              <div className="text-xs text-blue-100 mt-0.5">모든 세금 계산을 한 번에!</div>
+                              <div className="font-black text-white text-lg flex items-center space-x-2">
+                                <span>🔥 세금계산기</span>
+                                <span className="text-yellow-300">NEW!</span>
+                              </div>
+                              <div className="text-sm text-blue-100 mt-1 font-semibold">11개 전문 계산기 무료 제공!</div>
                             </div>
                           </div>
                         </Button>

@@ -1,12 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, MessageCircle, X, Minimize2, Maximize2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import EnhancedChatbot from '@/components/chatbot/EnhancedChatbot';
-import { getImagePath, getLogoPath } from '@/lib/utils';
+import { Send, MessageCircle, X, Bot, User } from 'lucide-react';
+import { getImagePath } from '@/lib/utils';
 
 interface Message {
   id: string;
@@ -27,19 +23,26 @@ export default function FloatingChatbot() {
     if (isOpen && messages.length === 0) {
       const welcomeMessage: Message = {
         id: Date.now().toString(),
-        content: `🚀 안녕하세요! **기업의별 M-CENTER** AI상담사입니다.
+        content: `🌟 안녕하세요! **기업의별 M-CENTER** 별-AI상담사입니다!
 
 ✨ **GEMINI AI 기반 스마트 상담**으로 더욱 정확하고 개인화된 답변을 제공해드립니다!
 
 🎯 **상담 가능한 분야:**
-• 📈 매출 증대 전략 - BM ZEN 사업분석
-• 🤖 AI 생산성향상 - ChatGPT 활용법  
-• 🏭 공장/부동산 - 경매활용 구매전략
-• 🚀 기술창업 - 사업화 및 정부지원
-• 🧮 세금계산기 - 11개 전문 계산기 제공
+• 📈 **매출 증대 전략** - BM ZEN 사업분석 (성공률 95%)
+• 🤖 **AI 생산성향상** - ChatGPT 활용법 (효율 40-60% 향상)
+• 🏭 **공장/부동산** - 경매활용 구매전략 (30-50% 절감)
+• 🚀 **기술창업** - 사업화 및 정부지원 (평균 5억원 확보)
+• 🏆 **인증지원** - ISO/벤처/연구소 (연간 5천만원 세제혜택)
+• 🌐 **웹사이트 구축** - SEO 전문 (매출 300-500% 증대)
 
-💬 궁금한 것을 자유롭게 물어보세요!
-📞 **긴급상담: 010-9251-9743**`,
+💬 **궁금한 것을 자유롭게 물어보세요!**
+📞 **긴급상담: 010-9251-9743 (이후경 경영지도사)**
+
+---
+💡 **예시 질문:**
+"우리 회사 매출을 늘리려면 어떻게 해야 하나요?"
+"AI 도입으로 업무 효율을 높이고 싶어요"
+"공장 구매를 저렴하게 하는 방법이 있나요?"`,
         sender: 'bot',
         timestamp: new Date()
       };
@@ -68,6 +71,8 @@ export default function FloatingChatbot() {
     setIsTyping(true);
 
     try {
+      console.log('🚀 AI API 호출 시작:', { message: message.trim() });
+      
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -79,8 +84,12 @@ export default function FloatingChatbot() {
         }),
       });
 
+      console.log('📡 API 응답 상태:', { status: response.status, ok: response.ok });
+
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ API 응답 성공:', { responseLength: data.response?.length || 0 });
+        
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
           content: data.response || '죄송합니다. 응답을 생성하는데 문제가 발생했습니다.',
@@ -92,7 +101,7 @@ export default function FloatingChatbot() {
         throw new Error(`API 응답 실패: ${response.status}`);
       }
     } catch (error) {
-      console.error('AI 응답 오류:', error);
+      console.error('❌ AI 응답 오류:', error);
       const fallbackResponse = generateFallbackResponse(message.trim());
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -112,177 +121,327 @@ export default function FloatingChatbot() {
 
 🎯 **맞춤형 솔루션 제공 분야:**
 • 📈 **매출 증대** - BM ZEN 사업분석으로 20-40% 성장
-• 🤖 **AI 생산성향상** - ChatGPT 활용으로 업무효율 60% 향상
+• 🤖 **AI 생산성향상** - ChatGPT 활용으로 업무효율 60% 향상  
 • 🏭 **공장/부동산** - 경매활용으로 30-50% 비용절감
 • 🚀 **기술창업** - 평균 5억원 정부지원 연계
 
-더 구체적인 상담을 원하시면:
-📞 **즉시 상담: 010-9251-9743**
-🔗 **무료 진단: /services/diagnosis**`;
-  };
+**더 구체적인 상담을 원하시면:**
+📞 **즉시 상담: 010-9251-9743 (이후경 경영지도사)**
+🔗 **무료 진단: /services/diagnosis**
 
-  // 안전한 이벤트 핸들러
-  const handleOpenChat = () => {
-    if (typeof window !== 'undefined') {
-      setIsOpen(true);
-    }
-  };
-
-  const handleCloseChat = () => {
-    if (typeof window !== 'undefined') {
-      setIsOpen(false);
-    }
-  };
-
-  const handleSendClick = () => {
-    if (typeof window !== 'undefined' && inputValue.trim()) {
-      handleSendMessage(inputValue);
-    }
+💡 **25년 경험의 전문 컨설팅**으로 확실한 성과를 보장합니다!`;
   };
 
   return (
     <>
-      {/* 원형 플로팅 버튼 */}
-      {!isOpen && (
-        <div 
-          className="fixed bottom-6 right-6 z-50 cursor-pointer group transition-all duration-300 hover:scale-110 active:scale-95"
-          onClick={handleOpenChat}
-          data-floating-chatbot="true"
+      {/* 🔥 강제로 보이는 플로팅 챗봇 버튼 */}
+      <div
+        id="floating-chatbot-button"
+        className={`${isOpen ? 'hidden' : 'block'}`}
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          width: '70px',
+          height: '70px',
+          backgroundColor: '#4285F4',
+          borderRadius: '50%',
+          cursor: 'pointer',
+          zIndex: 999999,
+          display: isOpen ? 'none' : 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 4px 20px rgba(66, 133, 244, 0.4)',
+          border: '3px solid white',
+          transition: 'all 0.3s ease'
+        }}
+        onClick={() => setIsOpen(true)}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.1)';
+          e.currentTarget.style.backgroundColor = '#9C27B0';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.backgroundColor = '#4285F4';
+        }}
+      >
+        {/* 별-AI상담사 아이콘 */}
+        <img
+          src={getImagePath('/star-counselor-icon.svg')}
+          alt="별-AI상담사"
+          style={{
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            objectFit: 'cover'
+          }}
+        />
+        
+        {/* 툴팁 */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '80px',
+            right: '0',
+            backgroundColor: '#333',
+            color: 'white',
+            padding: '8px 12px',
+            borderRadius: '8px',
+            fontSize: '12px',
+            whiteSpace: 'nowrap',
+            opacity: 0,
+            transition: 'opacity 0.3s ease',
+            pointerEvents: 'none'
+          }}
+          className="tooltip"
         >
-          <div className="relative">
-            <div 
-              className="w-16 h-16 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center border-4 border-white/20" 
-              style={{ backgroundColor: '#4285F4', boxShadow: '0 25px 50px -12px rgba(66, 133, 244, 0.4)' }}
-            >
-              <img 
-                src={getImagePath('/star-counselor-icon.svg')}
-                alt="AI 상담사" 
-                className="w-8 h-8"
-              />
-              <div className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ backgroundColor: '#4285F4' }}></div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse flex items-center justify-center">
-                <span className="text-xs">⭐</span>
-              </div>
-            </div>
-            
-            <div className="absolute bottom-full right-0 mb-3 px-3 py-2 bg-gray-900/95 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap backdrop-blur-sm">
-              <div className="flex items-center space-x-2">
-                <span className="text-yellow-400">⭐</span>
-                <span>별-AI상담사와 채팅하기</span>
-              </div>
-            </div>
-          </div>
+          별-AI상담사 클릭!
         </div>
-      )}
+      </div>
 
-      {/* 새로운 간단한 채팅창 */}
+      {/* 채팅창 */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-96 h-[500px] z-50">
-          <div className="h-full bg-white rounded-lg shadow-2xl border border-gray-300 flex flex-col">
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            width: '380px',
+            height: '500px',
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+            zIndex: 999998,
+            display: 'flex',
+            flexDirection: 'column',
+            border: '1px solid #e2e8f0'
+          }}
+        >
+          {/* 헤더 */}
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #4285F4 0%, #9C27B0 100%)',
+              color: 'white',
+              padding: '16px',
+              borderRadius: '12px 12px 0 0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}
+          >
+                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+               <img
+                 src={getImagePath('/star-counselor-icon.svg')}
+                 alt="별-AI상담사"
+                 style={{
+                   width: '35px',
+                   height: '35px',
+                   borderRadius: '50%',
+                   objectFit: 'cover'
+                 }}
+               />
+              <div>
+                <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
+                  별-AI상담사
+                </div>
+                <div style={{ fontSize: '12px', opacity: 0.9 }}>
+                  GEMINI AI • 온라인
+                </div>
+              </div>
+            </div>
             
-            {/* 🔥 헤더 - X 버튼 포함 */}
-            <div className="bg-gray-100 p-4 rounded-t-lg border-b border-gray-300 relative">
-              
-              {/* ⭐ 100% 확실한 X 버튼 ⭐ */}
-              <button
-                onClick={handleCloseChat}
-                className="absolute top-2 right-2 w-8 h-8 bg-black text-white rounded-full hover:bg-gray-800 flex items-center justify-center font-bold text-lg"
-                style={{ 
-                  zIndex: 10000,
-                  border: '2px solid white',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+            {/* X 버튼 */}
+            <button
+              onClick={() => setIsOpen(false)}
+              style={{
+                width: '30px',
+                height: '30px',
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50%',
+                cursor: 'pointer',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              ×
+            </button>
+          </div>
+
+          {/* 메시지 영역 */}
+          <div
+            style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: '16px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              backgroundColor: '#f8fafc'
+            }}
+          >
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                style={{
+                  display: 'flex',
+                  justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start'
                 }}
               >
-                ×
-              </button>
-              
-              <div className="flex items-center space-x-3 pr-10">
-                <div className="relative">
-                  <img 
-                    src={getImagePath('/star-counselor-icon.svg')}
-                    alt="AI 상담사" 
-                    className="w-8 h-8"
-                  />
-                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full border-2 border-white flex items-center justify-center">
-                    <span className="text-xs">⭐</span>
+                <div
+                  style={{
+                    maxWidth: '80%',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    backgroundColor: message.sender === 'user' ? '#4285F4' : 'white',
+                    color: message.sender === 'user' ? 'white' : '#333',
+                    fontSize: '14px',
+                    lineHeight: '1.4',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                    border: message.sender === 'bot' ? '1px solid #e2e8f0' : 'none'
+                  }}
+                >
+                  <div style={{ whiteSpace: 'pre-line' }}>
+                    {message.content}
                   </div>
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg text-gray-800">별-AI상담사</h3>
-                  <div className="text-xs text-gray-600 flex items-center space-x-1">
-                    <span className="text-yellow-500">⭐</span>
-                    <span>GEMINI AI 기반</span>
+                  <div
+                    style={{
+                      fontSize: '11px',
+                      marginTop: '8px',
+                      opacity: 0.7
+                    }}
+                  >
+                    {message.timestamp.toLocaleTimeString('ko-KR', { 
+                      hour: '2-digit', 
+                      minute: '2-digit' 
+                    })}
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* 메시지 영역 */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-              {messages.map((message) => (
+            ))}
+            
+            {isTyping && (
+              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                 <div
-                  key={message.id}
-                  className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                  style={{
+                    padding: '12px',
+                    backgroundColor: 'white',
+                    borderRadius: '12px',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                    border: '1px solid #e2e8f0'
+                  }}
                 >
-                  <div
-                    className={`max-w-[80%] p-3 rounded-lg shadow-sm ${
-                      message.sender === 'user'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-white text-gray-800 border border-gray-200'
-                    }`}
-                  >
-                    <p className="whitespace-pre-line text-sm leading-relaxed">{message.content}</p>
-                    <div className={`text-xs mt-2 ${message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'}`}>
-                      {message.timestamp.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
-                    </div>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <div style={{ 
+                      width: '8px', 
+                      height: '8px', 
+                      backgroundColor: '#4285F4', 
+                      borderRadius: '50%',
+                      animation: 'bounce 1.4s infinite'
+                    }}></div>
+                    <div style={{ 
+                      width: '8px', 
+                      height: '8px', 
+                      backgroundColor: '#4285F4', 
+                      borderRadius: '50%',
+                      animation: 'bounce 1.4s infinite 0.2s'
+                    }}></div>
+                    <div style={{ 
+                      width: '8px', 
+                      height: '8px', 
+                      backgroundColor: '#4285F4', 
+                      borderRadius: '50%',
+                      animation: 'bounce 1.4s infinite 0.4s'
+                    }}></div>
                   </div>
                 </div>
-              ))}
-              
-              {isTyping && (
-                <div className="flex justify-start">
-                  <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
 
-            {/* 입력 영역 */}
-            <div className="p-4 bg-white border-t border-gray-300 rounded-b-lg">
-              <div className="flex space-x-3">
-                <input
-                  type="text"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  placeholder="메시지를 입력하세요..."
-                  className="flex-1 text-sm rounded-full border-2 border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
+          {/* 입력 영역 */}
+          <div
+            style={{
+              padding: '16px',
+              borderTop: '1px solid #e2e8f0',
+              backgroundColor: 'white',
+              borderRadius: '0 0 12px 12px'
+            }}
+          >
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="메시지를 입력하세요..."
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  border: '2px solid #e2e8f0',
+                  borderRadius: '24px',
+                  fontSize: '14px',
+                  outline: 'none'
+                }}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (inputValue.trim()) {
                       handleSendMessage(inputValue);
                     }
-                  }}
-                  disabled={isTyping}
-                />
-                <button
-                  onClick={handleSendClick}
-                  disabled={!inputValue.trim() || isTyping}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 disabled:opacity-50 transition-all duration-200"
-                  title="메시지 전송"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </div>
+                  }
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#4285F4';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#e2e8f0';
+                }}
+                disabled={isTyping}
+              />
+              <button
+                onClick={() => {
+                  if (inputValue.trim()) {
+                    handleSendMessage(inputValue);
+                  }
+                }}
+                disabled={!inputValue.trim() || isTyping}
+                style={{
+                  width: '45px',
+                  height: '45px',
+                  backgroundColor: inputValue.trim() && !isTyping ? '#4285F4' : '#ccc',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  cursor: inputValue.trim() && !isTyping ? 'pointer' : 'not-allowed',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '16px'
+                }}
+              >
+                ➤
+              </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* CSS 애니메이션 */}
+      <style jsx global>{`
+        @keyframes bounce {
+          0%, 80%, 100% { transform: translateY(0); }
+          40% { transform: translateY(-10px); }
+        }
+        
+        #floating-chatbot-button:hover .tooltip {
+          opacity: 1 !important;
+        }
+      `}</style>
     </>
   );
 } 
