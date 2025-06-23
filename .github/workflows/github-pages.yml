@@ -6,7 +6,6 @@ on:
     branches:
       - main
       - master
-      - github-pages
   
   # 수동 실행 가능
   workflow_dispatch:
@@ -46,72 +45,63 @@ jobs:
           cache: 'npm'
           
       - name: 📦 종속성 설치
-        run: |
-          npm ci
+        run: npm ci
           
-      - name: 🏗️ Next.js 정적 빌드
-        run: |
-          npx cross-env GITHUB_PAGES=true NODE_ENV=production next build
+      - name: 🏗️ Next.js 정적 빌드 (GitHub Pages용)
+        run: npm run build:github
         env:
-          # GitHub Pages 배포 환경 변수 (수정됨)
+          # GitHub Pages 환경변수
           GITHUB_PAGES: true
           NODE_ENV: production
           NEXT_PUBLIC_BASE_PATH: /m_center_landingpage
           NEXT_PUBLIC_SITE_URL: https://hongik423.github.io/m_center_landingpage
           NEXT_PUBLIC_IS_GITHUB_PAGES: true
-          # API 키들 (프론트엔드에서만 사용)
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          NEXT_PUBLIC_EMAILJS_SERVICE_ID: ${{ secrets.NEXT_PUBLIC_EMAILJS_SERVICE_ID }}
-          NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY }}
+          
+          # Google Apps Script 연동 (EmailJS 제거됨)
           NEXT_PUBLIC_GOOGLE_SCRIPT_URL: ${{ secrets.NEXT_PUBLIC_GOOGLE_SCRIPT_URL }}
           NEXT_PUBLIC_GOOGLE_SHEETS_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_SHEETS_ID }}
+          NEXT_PUBLIC_BASE_URL: https://hongik423.github.io/m_center_landingpage
           
-      - name: 📄 GitHub Pages 호환성 최적화
+          # AI API 키 (필요시)
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          
+      - name: 📄 GitHub Pages 최적화
         run: |
-          # .nojekyll 파일 확인/생성
-          if [ ! -f "./out/.nojekyll" ]; then
-            touch ./out/.nojekyll
-            echo "✅ .nojekyll 파일 생성됨"
+          # .nojekyll 파일 생성 (GitHub Pages Jekyll 비활성화)
+          touch ./out/.nojekyll
+          echo "✅ .nojekyll 파일 생성"
+          
+          # CNAME 파일 제거 (커스텀 도메인 미사용)
+          if [ -f "./out/CNAME" ]; then
+            rm ./out/CNAME
+            echo "🗑️ CNAME 파일 제거"
           fi
           
-          # index.html이 있는지 확인
-          if [ -f "./out/index.html" ]; then
-            echo "✅ index.html 파일 존재함"
-          else
-            echo "❌ index.html 파일이 없습니다!"
+          # 404.html 확인/생성
+          if [ ! -f "./out/404.html" ] && [ -f "./public/404.html" ]; then
+            cp ./public/404.html ./out/404.html
+            echo "✅ 404.html 복사 완료"
           fi
           
-          # 404.html 확인
-          if [ ! -f "./out/404.html" ]; then
-            if [ -f "./public/404.html" ]; then
-              cp ./public/404.html ./out/404.html
-              echo "✅ 404.html 복사 완료"
-            else
-              echo "⚠️ 404.html 파일이 없습니다"
+          # robots.txt, sitemap.xml 복사
+          for file in robots.txt sitemap.xml; do
+            if [ -f "./public/$file" ] && [ ! -f "./out/$file" ]; then
+              cp "./public/$file" "./out/$file"
+              echo "✅ $file 복사 완료"
             fi
-          fi
+          done
           
-          # robots.txt 확인
-          if [ ! -f "./out/robots.txt" ]; then
-            if [ -f "./public/robots.txt" ]; then
-              cp ./public/robots.txt ./out/robots.txt
-              echo "✅ robots.txt 복사 완료"
-            fi
-          fi
+          # 빌드 결과 확인
+          echo "🔍 빌드 결과:"
+          echo "- 총 파일 수: $(find ./out -type f | wc -l)"
+          echo "- 정적 자산: $(find ./out/_next/static -type f 2>/dev/null | wc -l || echo 0)"
+          echo "- HTML 파일: $(find ./out -name "*.html" | wc -l)"
           
-          # sitemap.xml 확인
-          if [ ! -f "./out/sitemap.xml" ]; then
-            if [ -f "./public/sitemap.xml" ]; then
-              cp ./public/sitemap.xml ./out/sitemap.xml
-              echo "✅ sitemap.xml 복사 완료"
-            fi
-          fi
-          
-          echo "🔍 빌드 결과 확인:"
-          ls -la ./out/ | head -20
-          
-          echo "🔍 빌드 파일 개수:"
-          find ./out -type f | wc -l
+          # 중요 파일 존재 확인
+          echo "🔍 핵심 파일 확인:"
+          [ -f "./out/index.html" ] && echo "✅ index.html" || echo "❌ index.html 누락"
+          [ -f "./out/.nojekyll" ] && echo "✅ .nojekyll" || echo "❌ .nojekyll 누락"
+          [ -d "./out/_next" ] && echo "✅ _next 디렉토리" || echo "❌ _next 디렉토리 누락"
           
       - name: 📤 GitHub Pages 아티팩트 업로드
         uses: actions/upload-pages-artifact@v3
@@ -132,20 +122,20 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
         
-      - name: ✅ 배포 성공 알림
+      - name: ✅ 배포 완료 알림
         run: |
           echo "🎉 GitHub Pages 배포 성공!"
           echo "📍 배포 URL: ${{ steps.deployment.outputs.page_url }}"
-          echo "📍 예상 URL: https://hongik423.github.io/m_center_landingpage/"
+          echo "🔗 직접 링크: https://hongik423.github.io/m_center_landingpage/"
           echo "⏰ 배포 시간: $(date)"
-          
-      - name: 🔍 배포 후 상태 확인
-        run: |
-          echo "🔗 주요 페이지 확인:"
-          echo "- 메인: https://hongik423.github.io/m_center_landingpage/"
-          echo "- AI 진단: https://hongik423.github.io/m_center_landingpage/services/diagnosis/"
-          echo "- AI 챗봇: https://hongik423.github.io/m_center_landingpage/chatbot/"
+          echo ""
+          echo "🔍 주요 페이지:"
+          echo "- 메인 페이지: https://hongik423.github.io/m_center_landingpage/"
+          echo "- AI 진단: https://hongik423.github.io/m_center_landingpage/diagnosis/"
           echo "- 상담 신청: https://hongik423.github.io/m_center_landingpage/consultation/"
+          echo "- 시스템 테스트: https://hongik423.github.io/m_center_landingpage/test-email/"
+          echo ""
+          echo "✨ Google Apps Script 기반 통합 시스템 배포 완료!"
 
   # GitHub AI 호환성 테스트
   ai-compatibility-test:

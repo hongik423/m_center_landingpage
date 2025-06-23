@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
     trailingSlash: true,
     skipTrailingSlashRedirect: true,
     distDir: 'out',
+    // 정적 최적화 활성화
+    generateEtags: false,
+    compress: false, // GitHub Pages에서 자체 압축 사용
   }),
   
   // 이미지 최적화 설정

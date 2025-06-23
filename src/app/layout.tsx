@@ -1,44 +1,36 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+'use client';
+
 import './globals.css';
+import { Inter } from 'next/font/google';
 import Providers from './providers';
+import Header from '@/components/layout/header';
+import Footer from '@/components/layout/footer';
 import FloatingChatbot from '@/components/layout/floating-chatbot';
+import type { Metadata } from 'next';
 
 const inter = Inter({ subsets: ['latin'] });
 
-// 🔧 서버 사이드에서 안전한 환경 감지
+// GitHub Pages 기본 경로 설정
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NODE_ENV === 'production' 
     ? 'https://hongik423.github.io/m_center_landingpage' 
-    : 'http://localhost:3000'),
-  title: 'M-CENTER | 기업의별 경영지도센터',
-  description: '25년 경험의 전문 경영컨설팅. BM ZEN 사업분석, AI 생산성향상, 경매활용 공장구매 등 6대 핵심서비스로 기업 성장을 돕습니다.',
-  keywords: 'M-CENTER, 기업의별, 경영컨설팅, BM ZEN, AI 생산성, 경매 공장구매, 기술창업, 인증지원',
-  authors: [{ name: 'M-CENTER', url: 'https://m-center.kr' }],
-  openGraph: {
-    title: 'M-CENTER | 기업의별 경영지도센터',
-    description: '25년 경험의 전문 경영컨설팅으로 기업 성장을 돕습니다',
-    url: 'https://m-center.kr',
-    siteName: 'M-CENTER',
-    images: [
-      {
-        url: `${basePath}/company-star-logo.svg`,
-        width: 1200,
-        height: 630,
-        alt: 'M-CENTER 로고',
-      },
-    ],
-    locale: 'ko_KR',
-    type: 'website',
+    : 'http://localhost:3000'
+  ),
+  title: {
+    default: 'M-CENTER | AI 기업진단 및 경영컨설팅',
+    template: '%s | M-CENTER'
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'M-CENTER | 기업의별 경영지도센터',
-    description: '25년 경험의 전문 경영컨설팅으로 기업 성장을 돕습니다',
-    images: [`${basePath}/company-star-logo.svg`],
-  },
+  description: 'M-CENTER 기업의별 경영지도센터 - AI 기반 무료 진단과 전문 컨설팅으로 중소기업 성장을 지원합니다.',
+  keywords: [
+    'M-CENTER', '기업진단', 'AI진단', '경영컨설팅', '중소기업', 
+    '사업분석', 'BM ZEN', 'AI생산성', '공장경매', '기술창업', 
+    '인증지원', '웹사이트구축', '세금계산기'
+  ],
+  authors: [{ name: 'M-CENTER 경영지도센터' }],
+  creator: 'M-CENTER',
+  publisher: 'M-CENTER',
   robots: {
     index: true,
     follow: true,
@@ -50,8 +42,21 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  openGraph: {
+    type: 'website',
+    locale: 'ko_KR',
+    url: 'https://hongik423.github.io/m_center_landingpage/',
+    title: 'M-CENTER | AI 기업진단 및 경영컨설팅',
+    description: 'AI 기반 무료 진단과 전문 컨설팅으로 중소기업 성장을 지원합니다.',
+    siteName: 'M-CENTER',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'M-CENTER | AI 기업진단 및 경영컨설팅',
+    description: 'AI 기반 무료 진단과 전문 컨설팅으로 중소기업 성장을 지원합니다.',
+  },
   verification: {
-    google: 'your-google-verification-code',
+    google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
   },
 };
 
@@ -90,30 +95,65 @@ export default function RootLayout({
         
         {/* 🔧 한글 폰트 프리로드 - GitHub Pages 한글 렌더링 최적화 */}
         <link 
-          rel="preload" 
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" 
-          as="style" 
+          rel="preconnect" 
+          href="https://cdn.jsdelivr.net" 
           crossOrigin="anonymous"
         />
         <link 
-          rel="preload" 
-          href="https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@latest/css/SpoqaHanSansNeo.css" 
-          as="style" 
-          crossOrigin="anonymous"
+          rel="stylesheet" 
+          href="https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@latest/css/SpoqaHanSansNeo.css"
+          media="print"
+          onLoad={(e) => { (e.target as HTMLLinkElement).media = 'all'; }}
         />
+        <link 
+          rel="stylesheet" 
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+          media="print"
+          onLoad={(e) => { (e.target as HTMLLinkElement).media = 'all'; }}
+        />
+        <noscript>
+          <link 
+            rel="stylesheet" 
+            href="https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@latest/css/SpoqaHanSansNeo.css"
+          />
+          <link 
+            rel="stylesheet" 
+            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+          />
+        </noscript>
         
         {/* 🔧 성능 최적화: DNS 프리페치 */}
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
         <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
-        <link rel="dns-prefetch" href="//script.google.com" />
-        <link rel="dns-prefetch" href="//generativelanguage.googleapis.com" />
+        <link rel="dns-prefetch" href="//api.emailjs.com" />
         
         {/* 🛡️ 보안 헤더는 next.config.ts에서 HTTP 헤더로 설정 */}
+        
+        {/* PWA 메타 태그 */}
+        <meta name="theme-color" content="#2563eb" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="M-CENTER" />
+        
+        {/* GitHub Pages 특별 설정 */}
+        {process.env.NEXT_PUBLIC_IS_GITHUB_PAGES === 'true' && (
+          <>
+            <meta property="og:url" content="https://hongik423.github.io/m_center_landingpage/" />
+            <meta property="og:site_name" content="M-CENTER" />
+            <link rel="canonical" href="https://hongik423.github.io/m_center_landingpage/" />
+          </>
+        )}
       </head>
       <body className={inter.className} suppressHydrationWarning>        
         <Providers>
-          {children}
-          <FloatingChatbot />
+          <div className="min-h-screen flex flex-col">
+            <Header />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+            <FloatingChatbot />
+          </div>
         </Providers>
       </body>
     </html>
