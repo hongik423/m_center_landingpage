@@ -120,9 +120,9 @@ export default function RootLayout({
       </head>
       <body className={inter.className} suppressHydrationWarning>        
         <Providers>
-          <div className="min-h-screen flex flex-col">
+          <div className="min-h-screen flex flex-col" suppressHydrationWarning>
             <Header />
-            <main className="flex-1">
+            <main className="flex-1" suppressHydrationWarning>
               {children}
             </main>
             <Footer />

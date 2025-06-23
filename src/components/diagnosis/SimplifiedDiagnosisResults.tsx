@@ -1325,14 +1325,34 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
         {/* 보고서 하단 정보 */}
         <div className="border-t pt-6 text-center text-sm text-gray-500">
           <div className="mb-2">
-                            <strong>기업의별 경영지도센터</strong> AI 무료 진단 서비스
+            <strong>기업의별 경영지도센터</strong> 
+            {(data.data as any).aiEnhanced ? (
+              <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
+                🤖 GEMINI AI 고급 진단
+              </span>
+            ) : (
+              <span className="ml-2">AI 무료 진단 서비스</span>
+            )}
           </div>
           <div className="mb-2">
             📅 생성일: {new Date().toLocaleDateString('ko-KR')} | 
             📧 문의: <span className="text-blue-600">hongik423@gmail.com</span>
+            {(data.data as any).aiModel && (
+              <span className="ml-2 text-xs text-purple-600">
+                (AI 모델: {(data.data as any).aiModel})
+              </span>
+            )}
           </div>
           <div className="text-xs text-gray-400">
-            ⚠️ 본 보고서는 AI 기반 분석 결과이며, 실제 전문가 상담을 통해 더욱 정확한 진단을 받으실 수 있습니다.
+            {(data.data as any).aiEnhanced ? (
+              <>
+                🤖 <strong>GEMINI AI 기반 고급 분석</strong> 결과이며, 전문가 상담을 통해 더욱 정확한 진단을 받으실 수 있습니다.
+              </>
+            ) : (
+              <>
+                ⚠️ 본 보고서는 AI 기반 분석 결과이며, 실제 전문가 상담을 통해 더욱 정확한 진단을 받으실 수 있습니다.
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -1267,8 +1267,8 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
       setProcessingStage('📊 기업 정보를 분석하고 있습니다...');
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // 2단계: AI 진단 처리 (클라이언트 사이드)
-      setProcessingStage('🤖 AI가 맞춤형 진단을 수행하고 있습니다...');
+      // 2단계: 🤖 GEMINI AI 진단 처리 (클라이언트 사이드)
+      setProcessingStage('🤖 GEMINI AI가 맞춤형 고급 진단을 수행하고 있습니다...');
       setEstimatedTime(120);
       await new Promise(resolve => setTimeout(resolve, 1500));
 
@@ -1494,7 +1494,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
             
             <div className="space-y-3 md:space-y-4">
               <h3 className="text-xl md:text-2xl font-bold text-gray-900">
-                🤖 AI 기업 진단 진행 중
+                🤖 GEMINI AI 기업 진단 진행 중
               </h3>
               
               <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 md:p-6 rounded-lg">
@@ -1523,23 +1523,23 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
               </div>
               
               <div className="bg-yellow-50 p-4 rounded-lg">
-                <h4 className="font-semibold text-yellow-800 mb-2 text-sm md:text-base">✨ 처리 중인 작업들</h4>
+                <h4 className="font-semibold text-yellow-800 mb-2 text-sm md:text-base">✨ GEMINI AI 처리 중인 작업들</h4>
                 <div className="text-xs md:text-sm text-yellow-700 space-y-1 text-left">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>8개 핵심 정보 분석 및 업계 동향 조사</span>
+                    <span>🏢 기업 정보 분석 및 업계 동향 조사</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                    <span>AI 기반 SWOT 분석 및 시장 트렌드 매칭</span>
+                    <span>🤖 GEMINI AI 기반 SWOT 분석 및 시장 트렌드 매칭</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                    <span>6개 서비스 중 최적 매칭 선별</span>
+                    <span>🎯 M-CENTER 6개 서비스 중 최적 매칭 선별</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                    <span>맞춤형 2000자 진단 보고서 생성</span>
+                    <span>📋 GEMINI AI 맞춤형 2000자 고급 보고서 생성</span>
                   </div>
                 </div>
               </div>
@@ -1565,7 +1565,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
         
         <p className="text-base md:text-lg text-gray-600 mb-6 md:mb-8 max-w-2xl mx-auto">
           <strong>20개 평가 항목 + 고민사항</strong>을 입력하면 
-          <strong>레벨업 시트 기반</strong> 맞춤형 AI진단 보고서를 받아볼 수 있습니다.
+          <strong>🤖 GEMINI AI 기반</strong> 맞춤형 고급 진단 보고서를 받아볼 수 있습니다.
         </p>
 
         {/* 진행 단계 표시 - 모바일 최적화 */}

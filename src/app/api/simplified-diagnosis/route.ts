@@ -1,11 +1,13 @@
-// GitHub Pages 정적 빌드 지원
-export const dynamic = 'force-static';
+// GEMINI API 사용으로 동적 라우트 변경
+export const dynamic = 'force-dynamic';
 export const revalidate = false;
 
 import { NextRequest, NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { saveToGoogleSheets } from '@/lib/utils/googleSheetsService';
 import { processDiagnosisSubmission, type DiagnosisFormData } from '@/lib/utils/emailService';
 import { CONSULTANT_INFO, CONTACT_INFO, COMPANY_INFO } from '@/lib/config/branding';
+import { getGeminiKey, isDevelopment, maskApiKey } from '@/lib/config/env';
 
 interface SimplifiedDiagnosisRequest {
   companyName: string;
@@ -960,7 +962,369 @@ function generateSimplifiedDiagnosis(data: SimplifiedDiagnosisRequest) {
   };
 }
 
-// 2000자 요약 보고서 생성
+// 🔧 **1. 역량테스트 상세 분석 함수**
+function analyzeDetailedCapabilities(data: SimplifiedDiagnosisRequest, diagnosisData: any) {
+  const capabilities = [
+    { name: '리더십 역량', score: diagnosisData.capabilities?.leadership || Math.floor(diagnosisData.totalScore * 0.9) },
+    { name: '전략 기획', score: diagnosisData.capabilities?.strategy || Math.floor(diagnosisData.totalScore * 0.85) },
+    { name: '마케팅 역량', score: diagnosisData.capabilities?.marketing || Math.floor(diagnosisData.totalScore * 0.8) },
+    { name: '재무 관리', score: diagnosisData.capabilities?.finance || Math.floor(diagnosisData.totalScore * 0.88) },
+    { name: '인사 관리', score: diagnosisData.capabilities?.hr || Math.floor(diagnosisData.totalScore * 0.82) }
+  ];
+
+  const detailedAnalysis = capabilities.map((cap, i) => 
+    `**${cap.name}**: ${cap.score}점 - ${getCapabilityInsight(cap.name, cap.score, data.industry)}`
+  ).join('\n');
+
+  return { capabilities, detailedAnalysis };
+}
+
+// 🏭 **2. 업종별 특화 분석 함수** 
+function generateIndustrySpecificInsights(industry: string, diagnosisData: any) {
+  const industryInsights: { [key: string]: any } = {
+    '제조업': { 
+      marketCharacteristics: '스마트팩토리 전환 가속화, 공급망 최적화 중요',
+      digitalMaturity: '중급 (자동화 진행 중)',
+      keySuccess: '품질관리, 원가절감, 납기준수',
+      challenges: '인력 부족, 환경 규제, 원자재 가격 상승'
+    },
+    '도소매업': { 
+      marketCharacteristics: '옴니채널 필수, 고객 데이터 활용 핵심',
+      digitalMaturity: '고급 (디지털 전환 필수)',
+      keySuccess: '고객 만족, 재고 최적화, 매출 증대',
+      challenges: '온라인 경쟁, 임대료 상승, 소비 패턴 변화'
+    },
+    '서비스업': { 
+      marketCharacteristics: '개인화 서비스, 디지털 고객 접점 확대',
+      digitalMaturity: '중급 (서비스 디지털화)',
+      keySuccess: '고객 경험, 서비스 품질, 브랜드 차별화',
+      challenges: '인력 확보, 서비스 표준화, 고객 이탈'
+    },
+    '건설업': { 
+      marketCharacteristics: '스마트 건설 도입, 안전 규제 강화',
+      digitalMaturity: '초급 (전통적 업무 방식)',
+      keySuccess: '안전 관리, 품질 확보, 공기 단축',
+      challenges: '인력 고령화, 안전사고, 자재비 상승'
+    },
+    '음식업': { 
+      marketCharacteristics: '배달 시장 확대, 위생 관리 중요성 증가',
+      digitalMaturity: '중급 (배달 플랫폼 활용)',
+      keySuccess: '맛과 품질, 위생 관리, 고객 서비스',
+      challenges: '임대료 부담, 식자재 가격, 인력 부족'
+    },
+    '기타': { 
+      marketCharacteristics: '디지털 혁신 필요, 틈새 시장 공략',
+      digitalMaturity: '초급-중급 (업종별 차이)',
+      keySuccess: '차별화 전략, 전문성 확보, 고객 관계',
+      challenges: '시장 불확실성, 경쟁 심화, 규제 변화'
+    }
+  };
+
+  return industryInsights[industry] || industryInsights['기타'];
+}
+
+// 💭 **3. 고민사항 해결책 매핑 함수**
+function mapConcernsToSolutions(concerns: string, diagnosisData: any) {
+  const solutionMap: { [key: string]: string[] } = {
+    '매출': ['마케팅 강화', '신규 고객 확보', '상품/서비스 차별화'],
+    '고객': ['고객 만족도 조사', 'CRM 시스템 도입', '고객 서비스 개선'],
+    '인력': ['인사 관리 시스템', '교육 훈련 강화', '조직 문화 개선'],
+    '자금': ['재무 관리 체계화', '정부 지원 활용', '투자 유치 준비'],
+    '운영': ['업무 프로세스 개선', '디지털화 추진', '효율성 제고'],
+    '마케팅': ['브랜드 강화', '온라인 마케팅', '고객 접점 확대'],
+    '기술': ['기술 혁신', 'IT 인프라 구축', '디지털 전환'],
+    '경쟁': ['차별화 전략', '핵심 역량 강화', '블루오션 탐색']
+  };
+
+  let matchedSolutions: string[] = [];
+  let analysis = '';
+
+  for (const [key, solutions] of Object.entries(solutionMap)) {
+    if (concerns.toLowerCase().includes(key)) {
+      matchedSolutions = [...matchedSolutions, ...solutions];
+      analysis += `${key} 관련 고민 발견. `;
+    }
+  }
+
+  if (matchedSolutions.length === 0) {
+    matchedSolutions = ['종합적 경영 진단', '맞춤형 컨설팅', '전문가 상담'];
+    analysis = '복합적 경영 이슈로 분석됨';
+  }
+
+  return {
+    analysis: analysis || '핵심 경영 과제 식별됨',
+    solutions: [...new Set(matchedSolutions)].slice(0, 3)
+  };
+}
+
+// 🎯 **4. 기대효과 전략 수립 함수**
+function alignStrategyToBenefits(benefits: string, diagnosisData: any) {
+  const benefitStrategies: { [key: string]: any } = {
+    '매출 증대': { feasibility: '높음', approach: '마케팅 최적화 + 고객 확보 전략' },
+    '효율성 향상': { feasibility: '매우 높음', approach: '프로세스 개선 + 디지털 도구 활용' },
+    '비용 절감': { feasibility: '높음', approach: '운영 최적화 + 자동화 도입' },
+    '품질 개선': { feasibility: '높음', approach: '품질 관리 시스템 + 교육 강화' },
+    '고객 만족': { feasibility: '높음', approach: 'CRM 구축 + 서비스 개선' },
+    '브랜드 강화': { feasibility: '중간', approach: '마케팅 전략 + 브랜드 아이덴티티 구축' },
+    '조직 역량': { feasibility: '높음', approach: '인재 개발 + 조직 문화 혁신' },
+    '시장 확대': { feasibility: '중간', approach: '시장 조사 + 진출 전략 수립' }
+  };
+
+  for (const [key, strategy] of Object.entries(benefitStrategies)) {
+    if (benefits.toLowerCase().includes(key.toLowerCase())) {
+      return strategy;
+    }
+  }
+
+  return { feasibility: '높음', approach: '종합적 경영 개선 + 맞춤형 솔루션' };
+}
+
+// 📏 **5. 기업 규모 분류 함수**
+function getCompanySizeCategory(employeeCount: string): string {
+  const count = parseInt(employeeCount.split('-')[0]) || 0;
+  if (count <= 5) return '초소형기업';
+  if (count <= 30) return '소기업';
+  if (count <= 300) return '중기업';
+  return '대기업';
+}
+
+// 📊 **6. 점수 기반 등급 함수**
+function getGradeFromScore(score: number): string {
+  if (score >= 90) return 'S급 (우수)';
+  if (score >= 80) return 'A급 (양호)';
+  if (score >= 70) return 'B급 (보통)';
+  if (score >= 60) return 'C급 (개선필요)';
+  return 'D급 (시급개선)';
+}
+
+// 💪 **7. 강점 활용 전략 함수**
+function getStrengthUtilizationStrategy(strength: any, industry: string): string {
+  const strengthName = typeof strength === 'object' ? strength.category || strength : strength;
+  const strategies: { [key: string]: string } = {
+    '리더십': '조직 비전 수립 및 직원 동기부여 활용',
+    '마케팅': '브랜드 차별화 및 고객 확보 전략 강화',
+    '재무관리': '투자 최적화 및 자금 운용 효율성 제고',
+    '기술': '혁신 제품/서비스 개발 및 경쟁 우위 확보',
+    '인력': '우수 인재 활용한 조직 역량 극대화',
+    '고객관리': '고객 충성도 제고 및 신규 고객 확보',
+    '품질': '품질 우위를 통한 프리미엄 포지셔닝'
+  };
+
+  return strategies[strengthName] || '핵심 역량으로 시장 경쟁력 강화';
+}
+
+// 🔧 **8. 약점 개선 계획 함수**
+function getWeaknessImprovementPlan(weakness: any, concerns: string): string {
+  const weaknessName = typeof weakness === 'object' ? weakness.category || weakness : weakness;
+  const plans: { [key: string]: string } = {
+    '마케팅': '디지털 마케팅 역량 강화 및 고객 데이터 분석 시스템 구축',
+    '재무관리': '재무 관리 시스템 도입 및 전문가 자문',
+    '인력관리': '인사 관리 체계 구축 및 직원 교육 강화',
+    '기술': '기술 혁신 투자 및 외부 전문가 협력',
+    '고객서비스': 'CRM 시스템 도입 및 서비스 프로세스 개선',
+    '품질관리': '품질 관리 시스템 구축 및 지속적 개선 프로세스',
+    '영업': '영업 전략 수립 및 영업 역량 강화 교육'
+  };
+
+  return plans[weaknessName] || '전문가 상담을 통한 맞춤형 개선 방안 수립';
+}
+
+// 🎯 **9. 서비스 선정 이유 함수**
+function getServiceSelectionReason(service: any, data: SimplifiedDiagnosisRequest, diagnosisData: any): string {
+  const serviceName = service.name || service;
+  const reasons: { [key: string]: string } = {
+    'AI 생산성 혁신': `${data.companyName}의 운영 효율성 향상과 "${data.mainConcerns}" 해결에 최적`,
+    '비즈니스 모델 분석': `${data.industry} 업계 특성을 고려한 전략적 사업 모델 최적화 필요`,
+    '팩토리 경매 컨설팅': `제조업 특성상 설비 최적화와 자산 관리 전문성 필요`,
+    '기술 스타트업 컨설팅': `혁신 기술 도입과 성장 전략 수립으로 경쟁력 확보`,
+    '인증 컨설팅': `품질 인증을 통한 신뢰성 확보와 시장 진출 기회 확대`,
+    '웹사이트 개발': `디지털 마케팅 강화와 온라인 고객 접점 확대 필요`
+  };
+
+  return reasons[serviceName] || `${data.companyName}의 현재 상황과 가장 적합한 솔루션`;
+}
+
+// 💡 **10. 맞춤형 서비스 효과 함수**
+function getCustomizedServiceBenefit(service: any, data: SimplifiedDiagnosisRequest): string {
+  const serviceName = service.name || service;
+  const benefits: { [key: string]: string } = {
+    'AI 생산성 혁신': `${data.employeeCount} 규모에서 업무 효율성 30-50% 향상 기대`,
+    '비즈니스 모델 분석': `${data.industry} 특화 전략으로 매출 20-40% 증대 가능`,
+    '팩토리 경매 컨설팅': `설비 최적화로 운영비 10-20% 절감 및 생산성 향상`,
+    '기술 스타트업 컨설팅': `혁신 기술 도입으로 시장 선점 기회 확보`,
+    '인증 컨설팅': `인증 획득을 통한 시장 신뢰도 제고 및 매출 증대`,
+    '웹사이트 개발': `온라인 마케팅 강화로 신규 고객 확보 및 브랜드 인지도 향상`
+  };
+
+  return benefits[serviceName] || `${data.companyName} 맞춤형 솔루션으로 지속 가능한 성장 동력 확보`;
+}
+
+// 🔍 **11. 역량별 세부 인사이트 함수**
+function getCapabilityInsight(capabilityName: string, score: number, industry: string): string {
+  const insights: { [key: string]: { [key: string]: string } } = {
+    '리더십 역량': {
+      '높음': '우수한 리더십으로 조직 동기부여 및 비전 제시 가능',
+      '중간': '리더십 스킬 개발을 통한 조직 역량 강화 필요',
+      '낮음': '리더십 교육 및 코칭을 통한 역량 개발 시급'
+    },
+    '전략 기획': {
+      '높음': '체계적 전략 수립 능력으로 중장기 성장 동력 확보',
+      '중간': '전략적 사고 강화 및 실행 계획 구체화 필요',
+      '낮음': '전략 기획 프로세스 구축 및 전문가 지원 필요'
+    },
+    '마케팅 역량': {
+      '높음': '마케팅 강점을 활용한 시장 확대 및 브랜드 강화',
+      '중간': '디지털 마케팅 역량 강화 및 고객 데이터 활용',
+      '낮음': '마케팅 전략 수립 및 실행 역량 개발 시급'
+    },
+    '재무 관리': {
+      '높음': '안정적 재무 관리로 투자 및 성장 기반 확보',
+      '중간': '재무 관리 시스템 고도화 및 분석 역량 강화',
+      '낮음': '재무 관리 체계 구축 및 전문가 자문 필요'
+    },
+    '인사 관리': {
+      '높음': '우수한 인재 관리로 조직 효율성 및 만족도 제고',
+      '중간': '인사 관리 시스템 개선 및 조직 문화 발전',
+      '낮음': '체계적 인사 관리 시스템 구축 및 교육 강화'
+    }
+  };
+
+  const level = score >= 80 ? '높음' : score >= 60 ? '중간' : '낮음';
+  return insights[capabilityName]?.[level] || '역량 개발을 통한 경쟁력 강화 필요';
+}
+
+// 🤖 GEMINI AI 기반 고급 진단 보고서 생성
+async function generateAIEnhancedReport(data: SimplifiedDiagnosisRequest, diagnosisData: any): Promise<string> {
+  try {
+    console.log('🚀 GEMINI AI 진단 보고서 생성 시작:', { 
+      company: data.companyName, 
+      industry: data.industry 
+    });
+
+    const apiKey = getGeminiKey();
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+
+    // 업종별 세부 정보 가져오기
+    const mappedIndustry = industryMapping[data.industry] || 'other';
+    const industryData = enhancedIndustryAnalysis[mappedIndustry as keyof typeof enhancedIndustryAnalysis];
+    const detailedInfo = detailedIndustryInfo[data.industry];
+
+    // 🔧 역량테스트 상세 분석 데이터 준비
+    const detailedCapabilityAnalysis = analyzeDetailedCapabilities(data, diagnosisData);
+    const industrySpecificInsights = generateIndustrySpecificInsights(data.industry, diagnosisData);
+    const concernSolutionMapping = mapConcernsToSolutions(data.mainConcerns, diagnosisData);
+    const benefitAlignedStrategy = alignStrategyToBenefits(data.expectedBenefits, diagnosisData);
+
+    const prompt = `당신은 **M-CENTER 기업의별 경영지도센터**의 AI 진단 전문가입니다. 25년 경험의 경영지도사 전문성을 바탕으로 ${data.companyName}만의 완전 맞춤형 진단 보고서를 작성해주세요.
+
+## 🏢 **${data.companyName} 기업 프로필**
+- **회사명**: ${data.companyName}
+- **업종**: ${data.industry} (${detailedInfo?.displayName || data.industry})
+- **기업 규모**: 직원 ${data.employeeCount}명 (${getCompanySizeCategory(data.employeeCount)})
+- **성장 단계**: ${data.growthStage}
+- **사업장 위치**: ${data.businessLocation}
+- **업계 특성**: ${industrySpecificInsights.marketCharacteristics}
+- **디지털 성숙도**: ${industrySpecificInsights.digitalMaturity}
+
+## 💭 **기업 고유 현황 및 니즈**
+### 🔥 **핵심 고민사항**
+"${data.mainConcerns}"
+→ **분석**: ${concernSolutionMapping.analysis}
+→ **해결 방향**: ${concernSolutionMapping.solutions.join(', ')}
+
+### 🎯 **기대 효과**  
+"${data.expectedBenefits}"
+→ **달성 가능성**: ${benefitAlignedStrategy.feasibility}
+→ **추천 접근법**: ${benefitAlignedStrategy.approach}
+
+## 📊 **상세 역량 진단 결과**
+- **종합 점수**: ${diagnosisData.totalScore}점/100점 (${diagnosisData.grade || getGradeFromScore(diagnosisData.totalScore)})
+- **업계 포지션**: ${diagnosisData.marketPosition}
+- **성장률**: ${diagnosisData.industryGrowth}
+
+### 🎯 **5개 핵심 역량 분석**
+${detailedCapabilityAnalysis.detailedAnalysis}
+
+### 💪 **강점 영역** (활용 전략)
+${diagnosisData.strengths.map((s: any, i: number) => 
+  `${i+1}. **${typeof s === 'object' ? s.category || s : s}**: ${getStrengthUtilizationStrategy(s, data.industry)}`
+).join('\n')}
+
+### 🔧 **개선 영역** (우선순위별 해결책)
+${diagnosisData.weaknesses.map((w: any, i: number) => 
+  `${i+1}. **${typeof w === 'object' ? w.category || w : w}**: ${getWeaknessImprovementPlan(w, data.mainConcerns)}`
+).join('\n')}
+
+## 🎯 **M-CENTER 서비스 최적 매칭**
+${diagnosisData.recommendedServices.map((service: any, i: number) => 
+  `### ${i+1}순위: **${service.name}**
+- **선정 이유**: ${getServiceSelectionReason(service, data, diagnosisData)}
+- **${data.companyName} 맞춤 효과**: ${getCustomizedServiceBenefit(service, data)}
+- **예상 ROI**: ${service.expectedEffect || '투자 대비 300-500% 효과'}`
+).join('\n')}
+
+## 📋 **${data.companyName} 전용 보고서 작성 요구사항**
+다음 구조로 **2500자 내외**의 완전 맞춤형 전문 보고서를 작성해주세요:
+
+### 1. 🏢 **${data.companyName} 현황 심층 분석** (400자)
+- "${data.mainConcerns}" 고민의 근본 원인 분석
+- ${data.industry} 업계에서의 독특한 위치와 기회
+- ${data.employeeCount}명 규모의 최적 운영 방향
+
+### 2. 📊 **역량 진단 결과 해석** (500자)
+- 5개 핵심 역량별 ${data.companyName}만의 특징
+- ${diagnosisData.totalScore}점 점수의 의미와 개선 포인트  
+- ${data.industry} 업계 평균 대비 경쟁력 분석
+
+### 3. 🎯 **"${data.expectedBenefits}" 달성 전략** (600자)
+- 기대 효과 실현을 위한 구체적 방법론
+- "${data.mainConcerns}" 해결과 연계한 통합 접근법
+- M-CENTER 서비스 활용 시나리오
+
+### 4. 📈 **ROI 및 성과 예측** (400자)
+- ${data.companyName} 규모에 맞는 투자 계획
+- 3-6개월 내 가시적 성과 목표
+- "${data.expectedBenefits}" 달성을 위한 정량적 지표
+
+### 5. 🚀 **${data.companyName} 맞춤 실행 로드맵** (500자)
+- 30일: "${data.mainConcerns}" 해결 착수
+- 90일: 핵심 역량 강화 실행
+- 6개월: "${data.expectedBenefits}" 달성 점검
+
+### 6. 💡 **전문가의 ${data.companyName} 맞춤 제언** (100자)
+- ${data.industry} 업계 전문가 관점의 핵심 조언
+- 즉시 상담: 010-9251-9743 (이후경 경영지도사)
+
+**🎯 맞춤화 지침:**
+- ${data.companyName}의 실제 상황과 고민을 구체적으로 반영
+- "${data.mainConcerns}"에 대한 실질적 해결방안 제시  
+- "${data.expectedBenefits}" 달성을 위한 명확한 로드맵 수립
+- ${data.industry} 업종 특성에 맞는 전문 용어와 사례 활용
+- ${data.employeeCount}명 규모에 최적화된 현실적 제안
+- ${data.businessLocation} 지역 특성 고려
+- 친근하면서도 전문적인 컨설턴트 톤 유지`;
+
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const aiReport = response.text();
+
+    console.log('✅ GEMINI AI 보고서 생성 완료:', { 
+      length: aiReport.length,
+      company: data.companyName 
+    });
+
+    return aiReport;
+
+  } catch (error) {
+    console.error('❌ GEMINI AI 보고서 생성 실패:', error);
+    
+    // 폴백: 기본 보고서 생성
+    return generateSummaryReport(diagnosisData);
+  }
+}
+
+// 2000자 요약 보고서 생성 (폴백용)
 function generateSummaryReport(diagnosisData: any): string {
   const report = `
 # ${diagnosisData.companyName} AI 진단 보고서 (요약본)
@@ -1039,9 +1403,9 @@ export async function POST(request: NextRequest) {
     console.log('📊 간소화된 진단 분석 수행 중...');
     const diagnosisResult = generateSimplifiedDiagnosis(data);
     
-    // 2단계: 2000자 요약 보고서 생성
-    console.log('📋 2000자 요약 보고서 생성 중...');
-    const summaryReport = generateSummaryReport(diagnosisResult);
+    // 2단계: 🤖 GEMINI AI 기반 2000자 고급 보고서 생성
+    console.log('🤖 GEMINI AI 기반 고급 보고서 생성 중...');
+    const summaryReport = await generateAIEnhancedReport(data, diagnosisResult);
     
     // 3단계: 통합 데이터 처리 (구글시트 저장 + 이메일 발송)
     let processingResult = {
@@ -1118,7 +1482,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: '간소화된 AI 진단이 완료되었습니다.',
+      message: '🤖 GEMINI AI 기반 고급 진단이 완료되었습니다.',
       data: {
         diagnosis: diagnosisResult,
         summaryReport: summaryReport,
@@ -1137,7 +1501,9 @@ export async function POST(request: NextRequest) {
         userEmailSent: processingResult.userEmailSent,
         adminEmailSent: processingResult.adminEmailSent,
         processingTime: `${processingTimeSeconds}초`,
-        reportType: '🎨 프리미엄 AI 진단 보고서',
+        reportType: '🤖 GEMINI AI 고급 진단 보고서',
+        aiEnhanced: true,
+        aiModel: 'gemini-1.5-pro',
         warnings: processingResult.warnings.length > 0 ? processingResult.warnings : undefined,
         errors: processingResult.errors.length > 0 ? processingResult.errors : undefined
       },

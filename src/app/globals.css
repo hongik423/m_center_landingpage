@@ -237,6 +237,21 @@
     @apply border-0 focus:ring-2 focus:ring-purple-500/30 focus:ring-offset-2;
   }
 
+  /* 🤖 AI 챗봇 전용 버튼 스타일 */
+  .action-btn-ai {
+    @apply bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600;
+    @apply text-white font-bold rounded-xl px-5 py-2.5;
+    @apply shadow-lg hover:shadow-2xl transition-all duration-300;
+    @apply transform hover:-translate-y-1 hover:scale-105 active:translate-y-0 active:scale-95;
+    @apply border-0 focus:ring-2 focus:ring-purple-500/40 focus:ring-offset-2;
+    @apply animate-pulse-slow;
+  }
+  
+  .action-btn-ai:hover {
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f59e0b 100%);
+    box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.4);
+  }
+
   /* 모바일 버튼 스타일 */
   .mobile-btn-primary {
     @apply bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800;
