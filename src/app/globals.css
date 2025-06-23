@@ -79,14 +79,14 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
+  
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
@@ -264,17 +264,25 @@
   }
   
   .btn-primary {
-    @apply bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-custom;
+    @apply bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg transition-all duration-300;
   }
   
   .btn-secondary {
-    @apply bg-white hover:bg-gray-50 text-primary border-2 border-primary font-semibold py-3 px-6 rounded-lg transition-all duration-200;
+    @apply bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-500 hover:text-blue-600 font-semibold shadow-md transition-all duration-300;
   }
   
   .card-hover {
-    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+    @apply transition-all duration-300 ease-in-out;
   }
   
+  .card-hover:hover {
+    @apply shadow-lg -translate-y-1;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent;
+  }
+
   /* 플로팅 챗봇 애니메이션 */
   .animate-pulse-slow {
     animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -360,8 +368,7 @@
   
   /* 🔧 모바일 터치 최적화 */
   .touch-target {
-    min-height: 44px;
-    min-width: 44px;
+    @apply min-w-[44px] min-h-[44px] flex items-center justify-center;
   }
   
   /* 부드러운 스크롤 */
@@ -372,26 +379,18 @@
   
   /* 터치 피드백 개선 */
   .touch-feedback {
-    -webkit-tap-highlight-color: rgba(59, 130, 246, 0.1);
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+    @apply active:scale-95 transition-transform duration-150;
   }
   
   /* 모바일 입력 필드 최적화 */
   .mobile-input {
-    font-size: 16px; /* iOS 줌 방지 */
+    @apply min-h-[44px] px-4 py-3 text-base rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200;
     -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
   }
   
   /* 모바일 버튼 스타일 */
   .mobile-button {
-    min-height: 48px;
-    touch-action: manipulation;
+    @apply min-h-[44px] px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200;
     -webkit-tap-highlight-color: transparent;
   }
   
@@ -569,5 +568,123 @@ a {
 @media (prefers-color-scheme: dark) {
   .auto-dark {
     color-scheme: dark;
+  }
+}
+
+@layer components {
+  .mobile-card {
+    @apply p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200;
+  }
+
+  /* 모바일 세금계산기 진행 표시기 */
+  .step-indicator {
+    @apply relative flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm;
+  }
+
+  .step-indicator.active {
+    @apply bg-blue-600 text-white;
+  }
+
+  .step-indicator.completed {
+    @apply bg-green-600 text-white;
+  }
+
+  .step-indicator.pending {
+    @apply bg-gray-200 text-gray-600;
+  }
+
+  /* 모바일 최적화 레이아웃 */
+  .mobile-grid {
+    @apply grid grid-cols-1 gap-4;
+  }
+
+  @screen sm {
+    .mobile-grid {
+      @apply grid-cols-2 gap-5;
+    }
+  }
+
+  @screen lg {
+    .mobile-grid {
+      @apply grid-cols-3 gap-6;
+    }
+  }
+
+  /* 세금계산기 결과 카드 모바일 최적화 */
+  .tax-result-card {
+    @apply bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-4 shadow-lg;
+  }
+
+  .tax-result-amount {
+    @apply text-2xl font-bold text-blue-600;
+  }
+
+  @screen sm {
+    .tax-result-amount {
+      @apply text-3xl;
+    }
+  }
+
+  /* 모바일 반응형 텍스트 */
+  .mobile-title {
+    @apply text-xl font-bold;
+  }
+
+  @screen sm {
+    .mobile-title {
+      @apply text-2xl;
+    }
+  }
+
+  @screen lg {
+    .mobile-title {
+      @apply text-3xl;
+    }
+  }
+
+  .mobile-subtitle {
+    @apply text-sm text-gray-600;
+  }
+
+  @screen sm {
+    .mobile-subtitle {
+      @apply text-base;
+    }
+  }
+
+  /* 모바일 스크롤 영역 */
+  .mobile-scroll {
+    @apply overflow-x-auto scrollbar-hide;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* 모바일 알림/경고 스타일 */
+  .mobile-alert {
+    @apply p-3 rounded-lg border-l-4;
+  }
+
+  .mobile-alert.info {
+    @apply bg-blue-50 border-blue-400 text-blue-800;
+  }
+
+  .mobile-alert.warning {
+    @apply bg-yellow-50 border-yellow-400 text-yellow-800;
+  }
+
+  .mobile-alert.error {
+    @apply bg-red-50 border-red-400 text-red-800;
+  }
+
+  .mobile-alert.success {
+    @apply bg-green-50 border-green-400 text-green-800;
   }
 }

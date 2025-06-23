@@ -105,12 +105,12 @@ export class EarnedIncomeTaxCalculator {
     let deduction = DEDUCTION_AMOUNTS_2024.personal.basic; // 본인공제
     deduction += input.dependents * DEDUCTION_AMOUNTS_2024.personal.dependent; // 부양가족공제
     
-    if (input.disabledCount && input.disabledCount > 0) {
-      deduction += DEDUCTION_AMOUNTS_2024.personal.disabled * input.disabledCount; // 장애인공제
+    if (input.disabledCount && Number(input.disabledCount) > 0) {
+      deduction += DEDUCTION_AMOUNTS_2024.personal.disabled * Number(input.disabledCount); // 장애인공제
     }
     
-    if (input.elderlyCount && input.elderlyCount > 0) {
-      deduction += DEDUCTION_AMOUNTS_2024.personal.elderly * input.elderlyCount; // 경로우대공제
+    if (input.elderlyCount && Number(input.elderlyCount) > 0) {
+      deduction += DEDUCTION_AMOUNTS_2024.personal.elderly * Number(input.elderlyCount); // 경로우대공제
     }
     
     return deduction;

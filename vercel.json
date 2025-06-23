@@ -1,41 +1,46 @@
 {
+  "version": 2,
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
   "installCommand": "npm ci",
-  "outputDirectory": "out",
-  "trailingSlash": true,
-  "cleanUrls": true,
+  "outputDirectory": ".next",
+  "public": false,
   "env": {
-    "NEXT_PUBLIC_GOOGLE_SHEETS_ID": "@next_public_google_sheets_id",
-    "NEXT_PUBLIC_GOOGLE_SCRIPT_URL": "@next_public_google_script_url", 
-    "NEXT_PUBLIC_BASE_URL": "@next_public_base_url",
-    "GEMINI_API_KEY": "@gemini_api_key"
+    "NEXT_PUBLIC_APP_NAME": "M-CENTER 경영지도센터",
+    "NEXT_PUBLIC_APP_DESCRIPTION": "Business Model Zen 프레임워크 기반 기업 성장 솔루션"
   },
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
+  },
+  "functions": {
+    "app/api/**/*.ts": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
         {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
           "key": "X-Content-Type-Options",
           "value": "nosniff"
         },
         {
-          "key": "Referrer-Policy",
-          "value": "origin-when-cross-origin"
-        }
-      ]
-    },
-    {
-      "source": "/(.*)\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)",
-      "headers": [
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
         {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
         }
       ]
     },
@@ -47,7 +52,7 @@
           "value": "*"
         },
         {
-          "key": "Access-Control-Allow-Methods", 
+          "key": "Access-Control-Allow-Methods",
           "value": "GET, POST, PUT, DELETE, OPTIONS"
         },
         {
@@ -57,15 +62,7 @@
       ]
     }
   ],
-  "rewrites": [
-    {
-      "source": "/health",
-      "destination": "/api/health"
-    }
-  ],
-  "functions": {
-    "src/app/api/**/*.ts": {
-      "maxDuration": 30
-    }
-  }
+  "trailingSlash": false,
+  "cleanUrls": true,
+  "regions": ["icn1"]
 } 

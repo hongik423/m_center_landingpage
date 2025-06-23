@@ -243,6 +243,8 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
     spouseCount: 0,
     disabledCount: 0,
     elderlyCount: 0,
+    childrenCount: 0,
+    childrenUnder6Count: 0,
     
     // 소득공제
     personalPensionContribution: 0,

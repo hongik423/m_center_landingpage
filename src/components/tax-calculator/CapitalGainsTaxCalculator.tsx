@@ -1263,7 +1263,7 @@ export default function CapitalGainsTaxCalculatorComponent() {
                         <Checkbox
                           id="specialCaseGift"
                           checked={inputs.specialCases.isGiftProperty}
-                          onCheckedChange={(checked) => updateSpecialCase('isGiftProperty', checked)}
+                          onCheckedChange={(checked) => updateSpecialCase('isGiftProperty', Boolean(checked))}
                         />
                         <Label htmlFor="specialCaseGift" className="text-xs">
                           증여받은 부동산 (증여세 납부 시 감면)
@@ -1273,7 +1273,7 @@ export default function CapitalGainsTaxCalculatorComponent() {
                         <Checkbox
                           id="specialCaseInheritance"
                           checked={inputs.specialCases.isInheritedProperty}
-                          onCheckedChange={(checked) => updateSpecialCase('isInheritedProperty', checked)}
+                          onCheckedChange={(checked) => updateSpecialCase('isInheritedProperty', Boolean(checked))}
                         />
                         <Label htmlFor="specialCaseInheritance" className="text-xs">
                           상속받은 부동산 (상속세 납부 시 감면)
@@ -1283,7 +1283,7 @@ export default function CapitalGainsTaxCalculatorComponent() {
                         <Checkbox
                           id="specialCaseSelfConstruction"
                           checked={inputs.specialCases.isSelfConstruction}
-                          onCheckedChange={(checked) => updateSpecialCase('isSelfConstruction', checked)}
+                          onCheckedChange={(checked) => updateSpecialCase('isSelfConstruction', Boolean(checked))}
                         />
                         <Label htmlFor="specialCaseSelfConstruction" className="text-xs">
                           자가건설 (건축비 등 추가 공제)
@@ -1293,7 +1293,7 @@ export default function CapitalGainsTaxCalculatorComponent() {
                         <Checkbox
                           id="specialCaseCompensation"
                           checked={inputs.specialCases.isPublicLandCompensation}
-                          onCheckedChange={(checked) => updateSpecialCase('isPublicLandCompensation', checked)}
+                          onCheckedChange={(checked) => updateSpecialCase('isPublicLandCompensation', Boolean(checked))}
                         />
                         <Label htmlFor="specialCaseCompensation" className="text-xs">
                           공익사업 보상 (대토보상 등 특례)
