@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import path from 'path';
 
 const nextConfig: NextConfig = {
   // Vercel 최적화 설정
@@ -20,6 +21,15 @@ const nextConfig: NextConfig = {
   // 성능 최적화
   poweredByHeader: false,
   compress: true,
+  
+  // Webpack 설정 - 경로 매핑 해결
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, './src'),
+    };
+    return config;
+  },
   
   // 환경변수 검증
   env: {
