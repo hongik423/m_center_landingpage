@@ -1,6 +1,7 @@
-// GitHub Pages 정적 빌드 지원
+// Vercel 최적화 설정
 export const dynamic = 'force-dynamic';
 export const revalidate = false;
+export const runtime = 'nodejs';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { processConsultationSubmission } from '@/lib/utils/emailService';

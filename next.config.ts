@@ -1,23 +1,29 @@
 import type { NextConfig } from 'next';
 
-const isGitHubPages = process.env.GITHUB_PAGES === 'true';
-
 const nextConfig: NextConfig = {
-  output: isGitHubPages ? 'export' : undefined,
-  trailingSlash: isGitHubPages,
-  ...(isGitHubPages && { distDir: 'out' }),
+  // Vercel 최적화 설정
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+  },
+  
+  // 이미지 최적화
   images: {
-    unoptimized: isGitHubPages,
+    domains: ['picsum.photos'],
+    formats: ['image/webp', 'image/avif'],
   },
-  basePath: isGitHubPages ? '/m_center_landingpage' : '',
+  
+  // 빌드 최적화
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  
+  // 성능 최적화
+  poweredByHeader: false,
+  compress: true,
+  
+  // 환경변수 검증
   env: {
-    NEXT_PUBLIC_BASE_PATH: isGitHubPages ? '/m_center_landingpage' : '',
-  },
-  eslint: {
-    ignoreDuringBuilds: isGitHubPages,
-  },
-  typescript: {
-    ignoreBuildErrors: isGitHubPages,
+    CUSTOM_KEY: process.env.NODE_ENV,
   },
 };
 

@@ -3,8 +3,10 @@ import { saveDiagnosisToGoogleSheets, saveConsultationToGoogleSheets } from '@/l
 import { sendDiagnosisConfirmation, sendConsultationConfirmation } from '@/lib/utils/emailService';
 import { getClientEnv } from '@/lib/config/env';
 
+// Vercel 최적화 설정
 export const dynamic = 'force-dynamic';
 export const revalidate = false;
+export const runtime = 'nodejs';
 
 /**
  * 시스템 연동 테스트 API

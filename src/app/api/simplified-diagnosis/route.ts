@@ -1,6 +1,7 @@
-// GEMINI API 사용으로 동적 라우트 변경
+// Vercel 최적화 설정
 export const dynamic = 'force-dynamic';
 export const revalidate = false;
+export const runtime = 'nodejs';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';

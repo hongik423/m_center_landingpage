@@ -3,9 +3,10 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { safeGet, validateApiResponse, collectErrorInfo } from '@/lib/utils/safeDataAccess';
 import { getGeminiKey, isDevelopment, maskApiKey } from '@/lib/config/env';
 
-// API 라우트 설정 - 동적 처리 필요
+// Vercel 최적화 설정
 export const dynamic = 'force-dynamic';
 export const revalidate = false;
+export const runtime = 'nodejs';
 
 // 🔧 CORS 설정을 위한 공통 헤더 함수
 function getCorsHeaders() {
@@ -339,9 +340,10 @@ export async function POST(request: NextRequest) {
       console.warn('⚠️ GEMINI_API_KEY가 설정되지 않았습니다. 폴백 응답을 사용합니다.');
       console.info('💡 .env.local 파일에 GEMINI_API_KEY를 설정하면 실제 AI 응답을 사용할 수 있습니다.');
       return NextResponse.json({
-        response: generateFallbackResponse(message),
+        response: generateEnhancedFallbackResponse(message),
         source: 'fallback_no_key',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        note: '⚠️ AI 기능을 위해 Gemini API 키 설정이 필요합니다.'
       }, {
         headers: getCorsHeaders()
       });
@@ -472,10 +474,11 @@ export async function POST(request: NextRequest) {
     // 모든 재시도 실패 시 fallback 응답
     console.error('❌ GEMINI API 모든 재시도 실패, fallback 응답 사용');
     return NextResponse.json({
-      response: generateFallbackResponse(message),
+      response: generateEnhancedFallbackResponse(message),
       source: 'fallback_all_retries_failed',
       error: lastError?.message || '알 수 없는 오류',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      note: '⚠️ AI 서버 연결 문제로 기본 응답을 제공합니다.'
     }, {
       headers: getCorsHeaders()
     });
@@ -487,17 +490,71 @@ export async function POST(request: NextRequest) {
     const fallbackMessage = body?.message || '일반 상담';
     
     return NextResponse.json({
-      response: generateFallbackResponse(fallbackMessage),
+      response: generateEnhancedFallbackResponse(fallbackMessage),
       source: 'fallback_error',
       error: error instanceof Error ? error.message : '알 수 없는 오류',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      note: '⚠️ 일시적인 오류로 기본 응답을 제공합니다.'
     }, {
       headers: getCorsHeaders()
     });
   }
 }
 
-// 폴백 응답 생성 함수
+// 향상된 폴백 응답 생성 함수
+function generateEnhancedFallbackResponse(message: string): string {
+  const lowerMessage = message.toLowerCase();
+  const relevantServices = identifyRelevantServices(message);
+  
+  // 서비스별 맞춤 응답
+  if (relevantServices.length > 0 && !relevantServices.includes('general')) {
+    const serviceDetails = generateServiceDetails(relevantServices);
+    return `🤖 **M-CENTER 별-AI상담사**입니다! 
+
+${serviceDetails}
+
+📞 **전문가 직접 상담**
+• 이후경 경영지도사: 010-9251-9743
+• 25년 경험의 검증된 전문성
+• 95% 이상 성공률 보장
+
+🔗 **즉시 신청 가능**
+• [무료 AI진단](/services/diagnosis)
+• [전문가 상담](/consultation)
+• [세금계산기](/tax-calculator)
+
+💡 **더 정확한 AI 응답을 원하시면 관리자에게 API 키 설정을 요청하세요!**`;
+  }
+  
+  // 일반적인 향상된 응답
+  return `🤖 **M-CENTER 별-AI상담사**가 도움드리겠습니다!
+
+🏆 **대한민국 최고 수준의 경영컨설팅**
+• 25년 검증된 전문성 | 95% 성공률 | 정부지원 전문기관
+
+⚡ **6대 핵심 서비스**
+🎯 **BM ZEN 사업분석** - 매출 20-40% 증대 (독자 프레임워크)
+🤖 **AI 활용 생산성향상** - 업무효율 40-60% 향상 (국내 TOP 3)
+🏭 **경매활용 공장구매** - 부동산비용 30-50% 절감 (25년 노하우)
+🚀 **기술창업 지원** - 평균 5억원 정부지원 연계
+📋 **각종 인증지원** - 연간 5천만원 세제혜택
+🌐 **웹사이트 구축** - 온라인 매출 300-500% 증대
+
+🧮 **전문 세금계산기** - 11개 계산기, 2024 최신 세법 반영
+
+📞 **즉시 전문가 상담**
+• 이후경 경영지도사: 010-9251-9743
+• 무료 상담 | 맞춤 솔루션 | 성과 보장
+
+🔗 **온라인 서비스**
+• [무료 AI진단](/services/diagnosis) - 3분 완료
+• [전문가 상담 신청](/consultation) - 24시간 접수
+• [세금계산기 활용](/tax-calculator) - 즉시 계산
+
+💡 **"${message}" 관련해서 더 구체적인 상담이 필요하시면 위 연락처로 직접 연락주세요!**`;
+}
+
+// 기존 폴백 응답 생성 함수
 function generateFallbackResponse(message: string): string {
   const lowerMessage = message.toLowerCase();
 
