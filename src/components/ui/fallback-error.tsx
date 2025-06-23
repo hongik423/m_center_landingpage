@@ -1,35 +1,44 @@
 'use client';
 
 import React from 'react';
-import { AlertTriangle, RefreshCw, Home, HelpCircle } from 'lucide-react';
 import { Button } from './button';
 import { Card, CardContent, CardHeader, CardTitle } from './card';
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 
 interface FallbackErrorProps {
+  error?: Error;
+  resetError?: () => void;
   title?: string;
   message?: string;
-  showRefresh?: boolean;
-  showHome?: boolean;
-  onRetry?: () => void;
-  className?: string;
 }
 
-export function FallbackError({ 
+export default function FallbackError({ 
+  error, 
+  resetError, 
   title = "오류가 발생했습니다",
-  message = "예상치 못한 문제가 발생했습니다. 페이지를 새로고침하거나 잠시 후 다시 시도해주세요.",
-  showRefresh = true,
-  showHome = true,
-  onRetry,
-  className = ""
+  message = "예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
 }: FallbackErrorProps) {
+  // 안전한 핸들러들
+  const handleReload = () => {
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    }
+  };
+
+  const handleGoHome = () => {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
+  };
+
   return (
-    <div className={`flex items-center justify-center p-4 ${className}`}>
+    <div className="min-h-[400px] flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 mb-4">
             <AlertTriangle className="h-6 w-6 text-red-600" />
           </div>
-          <CardTitle className="text-xl text-red-900">
+          <CardTitle className="text-lg text-red-900">
             {title}
           </CardTitle>
         </CardHeader>
@@ -38,10 +47,18 @@ export function FallbackError({
             {message}
           </p>
           
-          <div className="space-y-2">
-            {onRetry && (
-              <Button 
-                onClick={onRetry}
+          {process.env.NODE_ENV === 'development' && error && (
+            <div className="bg-red-50 border border-red-200 rounded p-3">
+              <p className="text-xs font-mono text-red-800 break-all">
+                {error.message}
+              </p>
+            </div>
+          )}
+          
+          <div className="flex flex-col gap-2">
+            {resetError && (
+              <Button
+                onClick={resetError}
                 className="w-full"
                 variant="default"
               >
@@ -50,39 +67,26 @@ export function FallbackError({
               </Button>
             )}
             
-            {showRefresh && (
-              <Button 
-                onClick={() => window.location.reload()} 
-                className="w-full"
-                variant={onRetry ? "outline" : "default"}
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                페이지 새로고침
-              </Button>
-            )}
+            <Button
+              onClick={handleReload}
+              variant="outline"
+              className="w-full"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              페이지 새로고침
+            </Button>
             
-            {showHome && (
-              <Button 
-                onClick={() => window.location.href = '/'} 
-                variant="outline"
-                className="w-full"
-              >
-                <Home className="h-4 w-4 mr-2" />
-                홈으로 돌아가기
-              </Button>
-            )}
-          </div>
-          
-          <div className="text-center pt-4 border-t">
-            <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
-              <HelpCircle className="h-3 w-3" />
-              문제가 지속되면 관리자에게 문의하세요
-            </p>
+            <Button
+              onClick={handleGoHome}
+              variant="outline"
+              className="w-full"
+            >
+              <Home className="h-4 w-4 mr-2" />
+              홈으로 돌아가기
+            </Button>
           </div>
         </CardContent>
       </Card>
     </div>
   );
-}
-
-export default FallbackError; 
+} 

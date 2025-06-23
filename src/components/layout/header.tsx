@@ -74,6 +74,20 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
 
+  // 안전한 네비게이션 핸들러
+  const handleNavigation = (path: string) => {
+    if (typeof window !== 'undefined') {
+      router.push(path);
+    }
+  };
+
+  const handleMobileNavigation = (path: string) => {
+    if (typeof window !== 'undefined') {
+      setIsMobileMenuOpen(false);
+      router.push(path);
+    }
+  };
+
   return (
     <>
       {/* 현대적 플로팅 헤더 */}
@@ -165,7 +179,7 @@ export default function Header() {
             <div className="hidden lg:flex items-center space-x-3">
               <Button 
                 className="action-btn-outline text-sm"
-                onClick={() => router.push('/tax-calculator')}
+                onClick={() => handleNavigation('/tax-calculator')}
               >
                 <Zap className="w-4 h-4 mr-2" />
                 세금계산기
@@ -173,7 +187,7 @@ export default function Header() {
               
               <Button 
                 className="action-btn-primary text-sm"
-                onClick={() => router.push('/services/diagnosis')}
+                onClick={() => handleNavigation('/services/diagnosis')}
               >
                 <Sparkles className="w-4 h-4 mr-2" />
                 무료AI진단
@@ -181,7 +195,7 @@ export default function Header() {
               
               <Button 
                 className="action-btn-secondary text-sm"
-                onClick={() => router.push('/consultation')}
+                onClick={() => handleNavigation('/consultation')}
               >
                 <Phone className="w-4 h-4 mr-2" />
                 무료상담
@@ -189,7 +203,7 @@ export default function Header() {
               
               <Button
                 className="action-btn-tertiary text-sm"
-                onClick={() => router.push('/chatbot')}
+                onClick={() => handleNavigation('/chatbot')}
               >
                 <Bot className="w-4 h-4 mr-2" />
                 AI챗봇
@@ -220,10 +234,7 @@ export default function Header() {
                         {/* 세금계산기 - 특별 강조 */}
                         <Button 
                           className="w-full mobile-btn-primary text-left justify-start h-auto p-4 relative overflow-hidden"
-                          onClick={() => {
-                            router.push('/tax-calculator');
-                            setIsMobileMenuOpen(false);
-                          }}
+                          onClick={() => handleMobileNavigation('/tax-calculator')}
                         >
                           <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-orange-400/20"></div>
                           <div className="relative flex items-center w-full">
@@ -240,10 +251,7 @@ export default function Header() {
                         {/* 무료AI진단 */}
                         <Button 
                           className="w-full mobile-btn-secondary text-left justify-start h-auto p-3.5"
-                          onClick={() => {
-                            router.push('/services/diagnosis');
-                            setIsMobileMenuOpen(false);
-                          }}
+                          onClick={() => handleMobileNavigation('/services/diagnosis')}
                         >
                           <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mr-3 shadow-lg">
                             <Sparkles className="w-5 h-5 text-white" />
@@ -257,10 +265,7 @@ export default function Header() {
                         {/* 무료상담 */}
                         <Button 
                           className="w-full mobile-btn-outline text-left justify-start h-auto p-3"
-                          onClick={() => {
-                            router.push('/consultation');
-                            setIsMobileMenuOpen(false);
-                          }}
+                          onClick={() => handleMobileNavigation('/consultation')}
                         >
                           <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-500 rounded-xl flex items-center justify-center mr-3 shadow-md">
                             <Phone className="w-4 h-4 text-white" />
@@ -274,10 +279,7 @@ export default function Header() {
                         {/* AI챗봇 */}
                         <Button
                           className="w-full mobile-btn-outline text-left justify-start h-auto p-3"
-                          onClick={() => {
-                            router.push('/chatbot');
-                            setIsMobileMenuOpen(false);
-                          }}
+                          onClick={() => handleMobileNavigation('/chatbot')}
                         >
                           <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-xl flex items-center justify-center mr-3 shadow-md">
                             <Bot className="w-4 h-4 text-white" />

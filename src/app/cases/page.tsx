@@ -5,6 +5,7 @@ import Footer from '@/components/layout/footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Users, Award, DollarSign } from 'lucide-react';
+import Link from 'next/link';
 
 const successCases = [
   {
@@ -230,12 +231,12 @@ export default function CasesPage() {
               무료 상담을 통해 귀하의 기업에 맞는 최적의 솔루션을 찾아보세요
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-semibold">
+              <Link href="/consultation" className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-semibold inline-block">
                 무료 상담 신청
-              </button>
-              <button className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg">
+              </Link>
+              <Link href="/services" className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg inline-block">
                 서비스 둘러보기
-              </button>
+              </Link>
             </div>
           </div>
         </div>

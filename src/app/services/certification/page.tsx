@@ -2,12 +2,20 @@
 
 import React from 'react';
 import Header from '@/components/layout/header';
+import Footer from '@/components/layout/footer';
 // AIFreeDiagnosis 컴포넌트가 새로운 간소화된 진단 시스템으로 교체되었습니다.
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Award, Users } from 'lucide-react';
 import { CONSULTANT_INFO, CONTACT_INFO, COMPANY_INFO } from '@/lib/config/branding';
 
 export default function CertificationPage() {
+  // 안전한 네비게이션 핸들러
+  const handleExternalLink = (url: string) => {
+    if (typeof window !== 'undefined') {
+      window.location.href = url;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100">
       <Header />
@@ -60,13 +68,22 @@ export default function CertificationPage() {
           
           <div className="max-w-4xl mx-auto">
             <div className="text-center">
-              <Button 
-                onClick={() => window.location.href = '/services/diagnosis'}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-6 rounded-xl text-xl font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
-              >
-                ⚡ 간소화 진단 시작하기
-                <ArrowRight className="ml-3 w-6 h-6" />
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  className="btn-primary text-lg px-8 py-4"
+                  onClick={() => handleExternalLink('/services/diagnosis')}
+                >
+                  <Award className="mr-2 w-5 h-5" />
+                  무료 AI 진단 받기
+                </Button>
+                <Button 
+                  className="btn-secondary text-lg px-8 py-4"
+                  onClick={() => handleExternalLink('/consultation')}
+                >
+                  <Users className="mr-2 w-5 h-5" />
+                  인증 컨설팅 상담
+                </Button>
+              </div>
               <p className="text-sm text-gray-500 mt-4">
                 ⚡ 7개 정보 입력 → 2-3분 분석 → 2000자 요약 보고서 완성
               </p>
@@ -560,6 +577,8 @@ export default function CertificationPage() {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 } 

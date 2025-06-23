@@ -4,6 +4,18 @@ import { Mail, MapPin, Facebook, Youtube, Instagram } from 'lucide-react';
 import { getImagePath, getLogoPath } from '@/lib/utils';
 
 export default function Footer() {
+  // 안전한 스크롤 핸들러
+  const handleScrollToDiagnosis = () => {
+    if (typeof window !== 'undefined') {
+      if (window.location.pathname === '/') {
+        const diagnosisSection = document.getElementById('ai-diagnosis');
+        diagnosisSection?.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.location.href = '/#ai-diagnosis';
+      }
+    }
+  };
+
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-12">
@@ -130,14 +142,7 @@ export default function Footer() {
               </li>
               <li>
                 <button 
-                  onClick={() => {
-                    if (window.location.pathname === '/') {
-                      const diagnosisSection = document.getElementById('ai-diagnosis');
-                      diagnosisSection?.scrollIntoView({ behavior: 'smooth' });
-                    } else {
-                      window.location.href = '/#ai-diagnosis';
-                    }
-                  }}
+                  onClick={handleScrollToDiagnosis}
                   className="hover:text-white transition-colors text-sm text-left"
                 >
                   무료진단

@@ -121,13 +121,32 @@ export default function FloatingChatbot() {
 🔗 **무료 진단: /services/diagnosis**`;
   };
 
+  // 안전한 이벤트 핸들러
+  const handleOpenChat = () => {
+    if (typeof window !== 'undefined') {
+      setIsOpen(true);
+    }
+  };
+
+  const handleCloseChat = () => {
+    if (typeof window !== 'undefined') {
+      setIsOpen(false);
+    }
+  };
+
+  const handleSendClick = () => {
+    if (typeof window !== 'undefined' && inputValue.trim()) {
+      handleSendMessage(inputValue);
+    }
+  };
+
   return (
     <>
       {/* 원형 플로팅 버튼 */}
       {!isOpen && (
         <div 
           className="fixed bottom-6 right-6 z-50 cursor-pointer group transition-all duration-300 hover:scale-110 active:scale-95"
-          onClick={() => setIsOpen(true)}
+          onClick={handleOpenChat}
           data-floating-chatbot="true"
         >
           <div className="relative">
@@ -166,7 +185,7 @@ export default function FloatingChatbot() {
               
               {/* ⭐ 100% 확실한 X 버튼 ⭐ */}
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={handleCloseChat}
                 className="absolute top-2 right-2 w-8 h-8 bg-black text-white rounded-full hover:bg-gray-800 flex items-center justify-center font-bold text-lg"
                 style={{ 
                   zIndex: 10000,
@@ -252,7 +271,7 @@ export default function FloatingChatbot() {
                   disabled={isTyping}
                 />
                 <button
-                  onClick={() => handleSendMessage(inputValue)}
+                  onClick={handleSendClick}
                   disabled={!inputValue.trim() || isTyping}
                   className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 disabled:opacity-50 transition-all duration-200"
                   title="메시지 전송"

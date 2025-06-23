@@ -30,7 +30,8 @@ import {
   Lightbulb,
   ArrowRight,
   Phone,
-  Mail
+  Mail,
+  DollarSign
 } from 'lucide-react';
 import { CONSULTANT_INFO, CONTACT_INFO, COMPANY_INFO } from '@/lib/config/branding';
 
@@ -171,6 +172,13 @@ export default function BusinessAnalysisPage() {
     }
   ];
 
+  // 안전한 네비게이션 핸들러
+  const handleNavigation = (path: string) => {
+    if (typeof window !== 'undefined') {
+      router.push(path);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -209,17 +217,17 @@ export default function BusinessAnalysisPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 className="btn-primary text-lg px-8 py-4"
-                onClick={() => router.push('/services/diagnosis')}
+                onClick={() => handleNavigation('/services/diagnosis')}
               >
-                무료 진단 시작하기 (무료상담신청 AI 무료진단기)
-                <ArrowRight className="ml-2 w-5 h-5" />
+                <Brain className="mr-2 w-5 h-5" />
+                무료 AI 진단 받기
               </Button>
               <Button 
                 className="btn-secondary text-lg px-8 py-4"
-                onClick={() => router.push('/services/diagnosis')}
+                onClick={() => handleNavigation('/services/diagnosis')}
               >
-                <Phone className="mr-2 w-5 h-5" />
-                전문가 상담 신청 (무료상담신청 AI 무료진단기)
+                <BarChart3 className="mr-2 w-5 h-5" />
+                사업분석 신청
               </Button>
             </div>
           </div>
@@ -242,15 +250,14 @@ export default function BusinessAnalysisPage() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center">
               <Button 
-                onClick={() => router.push('/services/diagnosis')}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-6 rounded-xl text-xl font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                className="btn-primary text-lg px-8 py-4"
+                onClick={() => handleNavigation('/services/diagnosis')}
               >
-                <Brain className="w-6 h-6 mr-3" />
-                ⚡ 간소화 진단 시작하기
-                <ArrowRight className="ml-3 w-6 h-6" />
+                ⚡ 무료 AI 진단 시작하기
+                <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
               <p className="text-sm text-gray-500 mt-4">
-                ⚡ 7개 정보 입력 → 2-3분 분석 → 2000자 요약 보고서 완성
+                ⚡ 7개 정보 입력 → 2-3분 분석 → 2000자 BM ZEN 분석 보고서 완성
               </p>
             </div>
           
@@ -260,7 +267,7 @@ export default function BusinessAnalysisPage() {
             </p>
             <Button 
               className="btn-secondary"
-              onClick={() => router.push('/consultation')}
+              onClick={() => handleNavigation('/consultation')}
             >
               전문가 상담 신청하기
               <ArrowRight className="ml-2 w-4 h-4" />
@@ -545,7 +552,7 @@ export default function BusinessAnalysisPage() {
                   </div>
                   <Button 
                     className="bg-white text-blue-600 hover:bg-gray-100 w-full"
-                    onClick={() => router.push('/services/diagnosis')}
+                    onClick={() => handleNavigation('/services/diagnosis')}
                   >
                     무료 진단 신청하기 (무료상담신청 AI 무료진단기)
                   </Button>

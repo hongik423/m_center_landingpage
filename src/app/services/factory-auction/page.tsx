@@ -217,6 +217,25 @@ const successCase = {
 export default function FactoryAuctionPage() {
   const router = useRouter();
   
+  // 안전한 네비게이션 핸들러
+  const handleNavigation = (path: string) => {
+    if (typeof window !== 'undefined') {
+      router.push(path);
+    }
+  };
+
+  const handleExternalLink = (url: string) => {
+    if (typeof window !== 'undefined') {
+      window.location.href = url;
+    }
+  };
+
+  const handleEmail = (email: string) => {
+    if (typeof window !== 'undefined') {
+      window.open(`mailto:${email}`);
+    }
+  };
+  
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -244,7 +263,7 @@ export default function FactoryAuctionPage() {
               </Button>
               <Button 
                 className="btn-secondary text-lg px-8 py-4"
-                onClick={() => router.push('/services/diagnosis')}
+                onClick={() => handleNavigation('/services/diagnosis')}
               >
                 <Phone className="mr-2 w-5 h-5" />
                 전문가 상담 (무료상담신청 AI 무료진단기)
@@ -270,7 +289,7 @@ export default function FactoryAuctionPage() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center">
               <Button 
-                onClick={() => window.location.href = '/services/diagnosis'}
+                onClick={() => handleExternalLink('/services/diagnosis')}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-6 rounded-xl text-xl font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
               >
                 ⚡ 간소화 진단 시작하기
@@ -287,7 +306,7 @@ export default function FactoryAuctionPage() {
             </p>
             <Button 
               className="btn-secondary"
-              onClick={() => router.push('/consultation')}
+              onClick={() => handleNavigation('/consultation')}
             >
               공장 투자 전문가 상담 신청
               <ArrowRight className="ml-2 w-4 h-4" />
@@ -596,7 +615,7 @@ export default function FactoryAuctionPage() {
             <div className="flex justify-center">
               <Button 
                 className="bg-white text-orange-600 hover:bg-gray-100 font-semibold px-8 py-4 text-lg"
-                onClick={() => window.open('mailto:hongik423@gmail.com')}
+                onClick={() => handleEmail('hongik423@gmail.com')}
               >
                 <Mail className="mr-2 w-5 h-5" />
                 이메일 문의

@@ -57,6 +57,17 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: isProd && isGitHubPages, // GitHub Pages 배포 시에만 무시
   },
+
+  // 🔧 GitHub Pages 배포 시 문제되는 페이지 제외
+  ...(isProd && isGitHubPages && {
+    generateBuildId: () => 'github-pages-build',
+    // experimental: {
+    //   outputFileTracingExcludes: {
+    //     '/cases': ['**/*'],
+    //     '/sitemap': ['**/*'],
+    //   }
+    // }
+  }),
   
   // GitHub Pages는 정적 호스팅이므로 서버 기능 비활성화
   ...(!isGitHubPages && {
@@ -143,6 +154,10 @@ const nextConfig: NextConfig = {
   experimental: {
     // AI 챗봇 성능 최적화
     optimizePackageImports: ['lucide-react'],
+    // GitHub Pages 배포 시 정적 export 최적화
+    ...(isProd && isGitHubPages && {
+      isrMemoryCacheSize: 0,
+    }),
   },
   
   // 🔧 웹팩 설정 - GitHub Pages 404 오류 해결
