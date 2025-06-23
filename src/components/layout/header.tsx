@@ -22,52 +22,57 @@ import {
   Award,
   Globe,
   Zap,
-  Sparkles
+  Sparkles,
+  Calculator,
+  MessageCircle,
+  FileText,
+  X
 } from 'lucide-react';
 import { getImagePath } from '@/lib/utils';
 
+// 수정된 서비스 데이터 - 실제 존재하는 페이지로 연결
 const services = [
   {
     id: 'business-analysis',
     title: 'BM ZEN 사업분석',
     description: '신규사업 성공률 95%',
     icon: Brain,
-    href: '/services/business-analysis'
+    href: '/services'
   },
   {
     id: 'ai-productivity',
     title: 'AI 활용 생산성향상',
     description: '업무 효율성 40% 향상',
     icon: Brain,
-    href: '/services/ai-productivity'
+    href: '/chatbot'
   },
   {
     id: 'factory-auction',
     title: '경매활용 공장구매',
     description: '시장가 대비 40% 절약',
     icon: Factory,
-    href: '/services/factory-auction'
+    href: '/services'
   },
   {
     id: 'tech-startup',
     title: '기술사업화/기술창업',
     description: '평균 5억원 자금 확보',
     icon: Rocket,
-    href: '/services/tech-startup'
+    href: '/services'
   },
   {
     id: 'certification',
     title: '인증지원',
     description: '연간 5천만원 세제혜택',
     icon: Award,
-    href: '/services/certification'
+    href: '/services'
   },
   {
     id: 'website',
     title: '웹사이트 구축',
     description: '온라인 매출 30% 증대',
     icon: Globe,
-    href: '/services/website'
+    href: '/services'
   }
 ];
 
@@ -85,31 +90,33 @@ export default function Header() {
   const handleMobileNavigation = (path: string) => {
     if (typeof window !== 'undefined') {
       setIsMobileMenuOpen(false);
-      router.push(path);
+      setTimeout(() => {
+        router.push(path);
+      }, 100);
     }
   };
 
   return (
     <>
       {/* 현대적 플로팅 헤더 */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
         <div className="container mx-auto px-4 lg:px-8">
-          <nav className="flex items-center justify-between h-20">
-            {/* 브랜드 로고 - 현대적 텍스트 스타일 */}
+          <nav className="flex items-center justify-between h-16 md:h-20">
+            {/* 브랜드 로고 - 모바일 최적화 */}
             <div className="flex items-center">
               <Link href="/" className="group">
                 <div className="relative">
                   {/* 메인 브랜드 텍스트 */}
                   <div className="flex flex-col">
-                    <div className="flex items-end space-x-3">
-                      <div className="w-16 h-16 flex items-center justify-center">
+                    <div className="flex items-end space-x-2 md:space-x-3">
+                      <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center">
                         <img 
                           src={getImagePath('/company-star-logo.svg')} 
                           alt="경영지도센터 로고" 
-                          className="w-16 h-16 object-contain transition-transform duration-300 group-hover:scale-110"
+                          className="w-12 h-12 md:w-16 md:h-16 object-contain transition-transform duration-300 group-hover:scale-110"
                         />
                       </div>
-                      <span className="text-sm font-black text-gray-800 group-hover:text-blue-600 transition-colors duration-300 mb-1.5">
+                      <span className="text-xs md:text-sm font-black text-gray-800 group-hover:text-blue-600 transition-colors duration-300 mb-1 md:mb-1.5">
                         경영지도센터
                       </span>
                     </div>
@@ -177,196 +184,242 @@ export default function Header() {
               </Link>
             </div>
 
-            {/* 액션 버튼들 - 현대적 스타일 */}
-            <div className="hidden lg:flex items-center space-x-3">
+            {/* 액션 버튼들 - 모바일 최적화 */}
+            <div className="hidden md:flex lg:flex items-center space-x-2 lg:space-x-3">
               <Button 
-                className="action-btn-outline text-sm"
+                className="action-btn-outline text-xs md:text-sm px-2 md:px-3 py-1.5 md:py-2 h-auto"
                 onClick={() => handleNavigation('/tax-calculator')}
               >
-                <Zap className="w-4 h-4 mr-2" />
-                세금계산기
+                <Calculator className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                <span className="hidden md:inline">세금계산기</span>
+                <span className="md:hidden">계산기</span>
               </Button>
               
               <Button 
-                className="action-btn-primary text-sm"
-                onClick={() => handleNavigation('/services/diagnosis')}
+                className="action-btn-primary text-xs md:text-sm px-2 md:px-3 py-1.5 md:py-2 h-auto"
+                onClick={() => handleNavigation('/diagnosis')}
               >
-                <Sparkles className="w-4 h-4 mr-2" />
-                무료AI진단
+                <Sparkles className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                <span className="hidden md:inline">무료AI진단</span>
+                <span className="md:hidden">AI진단</span>
               </Button>
               
               <Button 
-                className="action-btn-secondary text-sm"
+                className="action-btn-secondary text-xs md:text-sm px-2 md:px-3 py-1.5 md:py-2 h-auto"
                 onClick={() => handleNavigation('/consultation')}
               >
-                <Phone className="w-4 h-4 mr-2" />
-                무료상담
-              </Button>
-              
-              <Button
-                className="action-btn-tertiary text-sm"
-                onClick={() => handleNavigation('/chatbot')}
-              >
-                <Bot className="w-4 h-4 mr-2" />
-                AI챗봇
+                <Phone className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                <span className="hidden lg:inline">무료상담</span>
+                <span className="lg:hidden">상담</span>
               </Button>
             </div>
 
-            {/* 모바일 메뉴 버튼 - 현대적 스타일 */}
+            {/* 모바일 햄버거 메뉴 - 완전히 새로운 디자인 */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="lg:hidden w-10 h-10 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 border border-gray-200/50"
+                  className="md:hidden w-10 h-10 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 border border-gray-200/50 shadow-sm active:scale-95"
                 >
                   <Menu className="w-5 h-5 text-gray-700" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80 bg-white border-l border-gray-200">
-                <div className="py-6">
-                  <div className="space-y-6">
-                    {/* 🏆 주요 기능 - 최상단 배치 */}
+              <SheetContent 
+                side="right" 
+                className="w-full sm:w-80 bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 border-l border-gray-200/50 backdrop-blur-md"
+              >
+                {/* 모바일 메뉴 헤더 */}
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200/50">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                      <img 
+                        src={getImagePath('/company-star-logo.svg')} 
+                        alt="경영지도센터 로고" 
+                        className="w-6 h-6 object-contain filter brightness-0 invert"
+                      />
+                    </div>
                     <div>
-                      <div className="flex items-center mb-4">
-                        <Zap className="w-5 h-5 text-yellow-500 mr-2" />
-                        <h3 className="font-bold text-gray-900 text-lg">인기 서비스</h3>
+                      <h2 className="font-bold text-gray-900 text-lg">메뉴</h2>
+                      <p className="text-xs text-gray-600">경영지도센터</p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-8 h-8 rounded-lg hover:bg-gray-100/50"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <X className="w-4 h-4 text-gray-600" />
+                  </Button>
+                </div>
+
+                <div className="space-y-6 pb-6">
+                  {/* ⭐ 인기 서비스 섹션 - 최상단 */}
+                  <div>
+                    <div className="flex items-center mb-4">
+                      <div className="w-6 h-6 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center mr-2 shadow-md">
+                        <Zap className="w-3 h-3 text-white" />
                       </div>
-                      <div className="space-y-3">
-                        {/* 세금계산기 - 특별 강조 */}
-                        <Button 
-                          className="w-full mobile-btn-primary text-left justify-start h-auto p-4 relative overflow-hidden animate-pulse-slow"
-                          onClick={() => handleMobileNavigation('/tax-calculator')}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/30 to-orange-400/30"></div>
-                          <div className="relative flex items-center w-full">
-                            <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mr-3 shadow-xl animate-bounce">
-                              <Zap className="w-7 h-7 text-white" />
-                            </div>
-                            <div className="flex-1 text-left">
-                              <div className="font-black text-white text-lg flex items-center space-x-2">
-                                <span>🔥 세금계산기</span>
-                                <span className="text-yellow-300">NEW!</span>
-                              </div>
-                              <div className="text-sm text-blue-100 mt-1 font-semibold">11개 전문 계산기 무료 제공!</div>
-                            </div>
+                      <h3 className="font-bold text-gray-900 text-lg">인기 서비스</h3>
+                      <div className="ml-2 px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
+                        HOT
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {/* 🔥 세금계산기 - 특별 강조 */}
+                      <Button 
+                        className="w-full bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 hover:from-yellow-600 hover:via-orange-600 hover:to-red-600 text-white shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 h-auto p-4 rounded-2xl border-0"
+                        onClick={() => handleMobileNavigation('/tax-calculator')}
+                      >
+                        <div className="flex items-center w-full">
+                          <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-3 shadow-lg">
+                            <Calculator className="w-6 h-6 text-white" />
                           </div>
-                        </Button>
-                        
-                        {/* 무료AI진단 */}
-                        <Button 
-                          className="w-full mobile-btn-secondary text-left justify-start h-auto p-3.5"
-                          onClick={() => handleMobileNavigation('/services/diagnosis')}
-                        >
-                          <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mr-3 shadow-lg">
+                          <div className="flex-1 text-left">
+                            <div className="font-black text-white text-base flex items-center space-x-2">
+                              <span>🔥 세금계산기</span>
+                              <span className="text-yellow-200 text-xs bg-white/20 px-2 py-0.5 rounded-full animate-bounce">NEW!</span>
+                            </div>
+                            <div className="text-sm text-orange-100 mt-1 font-semibold">11개 전문 계산기 무료!</div>
+                          </div>
+                          <div className="text-white/80">
+                            <ChevronDown className="w-5 h-5 rotate-[-90deg]" />
+                          </div>
+                        </div>
+                      </Button>
+                      
+                      {/* ⭐ 무료AI진단 */}
+                      <Button 
+                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 h-auto p-3.5 rounded-xl"
+                        onClick={() => handleMobileNavigation('/diagnosis')}
+                      >
+                        <div className="flex items-center w-full">
+                          <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-3 shadow-md">
                             <Sparkles className="w-5 h-5 text-white" />
                           </div>
                           <div className="flex-1 text-left">
-                            <div className="font-semibold text-white text-sm">⭐ 무료AI진단</div>
-                            <div className="text-xs text-indigo-200 mt-0.5">기업 맞춤 분석 리포트</div>
+                            <div className="font-bold text-white text-sm">⭐ 무료AI진단</div>
+                            <div className="text-xs text-purple-100 mt-0.5">맞춤 분석 리포트</div>
                           </div>
-                        </Button>
+                          <div className="text-white/70">
+                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                          </div>
+                        </div>
+                      </Button>
 
-                        {/* 무료상담 */}
-                        <Button 
-                          className="w-full mobile-btn-outline text-left justify-start h-auto p-3"
-                          onClick={() => handleMobileNavigation('/consultation')}
-                        >
-                          <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-500 rounded-xl flex items-center justify-center mr-3 shadow-md">
+                      {/* 📞 무료상담 */}
+                      <Button 
+                        className="w-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 h-auto p-3 rounded-xl"
+                        onClick={() => handleMobileNavigation('/consultation')}
+                      >
+                        <div className="flex items-center w-full">
+                          <div className="w-9 h-9 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-3 shadow-md">
                             <Phone className="w-4 h-4 text-white" />
                           </div>
                           <div className="flex-1 text-left">
-                            <div className="font-semibold text-gray-900 text-sm">📞 무료상담</div>
-                            <div className="text-xs text-gray-600">전문가 1:1 상담</div>
+                            <div className="font-bold text-white text-sm">📞 무료상담</div>
+                            <div className="text-xs text-green-100">전문가 1:1 상담</div>
                           </div>
-                        </Button>
+                          <div className="text-white/70">
+                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                          </div>
+                        </div>
+                      </Button>
 
-                        {/* AI챗봇 */}
-                        <Button
-                          className="w-full mobile-btn-outline text-left justify-start h-auto p-3"
-                          onClick={() => handleMobileNavigation('/chatbot')}
-                        >
-                          <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-xl flex items-center justify-center mr-3 shadow-md">
+                      {/* 🤖 AI챗봇 */}
+                      <Button
+                        className="w-full bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 h-auto p-3 rounded-xl"
+                        onClick={() => handleMobileNavigation('/chatbot')}
+                      >
+                        <div className="flex items-center w-full">
+                          <div className="w-9 h-9 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-3 shadow-md">
                             <Bot className="w-4 h-4 text-white" />
                           </div>
                           <div className="flex-1 text-left">
-                            <div className="font-semibold text-gray-900 text-sm">🤖 AI챗봇</div>
-                            <div className="text-xs text-gray-600">24시간 상담 지원</div>
+                            <div className="font-bold text-white text-sm">🤖 AI챗봇</div>
+                            <div className="text-xs text-indigo-100">24시간 상담 지원</div>
                           </div>
-                        </Button>
-                      </div>
+                          <div className="text-white/70">
+                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                          </div>
+                        </div>
+                      </Button>
                     </div>
+                  </div>
 
-                    {/* 구분선 */}
-                    <div className="border-t border-gray-200"></div>
-                    
-                    {/* 페이지 메뉴 */}
-                    <div>
-                      <h3 className="font-bold text-gray-900 mb-3 text-base">📚 페이지 메뉴</h3>
-                      <div className="space-y-2">
-                        <Link
-                          href="/"
-                          className="flex items-center px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-gray-700 hover:text-blue-600"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          <span className="mr-3">🏠</span>
-                          홈
-                        </Link>
-                        <Link
-                          href="/cases"
-                          className="flex items-center px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-gray-700 hover:text-blue-600"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          <span className="mr-3">🏆</span>
-                          성공사례
-                        </Link>
-                        <Link
-                          href="/about"
-                          className="flex items-center px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-gray-700 hover:text-blue-600"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          <span className="mr-3">🏢</span>
-                          회사소개
-                        </Link>
-                        <Link
-                          href="/support"
-                          className="flex items-center px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-gray-700 hover:text-blue-600"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          <span className="mr-3">💬</span>
-                          고객지원
-                        </Link>
-                      </div>
+                  {/* 구분선 */}
+                  <div className="border-t border-gray-200/50"></div>
+                  
+                  {/* 페이지 메뉴 - 컴팩트 디자인 */}
+                  <div>
+                    <h3 className="font-bold text-gray-900 mb-3 text-base flex items-center">
+                      <FileText className="w-4 h-4 mr-2 text-blue-600" />
+                      페이지 메뉴
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Link
+                        href="/"
+                        className="flex flex-col items-center p-3 rounded-xl hover:bg-white/60 transition-all duration-200 border border-gray-100/50 hover:border-blue-200 hover:shadow-md group"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg flex items-center justify-center mb-2 group-hover:from-blue-200 group-hover:to-indigo-200 transition-colors">
+                          <span className="text-lg">🏠</span>
+                        </div>
+                        <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600">홈</span>
+                      </Link>
+                      
+                      <Link
+                        href="/services"
+                        className="flex flex-col items-center p-3 rounded-xl hover:bg-white/60 transition-all duration-200 border border-gray-100/50 hover:border-blue-200 hover:shadow-md group"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <div className="w-8 h-8 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center mb-2 group-hover:from-purple-200 group-hover:to-pink-200 transition-colors">
+                          <span className="text-lg">🛠️</span>
+                        </div>
+                        <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600">서비스</span>
+                      </Link>
+                      
+                      <Link
+                        href="/cases"
+                        className="flex flex-col items-center p-3 rounded-xl hover:bg-white/60 transition-all duration-200 border border-gray-100/50 hover:border-blue-200 hover:shadow-md group"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <div className="w-8 h-8 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-lg flex items-center justify-center mb-2 group-hover:from-yellow-200 group-hover:to-orange-200 transition-colors">
+                          <span className="text-lg">🏆</span>
+                        </div>
+                        <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600">성공사례</span>
+                      </Link>
+                      
+                      <Link
+                        href="/about"
+                        className="flex flex-col items-center p-3 rounded-xl hover:bg-white/60 transition-all duration-200 border border-gray-100/50 hover:border-blue-200 hover:shadow-md group"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <div className="w-8 h-8 bg-gradient-to-br from-green-100 to-teal-100 rounded-lg flex items-center justify-center mb-2 group-hover:from-green-200 group-hover:to-teal-200 transition-colors">
+                          <span className="text-lg">🏢</span>
+                        </div>
+                        <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600">회사소개</span>
+                      </Link>
                     </div>
+                  </div>
 
-                    {/* 구분선 */}
-                    <div className="border-t border-gray-200"></div>
-                    
-                    {/* 전체 서비스 목록 */}
-                    <div>
-                      <h3 className="font-bold text-gray-900 mb-3 text-base">🛠️ 전체 서비스</h3>
-                      <div className="grid grid-cols-2 gap-3">
-                        {services.map((service) => (
-                          <Link
-                            key={service.id}
-                            href={service.href}
-                            className="flex flex-col items-center p-3 rounded-xl hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 border border-gray-100 hover:border-blue-200 hover:shadow-md"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                          >
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mb-2 shadow-lg hover:shadow-xl transition-shadow duration-200">
-                              <service.icon className="w-5 h-5 text-white" />
-                            </div>
-                            <div className="text-center">
-                              <div className="font-bold text-xs text-gray-900 leading-tight mb-1">
-                                {service.title}
-                              </div>
-                              <div className="text-xs text-gray-500 leading-tight">
-                                {service.description}
-                              </div>
-                            </div>
-                          </Link>
-                        ))}
+                  {/* 하단 연락처 정보 */}
+                  <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-gray-200/50">
+                    <div className="text-center">
+                      <h4 className="font-bold text-gray-900 text-sm mb-2">📞 전문가 직접 상담</h4>
+                      <div className="text-xs text-gray-600 mb-3">
+                        <p>평일 9:00-18:00</p>
+                        <p className="font-bold text-blue-600 text-sm mt-1">010-9251-9743</p>
                       </div>
+                      <Button
+                        className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-xs py-2 rounded-xl shadow-md"
+                        onClick={() => handleMobileNavigation('/support/contact')}
+                      >
+                        <MessageCircle className="w-3 h-3 mr-2" />
+                        1:1 문의하기
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -376,8 +429,8 @@ export default function Header() {
         </div>
       </header>
       
-      {/* 헤더 공간 확보 */}
-      <div className="h-20" />
+      {/* 헤더 공간 확보 - 모바일 최적화 */}
+      <div className="h-16 md:h-20" />
     </>
   );
 } 
