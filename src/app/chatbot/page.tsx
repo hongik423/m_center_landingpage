@@ -1,10 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Header from '@/components/layout/header';
-import Footer from '@/components/layout/footer';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Header, Footer } from '@/components/layout';
+import { Card, CardContent, CardHeader, CardTitle, Button } from '@/components/ui';
 import { Send, Bot, User } from 'lucide-react';
 import { getImagePath } from '@/lib/utils';
 

@@ -1,8 +1,7 @@
 'use client';
 
-import Header from '@/components/layout/header';
-import Footer from '@/components/layout/footer';
-import { Card, CardContent } from '@/components/ui/card';
+import { Header, Footer } from '@/components/layout';
+import { Card, CardContent } from '@/components/ui';
 import { Users, Target, Award, Globe } from 'lucide-react';
 
 export default function AboutPage() {
