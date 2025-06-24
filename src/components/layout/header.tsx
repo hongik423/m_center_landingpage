@@ -131,6 +131,12 @@ export default function Header() {
                 BM Zen 프로필링크
               </Link>
               
+              {/* 인증지원 - 직접 링크 */}
+              <Link href="/services/certification" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 flex items-center">
+                <Award className="w-4 h-4 mr-1" />
+                인증지원
+              </Link>
+              
               {/* 서비스 드롭다운 */}
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 group">
@@ -266,6 +272,22 @@ export default function Header() {
                           <div className="flex-1 text-left">
                             <div className="font-semibold text-white">BM Zen 프로필링크</div>
                             <div className="text-sm text-blue-100">AI 성장전략 컨설팅</div>
+                          </div>
+                        </div>
+                      </Button>
+                      
+                      {/* 인증지원 - 모바일 */}
+                      <Button 
+                        className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200 rounded-apple-sm p-4 h-auto"
+                        onClick={() => handleMobileNavigation('/services/certification')}
+                      >
+                        <div className="flex items-center w-full">
+                          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-3">
+                            <Award className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <div className="font-semibold text-white">인증지원</div>
+                            <div className="text-sm text-orange-100">연간 5천만원 세제혜택</div>
                           </div>
                         </div>
                       </Button>
