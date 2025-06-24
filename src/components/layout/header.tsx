@@ -44,7 +44,7 @@ const services = [
     title: 'AI 활용 생산성향상',
     description: '업무 효율성 40% 향상',
     icon: Brain,
-    href: '/chatbot'
+    href: '/services/ai-productivity'
   },
   {
     id: 'factory-auction',
@@ -58,7 +58,7 @@ const services = [
     title: '기술사업화/기술창업',
     description: '평균 5억원 자금 확보',
     icon: Rocket,
-    href: '/services'
+    href: '/services/tech-startup'
   },
   {
     id: 'certification',
@@ -72,7 +72,7 @@ const services = [
     title: '웹사이트 구축',
     description: '온라인 매출 30% 증대',
     icon: Globe,
-    href: '/services'
+    href: '/services/website'
   }
 ];
 

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Header, Footer } from '@/components/layout';
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@/components/ui';
-import { Send, Bot, User } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Shield, Clock, Zap, Brain, Star, Users, CheckCircle2 } from 'lucide-react';
 import { getImagePath } from '@/lib/utils';
 
 interface Message {
@@ -137,153 +137,302 @@ export default function ChatbotPage() {
     }
   };
 
+  const quickQuestions = [
+    "우리 회사 매출을 늘리려면 어떻게 해야 하나요?",
+    "AI 도입으로 업무 효율을 높이고 싶어요",
+    "공장 구매를 저렴하게 하는 방법이 있나요?",
+    "정부지원 사업은 어떤 것들이 있나요?",
+    "ISO 인증 받으면 어떤 혜택이 있나요?",
+    "웹사이트로 매출을 늘릴 수 있나요?"
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen gradient-bg-hero">
       <Header />
       
-      <main className="py-8">
-        <div className="container mx-auto px-4 max-w-4xl">
-          {/* 헤더 */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-4 mb-4">
+      {/* 헤더 섹션 - 토스 스타일 */}
+      <section className="section-padding relative overflow-hidden">
+        {/* 배경 패턴 */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-10 left-10 w-32 h-32 bg-blue-400 rounded-full blur-xl"></div>
+          <div className="absolute top-20 right-20 w-48 h-48 bg-purple-400 rounded-full blur-xl"></div>
+          <div className="absolute bottom-10 left-1/3 w-40 h-40 bg-green-400 rounded-full blur-xl"></div>
+        </div>
+        
+        <div className="container-custom relative z-10">
+          <div className="text-center mb-12">
+            {/* AI 상담사 아바타 */}
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 
+                            rounded-3xl mb-8 shadow-xl animate-bounce-gentle">
               <img 
                 src={getImagePath('/star-counselor-icon.svg')}
                 alt="별 AI 상담사" 
                 className="w-12 h-12"
               />
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                별-AI상담사
-                <span className="text-yellow-500">⭐</span>
-              </h1>
             </div>
-            <div className="flex items-center justify-center gap-4 text-sm text-gray-600">
-              <span className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full font-semibold">GEMINI AI</span>
-              <span className="px-3 py-1 bg-green-100 text-green-600 rounded-full">● 온라인</span>
-              <span className="px-3 py-1 bg-purple-100 text-purple-600 rounded-full">24시간 상담</span>
+            
+            <div className="badge-primary mb-6 animate-scale-in">
+              <Sparkles className="w-5 h-5 mr-2" />
+              <span className="font-semibold">GEMINI AI 기반 스마트 상담</span>
+            </div>
+            
+            <h1 className="text-hero text-gray-900 mb-6 animate-slide-in">
+              <Star className="inline-block w-16 h-16 mr-4 text-yellow-500" />
+              별-AI상담사
+            </h1>
+            
+            <p className="text-body-lg text-gray-600 max-w-4xl mx-auto leading-relaxed animate-slide-in mb-8"
+               style={{ animationDelay: '0.2s' }}>
+              <strong className="text-blue-600">GEMINI AI</strong> 기반의 전문 상담사가 24시간 대기 중입니다.<br />
+              기업 성장에 관한 모든 궁금증을 바로 해결해보세요!
+            </p>
+            
+            <div className="flex flex-wrap justify-center gap-4 mb-12 animate-slide-in"
+                 style={{ animationDelay: '0.4s' }}>
+              {[
+                { icon: Brain, text: 'GEMINI AI', color: 'bg-blue-100 text-blue-600' },
+                { icon: Shield, text: '24시간 상담', color: 'bg-green-100 text-green-600' },
+                { icon: Users, text: '전문가 지원', color: 'bg-purple-100 text-purple-600' },
+                { icon: Zap, text: '즉시 응답', color: 'bg-orange-100 text-orange-600' }
+              ].map((item, index) => (
+                <div key={index} className={`badge-primary ${item.color}`}>
+                  <item.icon className="w-4 h-4 mr-2" />
+                  <span className="font-medium">{item.text}</span>
+                </div>
+              ))}
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* 채팅 영역 */}
-          <Card className="shadow-lg h-[600px] flex flex-col">
-            <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4">
-              <CardTitle className="flex items-center gap-3">
-                <Bot className="w-6 h-6" />
-                <span>M-CENTER AI 상담센터</span>
-                <span className="ml-auto text-sm bg-white/20 px-2 py-1 rounded-full">25년 전문 노하우</span>
+      <main className="pb-8">
+        <div className="container-custom">
+          {/* 채팅 영역 - 토스 스타일 */}
+          <Card className="result-card shadow-2xl max-w-6xl mx-auto animate-scale-in"
+                style={{ animationDelay: '0.6s' }}>
+            <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-3xl">
+              <CardTitle className="flex items-center gap-4 text-center justify-center">
+                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                  <Bot className="w-6 h-6" />
+                </div>
+                <div>
+                  <span className="text-xl font-bold">M-CENTER AI 상담센터</span>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-sm bg-white/20 px-2 py-1 rounded-full">25년 전문 노하우</span>
+                    <span className="text-sm bg-green-500 px-2 py-1 rounded-full">● 온라인</span>
+                  </div>
+                </div>
               </CardTitle>
             </CardHeader>
             
             {/* 메시지 영역 */}
-            <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div className="flex items-start gap-3 max-w-[80%]">
-                    {message.sender === 'bot' && (
-                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                        <Bot className="w-4 h-4 text-white" />
+            <CardContent className="p-0">
+              <div className="h-[600px] overflow-y-auto p-6 space-y-6 bg-gradient-to-br from-gray-50 to-blue-50">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div className="flex items-start gap-4 max-w-[85%]">
+                      {message.sender === 'bot' && (
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl 
+                                        flex items-center justify-center shadow-lg flex-shrink-0">
+                          <Bot className="w-5 h-5 text-white" />
+                        </div>
+                      )}
+                      
+                      <div
+                        className={`p-4 rounded-3xl shadow-sm transition-all duration-200 hover:shadow-md ${
+                          message.sender === 'user'
+                            ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
+                            : 'bg-white text-gray-800 border border-gray-200'
+                        }`}
+                      >
+                        <p className="whitespace-pre-line leading-relaxed">{message.content}</p>
+                        <div className={`text-xs mt-3 ${message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'}`}>
+                          {message.timestamp.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
+                        </div>
                       </div>
-                    )}
-                    
-                    <div
-                      className={`p-4 rounded-lg shadow-sm ${
-                        message.sender === 'user'
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-white text-gray-800 border border-gray-200'
-                      }`}
-                    >
-                      <p className="whitespace-pre-line text-sm leading-relaxed">{message.content}</p>
-                      <div className={`text-xs mt-2 ${message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'}`}>
-                        {message.timestamp.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
-                      </div>
-                    </div>
-                    
-                    {message.sender === 'user' && (
-                      <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center">
-                        <User className="w-4 h-4 text-white" />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-              
-              {isTyping && (
-                <div className="flex justify-start">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                      <Bot className="w-4 h-4 text-white" />
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                      </div>
+                      
+                      {message.sender === 'user' && (
+                        <div className="w-10 h-10 bg-gradient-to-br from-gray-400 to-gray-600 rounded-2xl 
+                                        flex items-center justify-center shadow-lg flex-shrink-0">
+                          <User className="w-5 h-5 text-white" />
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </CardContent>
+                ))}
+                
+                {isTyping && (
+                  <div className="flex justify-start">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl 
+                                      flex items-center justify-center shadow-lg">
+                        <Bot className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="bg-white p-4 rounded-3xl shadow-sm border border-gray-200">
+                        <div className="flex space-x-2">
+                          {[0, 1, 2].map((index) => (
+                            <div key={index} 
+                                 className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"
+                                 style={{ animationDelay: `${index * 0.1}s` }}>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
 
-            {/* 입력 영역 */}
-            <div className="p-4 bg-gray-50 border-t border-gray-200">
-              <div className="flex space-x-3">
-                <input
-                  type="text"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  placeholder="메시지를 입력하세요... (예: 우리 회사 매출을 늘리려면?)"
-                  className="flex-1 rounded-full border-2 border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none"
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSendMessage(inputValue);
-                    }
-                  }}
-                  disabled={isTyping}
-                />
-                <Button
-                  onClick={handleSendClick}
-                  disabled={!inputValue.trim() || isTyping}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full disabled:opacity-50 transition-all duration-200"
-                  title="메시지 전송"
-                >
-                  <Send className="w-5 h-5" />
-                </Button>
+              {/* 입력 영역 - 토스 스타일 */}
+              <div className="p-6 bg-white border-t border-gray-100 rounded-b-3xl">
+                <div className="flex gap-4">
+                  <input
+                    type="text"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    placeholder="메시지를 입력하세요... (예: 우리 회사 매출을 늘리려면?)"
+                    className="form-input flex-1 text-base py-4 px-6 rounded-2xl border-2 border-gray-200 
+                              focus:border-blue-400 focus:bg-blue-50 transition-all duration-200"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendMessage(inputValue);
+                      }
+                    }}
+                    disabled={isTyping}
+                  />
+                  <Button
+                    onClick={handleSendClick}
+                    disabled={!inputValue.trim() || isTyping}
+                    className="btn-primary bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 
+                              px-6 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
+                    title="메시지 전송"
+                  >
+                    <Send className="w-5 h-5" />
+                  </Button>
+                </div>
+                
+                <div className="mt-4 text-center">
+                  <div className="flex items-center justify-center gap-6 text-sm text-gray-500 mb-3">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-green-500" />
+                      <span>24시간</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-green-500" />
+                      <span>무료</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-green-500" />
+                      <span>즉시 응답</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-400">
+                    💡 **팁**: "매출 증대", "AI 활용", "공장구매", "기술창업" 등에 대해 물어보세요!
+                  </p>
+                </div>
               </div>
-              
-              <div className="mt-2 text-center text-xs text-gray-500">
-                💡 **팁**: "매출 증대", "AI 활용", "공장구매", "기술창업" 등에 대해 물어보세요!
-              </div>
-            </div>
+            </CardContent>
           </Card>
 
-          {/* 빠른 질문 버튼들 */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600 mb-3">💬 **빠른 질문 예시** (클릭하면 자동 입력)</p>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {[
-                "우리 회사 매출을 늘리려면 어떻게 해야 하나요?",
-                "AI 도입으로 업무 효율을 높이고 싶어요",
-                "공장 구매를 저렴하게 하는 방법이 있나요?",
-                "정부지원 사업은 어떤 것들이 있나요?",
-                "ISO 인증 받으면 어떤 혜택이 있나요?",
-                "웹사이트로 매출을 늘릴 수 있나요?"
-              ].map((question, index) => (
+          {/* 빠른 질문 버튼들 - 토스 스타일 */}
+          <div className="mt-12 text-center animate-slide-in" style={{ animationDelay: '0.8s' }}>
+            <h3 className="text-h3 text-gray-900 mb-6">💬 빠른 질문 예시</h3>
+            <p className="text-gray-600 mb-6">클릭하면 자동으로 입력되어 상담을 시작할 수 있습니다</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
+              {quickQuestions.map((question, index) => (
                 <Button
                   key={index}
                   variant="outline"
-                  size="sm"
                   onClick={() => setInputValue(question)}
-                  className="text-xs hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                  className="p-4 h-auto text-left hover:bg-blue-50 hover:border-blue-300 
+                            transition-all duration-200 rounded-xl border-2 border-gray-200 group"
                 >
-                  {question.slice(0, 20)}...
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0 
+                                    group-hover:bg-blue-200 transition-colors duration-200">
+                      <span className="text-blue-600 font-bold text-sm">{index + 1}</span>
+                    </div>
+                    <span className="text-gray-700 group-hover:text-blue-700 leading-relaxed">
+                      {question}
+                    </span>
+                  </div>
                 </Button>
               ))}
             </div>
+          </div>
+
+          {/* AI 상담사 특징 - 토스 스타일 */}
+          <div className="mt-16 animate-slide-in" style={{ animationDelay: '1s' }}>
+            <Card className="result-card">
+              <CardContent className="p-10">
+                <h3 className="text-h2 text-center text-gray-900 mb-8">
+                  <Brain className="inline-block w-8 h-8 mr-3 text-blue-600" />
+                  AI 상담사의 전문 분야
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {[
+                    {
+                      icon: '📈',
+                      title: 'BM ZEN 사업분석',
+                      features: ['성공률 95%', '매출 4배 증가', '전문 컨설팅'],
+                      color: 'bg-gradient-to-br from-blue-50 to-cyan-50'
+                    },
+                    {
+                      icon: '🤖',
+                      title: 'AI 생산성향상',
+                      features: ['업무효율 40% 향상', '정부 100% 지원', '20주 프로그램'],
+                      color: 'bg-gradient-to-br from-purple-50 to-pink-50'
+                    },
+                    {
+                      icon: '🏭',
+                      title: '공장구매 컨설팅',
+                      features: ['투자비 40% 절약', '전문가 동행', '리스크 관리'],
+                      color: 'bg-gradient-to-br from-orange-50 to-red-50'
+                    },
+                    {
+                      icon: '🚀',
+                      title: '기술창업 지원',
+                      features: ['평균 5억원 확보', '성공률 85%', '3년 사후관리'],
+                      color: 'bg-gradient-to-br from-green-50 to-emerald-50'
+                    },
+                    {
+                      icon: '🏆',
+                      title: '인증지원 서비스',
+                      features: ['5천만원 세제혜택', '100% 취득 보장', '통합 관리'],
+                      color: 'bg-gradient-to-br from-indigo-50 to-blue-50'
+                    },
+                    {
+                      icon: '🌐',
+                      title: '웹사이트 구축',
+                      features: ['매출 300% 증가', 'SEO 최적화', '1년 무료관리'],
+                      color: 'bg-gradient-to-br from-violet-50 to-purple-50'
+                    }
+                  ].map((service, index) => (
+                    <div key={index} className={`${service.color} p-6 rounded-3xl hover:shadow-lg transition-all duration-300 group`}>
+                      <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                        {service.icon}
+                      </div>
+                      <h4 className="text-h4 text-gray-900 mb-4">{service.title}</h4>
+                      <div className="space-y-2">
+                        {service.features.map((feature, idx) => (
+                          <div key={idx} className="flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                            <span className="text-gray-700 text-sm">{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>
