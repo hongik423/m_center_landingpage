@@ -125,6 +125,12 @@ export default function Header() {
                 홈
               </Link>
               
+              {/* BM Zen 프로필링크 - 직접 링크 */}
+              <Link href="/services/business-analysis" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 flex items-center">
+                <Brain className="w-4 h-4 mr-1" />
+                BM Zen 프로필링크
+              </Link>
+              
               {/* 서비스 드롭다운 */}
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 group">
@@ -248,6 +254,22 @@ export default function Header() {
                     <h3 className="font-semibold text-gray-900 mb-4">인기 서비스</h3>
                     
                     <div className="space-y-3">
+                      {/* BM Zen 프로필링크 - 모바일 */}
+                      <Button 
+                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200 rounded-apple-sm p-4 h-auto"
+                        onClick={() => handleMobileNavigation('/services/business-analysis')}
+                      >
+                        <div className="flex items-center w-full">
+                          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-3">
+                            <Brain className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <div className="font-semibold text-white">BM Zen 프로필링크</div>
+                            <div className="text-sm text-blue-100">AI 성장전략 컨설팅</div>
+                          </div>
+                        </div>
+                      </Button>
+                      
                       <Button 
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200 rounded-apple-sm p-4 h-auto"
                         onClick={() => handleMobileNavigation('/tax-calculator')}
