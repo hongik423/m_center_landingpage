@@ -27,9 +27,6 @@ const nextConfig: NextConfig = {
   // 성능 설정
   poweredByHeader: false,
   compress: true,
-  
-  // 빌드 최적화
-  swcMinify: true,
 };
 
 export default nextConfig;
