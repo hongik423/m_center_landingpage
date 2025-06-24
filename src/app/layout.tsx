@@ -13,7 +13,7 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NODE_ENV === 'production' 
-    ? 'https://hongik423.github.io/m_center_landingpage' 
+    ? process.env.NEXT_PUBLIC_BASE_URL || 'https://m-center-landingpage.vercel.app'
     : 'http://localhost:3000'
   ),
   title: {
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ko_KR',
-    url: 'https://hongik423.github.io/m_center_landingpage/',
+    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://m-center-landingpage.vercel.app',
     title: 'M-CENTER | AI 기업진단 및 경영컨설팅',
     description: 'AI 기반 무료 진단과 전문 컨설팅으로 중소기업 성장을 지원합니다.',
     siteName: 'M-CENTER',
@@ -74,27 +74,13 @@ export default function RootLayout({
         {/* 🔧 모바일 뷰포트 최적화 */}
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
         
-        {/* 🔧 캐시 무효화를 위한 메타 태그들 */}
-        <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-        <meta httpEquiv="Pragma" content="no-cache" />
-        <meta httpEquiv="Expires" content="0" />
+        {/* 🔧 최적화된 캐시 설정 */}
         <meta name="last-modified" content={new Date().toISOString()} />
-        <meta name="version" content={`v${Date.now()}`} />
+        <meta name="version" content="2.0" />
         
-        {/* 🔧 한글 폰트 최적화 - GitHub Pages 한글 렌더링 */}
-        <link 
-          rel="preconnect" 
-          href="https://cdn.jsdelivr.net" 
-          crossOrigin="anonymous"
-        />
-        <link 
-          rel="stylesheet" 
-          href="https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@latest/css/SpoqaHanSansNeo.css"
-        />
-        <link 
-          rel="stylesheet" 
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
-        />
+        {/* 🔧 한글 폰트 최적화 - Pretendard만 사용 */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
         {/* 🔧 성능 최적화: DNS 프리페치 - Google Apps Script 기반 */}
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
@@ -109,14 +95,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="M-CENTER" />
         
-        {/* GitHub Pages 특별 설정 */}
-        {process.env.NEXT_PUBLIC_IS_GITHUB_PAGES === 'true' && (
-          <>
-            <meta property="og:url" content="https://hongik423.github.io/m_center_landingpage/" />
-            <meta property="og:site_name" content="M-CENTER" />
-            <link rel="canonical" href="https://hongik423.github.io/m_center_landingpage/" />
-          </>
-        )}
+        {/* Vercel 배포 최적화 설정 */}
+        <link rel="canonical" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://m-center-landingpage.vercel.app'} />
       </head>
       <body className={inter.className} suppressHydrationWarning>        
         <Providers>

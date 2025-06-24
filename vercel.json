@@ -4,7 +4,6 @@
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
   "installCommand": "npm ci",
-  "outputDirectory": ".next",
   "public": false,
   "env": {
     "NEXT_PUBLIC_APP_NAME": "M-CENTER 경영지도센터",
@@ -24,6 +23,15 @@
     }
   ],
   "headers": [
+    {
+      "source": "/_next/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [

@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
   
+  // 정적 자산 경로 최적화
+  trailingSlash: false,
+  
   // 이미지 최적화
   images: {
     domains: ['picsum.photos'],
@@ -21,6 +24,21 @@ const nextConfig: NextConfig = {
   // 성능 최적화
   poweredByHeader: false,
   compress: true,
+  
+  // HTTP 헤더 최적화
+  async headers() {
+    return [
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ];
+  },
   
   // Webpack 설정 - 경로 매핑 해결
   webpack: (config) => {
