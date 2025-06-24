@@ -30,14 +30,14 @@ import {
 } from 'lucide-react';
 import { getImagePath } from '@/lib/utils';
 
-// 수정된 서비스 데이터 - 실제 존재하는 페이지로 연결
+// Apple Store 스타일 서비스 데이터
 const services = [
   {
     id: 'business-analysis',
     title: 'BM ZEN 사업분석',
-    description: '신규사업 성공률 95%',
+    description: 'AI 기반 성장전략 컨설팅',
     icon: Brain,
-    href: '/services'
+    href: '/services/business-analysis'
   },
   {
     id: 'ai-productivity',
@@ -65,7 +65,7 @@ const services = [
     title: '인증지원',
     description: '연간 5천만원 세제혜택',
     icon: Award,
-    href: '/services'
+    href: '/services/certification'
   },
   {
     id: 'website',
@@ -80,7 +80,6 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
 
-  // 안전한 네비게이션 핸들러
   const handleNavigation = (path: string) => {
     if (typeof window !== 'undefined') {
       router.push(path);
@@ -98,58 +97,50 @@ export default function Header() {
 
   return (
     <>
-      {/* 현대적 플로팅 헤더 */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
-        <div className="container mx-auto px-4 lg:px-8">
-          <nav className="flex items-center justify-between h-16 md:h-20">
-            {/* 브랜드 로고 - 모바일 최적화 */}
+      {/* Apple Store 스타일 헤더 */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200 shadow-apple">
+        <div className="max-w-7xl mx-auto px-6">
+          <nav className="flex items-center justify-between h-16">
+            {/* 브랜드 로고 */}
             <div className="flex items-center">
               <Link href="/" className="group">
-                <div className="relative">
-                  {/* 메인 브랜드 텍스트 */}
-                  <div className="flex flex-col">
-                    <div className="flex items-end space-x-2 md:space-x-3">
-                      <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center">
-                        <img 
-                          src={getImagePath('/company-star-logo.svg')} 
-                          alt="경영지도센터 로고" 
-                          className="w-12 h-12 md:w-16 md:h-16 object-contain transition-transform duration-300 group-hover:scale-110"
-                        />
-                      </div>
-                      <span className="text-xs md:text-sm font-black text-gray-800 group-hover:text-blue-600 transition-colors duration-300 mb-1 md:mb-1.5">
-                        경영지도센터
-                      </span>
-                    </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-apple-button">
+                    <img 
+                      src={getImagePath('/company-star-logo.svg')} 
+                      alt="경영지도센터 로고" 
+                      className="w-6 h-6 object-contain filter brightness-0 invert"
+                    />
                   </div>
-                  
-                  {/* 호버 효과 */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300 -z-10"></div>
+                  <span className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                    경영지도센터
+                  </span>
                 </div>
               </Link>
             </div>
 
-            {/* 데스크톱 네비게이션 - 현대적 스타일 */}
-            <div className="hidden lg:flex items-center space-x-2">
-              <Link href="/" className="nav-item">
-                🏠 홈
+            {/* 데스크톱 네비게이션 */}
+            <div className="hidden lg:flex items-center space-x-8">
+              <Link href="/" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">
+                홈
               </Link>
               
-              {/* 서비스소개 드롭다운 - 현대적 스타일 */}
+              {/* 서비스 드롭다운 */}
               <DropdownMenu>
-                <DropdownMenuTrigger className="nav-item flex items-center group" suppressHydrationWarning>
-                  🛠️ 서비스소개
+                <DropdownMenuTrigger className="flex items-center text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 group">
+                  서비스
                   <ChevronDown className="ml-1 w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-[420px] p-4 bg-white border border-gray-200 shadow-2xl rounded-2xl">
+                <DropdownMenuContent className="w-96 p-6 bg-white/95 backdrop-blur-xl border border-gray-200 shadow-apple-hover rounded-apple">
                   <div className="grid grid-cols-2 gap-3">
                     {services.map((service) => (
                       <DropdownMenuItem key={service.id} asChild>
-                        <Link href={service.href} className="service-card">
-                          <div className="service-icon mr-3">
-                            <service.icon className="w-5 h-5 text-white" />
+                        <Link href={service.href} className="flex items-start p-3 rounded-apple-sm hover:bg-gray-50 transition-colors duration-200">
+                          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
+                            <service.icon className="w-4 h-4 text-white" />
                           </div>
                           <div className="flex-1">
-                            <div className="font-bold text-gray-900 text-sm mb-1">
+                            <div className="font-medium text-gray-900 text-sm mb-1">
                               {service.title}
                             </div>
                             <div className="text-xs text-gray-600 leading-relaxed">
@@ -160,203 +151,161 @@ export default function Header() {
                       </DropdownMenuItem>
                     ))}
                   </div>
-                  
-                  {/* 하단 CTA */}
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    <div className="text-center">
-                      <p className="text-xs text-gray-500 mb-2">더 많은 서비스를 확인하세요</p>
-                      <Link href="/services" className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
-                        전체 서비스 보기 →
-                      </Link>
-                    </div>
-                  </div>
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <Link href="/cases" className="nav-item">
-                🏆 성공사례
+              <Link href="/cases" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">
+                성공사례
               </Link>
-              <Link href="/about" className="nav-item">
-                🏢 회사소개
+              <Link href="/about" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">
+                회사소개
               </Link>
-              <Link href="/support" className="nav-item">
-                💬 고객지원
+              <Link href="/support" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">
+                고객지원
               </Link>
             </div>
 
-            {/* 액션 버튼들 - AI 챗봇 가장 오른쪽 배치 */}
-            <div className="hidden md:flex lg:flex items-center space-x-2 lg:space-x-3">
+            {/* 액션 버튼들 - Apple Store 스타일 */}
+            <div className="hidden md:flex lg:flex items-center space-x-3">
               <Button 
-                className="action-btn-outline text-xs md:text-sm px-2 md:px-3 py-1.5 md:py-2 h-auto"
+                variant="outline"
+                className="border border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full font-medium transition-all duration-200"
                 onClick={() => handleNavigation('/tax-calculator')}
-                suppressHydrationWarning
               >
-                <Calculator className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-                <span className="hidden md:inline">세금계산기</span>
-                <span className="md:hidden">계산기</span>
+                <Calculator className="w-4 h-4 mr-2" />
+                세금계산기
               </Button>
               
               <Button 
-                className="action-btn-primary text-xs md:text-sm px-2 md:px-3 py-1.5 md:py-2 h-auto"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full font-medium shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200"
                 onClick={() => handleNavigation('/diagnosis')}
-                suppressHydrationWarning
               >
-                <Sparkles className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-                <span className="hidden md:inline">무료AI진단</span>
-                <span className="md:hidden">AI진단</span>
+                <Sparkles className="w-4 h-4 mr-2" />
+                무료AI진단
               </Button>
               
               <Button 
-                className="action-btn-secondary text-xs md:text-sm px-2 md:px-3 py-1.5 md:py-2 h-auto"
+                variant="outline"
+                className="border border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full font-medium transition-all duration-200"
                 onClick={() => handleNavigation('/consultation')}
-                suppressHydrationWarning
               >
-                <Phone className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-                <span className="hidden lg:inline">무료상담</span>
-                <span className="lg:hidden">상담</span>
+                <Phone className="w-4 h-4 mr-2" />
+                상담
               </Button>
               
-              {/* 🤖 AI챗봇 버튼 - 가장 오른쪽 배치 */}
               <Button 
-                className="action-btn-ai text-xs md:text-sm px-2 md:px-3 py-1.5 md:py-2 h-auto bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-full font-medium shadow-apple-button transform hover:-translate-y-0.5 transition-all duration-200"
                 onClick={() => handleNavigation('/chatbot')}
-                suppressHydrationWarning
               >
-                <Bot className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-                <span className="hidden md:inline">AI챗봇</span>
-                <span className="md:hidden">AI</span>
+                <Bot className="w-4 h-4 mr-2" />
+                AI챗봇
               </Button>
             </div>
 
-            {/* 모바일 햄버거 메뉴 - 완전히 새로운 디자인 */}
+            {/* 모바일 햄버거 메뉴 */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="md:hidden w-10 h-10 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 border border-gray-200/50 shadow-sm active:scale-95"
+                  className="md:hidden w-10 h-10 rounded-full hover:bg-gray-100 transition-colors duration-200"
                 >
                   <Menu className="w-5 h-5 text-gray-700" />
                 </Button>
               </SheetTrigger>
               <SheetContent 
                 side="right" 
-                className="w-full sm:w-80 bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 border-l border-gray-200/50 backdrop-blur-md"
+                className="w-full sm:w-80 bg-white/95 backdrop-blur-xl border-l border-gray-200"
               >
                 {/* 모바일 메뉴 헤더 */}
-                <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200/50">
+                <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-200">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                       <img 
                         src={getImagePath('/company-star-logo.svg')} 
                         alt="경영지도센터 로고" 
-                        className="w-6 h-6 object-contain filter brightness-0 invert"
+                        className="w-4 h-4 object-contain filter brightness-0 invert"
                       />
                     </div>
                     <div>
-                      <h2 className="font-bold text-gray-900 text-lg">메뉴</h2>
+                      <h2 className="font-semibold text-gray-900">메뉴</h2>
                       <p className="text-xs text-gray-600">경영지도센터</p>
                     </div>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="w-8 h-8 rounded-lg hover:bg-gray-100/50"
+                    className="w-8 h-8 rounded-full hover:bg-gray-100"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <X className="w-4 h-4 text-gray-600" />
                   </Button>
                 </div>
 
-                <div className="space-y-6 pb-6">
-                  {/* ⭐ 인기 서비스 섹션 - 최상단 */}
+                <div className="space-y-6">
+                  {/* 인기 서비스 섹션 */}
                   <div>
-                    <div className="flex items-center mb-4">
-                      <div className="w-6 h-6 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center mr-2 shadow-md">
-                        <Zap className="w-3 h-3 text-white" />
-                      </div>
-                      <h3 className="font-bold text-gray-900 text-lg">인기 서비스</h3>
-                      <div className="ml-2 px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
-                        HOT
-                      </div>
-                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-4">인기 서비스</h3>
                     
                     <div className="space-y-3">
-                      {/* 🔥 세금계산기 - 특별 강조 */}
                       <Button 
-                        className="w-full bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 hover:from-yellow-600 hover:via-orange-600 hover:to-red-600 text-white shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 h-auto p-4 rounded-2xl border-0"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200 rounded-apple-sm p-4 h-auto"
                         onClick={() => handleMobileNavigation('/tax-calculator')}
                       >
                         <div className="flex items-center w-full">
-                          <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-3 shadow-lg">
-                            <Calculator className="w-6 h-6 text-white" />
+                          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-3">
+                            <Calculator className="w-5 h-5 text-white" />
                           </div>
                           <div className="flex-1 text-left">
-                            <div className="font-black text-white text-base flex items-center space-x-2">
-                              <span>🔥 세금계산기</span>
-                              <span className="text-yellow-200 text-xs bg-white/20 px-2 py-0.5 rounded-full animate-bounce">NEW!</span>
-                            </div>
-                            <div className="text-sm text-orange-100 mt-1 font-semibold">11개 전문 계산기 무료!</div>
-                          </div>
-                          <div className="text-white/80">
-                            <ChevronDown className="w-5 h-5 rotate-[-90deg]" />
+                            <div className="font-semibold text-white">세금계산기</div>
+                            <div className="text-sm text-blue-100">11개 전문 계산기</div>
                           </div>
                         </div>
                       </Button>
                       
-                      {/* ⭐ 무료AI진단 */}
                       <Button 
-                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 h-auto p-3.5 rounded-xl"
+                        className="w-full bg-gray-900 hover:bg-gray-800 text-white shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200 rounded-apple-sm p-4 h-auto"
                         onClick={() => handleMobileNavigation('/diagnosis')}
                       >
                         <div className="flex items-center w-full">
-                          <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-3 shadow-md">
+                          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-3">
                             <Sparkles className="w-5 h-5 text-white" />
                           </div>
                           <div className="flex-1 text-left">
-                            <div className="font-bold text-white text-sm">⭐ 무료AI진단</div>
-                            <div className="text-xs text-purple-100 mt-0.5">맞춤 분석 리포트</div>
-                          </div>
-                          <div className="text-white/70">
-                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                            <div className="font-semibold text-white">무료AI진단</div>
+                            <div className="text-sm text-gray-300">맞춤 분석 리포트</div>
                           </div>
                         </div>
                       </Button>
 
-                      {/* 📞 무료상담 */}
                       <Button 
-                        className="w-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 h-auto p-3 rounded-xl"
+                        variant="outline"
+                        className="w-full border border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 rounded-apple-sm p-4 h-auto transition-all duration-200"
                         onClick={() => handleMobileNavigation('/consultation')}
                       >
                         <div className="flex items-center w-full">
-                          <div className="w-9 h-9 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-3 shadow-md">
-                            <Phone className="w-4 h-4 text-white" />
+                          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                            <Phone className="w-5 h-5 text-gray-700" />
                           </div>
                           <div className="flex-1 text-left">
-                            <div className="font-bold text-white text-sm">📞 무료상담</div>
-                            <div className="text-xs text-green-100">전문가 1:1 상담</div>
-                          </div>
-                          <div className="text-white/70">
-                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                            <div className="font-semibold">무료상담</div>
+                            <div className="text-sm text-gray-600">전문가 1:1 상담</div>
                           </div>
                         </div>
                       </Button>
 
-                      {/* 🤖 AI챗봇 */}
                       <Button
-                        className="w-full bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 h-auto p-3 rounded-xl"
+                        variant="outline"
+                        className="w-full border border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 rounded-apple-sm p-4 h-auto transition-all duration-200"
                         onClick={() => handleMobileNavigation('/chatbot')}
                       >
                         <div className="flex items-center w-full">
-                          <div className="w-9 h-9 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-3 shadow-md">
-                            <Bot className="w-4 h-4 text-white" />
+                          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                            <Bot className="w-5 h-5 text-gray-700" />
                           </div>
                           <div className="flex-1 text-left">
-                            <div className="font-bold text-white text-sm">🤖 AI챗봇</div>
-                            <div className="text-xs text-indigo-100">24시간 상담 지원</div>
-                          </div>
-                          <div className="text-white/70">
-                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                            <div className="font-semibold">AI챗봇</div>
+                            <div className="text-sm text-gray-600">24시간 상담</div>
                           </div>
                         </div>
                       </Button>
@@ -364,71 +313,43 @@ export default function Header() {
                   </div>
 
                   {/* 구분선 */}
-                  <div className="border-t border-gray-200/50"></div>
+                  <div className="border-t border-gray-200"></div>
                   
-                  {/* 페이지 메뉴 - 컴팩트 디자인 */}
+                  {/* 페이지 메뉴 */}
                   <div>
-                    <h3 className="font-bold text-gray-900 mb-3 text-base flex items-center">
-                      <FileText className="w-4 h-4 mr-2 text-blue-600" />
-                      페이지 메뉴
-                    </h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Link
-                        href="/"
-                        className="flex flex-col items-center p-3 rounded-xl hover:bg-white/60 transition-all duration-200 border border-gray-100/50 hover:border-blue-200 hover:shadow-md group"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg flex items-center justify-center mb-2 group-hover:from-blue-200 group-hover:to-indigo-200 transition-colors">
-                          <span className="text-lg">🏠</span>
-                        </div>
-                        <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600">홈</span>
-                      </Link>
-                      
-                      <Link
-                        href="/services"
-                        className="flex flex-col items-center p-3 rounded-xl hover:bg-white/60 transition-all duration-200 border border-gray-100/50 hover:border-blue-200 hover:shadow-md group"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <div className="w-8 h-8 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center mb-2 group-hover:from-purple-200 group-hover:to-pink-200 transition-colors">
-                          <span className="text-lg">🛠️</span>
-                        </div>
-                        <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600">서비스</span>
-                      </Link>
-                      
-                      <Link
-                        href="/cases"
-                        className="flex flex-col items-center p-3 rounded-xl hover:bg-white/60 transition-all duration-200 border border-gray-100/50 hover:border-blue-200 hover:shadow-md group"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <div className="w-8 h-8 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-lg flex items-center justify-center mb-2 group-hover:from-yellow-200 group-hover:to-orange-200 transition-colors">
-                          <span className="text-lg">🏆</span>
-                        </div>
-                        <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600">성공사례</span>
-                      </Link>
-                      
-                      <Link
-                        href="/about"
-                        className="flex flex-col items-center p-3 rounded-xl hover:bg-white/60 transition-all duration-200 border border-gray-100/50 hover:border-blue-200 hover:shadow-md group"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <div className="w-8 h-8 bg-gradient-to-br from-green-100 to-teal-100 rounded-lg flex items-center justify-center mb-2 group-hover:from-green-200 group-hover:to-teal-200 transition-colors">
-                          <span className="text-lg">🏢</span>
-                        </div>
-                        <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600">회사소개</span>
-                      </Link>
+                    <h3 className="font-semibold text-gray-900 mb-4">페이지 메뉴</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      {[
+                        { href: '/', label: '홈', icon: '🏠' },
+                        { href: '/services', label: '서비스', icon: '🛠️' },
+                        { href: '/cases', label: '성공사례', icon: '🏆' },
+                        { href: '/about', label: '회사소개', icon: '🏢' }
+                      ].map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className="flex flex-col items-center p-3 rounded-apple-sm hover:bg-gray-50 transition-colors duration-200 border border-gray-200 hover:border-blue-600 group"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <div className="w-8 h-8 bg-gray-100 group-hover:bg-blue-600 group-hover:text-white rounded-lg flex items-center justify-center mb-2 transition-colors">
+                            <span className="text-lg">{item.icon}</span>
+                          </div>
+                          <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600">{item.label}</span>
+                        </Link>
+                      ))}
                     </div>
                   </div>
 
-                  {/* 하단 연락처 정보 */}
-                  <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-gray-200/50">
+                  {/* 하단 연락처 */}
+                  <div className="bg-gray-50 rounded-apple p-4 border border-gray-200">
                     <div className="text-center">
-                      <h4 className="font-bold text-gray-900 text-sm mb-2">📞 전문가 직접 상담</h4>
-                      <div className="text-xs text-gray-600 mb-3">
+                      <h4 className="font-semibold text-gray-900 mb-2">전문가 직접 상담</h4>
+                      <div className="text-sm text-gray-600 mb-3">
                         <p>평일 9:00-18:00</p>
-                        <p className="font-bold text-blue-600 text-sm mt-1">010-9251-9743</p>
+                        <p className="font-semibold text-blue-600">010-9251-9743</p>
                       </div>
                       <Button
-                        className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-xs py-2 rounded-xl shadow-md"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full py-2 text-sm"
                         onClick={() => handleMobileNavigation('/support/contact')}
                       >
                         <MessageCircle className="w-3 h-3 mr-2" />
@@ -443,8 +364,8 @@ export default function Header() {
         </div>
       </header>
       
-      {/* 헤더 공간 확보 - 모바일 최적화 */}
-      <div className="h-16 md:h-20" />
+      {/* 헤더 공간 확보 */}
+      <div className="h-16" />
     </>
   );
 } 

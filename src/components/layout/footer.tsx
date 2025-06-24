@@ -194,39 +194,41 @@ export default function Footer() {
         </div>
 
         {/* 하단 정보 - 모바일 최적화 */}
-        <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <p className="text-gray-400 text-sm text-center md:text-left">
-            © 2025 기업의별 경영지도센터. All rights reserved.
-          </p>
-          <div className="flex flex-wrap justify-center md:justify-end space-x-4 md:space-x-6">
-            <Link 
-              href="/privacy" 
-              className="text-gray-400 hover:text-white text-sm transition-colors touch-manipulation"
-            >
-              개인정보처리방침
-            </Link>
-            <Link 
-              href="/terms" 
-              className="text-gray-400 hover:text-white text-sm transition-colors touch-manipulation"
-            >
-              이용약관
-            </Link>
-            <Link 
-              href="/sitemap" 
-              className="text-gray-400 hover:text-white text-sm transition-colors touch-manipulation"
-            >
-              사이트맵
-            </Link>
+        <div className="border-t border-gray-800 mt-8 pt-8 space-y-4">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <p className="text-gray-400 text-sm text-center md:text-left">
+              © 2025 기업의별 경영지도센터. All rights reserved.
+            </p>
+            <div className="flex flex-wrap justify-center md:justify-end space-x-4 md:space-x-6">
+              <Link 
+                href="/privacy" 
+                className="text-gray-400 hover:text-white text-sm transition-colors touch-manipulation"
+              >
+                개인정보처리방침
+              </Link>
+              <Link 
+                href="/terms" 
+                className="text-gray-400 hover:text-white text-sm transition-colors touch-manipulation"
+              >
+                이용약관
+              </Link>
+              <Link 
+                href="/sitemap" 
+                className="text-gray-400 hover:text-white text-sm transition-colors touch-manipulation"
+              >
+                사이트맵
+              </Link>
+            </div>
           </div>
-        </div>
-
-        {/* 사업자 정보 */}
-        <div className="mt-4 pt-4 border-t border-gray-800">
-          <p className="text-xs md:text-sm text-gray-500 text-center leading-relaxed">
-            사업자등록번호: 123-45-67890 | 대표자: 이후경 | 
-            주소: 서울특별시 강남구 테헤란로 123, 4층 | 
-            통신판매업신고번호: 제2024-서울강남-1234호
-          </p>
+          
+          {/* 사업자 정보 */}
+          <div className="pt-4 border-t border-gray-800">
+            <p className="text-xs md:text-sm text-gray-500 text-center leading-relaxed">
+              사업자등록번호: 123-45-67890 | 대표자: 이후경 | 
+              주소: 서울특별시 강남구 테헤란로 123, 4층 | 
+              통신판매업신고번호: 제2024-서울강남-1234호
+            </p>
+          </div>
         </div>
       </div>
     </footer>

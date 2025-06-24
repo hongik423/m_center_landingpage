@@ -1,13 +1,12 @@
 import type { NextConfig } from 'next';
-import path from 'path';
 
 const nextConfig: NextConfig = {
-  // Vercel 최적화 설정
+  // 개발 모드 최적화
   experimental: {
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+    turbo: undefined, // Turbopack 비활성화로 안정성 확보
   },
   
-  // 정적 자산 경로 최적화
+  // 기본 설정
   trailingSlash: false,
   
   // 이미지 최적화
@@ -16,53 +15,21 @@ const nextConfig: NextConfig = {
     formats: ['image/webp', 'image/avif'],
   },
   
-  // 빌드 최적화
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
-  },
-  
-  // 성능 최적화
-  poweredByHeader: false,
-  compress: true,
-  
-  // HTTP 헤더 최적화
-  async headers() {
-    return [
-      {
-        source: '/_next/static/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-    ];
-  },
-  
-  // 라우팅 최적화
-  async rewrites() {
-    return [
-      {
-        source: '/services/tech-startup',
-        destination: '/services/tech-startup',
-      },
-    ];
-  },
-  
-  // Webpack 설정 - 경로 매핑 해결
-  webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@': path.resolve(__dirname, './src'),
-    };
+  // 웹팩 설정 최적화
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      // 개발 모드에서 캐시 무효화 강화
+      config.cache = false;
+    }
     return config;
   },
   
-  // 환경변수 검증
-  env: {
-    CUSTOM_KEY: process.env.NODE_ENV,
-  },
+  // 성능 설정
+  poweredByHeader: false,
+  compress: true,
+  
+  // 빌드 최적화
+  swcMinify: true,
 };
 
 export default nextConfig;

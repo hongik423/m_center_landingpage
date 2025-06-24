@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -459,25 +460,27 @@ export default function ServicesPage() {
                   
                   {/* 버튼 그룹 */}
                   <div className="flex gap-3">
-                    <Button 
-                      className={`flex-1 font-semibold py-3 transition-all duration-300 ${
-                        service.featured 
-                          ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg' 
-                          : 'bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-gray-300'
-                      }`}
-                      onClick={() => router.push(service.href)}
-                    >
-                      {service.featured ? '지금 시작하기' : '자세히 보기'}
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
+                    <Link href={service.href} className="flex-1">
+                      <Button 
+                        className={`w-full font-semibold py-3 transition-all duration-300 ${
+                          service.featured 
+                            ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg' 
+                            : 'bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        {service.featured ? '지금 시작하기' : '자세히 보기'}
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </Button>
+                    </Link>
                     
-                    <Button 
-                      variant="outline"
-                      className="px-4 py-3 border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50"
-                      onClick={() => router.push('/consultation')}
-                    >
-                      <Phone className="w-4 h-4" />
-                    </Button>
+                    <Link href="/consultation">
+                      <Button 
+                        variant="outline"
+                        className="px-4 py-3 border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+                      >
+                        <Phone className="w-4 h-4" />
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
@@ -566,20 +569,22 @@ export default function ServicesPage() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Button 
-                className="btn-hero bg-white text-blue-600 hover:bg-gray-50 shadow-xl"
-                onClick={() => router.push('/diagnosis')}
-              >
-                <Brain className="w-5 h-5 mr-2" />
-                무료 AI진단 시작
-              </Button>
-              <Button 
-                className="btn-secondary border-2 border-white text-white hover:bg-white hover:text-blue-600"
-                onClick={() => router.push('/consultation')}
-              >
-                <Phone className="w-5 h-5 mr-2" />
-                전문가 상담 신청
-              </Button>
+              <Link href="/diagnosis">
+                <Button 
+                  className="btn-hero bg-white text-blue-600 hover:bg-gray-50 shadow-xl"
+                >
+                  <Brain className="w-5 h-5 mr-2" />
+                  무료 AI진단 시작
+                </Button>
+              </Link>
+              <Link href="/consultation">
+                <Button 
+                  className="btn-secondary border-2 border-white text-white hover:bg-white hover:text-blue-600"
+                >
+                  <Phone className="w-5 h-5 mr-2" />
+                  전문가 상담 신청
+                </Button>
+              </Link>
             </div>
 
             <div className="flex flex-wrap justify-center gap-6 text-sm text-blue-100">

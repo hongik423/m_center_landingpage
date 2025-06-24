@@ -8,8 +8,7 @@ import FloatingChatbot from '@/components/layout/floating-chatbot';
 
 const inter = Inter({ subsets: ['latin'] });
 
-// GitHub Pages 기본 경로 설정
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+// 안정성을 위한 단순화
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NODE_ENV === 'production' 
@@ -75,7 +74,6 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
         
         {/* 🔧 최적화된 캐시 설정 */}
-        <meta name="last-modified" content={new Date().toISOString()} />
         <meta name="version" content="2.0" />
         
         {/* 🔧 한글 폰트 최적화 - Pretendard만 사용 */}

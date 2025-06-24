@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 // 서비스 데이터 - 토스 스타일 업데이트
 const services = [
@@ -283,31 +284,34 @@ export default function Home() {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center px-4 animate-slide-in"
                  style={{ animationDelay: '0.4s' }}>
-              <Button 
-                className="btn-hero bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 
-                          text-white shadow-xl hover:shadow-2xl"
-                onClick={() => router.push('/services')}
-              >
-                <Sparkles className="w-5 h-5 mr-2" />
-                BM ZEN 사업분석 시작하기
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
+              <Link href="/services">
+                <Button 
+                  className="btn-hero bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 
+                            text-white shadow-xl hover:shadow-2xl"
+                >
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  BM ZEN 사업분석 시작하기
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
               
-              <Button 
-                className="btn-primary bg-green-500 hover:bg-green-600"
-                onClick={() => router.push('/diagnosis')}
-              >
-                <Zap className="w-5 h-5 mr-2" />
-                무료 AI진단 신청
-              </Button>
+              <Link href="/diagnosis">
+                <Button 
+                  className="btn-primary bg-green-500 hover:bg-green-600"
+                >
+                  <Zap className="w-5 h-5 mr-2" />
+                  무료 AI진단 신청
+                </Button>
+              </Link>
               
-              <Button 
-                className="btn-secondary"
-                onClick={() => router.push('/consultation')}
-              >
-                <Users className="w-5 h-5 mr-2" />
-                전문가 상담 신청
-              </Button>
+              <Link href="/consultation">
+                <Button 
+                  className="btn-secondary"
+                >
+                  <Users className="w-5 h-5 mr-2" />
+                  전문가 상담 신청
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -424,13 +428,14 @@ export default function Home() {
                         별-AI상담사와 채팅 시작하기
                       </Button>
                       
-                      <Button 
-                        className="w-full btn-secondary"
-                        onClick={() => router.push('/consultation')}
-                      >
-                        <Users className="w-5 h-5 mr-2" />
-                        전문가 직접 상담 신청 (010-9251-9743)
-                      </Button>
+                      <Link href="/consultation">
+                        <Button 
+                          className="w-full btn-secondary"
+                        >
+                          <Users className="w-5 h-5 mr-2" />
+                          전문가 직접 상담 신청 (010-9251-9743)
+                        </Button>
+                      </Link>
                     </div>
 
                     <div className="bg-white/90 p-4 rounded-2xl border border-indigo-200">
@@ -521,17 +526,18 @@ export default function Home() {
                     ✓ {service.subtitle}
                   </div>
                   
-                  <Button 
-                    className={`w-full font-semibold py-3 transition-all duration-300 ${
-                      service.featured 
-                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg' 
-                        : 'bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-gray-300'
-                    }`}
-                    onClick={() => router.push(service.href)}
-                  >
-                    {service.featured ? '지금 시작하기' : '자세히 보기'}
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </Button>
+                  <Link href={service.href}>
+                    <Button 
+                      className={`w-full font-semibold py-3 transition-all duration-300 ${
+                        service.featured 
+                          ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg' 
+                          : 'bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      {service.featured ? '지금 시작하기' : '자세히 보기'}
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             ))}
@@ -711,13 +717,14 @@ export default function Home() {
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-                  <Button 
-                    onClick={() => router.push('/diagnosis')}
-                    className="btn-hero bg-white text-blue-600 hover:bg-gray-50 shadow-xl"
-                  >
-                    <Brain className="w-5 h-5 mr-2" />
-                    무료 AI진단 신청하기
-                  </Button>
+                  <Link href="/diagnosis">
+                    <Button 
+                      className="btn-hero bg-white text-blue-600 hover:bg-gray-50 shadow-xl"
+                    >
+                      <Brain className="w-5 h-5 mr-2" />
+                      무료 AI진단 신청하기
+                    </Button>
+                  </Link>
                 </div>
                 
                 <div className="flex flex-wrap justify-center gap-6 text-sm text-blue-100">
