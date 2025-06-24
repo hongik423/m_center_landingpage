@@ -363,102 +363,59 @@ export async function POST(request: NextRequest) {
           await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
         }
 
-        const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        // Google SDK 사용으로 변경 (더 안정적)
+        const { GoogleGenerativeAI } = await import('@google/generative-ai');
+        const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+        const prompt = `당신은 M-CENTER의 전문 AI 상담사입니다. 
+
+핵심 서비스:
+1. BM ZEN 사업분석 - 매출 20-40% 증대
+2. AI 생산성향상 - 업무효율 40-60% 향상  
+3. 경매활용 공장구매 - 부동산비용 30-50% 절감
+4. 기술사업화/창업 - 평균 5억원 정부지원
+5. 인증지원 - 연간 5천만원 세제혜택
+6. 웹사이트 구축 - 온라인 매출 300-500% 증대
+
+연락처: 010-9251-9743 (이후경 경영지도사)
+
+사용자 질문: ${message}
+
+친근하고 전문적으로 답변하세요.`;
+
+        const result = await model.generateContent({
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: prompt }]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 2048, // 토큰 제한 증가
           },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: `당신은 **기업의별 M-CENTER**의 전문 AI 상담사입니다. 25년간 축적된 경영컨설팅 전문성을 바탕으로 아래 서비스에 대해 친근하면서도 전문적인 상담을 제공해주세요:
-
-🏆 **M-CENTER 6대 핵심 서비스**
-1. **BM ZEN 사업분석** - 독자적 프레임워크로 매출 20-40% 증대 (95% 성공률)
-2. **AI 생산성향상** - ChatGPT 전문 활용으로 업무효율 40-60% 향상 (국내 TOP 3)
-3. **경매활용 공장구매** - 25년 전문 노하우로 부동산비용 30-50% 절감
-4. **기술사업화/창업** - 정부지원 연계 전문기관 (평균 5억원 이상 확보)
-5. **인증지원** - ISO/벤처/연구소 인증으로 연간 5천만원 세제혜택
-6. **웹사이트 구축** - SEO 전문팀의 온라인 매출 300-500% 증대
-
-💡 **답변 가이드라인:**
-- 친근하면서도 전문적인 톤 유지
-- 구체적인 성과와 차별화 포인트 강조
-- 관련 서비스의 실제 혜택과 ROI 제시
-- 즉시 상담 가능한 연락처 제공 (010-9251-9743 이후경 경영지도사)
-- 필요시 무료 진단 및 상담 신청 안내
-- 이모지 활용으로 친근함 표현
-
-🎯 **사용자 질문**: ${message}
-
-**M-CENTER만의 차별화된 우수성과 구체적인 도움 방안을 중심으로 전문적이고 도움이 되는 답변을 제공해주세요.**`
-                  }
-                ]
-              }
-            ],
-            generationConfig: {
-              temperature: 0.7,
-              topK: 40,
-              topP: 0.95,
-              maxOutputTokens: 1024,
-            },
-            safetySettings: [
-              {
-                category: "HARM_CATEGORY_HARASSMENT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-              },
-              {
-                category: "HARM_CATEGORY_HATE_SPEECH",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-              }
-            ]
-          }),
         });
 
-        console.log('📡 GEMINI API 응답 상태:', { 
-          status: geminiResponse.status, 
-          ok: geminiResponse.ok,
-          statusText: geminiResponse.statusText,
+        const response = await result.response;
+        const aiResponse = response.text();
+
+        console.log('✅ GEMINI API 성공 (Google SDK):', { 
+          responseLength: aiResponse.length, 
           retryCount
         });
-
-        // 성공적인 응답 처리
-        if (geminiResponse.ok) {
-          const geminiData = await geminiResponse.json();
-          
-          if (geminiData.candidates && geminiData.candidates[0]?.content?.parts?.[0]?.text) {
-            const aiResponse = geminiData.candidates[0].content.parts[0].text;
-            console.log('✅ GEMINI API 성공:', { responseLength: aiResponse.length, retryCount });
-            
-            return NextResponse.json({
-              response: aiResponse,
-              source: 'gemini-1.5-pro',
-              timestamp: new Date().toISOString(),
-              retryCount,
-              usage: geminiData.usageMetadata
-            }, {
-              headers: getCorsHeaders()
-            });
-          } else {
-            throw new Error('응답 형식 오류: 예상된 데이터 구조를 찾을 수 없습니다');
-          }
-        }
         
-        // 오류 응답 처리
-        const errorText = await geminiResponse.text();
-        lastError = new Error(`API Error ${geminiResponse.status}: ${errorText}`);
-        
-        // 503 (서버 과부하) 등 재시도 가능한 오류는 계속 시도
-        if (geminiResponse.status === 503 || geminiResponse.status === 429) {
-          console.warn(`⚠️ Gemini API ${geminiResponse.status} 오류 - 재시도 ${retryCount + 1}/${maxRetries}`);
-          console.warn('💡 Google Gemini 서버가 과부하 상태입니다. 잠시 후 재시도됩니다.');
-          continue;
-        }
-        
-        // 다른 오류는 즉시 fallback 응답
-        throw lastError;
+        return NextResponse.json({
+          response: aiResponse,
+          source: 'gemini-2.5-flash',
+          timestamp: new Date().toISOString(),
+          retryCount,
+          usage: result.response.usageMetadata
+        }, {
+          headers: getCorsHeaders()
+        });
 
       } catch (error) {
         lastError = error;

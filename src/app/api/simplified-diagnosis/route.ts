@@ -1204,7 +1204,7 @@ async function generateAIEnhancedReport(data: SimplifiedDiagnosisRequest, diagno
 
     const apiKey = getGeminiKey();
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     // 업종별 세부 정보 가져오기
     const mappedIndustry = industryMapping[data.industry] || 'other';
@@ -1504,7 +1504,7 @@ export async function POST(request: NextRequest) {
         processingTime: `${processingTimeSeconds}초`,
         reportType: '🤖 GEMINI AI 고급 진단 보고서',
         aiEnhanced: true,
-        aiModel: 'gemini-1.5-pro',
+        aiModel: 'gemini-2.5-flash',
         warnings: processingResult.warnings.length > 0 ? processingResult.warnings : undefined,
         errors: processingResult.errors.length > 0 ? processingResult.errors : undefined
       },

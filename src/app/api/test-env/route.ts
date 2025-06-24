@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       const { GoogleGenerativeAI } = await import('@google/generative-ai');
       
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
       const prompt = `당신은 M-CENTER의 별-AI상담사입니다. 다음 메시지에 간단히 응답해주세요: "${testMessage}"`;
       
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
         test: {
           input: testMessage,
           output: text,
-          model: 'gemini-pro',
+          model: 'gemini-2.5-flash',
           timestamp: new Date().toISOString()
         },
         status: 'Gemini API가 정상적으로 작동하고 있습니다.'
