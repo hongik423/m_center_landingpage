@@ -20,6 +20,17 @@
     {
       "source": "/sitemap.xml",
       "destination": "/api/sitemap"
+    },
+    {
+      "source": "/services/tech-startup",
+      "destination": "/services/tech-startup"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/tech-startup",
+      "destination": "/services/tech-startup",
+      "permanent": true
     }
   ],
   "headers": [

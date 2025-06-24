@@ -40,6 +40,16 @@ const nextConfig: NextConfig = {
     ];
   },
   
+  // 라우팅 최적화
+  async rewrites() {
+    return [
+      {
+        source: '/services/tech-startup',
+        destination: '/services/tech-startup',
+      },
+    ];
+  },
+  
   // Webpack 설정 - 경로 매핑 해결
   webpack: (config) => {
     config.resolve.alias = {
