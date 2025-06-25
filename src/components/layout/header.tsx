@@ -96,6 +96,11 @@ export default function Header() {
                 인증지원
               </Link>
               
+              <Link href="/services/website" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 flex items-center whitespace-nowrap">
+                <Globe className="w-3.5 h-3.5 mr-1 text-cyan-500" />
+                웹사이트
+              </Link>
+              
               <Link href="/cases" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 whitespace-nowrap">
                 성공사례
               </Link>
@@ -232,6 +237,22 @@ export default function Header() {
                         </div>
                       </Button>
                       
+                      {/* 웹사이트 - 모바일 */}
+                      <Button 
+                        className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200 rounded-apple-sm p-4 h-auto"
+                        onClick={() => handleMobileNavigation('/services/website')}
+                      >
+                        <div className="flex items-center w-full">
+                          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-3">
+                            <Globe className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <div className="font-semibold text-white">웹사이트</div>
+                            <div className="text-sm text-cyan-100">매출증대 웹사이트구축</div>
+                          </div>
+                        </div>
+                      </Button>
+                      
                       <Button 
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200 rounded-apple-sm p-4 h-auto"
                         onClick={() => handleMobileNavigation('/tax-calculator')}
@@ -306,6 +327,7 @@ export default function Header() {
                       {[
                         { href: '/', label: '홈', icon: '🏠' },
                         { href: '/services', label: '서비스', icon: '🛠️' },
+                        { href: '/services/website', label: '웹사이트', icon: '🌐' },
                         { href: '/cases', label: '성공사례', icon: '🏆' },
                         { href: '/diagnosis', label: 'AI진단', icon: '🔍' }
                       ].map((item) => (
