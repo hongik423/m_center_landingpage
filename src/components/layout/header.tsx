@@ -57,7 +57,7 @@ export default function Header() {
                       className="w-8 h-8 object-contain"
                     />
                   </div>
-                                      <span className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                      <span className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-200 text-sm">
                       기업이벤트
                     </span>
                 </div>
@@ -65,75 +65,75 @@ export default function Header() {
             </div>
 
             {/* 데스크톱 네비게이션 - 서비스 직접 표시 */}
-            <div className="hidden lg:flex items-center space-x-8">
-              <Link href="/" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">
+            <div className="hidden lg:flex items-center space-x-4">
+              <Link href="/" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200">
                 홈
               </Link>
               
               {/* 핵심 서비스들을 직접 표시 */}
-              <Link href="/services/business-analysis" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 flex items-center">
-                <Brain className="w-4 h-4 mr-1 text-blue-500" />
+              <Link href="/services/business-analysis" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 flex items-center whitespace-nowrap">
+                <Brain className="w-3.5 h-3.5 mr-1 text-blue-500" />
                 사업분석
               </Link>
               
-              <Link href="/services/ai-productivity" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 flex items-center">
-                <Sparkles className="w-4 h-4 mr-1 text-purple-500" />
+              <Link href="/services/ai-productivity" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 flex items-center whitespace-nowrap">
+                <Sparkles className="w-3.5 h-3.5 mr-1 text-purple-500" />
                 AI솔루션
               </Link>
               
-              <Link href="/services/factory-auction" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 flex items-center">
-                <Factory className="w-4 h-4 mr-1 text-orange-500" />
+              <Link href="/services/factory-auction" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 flex items-center whitespace-nowrap hidden xl:flex">
+                <Factory className="w-3.5 h-3.5 mr-1 text-orange-500" />
                 공장구매
               </Link>
               
-              <Link href="/services/tech-startup" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 flex items-center">
-                <Rocket className="w-4 h-4 mr-1 text-green-500" />
+              <Link href="/services/tech-startup" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 flex items-center whitespace-nowrap hidden xl:flex">
+                <Rocket className="w-3.5 h-3.5 mr-1 text-green-500" />
                 기술창업
               </Link>
               
-              <Link href="/services/certification" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 flex items-center">
-                <Award className="w-4 h-4 mr-1 text-red-500" />
+              <Link href="/services/certification" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 flex items-center whitespace-nowrap">
+                <Award className="w-3.5 h-3.5 mr-1 text-red-500" />
                 인증지원
               </Link>
               
-              <Link href="/cases" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">
+              <Link href="/cases" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 whitespace-nowrap">
                 성공사례
               </Link>
             </div>
 
             {/* 액션 버튼들 - Apple Store 스타일 */}
-            <div className="hidden md:flex lg:flex items-center space-x-3">
+            <div className="hidden md:flex lg:flex items-center space-x-2">
               <Button 
                 variant="outline"
-                className="border border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full font-medium transition-all duration-200"
+                className="border border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200"
                 onClick={() => handleNavigation('/tax-calculator')}
               >
-                <Calculator className="w-4 h-4 mr-2" />
+                <Calculator className="w-3.5 h-3.5 mr-1.5" />
                 세금계산기
               </Button>
               
               <Button 
-                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full font-medium shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full text-sm font-medium shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200"
                 onClick={() => handleNavigation('/diagnosis')}
               >
-                <Sparkles className="w-4 h-4 mr-2" />
+                <Sparkles className="w-3.5 h-3.5 mr-1.5" />
                 무료진단
               </Button>
               
               <Button 
                 variant="outline"
-                className="border border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full font-medium transition-all duration-200"
+                className="border border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200"
                 onClick={() => handleNavigation('/consultation')}
               >
-                <Phone className="w-4 h-4 mr-2" />
+                <Phone className="w-3.5 h-3.5 mr-1.5" />
                 상담
               </Button>
               
               <Button 
-                className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-full font-medium shadow-apple-button transform hover:-translate-y-0.5 transition-all duration-200"
+                className="bg-gray-900 hover:bg-gray-800 text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-apple-button transform hover:-translate-y-0.5 transition-all duration-200"
                 onClick={() => handleNavigation('/chatbot')}
               >
-                <Bot className="w-4 h-4 mr-2" />
+                <Bot className="w-3.5 h-3.5 mr-1.5" />
                 AI상담
               </Button>
             </div>
