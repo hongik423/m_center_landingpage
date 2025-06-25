@@ -46,7 +46,11 @@ import {
   Lock,
   Rocket,
   Calendar,
-  PhoneCall
+  PhoneCall,
+  Code,
+  GitGraph,
+  Activity,
+  Briefcase
 } from 'lucide-react';
 
 export default function BusinessAnalysisPage() {
@@ -205,7 +209,7 @@ export default function BusinessAnalysisPage() {
               <div>
                 <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 px-4 py-2 rounded-full mb-6">
                   <Brain className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-800">신규사업 성공률 95%</span>
+                  <span className="text-sm font-medium text-blue-800">실제 기업 검증 완료 · ROI 375% 달성</span>
                 </div>
                 
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
@@ -218,24 +222,55 @@ export default function BusinessAnalysisPage() {
                 <p className="text-lg md:text-xl text-gray-600 mb-6 leading-relaxed">
                   <strong>AI와 BM Zen으로 기업의 숨겨진 성장 동력을 발굴하고, 측정 가능한 성과를 만들어내는 실행 중심 컨설팅</strong>
                 </p>
+
+                <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 mb-6 border border-amber-200">
+                  <div className="flex items-center mb-4">
+                    <Award className="w-8 h-8 text-amber-600 mr-3" />
+                    <h3 className="text-xl font-bold text-gray-900">핵심 차별점</h3>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center">
+                      <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                      <span>실제 기업 데이터 기반 진단</span>
+                    </div>
+                    <div className="flex items-center">
+                      <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                      <span>AI 도구 직접 구현</span>
+                    </div>
+                    <div className="flex items-center">
+                      <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                      <span>30일 내 가시적 결과</span>
+                    </div>
+                    <div className="flex items-center">
+                      <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                      <span>실행 중심 접근</span>
+                    </div>
+                  </div>
+                </div>
                 
                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-6 border border-blue-100">
                   <div className="flex items-center mb-4">
                     <Factory className="w-8 h-8 text-blue-600 mr-3" />
-                    <h3 className="text-xl font-bold text-gray-900">실제 기업 적용 사례</h3>
+                    <h3 className="text-xl font-bold text-gray-900">㈜한국정밀기계 실제 적용 사례</h3>
+                  </div>
+                  <div className="text-sm text-gray-600 mb-4">
+                    자동차 부품 제조업 · 직원 45명 · 연매출 120억원 · 성장 단계 Step 2
                   </div>
                   <div className="grid md:grid-cols-3 gap-4">
-                    <div className="text-center">
+                    <div className="text-center bg-white rounded-lg p-4">
                       <div className="text-2xl font-bold text-blue-600">42%</div>
                       <div className="text-sm text-gray-600">생산성 향상</div>
+                      <div className="text-xs text-gray-500">100개 → 142개/일</div>
                     </div>
-                    <div className="text-center">
+                    <div className="text-center bg-white rounded-lg p-4">
                       <div className="text-2xl font-bold text-green-600">290%</div>
                       <div className="text-sm text-gray-600">6개월 ROI</div>
+                      <div className="text-xs text-gray-500">8천만원 투자</div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-purple-600">96.8%</div>
-                      <div className="text-sm text-gray-600">AI 품질검사 정확도</div>
+                    <div className="text-center bg-white rounded-lg p-4">
+                      <div className="text-2xl font-bold text-red-600">-78%</div>
+                      <div className="text-sm text-gray-600">품질 불량률</div>
+                      <div className="text-xs text-gray-500">3.2% → 0.7%</div>
                     </div>
                   </div>
                 </div>
@@ -331,7 +366,7 @@ export default function BusinessAnalysisPage() {
               { id: 'features', label: 'AI 솔루션' },
               { id: 'process', label: '16주 실행 프로그램' },
               { id: 'cases', label: '실제 기업 사례' },
-              { id: 'pricing', label: '서비스 패키지' }
+              { id: 'service-cases', label: '서비스 사례' }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -554,211 +589,270 @@ export default function BusinessAnalysisPage() {
             </div>
           )}
 
-          {activeTab === 'pricing' && (
+          {activeTab === 'service-cases' && (
             <div className="max-w-6xl mx-auto">
               <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
-                서비스 패키지 및 투자 비용
+                서비스 신청 및 진행 프로세스
               </h2>
               
-              <div className="grid lg:grid-cols-3 gap-8 mb-12">
-                {/* Starter 패키지 */}
-                <Card className="border-2 border-gray-200 hover:border-blue-300 transition-all duration-300">
-                  <CardHeader className="text-center pb-4">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4">
-                      <Rocket className="w-8 h-8 text-blue-600" />
+              {/* 서비스 진행 단계 */}
+              <div className="grid lg:grid-cols-5 gap-6 mb-16">
+                <Card className="text-center border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Briefcase className="w-8 h-8 text-white" />
                     </div>
-                    <CardTitle className="text-xl">BM Zen Starter</CardTitle>
-                    <p className="text-gray-600 text-sm">Step 1-2 기업 (연매출 50-200억원)</p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center mb-6">
-                      <div className="text-3xl font-bold text-blue-600">6,000만원</div>
-                      <div className="text-sm text-gray-600">16주 프로그램</div>
-                    </div>
-                    <ul className="space-y-3 text-sm">
-                      <li className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        BM Zen 프레임워크 기반 종합 진단
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        기본 AI 도구 도입 (ChatGPT, Claude)
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        핵심 프로세스 3개 영역 최적화
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        생산성 20% 이상 향상 보장
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        3개월 사후관리
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
-
-                {/* Professional 패키지 - 추천 */}
-                <Card className="border-2 border-purple-300 relative shadow-xl scale-105">
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2">
-                      <Star className="w-4 h-4 mr-1" />
-                      추천
+                    <h3 className="font-bold text-gray-900 mb-2">1단계</h3>
+                    <p className="text-sm font-semibold text-green-600 mb-2">무료 사전 진단</p>
+                    <p className="text-xs text-gray-600 mb-3">온라인 사전 진단 시스템으로 기본 현황 파악</p>
+                    <Badge variant="outline" className="text-xs">
+                      <Clock className="w-3 h-3 mr-1" />
+                      1주
                     </Badge>
-                  </div>
-                  <CardHeader className="text-center pb-4">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mx-auto mb-4">
-                      <Award className="w-8 h-8 text-purple-600" />
-                    </div>
-                    <CardTitle className="text-xl">BM Zen Professional</CardTitle>
-                    <p className="text-gray-600 text-sm">Step 2-3 기업 (연매출 100-500억원)</p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center mb-6">
-                      <div className="text-3xl font-bold text-purple-600">1억 2,000만원</div>
-                      <div className="text-sm text-gray-600">20주 프로그램</div>
-                    </div>
-                    <ul className="space-y-3 text-sm">
-                      <li className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        완전 맞춤형 AI 솔루션 개발
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        컴퓨터 비전 품질 검사 시스템
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        통합 CRM/ERP 시스템 구축
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        실시간 대시보드 및 분석 시스템
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        생산성 40% 이상 향상 보장
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        6개월 사후관리
-                      </li>
-                    </ul>
                   </CardContent>
                 </Card>
 
-                {/* Enterprise 패키지 */}
-                <Card className="border-2 border-gold-200 hover:border-gold-300 transition-all duration-300">
-                  <CardHeader className="text-center pb-4">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mx-auto mb-4">
-                      <Building2 className="w-8 h-8 text-yellow-600" />
+                <Card className="text-center border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Activity className="w-8 h-8 text-white" />
                     </div>
-                    <CardTitle className="text-xl">BM Zen Enterprise</CardTitle>
-                    <p className="text-gray-600 text-sm">Step 3-4 기업 (연매출 500억원+)</p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center mb-6">
-                      <div className="text-3xl font-bold text-yellow-600">2억원+</div>
-                      <div className="text-sm text-gray-600">24주 프로그램</div>
+                    <h3 className="font-bold text-gray-900 mb-2">2단계</h3>
+                    <p className="text-sm font-semibold text-blue-600 mb-2">상세 진단 및 제안</p>
+                    <p className="text-xs text-gray-600 mb-3">현장 방문 진단 및 30페이지 종합 분석 보고서</p>
+                    <Badge variant="outline" className="text-xs">
+                      <Clock className="w-3 h-3 mr-1" />
+                      1주
+                    </Badge>
+                  </CardContent>
+                </Card>
+
+                <Card className="text-center border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-violet-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <GitGraph className="w-8 h-8 text-white" />
                     </div>
-                    <ul className="space-y-3 text-sm">
-                      <li className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        전사적 AI 생태계 구축
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        예측 분석 및 의사결정 지원 시스템
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        글로벌 확장 대응 시스템
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        혁신 R&D 지원 시스템
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        생산성 60% 이상 향상 보장
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        12개월 사후관리 + 지속적 파트너십
-                      </li>
-                    </ul>
+                    <h3 className="font-bold text-gray-900 mb-2">3단계</h3>
+                    <p className="text-sm font-semibold text-purple-600 mb-2">계약 및 킥오프</p>
+                    <p className="text-xs text-gray-600 mb-3">서비스 계약 체결 및 전담 팀 구성</p>
+                    <Badge variant="outline" className="text-xs">
+                      <Clock className="w-3 h-3 mr-1" />
+                      1주
+                    </Badge>
+                  </CardContent>
+                </Card>
+
+                <Card className="text-center border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Code className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 mb-2">4단계</h3>
+                    <p className="text-sm font-semibold text-orange-600 mb-2">실행 및 모니터링</p>
+                    <p className="text-xs text-gray-600 mb-3">AI 시스템 구축 및 프로세스 최적화</p>
+                    <Badge variant="outline" className="text-xs">
+                      <Clock className="w-3 h-3 mr-1" />
+                      16-24주
+                    </Badge>
+                  </CardContent>
+                </Card>
+
+                <Card className="text-center border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="w-16 h-16 bg-gradient-to-r from-teal-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Award className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 mb-2">5단계</h3>
+                    <p className="text-sm font-semibold text-teal-600 mb-2">성과 검증 및 사후관리</p>
+                    <p className="text-xs text-gray-600 mb-3">성과 검증 및 지속적 파트너십</p>
+                    <Badge variant="outline" className="text-xs">
+                      <Clock className="w-3 h-3 mr-1" />
+                      3-12개월
+                    </Badge>
                   </CardContent>
                 </Card>
               </div>
 
-              {/* ROI 계산기 */}
+              {/* 실제 기업별 서비스 사례 */}
+              <div className="mb-16">
+                <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">
+                  기업 규모별 맞춤 서비스 사례
+                </h3>
+                <div className="grid lg:grid-cols-3 gap-8">
+                  {/* BM Zen Starter */}
+                  <Card className="border-2 border-blue-200 hover:border-blue-300 transition-all duration-300">
+                    <CardHeader className="text-center pb-4">
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4">
+                        <Rocket className="w-8 h-8 text-blue-600" />
+                      </div>
+                      <CardTitle className="text-xl text-blue-600">BM Zen Starter</CardTitle>
+                      <p className="text-gray-600 text-sm">Step 1-2 기업 대상</p>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="mb-6">
+                        <h4 className="font-bold text-gray-900 mb-2">적용 대상</h4>
+                        <p className="text-sm text-gray-600 mb-4">연매출 50-200억원, 직원 10-50명</p>
+                        
+                        <h4 className="font-bold text-gray-900 mb-2">주요 서비스</h4>
+                        <ul className="space-y-2 text-sm text-gray-600">
+                          <li className="flex items-start">
+                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            BM Zen 프레임워크 기반 종합 진단
+                          </li>
+                          <li className="flex items-start">
+                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            기본 AI 도구 도입 (ChatGPT, Claude)
+                          </li>
+                          <li className="flex items-start">
+                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            핵심 프로세스 3개 영역 최적화
+                          </li>
+                          <li className="flex items-start">
+                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            생산성 20% 이상 향상 보장
+                          </li>
+                        </ul>
+                      </div>
+                      
+                      <div className="bg-blue-50 rounded-lg p-4">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-blue-600">150%</div>
+                          <div className="text-sm text-gray-600">예상 6개월 ROI</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* BM Zen Professional */}
+                  <Card className="border-2 border-purple-300 relative shadow-xl scale-105">
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                      <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2">
+                        <Star className="w-4 h-4 mr-1" />
+                        추천
+                      </Badge>
+                    </div>
+                    <CardHeader className="text-center pb-4">
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mx-auto mb-4">
+                        <Award className="w-8 h-8 text-purple-600" />
+                      </div>
+                      <CardTitle className="text-xl text-purple-600">BM Zen Professional</CardTitle>
+                      <p className="text-gray-600 text-sm">Step 2-3 기업 대상</p>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="mb-6">
+                        <h4 className="font-bold text-gray-900 mb-2">적용 대상</h4>
+                        <p className="text-sm text-gray-600 mb-4">연매출 100-500억원, 직원 50-300명</p>
+                        
+                        <h4 className="font-bold text-gray-900 mb-2">주요 서비스</h4>
+                        <ul className="space-y-2 text-sm text-gray-600">
+                          <li className="flex items-start">
+                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            완전 맞춤형 AI 솔루션 개발
+                          </li>
+                          <li className="flex items-start">
+                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            컴퓨터 비전 품질 검사 시스템
+                          </li>
+                          <li className="flex items-start">
+                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            통합 CRM/ERP 시스템 구축
+                          </li>
+                          <li className="flex items-start">
+                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            생산성 40% 이상 향상 보장
+                          </li>
+                        </ul>
+                      </div>
+                      
+                      <div className="bg-purple-50 rounded-lg p-4">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-purple-600">290%</div>
+                          <div className="text-sm text-gray-600">실제 6개월 ROI</div>
+                          <div className="text-xs text-gray-500 mt-1">한국정밀기계 사례</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* BM Zen Enterprise */}
+                  <Card className="border-2 border-yellow-200 hover:border-yellow-300 transition-all duration-300">
+                    <CardHeader className="text-center pb-4">
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mx-auto mb-4">
+                        <Building2 className="w-8 h-8 text-yellow-600" />
+                      </div>
+                      <CardTitle className="text-xl text-yellow-600">BM Zen Enterprise</CardTitle>
+                      <p className="text-gray-600 text-sm">Step 3-4 기업 대상</p>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="mb-6">
+                        <h4 className="font-bold text-gray-900 mb-2">적용 대상</h4>
+                        <p className="text-sm text-gray-600 mb-4">연매출 500억원+, 직원 300명+</p>
+                        
+                        <h4 className="font-bold text-gray-900 mb-2">주요 서비스</h4>
+                        <ul className="space-y-2 text-sm text-gray-600">
+                          <li className="flex items-start">
+                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            전사적 AI 생태계 구축
+                          </li>
+                          <li className="flex items-start">
+                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            예측 분석 및 의사결정 지원
+                          </li>
+                          <li className="flex items-start">
+                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            글로벌 확장 대응 시스템
+                          </li>
+                          <li className="flex items-start">
+                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            생산성 60% 이상 향상 보장
+                          </li>
+                        </ul>
+                      </div>
+                      
+                      <div className="bg-yellow-50 rounded-lg p-4">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-yellow-600">680%</div>
+                          <div className="text-sm text-gray-600">예상 12개월 ROI</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+              {/* 특별 혜택 */}
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-8 border border-green-100">
                 <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                  예상 투자 수익률 (ROI) 계산
+                  특별 혜택 및 보장 서비스
                 </h3>
-                <div className="grid md:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <div className="text-center">
-                    <h4 className="font-bold text-lg text-gray-900 mb-4">Professional 패키지 기준</h4>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">투자 비용:</span>
-                        <span className="font-semibold">1억 2,000만원</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">월간 절감:</span>
-                        <span className="font-semibold text-green-600">5,200만원</span>
-                      </div>
-                      <div className="flex justify-between border-t pt-2">
-                        <span className="text-gray-900 font-bold">6개월 ROI:</span>
-                        <span className="font-bold text-green-600 text-lg">290%</span>
-                      </div>
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle className="w-8 h-8 text-green-600" />
                     </div>
+                    <h4 className="font-bold text-gray-900 mb-2">무료 사전 진단</h4>
+                    <p className="text-sm text-gray-600">사전 진단 및 기본 리포트 무료 제공</p>
                   </div>
-                  
                   <div className="text-center">
-                    <h4 className="font-bold text-lg text-gray-900 mb-4">비용 절감 영역</h4>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">인건비 절감:</span>
-                        <span className="font-semibold">2,800만원</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">재료비 절감:</span>
-                        <span className="font-semibold">1,200만원</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">품질 비용:</span>
-                        <span className="font-semibold">800만원</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">기타 효율성:</span>
-                        <span className="font-semibold">400만원</span>
-                      </div>
+                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Shield className="w-8 h-8 text-blue-600" />
                     </div>
+                    <h4 className="font-bold text-gray-900 mb-2">성과 보장</h4>
+                    <p className="text-sm text-gray-600">목표 미달 시 서비스 비용 50% 환불</p>
                   </div>
-                  
                   <div className="text-center">
-                    <h4 className="font-bold text-lg text-gray-900 mb-4">특별 혜택</h4>
-                    <div className="space-y-3">
-                      <div className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                        <span className="text-sm">무료 사전 진단</span>
-                      </div>
-                      <div className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                        <span className="text-sm">성과 보장 (50% 환불)</span>
-                      </div>
-                      <div className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                        <span className="text-sm">정부 지원금 연계</span>
-                      </div>
-                      <div className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                        <span className="text-sm">분할 결제 가능</span>
-                      </div>
+                    <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <DollarSign className="w-8 h-8 text-purple-600" />
                     </div>
+                    <h4 className="font-bold text-gray-900 mb-2">정부 지원 연계</h4>
+                    <p className="text-sm text-gray-600">스마트공장, 디지털 뉴딜 등 지원금 최대 활용</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Calendar className="w-8 h-8 text-orange-600" />
+                    </div>
+                    <h4 className="font-bold text-gray-900 mb-2">분할 결제</h4>
+                    <p className="text-sm text-gray-600">성과 연동 분할 결제 (초기 30% → 성과 달성 시 70%)</p>
                   </div>
                 </div>
               </div>
