@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Header, Footer } from '@/components/layout';
+import { Header } from '@/components/layout';
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@/components/ui';
 import { Send, Bot, User, Sparkles, Shield, Clock, Zap, Brain, Star, Users, CheckCircle2 } from 'lucide-react';
 import { getImagePath } from '@/lib/utils';
@@ -436,8 +436,6 @@ export default function ChatbotPage() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 } 

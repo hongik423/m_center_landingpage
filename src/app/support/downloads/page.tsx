@@ -1,7 +1,7 @@
 'use client';
 
 import Header from '@/components/layout/header';
-import Footer from '@/components/layout/footer';
+
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, FileText, Video } from 'lucide-react';
@@ -98,8 +98,6 @@ export default function DownloadsPage() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 } 

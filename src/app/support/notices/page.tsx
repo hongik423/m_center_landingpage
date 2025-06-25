@@ -1,7 +1,7 @@
 'use client';
 
 import Header from '@/components/layout/header';
-import Footer from '@/components/layout/footer';
+
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Bell } from 'lucide-react';
@@ -97,8 +97,6 @@ export default function NoticesPage() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 } 

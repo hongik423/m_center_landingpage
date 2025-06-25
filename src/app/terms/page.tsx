@@ -1,7 +1,7 @@
 'use client';
 
 import Header from '@/components/layout/header';
-import Footer from '@/components/layout/footer';
+
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function TermsPage() {
@@ -105,8 +105,6 @@ export default function TermsPage() {
           </Card>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 } 

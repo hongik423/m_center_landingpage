@@ -1,7 +1,7 @@
 'use client';
 
 import Header from '@/components/layout/header';
-import Footer from '@/components/layout/footer';
+
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
@@ -283,8 +283,6 @@ export default function SupportPage() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 } 

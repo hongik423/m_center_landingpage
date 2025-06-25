@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '@/components/layout/header';
-import Footer from '@/components/layout/footer';
+
 import { 
   Factory, 
   ArrowRight,
@@ -219,8 +219,6 @@ export default function FactoryAuctionPage() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 } 

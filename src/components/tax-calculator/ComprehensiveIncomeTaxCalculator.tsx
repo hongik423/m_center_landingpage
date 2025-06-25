@@ -28,6 +28,7 @@ import { ComprehensiveIncomeTaxCalculator, ComprehensiveTaxInputValidator } from
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import { COMPREHENSIVE_TAX_LIMITS_2024 } from '@/constants/tax-rates-2024';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
+import { PDFGenerator } from '@/lib/utils/pdfGenerator';
 
 interface NumberInputProps {
   label: string;
@@ -267,6 +268,7 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
   const [results, setResults] = useState<ComprehensiveIncomeTaxResult | null>(null);
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [isCalculating, setIsCalculating] = useState(false);
+  const [isSavingPDF, setIsSavingPDF] = useState(false);
 
   const updateInput = (field: keyof ComprehensiveIncomeTaxInput, value: any) => {
     setInputs(prev => ({ ...prev, [field]: value }));
@@ -365,6 +367,53 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
       previousYearTaxPaid: 5000000,   // 기납부세액 500만원
       isSmallBusiness: false
     });
+  };
+
+  // PDF 저장 함수
+  const handleSavePDF = async () => {
+    if (!results) {
+      alert('계산 결과가 없습니다. 먼저 계산을 실행해주세요.');
+      return;
+    }
+
+    setIsSavingPDF(true);
+    try {
+      // 세금계산 결과를 진단 형태로 변환
+      const taxData = {
+        type: 'comprehensive-income-tax',
+        title: '종합소득세 계산 결과',
+        companyName: '개인납세자',
+        results: {
+          ...results,
+          inputs: inputs
+        },
+        timestamp: new Date().toLocaleString('ko-KR'),
+        summary: {
+          totalIncome: results.totalIncome,
+          totalGrossIncome: results.totalGrossIncome,
+          taxableIncome: results.taxableIncome,
+          determinedTax: results.determinedTax,
+          localIncomeTax: results.localIncomeTax,
+          additionalTax: results.additionalTax,
+          refundTax: results.refundTax,
+          effectiveRate: results.effectiveRate,
+          marginalRate: results.marginalRate
+        }
+      };
+
+      await PDFGenerator.generateDiagnosisPDF(taxData, {
+        title: '종합소득세 계산 결과서',
+        companyName: '개인납세자',
+        includeDetails: true
+      });
+
+      alert('✅ PDF 저장이 완료되었습니다!\n다운로드 폴더를 확인해주세요.');
+    } catch (error) {
+      console.error('PDF 저장 오류:', error);
+      alert('PDF 저장 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.');
+    } finally {
+      setIsSavingPDF(false);
+    }
   };
 
   // 자녀세액공제 자동 계산
@@ -954,9 +1003,23 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
                         </>
                       )}
                     </Button>
-                    <Button variant="outline" size="sm">
-                      <Download className="w-4 h-4 mr-2" />
-                      저장
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleSavePDF}
+                      disabled={isSavingPDF || !results}
+                    >
+                      {isSavingPDF ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                          PDF 생성 중...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-4 h-4 mr-2" />
+                          PDF 저장
+                        </>
+                      )}
                     </Button>
                   </div>
 

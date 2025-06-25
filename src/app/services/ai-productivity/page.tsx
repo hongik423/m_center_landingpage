@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Header from '@/components/layout/header';
-import Footer from '@/components/layout/footer';
+
 import { 
   Brain, 
   ArrowRight,
@@ -1344,8 +1344,6 @@ export default function AIProductivityPage() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 } 

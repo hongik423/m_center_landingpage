@@ -53,12 +53,12 @@ export default function Header() {
                   <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-apple-button border border-gray-200">
                     <img 
                       src={getImagePath('/LOGO.JPG')} 
-                      alt="기업이벤트 로고" 
+                      alt="M-CENTER 로고" 
                       className="w-8 h-8 object-contain"
                     />
                   </div>
                       <span className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-200 text-sm">
-                      기업이벤트
+                      M-CENTER (경영지도센터)
                     </span>
                 </div>
               </Link>
@@ -159,13 +159,13 @@ export default function Header() {
                     <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center border border-gray-200">
                       <img 
                         src={getImagePath('/LOGO.JPG')} 
-                        alt="기업이벤트 로고" 
+                        alt="M-CENTER 로고" 
                         className="w-6 h-6 object-contain"
                       />
                     </div>
                     <div>
                       <h2 className="font-semibold text-gray-900">메뉴</h2>
-                      <p className="text-xs text-gray-600">기업이벤트</p>
+                      <p className="text-xs text-gray-600">M-CENTER (경영지도센터)</p>
                     </div>
                   </div>
                   <Button

@@ -28,13 +28,13 @@ export default function Footer() {
               <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg border border-gray-200">
                 <img 
                   src={getImagePath('/LOGO.JPG')}
-                  alt="기업이벤트 로고" 
+                  alt="M-CENTER 로고" 
                   className="w-10 h-10 object-contain"
                 />
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-bold text-xl text-white">기업이벤트</span>
+                  <span className="font-bold text-xl text-white">M-CENTER (경영지도센터)</span>
                   <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded-full">STAR</span>
                 </div>
                 <p className="text-gray-300 text-sm">프리미엄 비즈니스 혁신 프레임워크</p>
@@ -183,7 +183,7 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-center md:text-left">
               <p className="text-gray-400 text-sm mb-2">
-                © 2025 기업이벤트. All rights reserved.
+                © 2025 M-CENTER (경영지도센터). All rights reserved.
               </p>
               <p className="text-xs text-gray-500">
                 사업자등록번호: 123-45-67890 | 대표자: 이후경 | 통신판매업신고번호: 제2024-서울강남-1234호

@@ -1,5 +1,5 @@
 import Header from '@/components/layout/header';
-import Footer from '@/components/layout/footer';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { ExternalLink } from 'lucide-react';
@@ -136,8 +136,6 @@ export default function SitemapPage() {
           </Card>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 } 
