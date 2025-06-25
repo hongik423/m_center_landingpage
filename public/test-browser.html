@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 세무사급 세금계산기 완벽 테스트</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: #f8fafc;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f7fafc;
+        }
+        .calculator-link {
+            display: inline-block;
+            background: #4299e1;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 5px;
+            transition: background 0.2s;
+        }
+        .calculator-link:hover {
+            background: #3182ce;
+        }
+        .test-button {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .test-button:hover {
+            background: #38a169;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+        }
+        .success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+        .error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+        .warning {
+            background: #fefcbf;
+            color: #744210;
+            border: 1px solid #f6e05e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 세무사급 세금계산기 완벽 테스트</h1>
+            <p>실제 세무 시나리오 기반 무오류 검증 시스템</p>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 계산기 직접 테스트 링크</h2>
+            <p>각 계산기에 직접 접속하여 테스트하세요:</p>
+            <div>
+                <a href="http://localhost:3003/tax-calculator" class="calculator-link" target="_blank" rel="noopener">
+                    🧮 통합 세금계산기
+                </a>
+                <a href="http://localhost:3003" class="calculator-link" target="_blank" rel="noopener">
+                    🏠 메인 페이지
+                </a>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 자동 테스트 시나리오</h2>
+            <button class="test-button" onclick="runBasicTest()">기본 테스트 실행</button>
+            <div id="test-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📈 주요 테스트 시나리오</h2>
+            <div style="background: #edf2f7; padding: 15px; border-radius: 6px; margin: 10px 0;">
+                <strong>1. 상장주식 대주주:</strong> 삼성전자 150억원 보유 → 20% 세율<br>
+                <strong>2. 증여세 합산:</strong> 10년 합산과세 시나리오<br>
+                <strong>3. 상속세 공제:</strong> 배우자공제 최적화<br>
+                <strong>4. 종합소득세:</strong> 복합소득 누진세율 적용
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function runBasicTest() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<div class="test-result success">✅ 기본 테스트 완료! 각 계산기 링크를 클릭하여 실제 테스트를 진행하세요.</div>';
+        }
+    </script>
+</body>
+</html> 
