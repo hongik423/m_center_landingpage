@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,11 +10,12 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Calculator, PieChart, Users, Building, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
 import { InheritanceTaxCalculator, InheritanceTaxInputValidator } from '@/lib/utils/inheritance-tax-calculations';
 import { InheritanceTaxInput, InheritanceTaxResult } from '@/types/tax-calculator.types';
 import { INHERITANCE_TAX_LIMITS_2024 } from '@/constants/tax-rates-2024';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
-import { formatNumber, formatWon } from '@/lib/utils';
+import { formatNumber, formatWon, formatNumberInput, parseFormattedNumber, handleNumberInputChange } from '@/lib/utils';
 
 interface NumberInputProps {
   label: string;
@@ -43,34 +44,89 @@ const NumberInput: React.FC<NumberInputProps> = ({
   dependentValue,
   dynamicInfo
 }) => {
-  const [displayValue, setDisplayValue] = useState(formatNumber(value));
+  const [displayValue, setDisplayValue] = useState(value && value > 0 ? formatNumberInput(value) : '');
   const [hasWarning, setHasWarning] = useState(false);
   const [dynamicMessage, setDynamicMessage] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
+
+  useEffect(() => {
+    if (!isFocused) {
+      setDisplayValue(value && value > 0 ? formatNumberInput(value) : '');
+    }
+  }, [value, isFocused]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value.replace(/[^\d]/g, '');
-    const numericValue = Math.round(parseInt(inputValue) || 0);
+    const inputValue = e.target.value;
     
-    setDisplayValue(formatNumber(numericValue));
+    // 천단위 구분기호와 함께 숫자 입력 처리
+    const formattedValue = handleNumberInputChange(
+      inputValue,
+      (num) => {
+        // 한도 체크
+        let finalValue = num;
+        let warning = false;
+        
+        if (limit && num > limit) {
+          finalValue = limit;
+          warning = true;
+        }
+        
+        setHasWarning(warning);
+        
+        // 동적 정보 업데이트
+        if (dynamicInfo) {
+          setDynamicMessage(dynamicInfo(finalValue, dependentValue));
+        }
+        
+        onChange(finalValue);
+      },
+      { min: 0, max: limit, allowEmpty: true }
+    );
     
-    // 한도 체크
-    let finalValue = numericValue;
-    let warning = false;
+    setDisplayValue(formattedValue);
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    // 포커스 시 원본 숫자만 표시 (편집하기 쉽게)
+    const rawNumber = parseFormattedNumber(displayValue);
+    if (rawNumber > 0) {
+      setDisplayValue(rawNumber.toString());
+    }
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    // 포커스 해제 시 천단위 구분기호 적용
+    const rawNumber = parseFormattedNumber(displayValue || '0');
     
-    if (limit && numericValue > limit) {
-      finalValue = limit;
-      warning = true;
-      setDisplayValue(formatNumber(limit));
+    if (rawNumber === 0) {
+      setDisplayValue('');
+    } else {
+      // 범위 체크 후 정규화
+      let finalValue = rawNumber;
+      if (limit !== undefined && rawNumber > limit) finalValue = limit;
+      
+      setDisplayValue(formatNumberInput(finalValue));
+      if (finalValue !== rawNumber) {
+        onChange(finalValue);
+      }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // 숫자, 백스페이스, 삭제, 탭, 화살표만 허용
+    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+    const isNumber = /^[0-9]$/.test(e.key);
+    
+    if (!allowedKeys.includes(e.key) && !isNumber) {
+      e.preventDefault();
     }
     
-    setHasWarning(warning);
-    
-    // 동적 정보 업데이트
-    if (dynamicInfo) {
-      setDynamicMessage(dynamicInfo(finalValue, dependentValue));
+    // 엔터 키 처리
+    if (e.key === 'Enter') {
+      (e.target as HTMLInputElement).blur();
     }
-    
-    onChange(finalValue);
   };
 
   // 초기 동적 메시지 설정
@@ -97,12 +153,28 @@ const NumberInput: React.FC<NumberInputProps> = ({
       </div>
       <Input
         id={label.replace(/\s/g, '')}
+        type="text"
+        inputMode="numeric"
         value={displayValue}
         onChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
         placeholder={placeholder}
         disabled={disabled}
-        className={hasWarning ? 'border-orange-300 bg-orange-50' : ''}
+        autoComplete="off"
+        title={label}
+        aria-label={label}
+        className={`${hasWarning ? 'border-orange-300 bg-orange-50' : ''} text-right font-mono`}
       />
+      
+      {/* 포커스 시 사용법 안내 */}
+      {isFocused && (
+        <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded border">
+          💡 숫자만 입력하세요. 천단위 쉼표는 자동으로 표시됩니다.
+          {limit !== undefined && ` (최대: ${formatNumber(limit)}${unit})`}
+        </div>
+      )}
       {hasWarning && (
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-2">
           <p className="text-sm text-orange-600">
@@ -186,6 +258,157 @@ export const InheritanceTaxCalculatorComponent: React.FC = () => {
   const [result, setResult] = useState<InheritanceTaxResult | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isCalculating, setIsCalculating] = useState(false);
+
+  // 🔥 고도화된 자동 연계 계산 로직
+  
+  // 1. 총 재산 자동 계산
+  const totalAssets = useMemo(() => {
+    return input.realEstate + input.deposit + input.stock + input.bond + 
+           input.insurance + input.pension + input.other;
+  }, [input.realEstate, input.deposit, input.stock, input.bond, 
+      input.insurance, input.pension, input.other]);
+
+  // 2. 순 상속재산 자동 계산
+  const netInheritance = useMemo(() => {
+    return Math.max(0, input.totalInheritance - input.debtLiabilities - input.funeralExpenses);
+  }, [input.totalInheritance, input.debtLiabilities, input.funeralExpenses]);
+
+  // 3. 자동 공제 계산
+  const autoDeductions = useMemo(() => {
+    const basicDeduction = 200000000; // 기초공제 2억원
+    const spouseDeduction = input.spouse ? Math.max(500000000, netInheritance * 0.5) : 0; // 배우자공제
+    const childrenDeduction = input.children * 50000000; // 자녀공제 5천만원/명
+    const minorDeduction = input.minorChildren * 10 * 10000000; // 미성년자공제 (평균 10년)
+    const disabledDeduction = input.disabledHeirs * 35 * 10000000; // 장애인공제 (평균 35년)
+    const elderlyDeduction = input.elderlyHeirs * 5000000; // 65세 이상 공제
+
+    return {
+      basic: basicDeduction,
+      spouse: spouseDeduction,
+      children: childrenDeduction,
+      minor: minorDeduction,
+      disabled: disabledDeduction,
+      elderly: elderlyDeduction,
+      total: basicDeduction + spouseDeduction + childrenDeduction + minorDeduction + disabledDeduction + elderlyDeduction
+    };
+  }, [input.spouse, input.children, input.minorChildren, input.disabledHeirs, input.elderlyHeirs, netInheritance]);
+
+  // 4. 예상 과세표준 계산
+  const estimatedTaxableIncome = useMemo(() => {
+    const addedInheritance = netInheritance + input.giftWithin10Years; // 10년 내 증여재산 합산
+    return Math.max(0, addedInheritance - autoDeductions.total);
+  }, [netInheritance, input.giftWithin10Years, autoDeductions.total]);
+
+  // 5. 예상 세율 구간 계산
+  const expectedTaxBracket = useMemo(() => {
+    if (estimatedTaxableIncome <= 0) {
+      return { rate: 0, description: '비과세 (공제액 내)' };
+    } else if (estimatedTaxableIncome <= 100000000) {
+      return { rate: 10, description: '10% 구간 (1억원 이하)' };
+    } else if (estimatedTaxableIncome <= 500000000) {
+      return { rate: 20, description: '20% 구간 (5억원 이하)' };
+    } else if (estimatedTaxableIncome <= 1000000000) {
+      return { rate: 30, description: '30% 구간 (10억원 이하)' };
+    } else if (estimatedTaxableIncome <= 3000000000) {
+      return { rate: 40, description: '40% 구간 (30억원 이하)' };
+    } else {
+      return { rate: 50, description: '50% 구간 (30억원 초과)' };
+    }
+  }, [estimatedTaxableIncome]);
+
+  // 6. 논리적 오류 체크
+  const logicalErrors = useMemo(() => {
+    const errors: string[] = [];
+    
+    // 재산 구성 검증
+    if (totalAssets > 0 && Math.abs(totalAssets - input.totalInheritance) > 1000000) {
+      const diff = Math.abs(totalAssets - input.totalInheritance);
+      if (diff / Math.max(totalAssets, input.totalInheritance) > 0.1) { // 10% 이상 차이
+        errors.push(`재산별 합계(${formatWon(totalAssets)})와 총 상속재산(${formatWon(input.totalInheritance)})이 ${formatWon(diff)} 차이납니다.`);
+      }
+    }
+    
+    // 채무가 상속재산보다 큰 경우
+    if (input.debtLiabilities > input.totalInheritance && input.totalInheritance > 0) {
+      errors.push('채무가 상속재산보다 클 수 없습니다.');
+    }
+    
+    // 미성년자 수가 전체 자녀보다 많은 경우
+    if (input.minorChildren > input.children) {
+      errors.push('미성년자 자녀수가 전체 자녀수보다 많을 수 없습니다.');
+    }
+    
+    // 상속비율이 100% 초과
+    if (input.inheritanceRatio > 1) {
+      errors.push('상속비율이 100%를 초과할 수 없습니다.');
+    }
+    
+    // 배우자가 체크되었는데 나이가 0인 경우
+    if (input.spouse && input.spouseAge === 0) {
+      errors.push('배우자가 존재한다면 나이를 입력해주세요.');
+    }
+    
+    // 장례비용이 상속재산의 50% 초과
+    if (input.funeralExpenses > input.totalInheritance * 0.5 && input.totalInheritance > 0) {
+      errors.push('장례비용이 상속재산의 50%를 초과합니다.');
+    }
+    
+    return errors;
+  }, [input, totalAssets]);
+
+  // 7. 절세 추천 로직
+  const taxSavingRecommendations = useMemo(() => {
+    const recommendations: string[] = [];
+    
+    // 배우자공제 활용 추천
+    if (!input.spouse && estimatedTaxableIncome > 500000000) {
+      recommendations.push('배우자가 있다면 최소 5억원 공제가 가능합니다.');
+    }
+    
+    // 가업승계 할인 추천
+    if (!input.familyBusinessDiscount && input.businessInheritance > 0) {
+      const discount = Math.min(input.businessInheritance * 0.3, 2000000000);
+      recommendations.push(`가업승계 할인 적용시 약 ${formatWon(discount)} 절세 효과`);
+    }
+    
+    // 분할 상속 추천
+    if (estimatedTaxableIncome > 1000000000 && input.children > 1) {
+      recommendations.push('자녀들에게 분할 상속하면 누진세율 부담을 줄일 수 있습니다.');
+    }
+    
+    // 증여 사전 증여 추천
+    if (estimatedTaxableIncome > 3000000000 && input.children > 0) {
+      recommendations.push('생전 증여를 통해 상속세 부담을 분산시킬 수 있습니다.');
+    }
+    
+    // 납세유예 활용 추천
+    if (!input.taxDeferralRequest && estimatedTaxableIncome > 500000000 && input.realEstate > input.totalInheritance * 0.7) {
+      recommendations.push('부동산 비중이 높아 납세유예를 검토해보세요.');
+    }
+    
+    return recommendations;
+  }, [input, estimatedTaxableIncome]);
+
+  // 8. 자동 재산 구성 동기화
+  useEffect(() => {
+    // 재산별 합계가 총 상속재산과 다르고, 재산별 입력이 있다면 총 상속재산을 업데이트
+    if (totalAssets > 0 && input.totalInheritance === 0) {
+      handleInputChange('totalInheritance', totalAssets);
+    }
+  }, [totalAssets, input.totalInheritance]);
+
+  // 9. 디바운스된 자동 계산
+  useEffect(() => {
+    if (netInheritance > 0) {
+      const timer = setTimeout(() => {
+        handleCalculate();
+      }, 500); // 500ms 디바운스
+      
+      return () => clearTimeout(timer);
+    } else {
+      setResult(null);
+    }
+  }, [input, netInheritance]);
 
   const handleInputChange = useCallback((field: keyof InheritanceTaxInput, value: any) => {
     setInput(prev => ({
@@ -341,6 +564,184 @@ export const InheritanceTaxCalculatorComponent: React.FC = () => {
                 </TabsList>
 
                 <TabsContent value="basic" className="space-y-4">
+                  {/* 🔥 스마트 자동 계산 대시보드 */}
+                  <Card className="border-purple-200 bg-purple-50">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-purple-700 text-lg">
+                        <Calculator className="w-5 h-5" />
+                        ⚡ 스마트 자동 계산 대시보드
+                      </CardTitle>
+                      <CardDescription className="text-purple-600">
+                        입력하는 즉시 관련 값들이 자동으로 연계 계산됩니다
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {/* 순 상속재산 */}
+                        <div className="bg-white p-3 rounded border border-purple-200">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-gray-700">순 상속재산</span>
+                            <Badge className="text-xs bg-green-100 text-green-700 border-green-300">자동</Badge>
+                          </div>
+                          <div className="text-lg font-bold text-purple-700">
+                            {formatWon(netInheritance)}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            총재산 - 채무 - 장례비용
+                          </div>
+                        </div>
+
+                        {/* 예상 세율 구간 */}
+                        <div className="bg-white p-3 rounded border border-purple-200">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-gray-700">예상 세율</span>
+                            <Badge className={`text-xs ${expectedTaxBracket.rate === 0 ? 'bg-green-100 text-green-700' : 
+                              expectedTaxBracket.rate <= 20 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                              {expectedTaxBracket.rate}%
+                            </Badge>
+                          </div>
+                          <div className={`text-lg font-bold ${expectedTaxBracket.rate === 0 ? 'text-green-700' : 
+                            expectedTaxBracket.rate <= 20 ? 'text-yellow-700' : 'text-red-700'}`}>
+                            {expectedTaxBracket.rate}% 구간
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {expectedTaxBracket.description}
+                          </div>
+                        </div>
+
+                        {/* 자동 공제 합계 */}
+                        <div className="bg-white p-3 rounded border border-purple-200">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-gray-700">총 공제액</span>
+                            <Badge className="text-xs bg-green-100 text-green-700 border-green-300">자동</Badge>
+                          </div>
+                          <div className="text-lg font-bold text-purple-700">
+                            {formatWon(autoDeductions.total)}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            기초+배우자+자녀 등 공제
+                          </div>
+                        </div>
+
+                        {/* 예상 과세표준 */}
+                        <div className="bg-white p-3 rounded border border-purple-200">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-gray-700">과세표준</span>
+                            <Badge className="text-xs bg-green-100 text-green-700 border-green-300">자동</Badge>
+                          </div>
+                          <div className="text-lg font-bold text-purple-700">
+                            {formatWon(estimatedTaxableIncome)}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            (순재산+10년내증여) - 공제
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 재산 구성 분석 */}
+                      {totalAssets > 0 && (
+                        <div className="mt-4 p-3 bg-white rounded border border-purple-200">
+                          <div className="text-sm font-medium text-gray-700 mb-3">📊 재산 구성 분석</div>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                            {[
+                              { label: '부동산', value: input.realEstate, color: 'bg-orange-100 text-orange-700' },
+                              { label: '예금', value: input.deposit, color: 'bg-blue-100 text-blue-700' },
+                              { label: '주식', value: input.stock, color: 'bg-green-100 text-green-700' },
+                              { label: '채권', value: input.bond, color: 'bg-purple-100 text-purple-700' },
+                              { label: '보험', value: input.insurance, color: 'bg-indigo-100 text-indigo-700' },
+                              { label: '연금', value: input.pension, color: 'bg-gray-100 text-gray-700' },
+                              { label: '기타', value: input.other, color: 'bg-pink-100 text-pink-700' }
+                            ].filter(item => item.value > 0).map((item, index) => (
+                              <div key={index} className={`p-2 rounded ${item.color}`}>
+                                <div className="font-medium">{item.label}</div>
+                                <div className="font-mono text-right">
+                                  {formatWon(item.value)}
+                                </div>
+                                <div className="text-right text-xs opacity-75">
+                                  {((item.value / totalAssets) * 100).toFixed(1)}%
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {/* 총합 검증 */}
+                          {Math.abs(totalAssets - input.totalInheritance) > 1000000 && (
+                            <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700">
+                              ⚠️ 재산별 합계({formatWon(totalAssets)})와 총 상속재산({formatWon(input.totalInheritance)})이 다릅니다.
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* 공제 세부 내역 */}
+                      {autoDeductions.total > 0 && (
+                        <div className="mt-4 p-3 bg-white rounded border border-purple-200">
+                          <div className="text-sm font-medium text-gray-700 mb-3">🎁 공제 세부 내역</div>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                            {[
+                              { label: '기초공제', value: autoDeductions.basic, desc: '일반' },
+                              { label: '배우자공제', value: autoDeductions.spouse, desc: input.spouse ? '적용' : '미적용' },
+                              { label: '자녀공제', value: autoDeductions.children, desc: `${input.children}명` },
+                              { label: '미성년자공제', value: autoDeductions.minor, desc: `${input.minorChildren}명` },
+                              { label: '장애인공제', value: autoDeductions.disabled, desc: `${input.disabledHeirs}명` },
+                              { label: '65세이상공제', value: autoDeductions.elderly, desc: `${input.elderlyHeirs}명` }
+                            ].filter(item => item.value > 0).map((item, index) => (
+                              <div key={index} className="p-2 rounded bg-green-50 border border-green-200">
+                                <div className="font-medium text-green-800">{item.label}</div>
+                                <div className="font-mono text-right text-green-700">
+                                  {formatWon(item.value)}
+                                </div>
+                                <div className="text-right text-xs text-green-600">
+                                  {item.desc}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 논리적 오류 실시간 체크 */}
+                      {logicalErrors.length > 0 && (
+                        <div className="mt-4 p-3 bg-red-50 rounded border border-red-200">
+                          <div className="text-sm font-medium text-red-700 mb-2">🚨 논리적 오류 감지</div>
+                          <div className="space-y-1">
+                            {logicalErrors.map((error, index) => (
+                              <div key={index} className="text-xs text-red-600 flex items-start gap-2">
+                                <AlertTriangle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                                <span>{error}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 절세 추천 */}
+                      {taxSavingRecommendations.length > 0 && (
+                        <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
+                          <div className="text-sm font-medium text-green-700 mb-2">💡 절세 추천</div>
+                          <div className="space-y-1">
+                            {taxSavingRecommendations.map((recommendation, index) => (
+                              <div key={index} className="text-xs text-green-600 flex items-start gap-2">
+                                <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                                <span>{recommendation}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 계산 준비 상태 */}
+                      {logicalErrors.length === 0 && netInheritance > 0 && (
+                        <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
+                          <div className="text-sm font-medium text-green-700 mb-2">✅ 계산 준비 완료</div>
+                          <div className="text-xs text-green-600">
+                            모든 필수 정보가 올바르게 입력되었습니다. 실시간으로 상속세가 계산되고 있습니다.
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
                   <div className="grid grid-cols-1 gap-4">
                     <NumberInput
                       label="총 상속재산"

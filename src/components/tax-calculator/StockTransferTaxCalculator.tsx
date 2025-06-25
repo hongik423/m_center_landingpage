@@ -463,42 +463,88 @@ export default function StockTransferTaxCalculator() {
   const [appliedOptions, setAppliedOptions] = useState<{[key: string]: boolean}>({});
   const [showCalculationSummary, setShowCalculationSummary] = useState(false);
 
-  // 🔥 고도화된 자동 계산 로직
+  // 🔥 고도화된 자동 계산 로직 강화
   
   // 1. 총 주식 가치 자동 계산
   const totalValue = useMemo(() => {
-    return formData.stockQuantity * formData.pricePerShare;
+    if (!formData.stockQuantity || !formData.pricePerShare) return 0;
+    const value = formData.stockQuantity * formData.pricePerShare;
+    // 비현실적인 값 체크
+    if (value > 1000000000000) return 0; // 1조원 초과시 무효
+    return value;
   }, [formData.stockQuantity, formData.pricePerShare]);
 
-  // 2. 지분율 자동 계산 
+  // 2. 지분율 자동 계산 (보유주식수 우선 계산)
   const shareholdingRatio = useMemo(() => {
-    if (!formData.totalSharesOutstanding || formData.totalSharesOutstanding === 0 || !formData.totalOwnedShares) return 0;
-    return (formData.totalOwnedShares / formData.totalSharesOutstanding) * 100;
-  }, [formData.totalOwnedShares, formData.totalSharesOutstanding]);
+    // 총 주식수가 입력되었을 때만 계산
+    if (!formData.totalSharesOutstanding || formData.totalSharesOutstanding === 0) return 0;
+    
+    // 보유주식수가 직접 입력되었으면 그것 사용, 아니면 stockQuantity 사용
+    const ownedShares = formData.totalOwnedShares || formData.stockQuantity || 0;
+    
+    if (ownedShares === 0) return 0;
+    
+    // 100% 초과 방지
+    if (ownedShares > formData.totalSharesOutstanding) {
+      console.warn('보유주식수가 총발행주식수를 초과합니다.');
+      return 0;
+    }
+    
+    return (ownedShares / formData.totalSharesOutstanding) * 100;
+  }, [formData.totalOwnedShares, formData.stockQuantity, formData.totalSharesOutstanding]);
 
-  // 3. 가족 지분율 자동 계산
+  // 3. 가족 지분율 자동 계산 (100% 초과 방지)
   const familyShareholdingRatio = useMemo(() => {
-    return shareholdingRatio + (formData.spouseShareholdingRatio || 0) + (formData.linealRelativeShareholdingRatio || 0);
+    const personal = shareholdingRatio;
+    const spouse = (formData.spouseShareholdingRatio || 0) * 100; // % → 숫자 변환
+    const lineal = (formData.linealRelativeShareholdingRatio || 0) * 100; // % → 숫자 변환
+    const total = personal + spouse + lineal;
+    
+    // 100% 초과 방지
+    if (total > 100) {
+      console.warn('가족 지분율 합계가 100%를 초과합니다.');
+      return 100;
+    }
+    
+    return total;
   }, [shareholdingRatio, formData.spouseShareholdingRatio, formData.linealRelativeShareholdingRatio]);
 
-  // 4. 대주주 판정 자동 계산
+  // 4. 대주주 판정 자동 계산 (개선된 로직)
   const isLargeShareholder = useMemo(() => {
     const threshold = formData.stockType === 'listed' ? 1 : 4;
     const valueThreshold = 10000000000; // 100억원
-    const ratioTest = shareholdingRatio >= threshold;
+    
+    // 지분율 기준 (가족지분 포함)
+    const ratioTest = familyShareholdingRatio >= threshold;
+    
+    // 가액 기준
     const valueTest = totalValue >= valueThreshold;
+    
+    // 둘 중 하나라도 충족하면 대주주
     return ratioTest || valueTest;
-  }, [shareholdingRatio, totalValue, formData.stockType]);
+  }, [familyShareholdingRatio, totalValue, formData.stockType]);
 
-  // 5. 양도차익 자동 계산
+  // 5. 양도차익 자동 계산 (논리적 검증 포함)
   const capitalGain = useMemo(() => {
     const transferPrice = formData.transferPrice || 0;
     const acquisitionPrice = formData.acquisitionPrice || 0;
     const transferExpenses = formData.transferExpenses || 0;
+    
+    // 입력값 검증
+    if (transferPrice < 0 || acquisitionPrice < 0 || transferExpenses < 0) {
+      console.warn('음수 입력이 감지되었습니다.');
+      return 0;
+    }
+    
+    // 비용이 양도가액보다 큰 경우 체크
+    if (transferExpenses > transferPrice) {
+      console.warn('양도비용이 양도가액보다 큽니다.');
+    }
+    
     return transferPrice - acquisitionPrice - transferExpenses;
   }, [formData.transferPrice, formData.acquisitionPrice, formData.transferExpenses]);
 
-  // 6. 보유기간 자동 계산 (날짜 기반)
+  // 6. 보유기간 자동 계산 (날짜 기반) - 먼저 선언
   const holdingPeriod = useMemo(() => {
     if (!formData.acquisitionDate || !formData.transferDate) return { years: 0, months: 0, days: 0 };
     
@@ -513,6 +559,80 @@ export default function StockTransferTaxCalculator() {
     
     return { years, months, days };
   }, [formData.acquisitionDate, formData.transferDate]);
+
+  // 7. 수익률 자동 계산
+  const profitRate = useMemo(() => {
+    if (!formData.acquisitionPrice || formData.acquisitionPrice === 0) return 0;
+    return (capitalGain / formData.acquisitionPrice) * 100;
+  }, [capitalGain, formData.acquisitionPrice]);
+
+  // 8. 연환산 수익률 자동 계산
+  const annualizedReturn = useMemo(() => {
+    if (!formData.acquisitionPrice || profitRate === 0 || !holdingPeriod.years) return 0;
+    
+    const totalYears = holdingPeriod.years + holdingPeriod.months / 12;
+    if (totalYears <= 0) return 0;
+    
+    const totalReturn = (formData.transferPrice || 0) / formData.acquisitionPrice;
+    if (totalReturn <= 0) return 0;
+    
+    return (Math.pow(totalReturn, 1 / totalYears) - 1) * 100;
+  }, [profitRate, holdingPeriod, formData.acquisitionPrice, formData.transferPrice]);
+
+  // 8. 자동 보유주식수 동기화
+  useEffect(() => {
+    // stockQuantity가 변경되고 totalOwnedShares가 비어있으면 자동 동기화
+    if (formData.stockQuantity && !formData.totalOwnedShares) {
+      handleInputChange('totalOwnedShares', formData.stockQuantity);
+    }
+  }, [formData.stockQuantity, formData.totalOwnedShares]);
+
+  // 9. 논리적 모순 체크
+  const logicalErrors = useMemo(() => {
+    const errors: string[] = [];
+    
+    // 양도가액이 0인데 양도소득세 계산을 시도하는 경우
+    if (formData.transferType === 'sale' && formData.transferPrice === 0 && formData.acquisitionPrice > 0) {
+      errors.push('양도(매도) 거래인데 양도가액이 입력되지 않았습니다.');
+    }
+    
+    // 취득가액이 0인데 주식을 보유하고 있는 경우
+    if (formData.stockQuantity > 0 && formData.acquisitionPrice === 0) {
+      errors.push('주식을 보유하고 있는데 취득가액이 0입니다.');
+    }
+    
+    // 양도비용이 양도가액보다 큰 경우
+    if (formData.transferExpenses > (formData.transferPrice || 0) && (formData.transferPrice || 0) > 0) {
+      errors.push('양도비용이 양도가액보다 클 수 없습니다.');
+    }
+    
+    // 보유주식수가 총발행주식수보다 큰 경우
+    if ((formData.totalOwnedShares || formData.stockQuantity || 0) > (formData.totalSharesOutstanding || 0) && (formData.totalSharesOutstanding || 0) > 0) {
+      errors.push('보유주식수가 총발행주식수를 초과할 수 없습니다.');
+    }
+    
+    // 지분율이 100%를 초과하는 경우
+    if (familyShareholdingRatio > 100) {
+      errors.push('가족 지분율 합계가 100%를 초과합니다.');
+    }
+    
+    // 미래 날짜 체크
+    const now = new Date();
+    if (formData.acquisitionDate && formData.acquisitionDate > now) {
+      errors.push('취득일이 미래 날짜로 설정되어 있습니다.');
+    }
+    
+    if (formData.transferDate && formData.transferDate > now) {
+      errors.push('양도일이 미래 날짜로 설정되어 있습니다.');
+    }
+    
+    // 취득일이 양도일보다 늦은 경우
+    if (formData.acquisitionDate && formData.transferDate && formData.acquisitionDate > formData.transferDate) {
+      errors.push('취득일이 양도일보다 늦을 수 없습니다.');
+    }
+    
+    return errors;
+  }, [formData, familyShareholdingRatio]);
 
   // 7. 세제혜택 자동 적용 조건 검사
   const taxIncentiveEligibility = useMemo(() => {
@@ -1464,16 +1584,98 @@ export default function StockTransferTaxCalculator() {
                         </div>
                       </div>
 
-                      {/* 입력값 검증 결과 */}
-                      {Object.keys(validationErrors).length > 0 && (
+                      {/* 실시간 수익성 분석 */}
+                      {(formData.acquisitionPrice > 0 && ((formData.transferPrice || 0) > 0 || formData.transferType === 'sale')) && (
+                        <div className="mt-4 p-3 bg-white rounded border border-purple-200">
+                          <div className="text-sm font-medium text-gray-700 mb-3">📊 실시간 수익성 분석</div>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            {/* 양도차익 */}
+                            <div className="text-center">
+                              <div className="text-xs text-gray-600">양도차익</div>
+                              <div className={`text-sm font-bold ${capitalGain >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {capitalGain >= 0 ? '+' : ''}{formatWon(capitalGain)}
+                              </div>
+                            </div>
+                            
+                            {/* 수익률 */}
+                            <div className="text-center">
+                              <div className="text-xs text-gray-600">총 수익률</div>
+                              <div className={`text-sm font-bold ${profitRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(1)}%
+                              </div>
+                            </div>
+                            
+                            {/* 연환산 수익률 */}
+                            <div className="text-center">
+                              <div className="text-xs text-gray-600">연환산 수익률</div>
+                              <div className={`text-sm font-bold ${annualizedReturn >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {holdingPeriod.years > 0 ? `${annualizedReturn >= 0 ? '+' : ''}${annualizedReturn.toFixed(1)}%` : 'N/A'}
+                              </div>
+                            </div>
+                            
+                            {/* 투자 기간 */}
+                            <div className="text-center">
+                              <div className="text-xs text-gray-600">보유기간</div>
+                              <div className="text-sm font-bold text-purple-600">
+                                {holdingPeriod.years > 0 ? `${(holdingPeriod.years + holdingPeriod.months / 12).toFixed(1)}년` : 'N/A'}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* 투자 성과 요약 */}
+                          <div className="mt-3 p-2 bg-gray-50 rounded text-xs">
+                            <span className="text-gray-600">
+                              투자원금 {formatWon(formData.acquisitionPrice)} → 
+                              회수금액 {formatWon(formData.transferPrice || 0)} 
+                              {capitalGain > 0 && holdingPeriod.years > 0 && (
+                                <span className="text-green-600 font-medium">
+                                  (연평균 {annualizedReturn.toFixed(1)}% 수익)
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 논리적 오류 실시간 체크 */}
+                      {logicalErrors.length > 0 && (
                         <div className="mt-4 p-3 bg-red-50 rounded border border-red-200">
-                          <div className="text-sm font-medium text-red-700 mb-2">⚠️ 입력값 검증 오류</div>
+                          <div className="text-sm font-medium text-red-700 mb-2">🚨 논리적 오류 감지</div>
                           <div className="space-y-1">
-                            {Object.entries(validationErrors).map(([field, error]) => (
-                              <div key={field} className="text-xs text-red-600">
-                                • {error}
+                            {logicalErrors.map((error, index) => (
+                              <div key={index} className="text-xs text-red-600 flex items-start gap-2">
+                                <span className="text-red-500">•</span>
+                                <span>{error}</span>
                               </div>
                             ))}
+                          </div>
+                          <div className="mt-2 text-xs text-red-500">
+                            💡 위 문제들을 해결하면 더 정확한 계산이 가능합니다.
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 입력값 검증 결과 */}
+                      {Object.keys(validationErrors).length > 0 && (
+                        <div className="mt-4 p-3 bg-orange-50 rounded border border-orange-200">
+                          <div className="text-sm font-medium text-orange-700 mb-2">⚠️ 입력값 검증 경고</div>
+                          <div className="space-y-1">
+                            {Object.entries(validationErrors).map(([field, error]) => (
+                              <div key={field} className="text-xs text-orange-600 flex items-start gap-2">
+                                <span className="text-orange-500">•</span>
+                                <span>{error}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 계산 준비 상태 */}
+                      {logicalErrors.length === 0 && Object.keys(validationErrors).length === 0 && formData.stockQuantity > 0 && formData.acquisitionPrice > 0 && (
+                        <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
+                          <div className="text-sm font-medium text-green-700 mb-2">✅ 계산 준비 완료</div>
+                          <div className="text-xs text-green-600">
+                            모든 필수 정보가 올바르게 입력되었습니다. 하단의 "세금 계산하기" 버튼을 클릭하여 정확한 세금을 계산해보세요.
                           </div>
                         </div>
                       )}

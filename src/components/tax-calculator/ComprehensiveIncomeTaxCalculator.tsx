@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -492,26 +492,169 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
     }
   };
 
-  // 자녀세액공제 자동 계산
-  useEffect(() => {
-    const basicChildCredit = inputs.childrenCount * 150000; // 기본 15만원/명
-    const under6Credit = inputs.childrenUnder6Count * 120000; // 6세 이하 추가 12만원/명
-    const totalChildCredit = basicChildCredit + under6Credit;
+  // 🔥 고도화된 자동 연계 계산 로직
+  
+  // 1. 총소득 자동 계산
+  const totalIncome = useMemo(() => {
+    return inputs.interestIncome + inputs.dividendIncome + inputs.businessIncome + 
+           inputs.realEstateRentalIncome + inputs.earnedIncome + inputs.pensionIncome + inputs.otherIncome;
+  }, [inputs.interestIncome, inputs.dividendIncome, inputs.businessIncome, 
+      inputs.realEstateRentalIncome, inputs.earnedIncome, inputs.pensionIncome, inputs.otherIncome]);
+
+  // 2. 근로소득공제 자동 계산 (2024년 기준)
+  const autoEarnedIncomeDeduction = useMemo(() => {
+    if (inputs.earnedIncome <= 0) return 0;
     
-    // 6세 이하 자녀가 전체 자녀보다 많으면 조정
-    const adjustedUnder6Count = Math.min(inputs.childrenUnder6Count, inputs.childrenCount);
-    const adjustedCredit = inputs.childrenCount * 150000 + adjustedUnder6Count * 120000;
-    
-    if (inputs.childTaxCredit !== adjustedCredit) {
-      updateInput('childTaxCredit', adjustedCredit);
+    if (inputs.earnedIncome <= 5000000) { // 500만원 이하
+      return inputs.earnedIncome * 0.7; // 70% 공제
+    } else if (inputs.earnedIncome <= 15000000) { // 1500만원 이하
+      return 3500000 + (inputs.earnedIncome - 5000000) * 0.4; // 350만원 + 40%
+    } else if (inputs.earnedIncome <= 45000000) { // 4500만원 이하
+      return 7500000 + (inputs.earnedIncome - 15000000) * 0.15; // 750만원 + 15%
+    } else if (inputs.earnedIncome <= 100000000) { // 1억원 이하
+      return 12000000 + (inputs.earnedIncome - 45000000) * 0.05; // 1200만원 + 5%
+    } else { // 1억원 초과
+      return Math.min(14750000 + (inputs.earnedIncome - 100000000) * 0.02, 20000000); // 최대 2천만원
     }
+  }, [inputs.earnedIncome]);
+
+  // 3. 인적공제 자동 계산
+  const autoPersonalDeductions = useMemo(() => {
+    const basicDeduction = 1500000; // 본인 기본공제 150만원
+    const spouseDeduction = inputs.spouseCount * 1500000; // 배우자 150만원/명
+    const dependentDeduction = inputs.dependents * 1500000; // 부양가족 150만원/명
+    const disabledDeduction = inputs.disabledCount * 2000000; // 장애인 200만원/명
+    const elderlyDeduction = inputs.elderlyCount * 1000000; // 경로우대 100만원/명
+    
+    return basicDeduction + spouseDeduction + dependentDeduction + disabledDeduction + elderlyDeduction;
+  }, [inputs.spouseCount, inputs.dependents, inputs.disabledCount, inputs.elderlyCount]);
+
+  // 4. 자녀세액공제 자동 계산 (개선)
+  const autoChildTaxCredit = useMemo(() => {
+    if (inputs.childrenCount <= 0) return 0;
+    
+    const basicCredit = Math.min(inputs.childrenCount, 2) * 150000; // 첫 2명까지 15만원/명
+    const additionalCredit = Math.max(0, inputs.childrenCount - 2) * 300000; // 3명부터 30만원/명
+    const under6Credit = Math.min(inputs.childrenUnder6Count, inputs.childrenCount) * 120000; // 6세 이하 추가 12만원/명
+    
+    return basicCredit + additionalCredit + under6Credit;
   }, [inputs.childrenCount, inputs.childrenUnder6Count]);
 
-  // 총소득이 있을 때만 자동 계산
-  useEffect(() => {
-    const totalIncome = inputs.interestIncome + inputs.dividendIncome + inputs.businessIncome + 
-                       inputs.realEstateRentalIncome + inputs.earnedIncome + inputs.pensionIncome + inputs.otherIncome;
+  // 5. 논리적 오류 체크
+  const logicalErrors = useMemo(() => {
+    const errors: string[] = [];
     
+    // 필요경비가 해당 소득을 초과하는 경우
+    if (inputs.businessExpenses > inputs.businessIncome && inputs.businessIncome > 0) {
+      errors.push('사업소득 필요경비가 사업소득을 초과합니다.');
+    }
+    
+    if (inputs.rentalExpenses > inputs.realEstateRentalIncome && inputs.realEstateRentalIncome > 0) {
+      errors.push('임대소득 필요경비가 임대소득을 초과합니다.');
+    }
+    
+    // 6세 이하 자녀가 전체 자녀보다 많은 경우
+    if (inputs.childrenUnder6Count > inputs.childrenCount) {
+      errors.push('6세 이하 자녀수가 전체 자녀수보다 많을 수 없습니다.');
+    }
+    
+    // 배우자가 2명 이상인 경우
+    if (inputs.spouseCount > 1) {
+      errors.push('배우자는 1명까지만 공제 가능합니다.');
+    }
+    
+    // 공제액이 한도를 초과하는 경우
+    if (inputs.personalPensionContribution > 4000000) {
+      errors.push('개인연금저축 공제한도(400만원)를 초과했습니다.');
+    }
+    
+    if (inputs.medicalExpenses > totalIncome * 0.03 && totalIncome > 0) {
+      // 의료비는 총소득의 3% 초과분만 공제 가능 (실제로는 더 복잡)
+      const threshold = totalIncome * 0.03;
+      if (inputs.medicalExpenses > threshold + 7000000) { // 초과분 + 700만원 한도
+        errors.push('의료비 공제가 한도를 초과할 수 있습니다.');
+      }
+    }
+    
+    return errors;
+  }, [inputs, totalIncome]);
+
+  // 6. 예상 세율 구간 계산
+  const expectedTaxBracket = useMemo(() => {
+    if (totalIncome <= 0) return { rate: 0, description: '과세소득 없음' };
+    
+    // 간단한 추정 (실제로는 더 복잡한 계산 필요)
+    const estimatedTaxableIncome = totalIncome - autoPersonalDeductions - inputs.personalPensionContribution;
+    
+    if (estimatedTaxableIncome <= 14000000) {
+      return { rate: 6, description: '6% 구간 (1,400만원 이하)' };
+    } else if (estimatedTaxableIncome <= 50000000) {
+      return { rate: 15, description: '15% 구간 (5,000만원 이하)' };
+    } else if (estimatedTaxableIncome <= 88000000) {
+      return { rate: 24, description: '24% 구간 (8,800만원 이하)' };
+    } else if (estimatedTaxableIncome <= 150000000) {
+      return { rate: 35, description: '35% 구간 (1억 5천만원 이하)' };
+    } else if (estimatedTaxableIncome <= 300000000) {
+      return { rate: 38, description: '38% 구간 (3억원 이하)' };
+    } else if (estimatedTaxableIncome <= 500000000) {
+      return { rate: 40, description: '40% 구간 (5억원 이하)' };
+    } else if (estimatedTaxableIncome <= 1000000000) {
+      return { rate: 42, description: '42% 구간 (10억원 이하)' };
+    } else {
+      return { rate: 45, description: '45% 구간 (10억원 초과)' };
+    }
+  }, [totalIncome, autoPersonalDeductions, inputs.personalPensionContribution]);
+
+  // 7. 자동 값 업데이트 (사용자가 수동으로 변경하지 않은 경우만)
+  useEffect(() => {
+    // 근로소득공제 자동 업데이트
+    if (inputs.earnedIncome > 0 && inputs.earnedIncomeDeduction === 0) {
+      updateInput('earnedIncomeDeduction', Math.floor(autoEarnedIncomeDeduction));
+    }
+  }, [autoEarnedIncomeDeduction, inputs.earnedIncome, inputs.earnedIncomeDeduction]);
+
+  useEffect(() => {
+    // 자녀세액공제 자동 업데이트
+    if (autoChildTaxCredit !== inputs.childTaxCredit) {
+      updateInput('childTaxCredit', autoChildTaxCredit);
+    }
+  }, [autoChildTaxCredit, inputs.childTaxCredit]);
+
+  // 8. 절세 추천 로직
+  const taxSavingRecommendations = useMemo(() => {
+    const recommendations: string[] = [];
+    
+    // 연금저축 추천
+    if (inputs.personalPensionContribution < 4000000 && totalIncome > 30000000) {
+      const savingAmount = Math.min(4000000 - inputs.personalPensionContribution, totalIncome * 0.1);
+      if (savingAmount > 1000000) {
+        recommendations.push(`연금저축 ${Math.floor(savingAmount / 10000)}만원 추가 납입시 세액공제 혜택`);
+      }
+    }
+    
+    // 의료비 공제 추천
+    if (totalIncome > 0 && inputs.medicalExpenses === 0) {
+      const threshold = Math.floor(totalIncome * 0.03 / 10000);
+      if (threshold > 100) {
+        recommendations.push(`의료비 ${threshold}만원 초과분 공제 가능 (영수증 준비)`);
+      }
+    }
+    
+    // 신용카드 공제 추천
+    if (inputs.creditCardUsage === 0 && totalIncome > 20000000) {
+      recommendations.push('신용카드 등 사용금액 공제 입력 권장 (소득금액의 25% 초과분 공제)');
+    }
+    
+    // 기부금 공제 추천
+    if (inputs.donationAmount === 0 && totalIncome > 50000000) {
+      recommendations.push('기부금 납부시 세액공제 15~30% 혜택');
+    }
+    
+    return recommendations;
+  }, [inputs, totalIncome]);
+
+  // 9. 디바운스된 자동 계산
+  useEffect(() => {
     if (totalIncome > 0) {
       const timer = setTimeout(() => {
         calculate();
@@ -521,7 +664,7 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
     } else {
       setResults(null);
     }
-  }, [inputs]);
+  }, [inputs, totalIncome]);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -638,45 +781,168 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
                   />
                 </div>
 
-                {/* 종합소득 합계 표시 */}
-                <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Calculator className="w-5 h-5 text-blue-600" />
-                      <span className="font-semibold text-blue-900">종합소득 합계</span>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-blue-900 font-mono">
-                        {(inputs.interestIncome + inputs.dividendIncome + inputs.businessIncome + 
-                          inputs.realEstateRentalIncome + inputs.earnedIncome + inputs.pensionIncome + 
-                          inputs.otherIncome).toLocaleString('ko-KR')}원
-                      </div>
-                      <div className="text-sm text-blue-600 mt-1">
-                        총 수입금액 (연간)
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* 소득별 세부 내역 */}
-                  <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                    {[
-                      { label: '이자', value: inputs.interestIncome },
-                      { label: '배당', value: inputs.dividendIncome },
-                      { label: '사업', value: inputs.businessIncome },
-                      { label: '임대', value: inputs.realEstateRentalIncome },
-                      { label: '근로', value: inputs.earnedIncome },
-                      { label: '연금', value: inputs.pensionIncome },
-                      { label: '기타', value: inputs.otherIncome }
-                    ].filter(item => item.value > 0).map((item, index) => (
-                      <div key={index} className="bg-white p-2 rounded">
-                        <div className="text-blue-600 font-medium">{item.label}</div>
-                        <div className="text-blue-900 font-mono text-right">
-                          {item.value.toLocaleString('ko-KR')}
+                                  {/* 🔥 스마트 자동 계산 대시보드 */}
+                <Card className="border-purple-200 bg-purple-50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-purple-700 text-lg">
+                      <Calculator className="w-5 h-5" />
+                      ⚡ 스마트 자동 계산 대시보드
+                    </CardTitle>
+                    <CardDescription className="text-purple-600">
+                      입력하는 즉시 관련 값들이 자동으로 연계 계산됩니다
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {/* 총소득 */}
+                      <div className="bg-white p-3 rounded border border-purple-200">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-700">총소득</span>
+                          <Badge className="text-xs bg-green-100 text-green-700 border-green-300">자동</Badge>
+                        </div>
+                        <div className="text-lg font-bold text-purple-700">
+                          {totalIncome.toLocaleString('ko-KR')}원
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          연간 종합소득 합계
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
+
+                      {/* 예상 세율 구간 */}
+                      <div className="bg-white p-3 rounded border border-purple-200">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-700">예상 세율</span>
+                          <Badge className={`text-xs ${expectedTaxBracket.rate <= 15 ? 'bg-green-100 text-green-700' : 
+                            expectedTaxBracket.rate <= 35 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                            {expectedTaxBracket.rate}%
+                          </Badge>
+                        </div>
+                        <div className={`text-lg font-bold ${expectedTaxBracket.rate <= 15 ? 'text-green-700' : 
+                          expectedTaxBracket.rate <= 35 ? 'text-yellow-700' : 'text-red-700'}`}>
+                          {expectedTaxBracket.rate}% 구간
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {expectedTaxBracket.description}
+                        </div>
+                      </div>
+
+                      {/* 자동 인적공제 */}
+                      <div className="bg-white p-3 rounded border border-purple-200">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-700">인적공제</span>
+                          <Badge className="text-xs bg-green-100 text-green-700 border-green-300">자동</Badge>
+                        </div>
+                        <div className="text-lg font-bold text-purple-700">
+                          {autoPersonalDeductions.toLocaleString('ko-KR')}원
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          본인+가족 {inputs.dependents + inputs.spouseCount + 1}명
+                        </div>
+                      </div>
+
+                      {/* 근로소득공제 */}
+                      {inputs.earnedIncome > 0 && (
+                        <div className="bg-white p-3 rounded border border-purple-200">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-gray-700">근로소득공제</span>
+                            <Badge className="text-xs bg-green-100 text-green-700 border-green-300">자동</Badge>
+                          </div>
+                          <div className="text-lg font-bold text-purple-700">
+                            {autoEarnedIncomeDeduction.toLocaleString('ko-KR')}원
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            급여 {Math.round((autoEarnedIncomeDeduction / inputs.earnedIncome) * 100)}% 공제
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 소득별 세부 내역 */}
+                    {totalIncome > 0 && (
+                      <div className="mt-4 p-3 bg-white rounded border border-purple-200">
+                        <div className="text-sm font-medium text-gray-700 mb-3">📊 소득 구성 비율</div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                          {[
+                            { label: '이자', value: inputs.interestIncome, color: 'bg-blue-100 text-blue-700' },
+                            { label: '배당', value: inputs.dividendIncome, color: 'bg-green-100 text-green-700' },
+                            { label: '사업', value: inputs.businessIncome, color: 'bg-purple-100 text-purple-700' },
+                            { label: '임대', value: inputs.realEstateRentalIncome, color: 'bg-orange-100 text-orange-700' },
+                            { label: '근로', value: inputs.earnedIncome, color: 'bg-indigo-100 text-indigo-700' },
+                            { label: '연금', value: inputs.pensionIncome, color: 'bg-gray-100 text-gray-700' },
+                            { label: '기타', value: inputs.otherIncome, color: 'bg-pink-100 text-pink-700' }
+                          ].filter(item => item.value > 0).map((item, index) => (
+                            <div key={index} className={`p-2 rounded ${item.color}`}>
+                              <div className="font-medium">{item.label}</div>
+                              <div className="font-mono text-right">
+                                {item.value.toLocaleString('ko-KR')}
+                              </div>
+                              <div className="text-right text-xs opacity-75">
+                                {((item.value / totalIncome) * 100).toFixed(1)}%
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 자녀세액공제 자동 계산 */}
+                    {autoChildTaxCredit > 0 && (
+                      <div className="mt-4 p-3 bg-white rounded border border-purple-200">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-700">👶 자녀세액공제 자동 계산</span>
+                          <Badge className="text-xs bg-green-100 text-green-700 border-green-300">자동</Badge>
+                        </div>
+                        <div className="text-lg font-bold text-purple-700">
+                          {autoChildTaxCredit.toLocaleString('ko-KR')}원
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          자녀 {inputs.childrenCount}명 
+                          {inputs.childrenUnder6Count > 0 && ` (6세 이하 ${inputs.childrenUnder6Count}명 포함)`}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 논리적 오류 실시간 체크 */}
+                    {logicalErrors.length > 0 && (
+                      <div className="mt-4 p-3 bg-red-50 rounded border border-red-200">
+                        <div className="text-sm font-medium text-red-700 mb-2">🚨 논리적 오류 감지</div>
+                        <div className="space-y-1">
+                          {logicalErrors.map((error, index) => (
+                            <div key={index} className="text-xs text-red-600 flex items-start gap-2">
+                              <span className="text-red-500">•</span>
+                              <span>{error}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 절세 추천 */}
+                    {taxSavingRecommendations.length > 0 && (
+                      <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
+                        <div className="text-sm font-medium text-green-700 mb-2">💡 절세 추천</div>
+                        <div className="space-y-1">
+                          {taxSavingRecommendations.map((recommendation, index) => (
+                            <div key={index} className="text-xs text-green-600 flex items-start gap-2">
+                              <span className="text-green-500">✓</span>
+                              <span>{recommendation}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 계산 준비 상태 */}
+                    {logicalErrors.length === 0 && totalIncome > 0 && (
+                      <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
+                        <div className="text-sm font-medium text-green-700 mb-2">✅ 계산 준비 완료</div>
+                        <div className="text-xs text-green-600">
+                          모든 필수 정보가 올바르게 입력되었습니다. 실시간으로 세금이 계산되고 있습니다.
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
 
               <Separator />
