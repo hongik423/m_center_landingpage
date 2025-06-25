@@ -37,7 +37,7 @@ import {
 
 import { StockTransferInput, StockTransferResult } from '@/types/tax-calculator.types';
 import { StockTransferTaxCalculator as StockTransferCalc } from '@/lib/utils/stock-transfer-calculations';
-import { formatNumber, formatWon } from '@/lib/utils';
+import { formatNumber, formatWon, formatNumberInput, parseFormattedNumber, handleNumberInputChange } from '@/lib/utils';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
 
 interface FormData extends Partial<StockTransferInput> {
@@ -879,7 +879,9 @@ export default function StockTransferTaxCalculator() {
     disabled = false,
     min = 0,
     max,
-    step = 1
+    step = 1,
+    helpText = '',
+    required = false
   }: {
     label: string;
     field: keyof FormData;
@@ -892,61 +894,62 @@ export default function StockTransferTaxCalculator() {
     min?: number;
     max?: number;
     step?: number;
+    helpText?: string;
+    required?: boolean;
   }) => {
     const hasError = validationErrors[field];
     const isAutoCalculated = autoCalculations[field];
     
-    // 로컬 입력 상태 관리
-    const [localValue, setLocalValue] = useState<string>(value?.toString() || '');
+    // 로컬 입력 상태 관리 (천단위 구분기호 포함)
+    const [localValue, setLocalValue] = useState<string>(
+      value && value > 0 ? formatNumberInput(value) : ''
+    );
     const [isFocused, setIsFocused] = useState(false);
     
     // 외부 값이 변경될 때 로컬 값 업데이트
     useEffect(() => {
       if (!isFocused) {
-        setLocalValue(value?.toString() || '');
+        setLocalValue(value && value > 0 ? formatNumberInput(value) : '');
       }
     }, [value, isFocused]);
     
     const handleLocalInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const inputValue = e.target.value;
-      setLocalValue(inputValue);
       
-      // 빈 문자열이면 0으로 설정
-      if (inputValue === '') {
-        handleInputChange(field, 0);
-        return;
-      }
+      // 천단위 구분기호와 함께 숫자 입력 처리
+      const formattedValue = handleNumberInputChange(
+        inputValue,
+        (num) => handleInputChange(field, num),
+        { min, max, allowEmpty: true }
+      );
       
-      // 숫자로 변환 가능한 경우에만 업데이트
-      const numValue = Math.round(parseFloat(inputValue));
-      if (!isNaN(numValue)) {
-        // min/max 범위 체크
-        let finalValue = numValue;
-        if (min !== undefined && numValue < min) finalValue = min;
-        if (max !== undefined && numValue > max) finalValue = max;
-        
-        handleInputChange(field, finalValue);
-      }
+      setLocalValue(formattedValue);
     };
     
     const handleFocus = () => {
       setIsFocused(true);
+      // 포커스 시 원본 숫자만 표시 (편집하기 쉽게)
+      const rawNumber = parseFormattedNumber(localValue);
+      if (rawNumber > 0) {
+        setLocalValue(rawNumber.toString());
+      }
     };
     
     const handleBlur = () => {
       setIsFocused(false);
-      // 포커스 해제 시 유효한 숫자가 아니면 0으로 설정
-      const numValue = Math.round(parseFloat(localValue));
-      if (isNaN(numValue) || localValue === '') {
-        setLocalValue('0');
+      // 포커스 해제 시 천단위 구분기호 적용
+      const rawNumber = parseFormattedNumber(localValue || '0');
+      
+      if (rawNumber === 0) {
+        setLocalValue('');
         handleInputChange(field, 0);
       } else {
         // 범위 체크 후 정규화
-        let finalValue = numValue;
-        if (min !== undefined && numValue < min) finalValue = min;
-        if (max !== undefined && numValue > max) finalValue = max;
+        let finalValue = rawNumber;
+        if (min !== undefined && rawNumber < min) finalValue = min;
+        if (max !== undefined && rawNumber > max) finalValue = max;
         
-        setLocalValue(finalValue.toString());
+        setLocalValue(formatNumberInput(finalValue));
         handleInputChange(field, finalValue);
       }
     };
@@ -957,18 +960,11 @@ export default function StockTransferTaxCalculator() {
         e.preventDefault();
       }
       
-      // 숫자, 백스페이스, 삭제, 탭, 화살표, 소수점만 허용
+      // 숫자, 백스페이스, 삭제, 탭, 화살표만 허용 (쉼표, 소수점 제외)
       const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
       const isNumber = /^[0-9]$/.test(e.key);
-      const isDecimal = e.key === '.';
-      const isMinus = e.key === '-';
       
-      if (!allowedKeys.includes(e.key) && !isNumber && !isDecimal && !isMinus) {
-        e.preventDefault();
-      }
-      
-      // 소수점이 이미 있으면 추가 소수점 차단
-      if (isDecimal && localValue.includes('.')) {
+      if (!allowedKeys.includes(e.key) && !isNumber) {
         e.preventDefault();
       }
       
@@ -1010,9 +1006,11 @@ export default function StockTransferTaxCalculator() {
             onFocus={handleFocus}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
-            placeholder={placeholder}
+            placeholder={placeholder || "숫자를 입력하세요"}
             disabled={disabled}
             autoComplete="off"
+            title={label}
+            aria-label={label}
             className={`${hasError ? 'border-red-500 bg-red-50' : ''} ${
               isAutoCalculated ? 'border-green-500 bg-green-50' : ''
             } ${suffix ? 'pr-12' : ''} text-right`}
@@ -1023,6 +1021,22 @@ export default function StockTransferTaxCalculator() {
             </span>
           )}
         </div>
+        
+        {/* 입력 도움말 */}
+        {helpText && (
+          <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+            💡 {helpText}
+          </div>
+        )}
+        
+        {/* 포커스 시 사용법 안내 */}
+        {isFocused && (
+          <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded border">
+            💡 숫자만 입력하세요. 천단위 쉼표는 자동으로 표시됩니다.
+            {min !== undefined && ` (최소: ${formatNumber(min)})`}
+            {max !== undefined && ` (최대: ${formatNumber(max)})`}
+          </div>
+        )}
         
         {hasError && (
           <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
@@ -1748,42 +1762,50 @@ export default function StockTransferTaxCalculator() {
                       <Separator />
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* 주식 수량 */}
+                        {/* 매입(보유) 수량 */}
                         <SmartNumberInput
-                          label="보유 주식 수"
+                          label="💰 매입 주식 수량"
                           field="stockQuantity"
                           value={formData.stockQuantity}
-                          placeholder="주식 수량 입력"
+                          placeholder="보유하고 있는 주식 수"
                           suffix="주"
                           step={1}
+                          helpText="현재 보유하고 있거나 매도할 주식의 총 수량입니다. 대주주 판정에 영향을 줍니다."
+                          required={true}
                         />
 
-                        {/* 주당 가격 */}
+                        {/* 매입(주당) 가격 */}
                         <SmartNumberInput
-                          label="주당 가격"
+                          label="💵 현재 주당 가격"
                           field="pricePerShare"
                           value={formData.pricePerShare}
-                          placeholder="주당 가격 입력"
+                          placeholder="매도 예정 주당 가격"
                           suffix="원"
+                          helpText="현재 시점의 주당 가격입니다. 상장주식은 현재가, 비상장주식은 평가가액을 입력하세요."
+                          required={true}
                         />
 
                         {/* 총 주식 가치 (자동 계산) */}
                         <SmartNumberInput
-                          label="총 주식 가치"
+                          label="📊 총 주식 가치 (자동계산)"
                           field="totalValue"
                           value={totalValue}
                           formula="주식수 × 주당가격"
                           suffix="원"
-                          disabled={autoCalculations.totalValue}
+                          autoCalculated={true}
+                          disabled={true}
+                          helpText="주식 수량과 주당 가격으로 자동 계산됩니다. 대주주 판정(100억원 기준)에 사용됩니다."
                         />
 
-                        {/* 취득가액 */}
+                        {/* 최초 취득가액 */}
                         <SmartNumberInput
-                          label="취득가액"
+                          label="🏷️ 최초 매입가액 (총액)"
                           field="acquisitionPrice"
                           value={formData.acquisitionPrice}
-                          placeholder="최초 취득가격"
+                          placeholder="처음 주식을 산 총 가격"
                           suffix="원"
+                          helpText="주식을 처음 취득할 때 실제로 지불한 총 금액입니다. 양도소득세 계산의 기준이 됩니다."
+                          required={true}
                         />
                       </div>
 
@@ -2289,31 +2311,36 @@ export default function StockTransferTaxCalculator() {
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* 취득가액 */}
+                          {/* 최초 취득가액 */}
                           <SmartNumberInput
-                            label="취득가액"
+                            label="🏷️ 최초 취득가액 (매입가격)"
                             field="acquisitionPrice"
                             value={formData.acquisitionPrice || 0}
-                            placeholder="주식을 취득한 가격"
+                            placeholder="주식을 처음 산 총 가격"
                             suffix="원"
+                            helpText="주식을 최초로 취득할 때 실제 지급한 총 금액입니다. 양도소득세 계산의 기준이 됩니다."
+                            required={true}
                           />
 
-                          {/* 양도가액 */}
+                          {/* 양도가액 (매도가격) */}
                           <SmartNumberInput
-                            label="양도가액 (매도가격)"
+                            label="💰 양도가액 (매도가격)"
                             field="transferPrice"
                             value={formData.transferPrice || 0}
-                            placeholder="주식을 매도한 가격"
+                            placeholder="주식을 매도한 총 가격"
                             suffix="원"
+                            helpText="실제로 주식을 매도하여 받은 총 금액입니다. 양도차익 계산에 사용됩니다."
+                            required={true}
                           />
 
-                          {/* 양도비용 */}
+                          {/* 양도관련 비용 */}
                           <SmartNumberInput
-                            label="양도비용"
+                            label="💸 양도관련 비용"
                             field="transferExpenses"
                             value={formData.transferExpenses || 0}
                             placeholder="중개수수료, 인지세 등"
                             suffix="원"
+                            helpText="양도 시 발생한 필요경비입니다. 중개수수료, 인지세, 농특세 등이 포함되며 양도차익에서 차감됩니다."
                           />
 
                           {/* 양도차익 (자동 계산) */}

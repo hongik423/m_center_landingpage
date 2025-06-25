@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { ComprehensiveIncomeTaxInput, ComprehensiveIncomeTaxResult } from '@/types/tax-calculator.types';
 import { ComprehensiveIncomeTaxCalculator, ComprehensiveTaxInputValidator } from '@/lib/utils/tax-calculations';
-import { formatCurrency, formatNumber } from '@/lib/utils';
+import { formatCurrency, formatNumber, formatNumberInput, parseFormattedNumber, handleNumberInputChange } from '@/lib/utils';
 import { COMPREHENSIVE_TAX_LIMITS_2024 } from '@/constants/tax-rates-2024';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
 import { PDFGenerator } from '@/lib/utils/pdfGenerator';
@@ -63,11 +63,14 @@ function NumberInput({
   relatedIncome,
   allInputs
 }: NumberInputProps) {
-  const [displayValue, setDisplayValue] = useState(value ? formatNumber(value) : '');
+  const [displayValue, setDisplayValue] = useState(value && value > 0 ? formatNumberInput(value) : '');
   const [isOverLimit, setIsOverLimit] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
-    setDisplayValue(value ? formatNumber(value) : '');
+    if (!isFocused) {
+      setDisplayValue(value && value > 0 ? formatNumberInput(value) : '');
+    }
     
     // 한도 초과 검사
     if (max && value > max) {
@@ -75,28 +78,84 @@ function NumberInput({
     } else {
       setIsOverLimit(false);
     }
-  }, [value, max]);
+  }, [value, max, isFocused]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value.replace(/[^\d]/g, '');
-    const numValue = Math.round(parseInt(inputValue) || 0);
+    const inputValue = e.target.value;
     
-    // 최대값 제한 적용
-    let finalValue = numValue;
-    if (max && numValue > max) {
-      finalValue = max;
-      setIsOverLimit(true);
+    // 천단위 구분기호와 함께 숫자 입력 처리
+    const formattedValue = handleNumberInputChange(
+      inputValue,
+      (num) => {
+        // 최대값 제한 적용
+        let finalValue = num;
+        if (max && num > max) {
+          finalValue = max;
+          setIsOverLimit(true);
+        } else {
+          setIsOverLimit(false);
+        }
+        
+        // 최소값 제한 적용
+        if (finalValue < min) {
+          finalValue = min;
+        }
+        
+        onChange(finalValue);
+      },
+      { min, max, allowEmpty: true }
+    );
+    
+    setDisplayValue(formattedValue);
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    // 포커스 시 원본 숫자만 표시 (편집하기 쉽게)
+    const rawNumber = parseFormattedNumber(displayValue);
+    if (rawNumber > 0) {
+      setDisplayValue(rawNumber.toString());
+    }
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    // 포커스 해제 시 천단위 구분기호 적용
+    const rawNumber = parseFormattedNumber(displayValue || '0');
+    
+    if (rawNumber === 0) {
+      setDisplayValue('');
     } else {
-      setIsOverLimit(false);
+      // 범위 체크 후 정규화
+      let finalValue = rawNumber;
+      if (min !== undefined && rawNumber < min) finalValue = min;
+      if (max !== undefined && rawNumber > max) finalValue = max;
+      
+      setDisplayValue(formatNumberInput(finalValue));
+      if (finalValue !== rawNumber) {
+        onChange(finalValue);
+      }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // 음수 허용하지 않는 경우 '-' 키 차단
+    if (min !== undefined && min >= 0 && e.key === '-') {
+      e.preventDefault();
     }
     
-    // 최소값 제한 적용
-    if (finalValue < min) {
-      finalValue = min;
+    // 숫자, 백스페이스, 삭제, 탭, 화살표만 허용
+    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+    const isNumber = /^[0-9]$/.test(e.key);
+    
+    if (!allowedKeys.includes(e.key) && !isNumber) {
+      e.preventDefault();
     }
     
-    setDisplayValue(finalValue ? formatNumber(finalValue) : '');
-    onChange(finalValue);
+    // 엔터 키 처리
+    if (e.key === 'Enter') {
+      (e.target as HTMLInputElement).blur();
+    }
   };
 
   // 동적 안내 메시지 생성
@@ -186,10 +245,18 @@ function NumberInput({
       <div className="relative">
         <Input
           id={label}
+          type="text"
+          inputMode="numeric"
           value={displayValue}
           onChange={handleChange}
-          placeholder={placeholder}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder || "숫자를 입력하세요"}
           disabled={disabled}
+          autoComplete="off"
+          title={label}
+          aria-label={label}
           className={`pr-8 text-right font-mono ${isOverLimit ? 'border-orange-400 bg-orange-50' : ''}`}
         />
         {suffix && (
@@ -199,8 +266,17 @@ function NumberInput({
         )}
       </div>
       
+      {/* 포커스 시 사용법 안내 */}
+      {isFocused && (
+        <p className="text-xs text-gray-500 bg-gray-50 p-2 rounded border mt-1">
+          💡 숫자만 입력하세요. 천단위 쉼표는 자동으로 표시됩니다.
+          {min !== undefined && ` (최소: ${formatNumber(min)})`}
+          {max !== undefined && ` (최대: ${formatNumber(max)})`}
+        </p>
+      )}
+      
       {/* 동적 안내 메시지 */}
-      {dynamicMessage && (
+      {!isFocused && dynamicMessage && (
         <p className="text-xs text-blue-600 mt-1">
           💡 {dynamicMessage}
         </p>
@@ -214,7 +290,7 @@ function NumberInput({
       )}
       
       {/* 고정 한도 정보 */}
-      {limitInfo && !dynamicMessage && (
+      {!isFocused && !dynamicMessage && limitInfo && (
         <p className="text-xs text-gray-500 mt-1">
           📋 {limitInfo}
         </p>

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from './input';
 import { Label } from './label';
+import { formatNumberInput, parseFormattedNumber, handleNumberInputChange } from '@/lib/utils';
 
 interface NumberInputProps {
   label?: string;
@@ -35,63 +36,65 @@ export function NumberInput({
   required = false,
   error
 }: NumberInputProps) {
-  const [localValue, setLocalValue] = useState<string>(value?.toString() || '');
+  const [localValue, setLocalValue] = useState<string>(
+    value && value > 0 ? formatNumberInput(value) : ''
+  );
   const [isFocused, setIsFocused] = useState(false);
 
   // 외부 값이 변경될 때 로컬 값 업데이트
   useEffect(() => {
     if (!isFocused) {
-      setLocalValue(value?.toString() || '');
+      setLocalValue(value && value > 0 ? formatNumberInput(value) : '');
     }
   }, [value, isFocused]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
-    // 숫자와 콤마만 허용하는 정규식으로 필터링
-    const filteredValue = inputValue.replace(/[^0-9,]/g, '');
-    setLocalValue(filteredValue);
-
-    // 빈 문자열이면 0으로 설정
-    if (filteredValue === '' || filteredValue === ',') {
-      onChange(0);
-      return;
-    }
-
-    // 콤마 제거 후 숫자로 변환
-    const cleanValue = filteredValue.replace(/,/g, '');
-    const numValue = parseFloat(cleanValue);
     
-    if (!isNaN(numValue)) {
-      // min/max 범위 체크 후 정수로 반올림
-      let finalValue = Math.round(numValue);
-      if (min !== undefined && finalValue < min) finalValue = min;
-      if (max !== undefined && finalValue > max) finalValue = max;
-      
-      onChange(finalValue);
-    }
+    // 천단위 구분기호와 함께 숫자 입력 처리
+    const formattedValue = handleNumberInputChange(
+      inputValue,
+      (num) => {
+        // min/max 범위 체크
+        let finalValue = num;
+        if (min !== undefined && num < min) finalValue = min;
+        if (max !== undefined && num > max) finalValue = max;
+        
+        onChange(finalValue);
+      },
+      { min, max, allowEmpty: true }
+    );
+    
+    setLocalValue(formattedValue);
   };
 
   const handleFocus = () => {
     setIsFocused(true);
+    // 포커스 시 원본 숫자만 표시 (편집하기 쉽게)
+    const rawNumber = parseFormattedNumber(localValue);
+    if (rawNumber > 0) {
+      setLocalValue(rawNumber.toString());
+    }
   };
 
   const handleBlur = () => {
     setIsFocused(false);
-    // 콤마 제거 후 숫자로 변환
-    const cleanValue = localValue.replace(/,/g, '');
-    const numValue = parseFloat(cleanValue);
+    // 포커스 해제 시 천단위 구분기호 적용
+    const rawNumber = parseFormattedNumber(localValue || '0');
     
-    if (isNaN(numValue) || cleanValue === '') {
-      setLocalValue('0');
+    if (rawNumber === 0) {
+      setLocalValue('');
       onChange(0);
     } else {
-      // 범위 체크 후 정수로 반올림
-      let finalValue = Math.round(numValue);
-      if (min !== undefined && finalValue < min) finalValue = min;
-      if (max !== undefined && finalValue > max) finalValue = max;
+      // 범위 체크 후 정규화
+      let finalValue = rawNumber;
+      if (min !== undefined && rawNumber < min) finalValue = min;
+      if (max !== undefined && rawNumber > max) finalValue = max;
       
-      setLocalValue(finalValue.toString());
-      onChange(finalValue);
+      setLocalValue(formatNumberInput(finalValue));
+      if (finalValue !== rawNumber) {
+        onChange(finalValue);
+      }
     }
   };
 
@@ -101,12 +104,11 @@ export function NumberInput({
       e.preventDefault();
     }
 
-    // 숫자, 백스페이스, 삭제, 탭, 화살표, 콤마만 허용 (소수점 제거)
+    // 숫자, 백스페이스, 삭제, 탭, 화살표만 허용 (콤마, 소수점 제외)
     const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
     const isNumber = /^[0-9]$/.test(e.key);
-    const isComma = e.key === ',';
 
-    if (!allowedKeys.includes(e.key) && !isNumber && !isComma) {
+    if (!allowedKeys.includes(e.key) && !isNumber) {
       e.preventDefault();
     }
 
@@ -114,16 +116,6 @@ export function NumberInput({
     if (e.key === 'Enter') {
       (e.target as HTMLInputElement).blur();
     }
-  };
-
-  const formatDisplayValue = (val: string) => {
-    // 천 단위 쉼표 추가 (포커스되지 않았을 때만)
-    if (!isFocused && val && !isNaN(parseFloat(val))) {
-      const numValue = parseFloat(val);
-      // 정수로 반올림하여 소수점 제거
-      return Math.round(numValue).toLocaleString('ko-KR');
-    }
-    return val;
   };
 
   return (
@@ -145,7 +137,7 @@ export function NumberInput({
         <Input
           type="text"
           inputMode="numeric"
-          value={isFocused ? localValue : formatDisplayValue(localValue)}
+          value={localValue}
           onChange={handleInputChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -153,6 +145,8 @@ export function NumberInput({
           placeholder={placeholder}
           disabled={disabled}
           autoComplete="off"
+          title={label}
+          aria-label={label}
           className={`
             ${error ? 'border-red-500 bg-red-50' : 'border-gray-300'}
             ${prefix ? 'pl-8' : ''}
@@ -176,8 +170,9 @@ export function NumberInput({
 
       {isFocused && (
         <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded border">
-          💡 숫자만 입력하세요. 범위: {min}
-          {max !== undefined && ` ~ ${max.toLocaleString()}`}
+          💡 숫자만 입력하세요. 천단위 쉼표는 자동으로 표시됩니다.
+          {min !== undefined && ` (최소: ${min.toLocaleString()})`}
+          {max !== undefined && ` (최대: ${max.toLocaleString()})`}
         </div>
       )}
     </div>
