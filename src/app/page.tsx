@@ -2,9 +2,6 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import Header from '@/components/layout/header';
-import Footer from '@/components/layout/footer';
-
 import { 
   Brain, 
   Factory, 
@@ -30,26 +27,26 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-// 서비스 데이터 - 토스 스타일 업데이트
+// 서비스 데이터 - 프리미엄하고 신비로운 표현
 const services = [
   {
     id: 'business-analysis',
-    title: 'BM ZEN 사업분석',
+    title: '프리미엄 사업분석',
     subtitle: '신규사업 성공률 95%',
-    description: '세무사를 위한 비즈니스 혁신 솔루션',
+    description: '차세대 비즈니스 혁신 솔루션',
     icon: Brain,
     color: 'bg-gradient-to-br from-blue-500 to-purple-600 text-white',
     bgColor: 'from-blue-50 to-purple-50',
     href: '/services',
-    benefits: ['95% 성공률 보장', '세무사 수익 4배 증가', '5단계 BM ZEN 프레임워크'],
+    benefits: ['95% 성공률 보장', '매출 4배 증가', '5단계 전략 프레임워크'],
     badge: '⭐ 추천',
     featured: true
   },
   {
     id: 'ai-productivity',
-    title: 'AI 활용 생산성향상',
+    title: '혁신 AI 솔루션',
     subtitle: '업무 효율성 40% 향상',
-    description: '20주 프로그램으로 AI 혁신 완성',
+    description: '20주 프로그램으로 디지털 혁신 완성',
     icon: Brain,
     color: 'bg-purple-100 text-purple-600',
     bgColor: 'from-purple-50 to-pink-50',
@@ -59,9 +56,9 @@ const services = [
   },
   {
     id: 'factory-auction',
-    title: '경매활용 공장구매',
+    title: '스마트 공장투자',
     subtitle: '시장가 대비 40% 절약',
-    description: '경매 활용 스마트 투자 전략',
+    description: '경매 활용 지능형 투자 전략',
     icon: Factory,
     color: 'bg-orange-100 text-orange-600',
     bgColor: 'from-orange-50 to-red-50',
@@ -71,7 +68,7 @@ const services = [
   },
   {
     id: 'tech-startup',
-    title: '기술사업화/기술창업',
+    title: '기술사업화/창업',
     subtitle: '평균 5억원 자금 확보',
     description: '정부지원 연계 기술사업화',
     icon: Rocket,
@@ -83,7 +80,7 @@ const services = [
   },
   {
     id: 'certification',
-    title: '인증지원',
+    title: '프리미엄 인증지원',
     subtitle: '연간 5천만원 세제혜택',
     description: '벤처·ISO·ESG 통합 인증',
     icon: Award,
@@ -95,24 +92,24 @@ const services = [
   },
   {
     id: 'website',
-    title: '웹사이트 구축',
+    title: '디지털 혁신',
     subtitle: '온라인 매출 30% 증대',
-    description: 'AI 기반 디지털 혁신',
+    description: '차세대 디지털 솔루션',
     icon: Globe,
     color: 'bg-indigo-100 text-indigo-600',
     bgColor: 'from-indigo-50 to-violet-50',
     href: '/services',
-    benefits: ['매출 30% 증대', 'AI 기반 최적화', '무료 1년 관리'],
+    benefits: ['매출 30% 증대', '지능형 최적화', '무료 1년 관리'],
     badge: '🌐 디지털'
   }
 ];
 
-// 성장 단계 데이터 - 업데이트
+// 성장 단계 데이터 - 신비롭고 고급스러운 표현
 const growthStages = [
   {
     step: '1단계',
     period: '1-3년',
-    title: '안정적 기반 구축',
+    title: '기반 구축',
     description: '창업 초기 필수 요소 완성',
     features: ['창업 자금 확보', '기본 인증 취득', '신뢰도 구축'],
     color: 'border-green-200 bg-gradient-to-br from-green-50 to-emerald-50',
@@ -121,7 +118,7 @@ const growthStages = [
   {
     step: '2단계',
     period: '3-7년',
-    title: '성장 동력 강화',
+    title: '성장 가속화',
     description: '조직 확장과 시스템 구축',
     features: ['조직 확장', '기술 고도화', '매출 확대'],
     color: 'border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50',
@@ -130,7 +127,7 @@ const growthStages = [
   {
     step: '3단계',
     period: '7-10년',
-    title: '시장 주도 지위',
+    title: '시장 지배력',
     description: '혁신 도입과 글로벌 진출',
     features: ['혁신 도입', '글로벌 진출', '생태계 구축'],
     color: 'border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50',
@@ -139,7 +136,7 @@ const growthStages = [
   {
     step: '4단계',
     period: '10년+',
-    title: '지속가능 성장',
+    title: '지속가능 혁신',
     description: '미래 지향적 기업 전환',
     features: ['디지털 전환', '사회적 책임', '미래 준비'],
     color: 'border-orange-200 bg-gradient-to-br from-orange-50 to-yellow-50',
@@ -250,9 +247,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
-      
-      {/* Hero Section - 토스 스타일 */}
+      {/* Hero Section - 신비롭고 고급스러운 표현 */}
       <section className="gradient-bg-hero section-padding relative overflow-hidden">
         {/* 배경 패턴 */}
         <div className="absolute inset-0 opacity-5">
@@ -266,20 +261,20 @@ export default function Home() {
             {/* 상단 배지 */}
             <div className="inline-flex items-center gap-2 badge-primary mb-6 animate-bounce-gentle">
               <Sparkles className="w-4 h-4" />
-              <span className="font-semibold">Business Model Zen Framework</span>
+              <span className="font-semibold">프리미엄 비즈니스 혁신 프레임워크</span>
             </div>
             
             <h1 className="text-hero text-gray-900 mb-6 leading-tight animate-slide-in">
-              <span className="block">기업 성장의 5단계를</span>
+              <span className="block">기업 성장의 새로운 차원을</span>
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                완성하세요
+                경험하세요
               </span>
             </h1>
             
             <p className="text-body-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed px-4 animate-slide-in" 
                style={{ animationDelay: '0.2s' }}>
-              <strong className="text-gray-800">AI, 공장구매, 기술창업, 인증, 웹사이트</strong> - 
-              6대 영역 통합 솔루션으로 전문가 수준의 맞춤 컨설팅을 경험하세요
+              <strong className="text-gray-800">혁신 AI, 스마트 투자, 기술창업, 프리미엄 인증, 디지털 혁신</strong> - 
+              6대 영역 통합 솔루션으로 차원이 다른 비즈니스 성과를 만나보세요
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center px-4 animate-slide-in"
@@ -290,7 +285,7 @@ export default function Home() {
                             text-white shadow-xl hover:shadow-2xl"
                 >
                   <Sparkles className="w-5 h-5 mr-2" />
-                  BM ZEN 사업분석 시작하기
+                  프리미엄 사업분석 시작하기
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
@@ -300,7 +295,7 @@ export default function Home() {
                   className="btn-primary bg-green-500 hover:bg-green-600"
                 >
                   <Zap className="w-5 h-5 mr-2" />
-                  무료 AI진단 신청
+                  무료 전문가 진단
                 </Button>
               </Link>
               
@@ -317,23 +312,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* AI 상담사 섹션 - 토스 스타일 업그레이드 */}
+      {/* AI 상담사 섹션 - 신비롭고 고급스러운 표현으로 변경 */}
       <section className="section-padding bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative">
         <div className="container-custom">
           <div className="text-center mb-16">
             <div className="badge-primary mb-6 animate-bounce-gentle">
               <Brain className="w-5 h-5 mr-2 animate-pulse" />
-              <span className="font-semibold">GEMINI AI 기반 스마트 상담</span>
+              <span className="font-semibold">차세대 지능형 상담 시스템</span>
             </div>
             
             <h2 className="text-h1 text-gray-900 mb-4 animate-slide-in">
               <span className="text-4xl mr-3">🧠</span>
-              AI 상담사와 바로 채팅하기
+              AI 전문 상담사와 바로 대화하기
             </h2>
             
             <p className="text-body-lg text-gray-600 max-w-4xl mx-auto">
-              <strong className="text-blue-600">GEMINI AI</strong> 기반의 전문 상담사가 24시간 대기 중입니다.<br />
-              기업 성장에 관한 모든 궁금증을 바로 해결해보세요!
+              <strong className="text-blue-600">최첨단 AI 기술</strong>로 무장한 전문 상담사가 24시간 대기 중입니다.<br />
+              기업 성장에 관한 모든 궁금증을 지금 바로 해결해보세요!
             </p>
           </div>
           
@@ -349,9 +344,9 @@ export default function Home() {
                         <Brain className="w-10 h-10 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-h3 text-gray-900 mb-1">M-CENTER AI 상담사</h3>
+                        <h3 className="text-h3 text-gray-900 mb-1">M-CENTER 전문 AI 상담사</h3>
                         <div className="flex items-center gap-2">
-                          <span className="badge-primary">GEMINI AI</span>
+                          <span className="badge-primary">Advanced AI</span>
                           <span className="badge-success">24시간 상담</span>
                         </div>
                       </div>
@@ -361,11 +356,11 @@ export default function Home() {
                       {[
                         {
                           title: '전문 분야별 맞춤 상담',
-                          desc: 'BM분석, AI활용, 공장구매, 기술창업, 인증, 웹사이트'
+                          desc: '사업분석, AI혁신, 공장구매, 기술창업, 인증, 웹사이트'
                         },
                         {
-                          title: '즉시 응답 및 정확한 정보',
-                          desc: '25년 경험 기반 DB + Google GEMINI AI'
+                          title: '즉시 응답 및 정확한 분석',
+                          desc: '25년 전문가 경험 + 차세대 AI 기술 융합'
                         },
                         {
                           title: '전문가 연결 및 후속 상담',
@@ -390,7 +385,7 @@ export default function Home() {
                       <ul className="text-sm text-gray-700 space-y-2">
                         {[
                           "우리 회사 매출을 늘리려면 어떻게 해야 하나요?",
-                          "AI 도입으로 업무 효율을 높이고 싶어요",
+                          "혁신적인 기술 도입으로 경쟁력을 높이고 싶어요",
                           "공장 구매를 저렴하게 하는 방법이 있나요?",
                           "정부지원 사업은 어떤 것들이 있나요?"
                         ].map((question, index) => (
@@ -545,12 +540,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 성장 단계별 가이드 - 토스 스타일 */}
+      {/* 성장 단계별 가이드 - 프리미엄 표현 */}
       <section className="section-padding gradient-bg-primary">
         <div className="container-custom">
           <div className="text-center mb-16">
             <h2 className="text-h1 text-gray-900 mb-4">
-              Business Model Zen 4단계 프레임워크
+              기업 성장 4단계 혁신 프레임워크
             </h2>
             <p className="text-body-lg text-gray-600 max-w-3xl mx-auto">
               기업의 성장 단계에 맞는 맞춤형 지원으로 지속 가능한 성장을 실현하세요
@@ -662,23 +657,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 무료 AI진단 신청 섹션 - 토스 스타일 */}
+      {/* 무료 전문가 진단 섹션 - 프리미엄 표현 */}
       <section id="ai-diagnosis" className="section-padding bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white">
         <div className="container-custom">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full mb-6">
               <Brain className="w-5 h-5" />
-              <span className="font-semibold">무료 AI진단 신청 시스템</span>
+              <span className="font-semibold">차세대 지능형 진단 시스템</span>
             </div>
             
             <h2 className="text-h1 mb-6">
               <Zap className="inline-block w-12 h-12 mr-4 text-yellow-400" />
-              무료 AI진단 신청
+              무료 전문가 진단 신청
             </h2>
             
             <p className="text-body-lg max-w-4xl mx-auto text-blue-100">
-              복잝한 20여개 입력 항목을 <strong className="text-white">8개 핵심 정보</strong>로 간소화!<br />
-              2-3주 처리 시간을 <strong className="text-white">2-3분</strong>으로 혁신한 새로운 AI진단 시스템
+              복잡한 20여개 입력 항목을 <strong className="text-white">8개 핵심 정보</strong>로 혁신적 간소화!<br />
+              2-3주 처리 시간을 <strong className="text-white">2-3분</strong>으로 혁명적 단축
             </p>
           </div>
           
@@ -688,7 +683,7 @@ export default function Home() {
               {[
                 { icon: Clock, title: '⚡ 처리 속도', before: '기존: 2-3주', after: '신규: 2-3분', improvement: '99.9% 단축', color: 'from-green-400 to-emerald-500' },
                 { icon: BarChart3, title: '📝 입력 항목', before: '기존: 20+ 항목', after: '신규: 8개 항목', improvement: '60% 간소화', color: 'from-blue-400 to-cyan-500' },
-                { icon: FileText, title: '📊 보고서', before: '기존: 5000자+', after: '신규: AI진단 보고서', improvement: '핵심 정보 집중', color: 'from-purple-400 to-pink-500' }
+                { icon: FileText, title: '📊 보고서', before: '기존: 5000자+', after: '신규: 전문가 진단보고서', improvement: '핵심 정보 집중', color: 'from-purple-400 to-pink-500' }
               ].map((item, index) => (
                 <Card key={index} className={`text-center p-6 bg-gradient-to-br ${item.color} text-white border-0`}>
                   <CardContent className="p-0">
@@ -710,10 +705,10 @@ export default function Home() {
             <Card className="bg-white/10 backdrop-blur-sm border border-white/20">
               <CardContent className="p-8 text-center">
                 <h3 className="text-h2 mb-4">
-                  지금 바로 무료 AI진단을 신청하세요!
+                  지금 바로 무료 전문가 진단을 신청하세요!
                 </h3>
                 <p className="text-blue-100 mb-8 text-lg">
-                  8개 정보만 입력하면 2-3분 내에 전문가 수준의 AI진단 보고서를 받아볼 수 있습니다.
+                  8개 정보만 입력하면 2-3분 내에 전문가 수준의 진단 보고서를 받아볼 수 있습니다.
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
@@ -722,7 +717,7 @@ export default function Home() {
                       className="btn-hero bg-white text-blue-600 hover:bg-gray-50 shadow-xl"
                     >
                       <Brain className="w-5 h-5 mr-2" />
-                      무료 AI진단 신청하기
+                      무료 전문가 진단 신청하기
                     </Button>
                   </Link>
                 </div>
@@ -744,8 +739,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

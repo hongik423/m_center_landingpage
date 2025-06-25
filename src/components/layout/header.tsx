@@ -4,15 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { 
-  ChevronDown, 
   Menu, 
   Bot, 
   Phone,
@@ -21,60 +14,12 @@ import {
   Rocket,
   Award,
   Globe,
-  Zap,
   Sparkles,
   Calculator,
   MessageCircle,
-  FileText,
   X
 } from 'lucide-react';
 import { getImagePath } from '@/lib/utils';
-
-// Apple Store 스타일 서비스 데이터
-const services = [
-  {
-    id: 'business-analysis',
-    title: 'BM ZEN 사업분석',
-    description: 'AI 기반 성장전략 컨설팅',
-    icon: Brain,
-    href: '/services/business-analysis'
-  },
-  {
-    id: 'ai-productivity',
-    title: 'AI 활용 생산성향상',
-    description: '업무 효율성 40% 향상',
-    icon: Brain,
-    href: '/services/ai-productivity'
-  },
-  {
-    id: 'factory-auction',
-    title: '경매활용 공장구매',
-    description: '시장가 대비 40% 절약',
-    icon: Factory,
-    href: '/services'
-  },
-  {
-    id: 'tech-startup',
-    title: '기술사업화/기술창업',
-    description: '평균 5억원 자금 확보',
-    icon: Rocket,
-    href: '/services/tech-startup'
-  },
-  {
-    id: 'certification',
-    title: '인증지원',
-    description: '연간 5천만원 세제혜택',
-    icon: Award,
-    href: '/services/certification'
-  },
-  {
-    id: 'website',
-    title: '웹사이트 구축',
-    description: '온라인 매출 30% 증대',
-    icon: Globe,
-    href: '/services/website'
-  }
-];
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -105,75 +50,54 @@ export default function Header() {
             <div className="flex items-center">
               <Link href="/" className="group">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-apple-button">
+                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-apple-button border border-gray-200">
                     <img 
-                      src={getImagePath('/company-star-logo.svg')} 
-                      alt="경영지도센터 로고" 
-                      className="w-6 h-6 object-contain filter brightness-0 invert"
+                      src={getImagePath('/LOGO.JPG')} 
+                      alt="기업이벤트 로고" 
+                      className="w-8 h-8 object-contain"
                     />
                   </div>
-                  <span className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
-                    경영지도센터
-                  </span>
+                                      <span className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                      기업이벤트
+                    </span>
                 </div>
               </Link>
             </div>
 
-            {/* 데스크톱 네비게이션 */}
+            {/* 데스크톱 네비게이션 - 서비스 직접 표시 */}
             <div className="hidden lg:flex items-center space-x-8">
               <Link href="/" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">
                 홈
               </Link>
               
-              {/* BM Zen 프로필링크 - 직접 링크 */}
+              {/* 핵심 서비스들을 직접 표시 */}
               <Link href="/services/business-analysis" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 flex items-center">
-                <Brain className="w-4 h-4 mr-1" />
-                BM Zen 프로필링크
+                <Brain className="w-4 h-4 mr-1 text-blue-500" />
+                사업분석
               </Link>
               
-              {/* 인증지원 - 직접 링크 */}
+              <Link href="/services/ai-productivity" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 flex items-center">
+                <Sparkles className="w-4 h-4 mr-1 text-purple-500" />
+                AI솔루션
+              </Link>
+              
+              <Link href="/services/factory-auction" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 flex items-center">
+                <Factory className="w-4 h-4 mr-1 text-orange-500" />
+                공장구매
+              </Link>
+              
+              <Link href="/services/tech-startup" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 flex items-center">
+                <Rocket className="w-4 h-4 mr-1 text-green-500" />
+                기술창업
+              </Link>
+              
               <Link href="/services/certification" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 flex items-center">
-                <Award className="w-4 h-4 mr-1" />
+                <Award className="w-4 h-4 mr-1 text-red-500" />
                 인증지원
               </Link>
               
-              {/* 서비스 드롭다운 */}
-              <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 group">
-                  서비스
-                  <ChevronDown className="ml-1 w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-96 p-6 bg-white/95 backdrop-blur-xl border border-gray-200 shadow-apple-hover rounded-apple">
-                  <div className="grid grid-cols-2 gap-3">
-                    {services.map((service) => (
-                      <DropdownMenuItem key={service.id} asChild>
-                        <Link href={service.href} className="flex items-start p-3 rounded-apple-sm hover:bg-gray-50 transition-colors duration-200">
-                          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
-                            <service.icon className="w-4 h-4 text-white" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-medium text-gray-900 text-sm mb-1">
-                              {service.title}
-                            </div>
-                            <div className="text-xs text-gray-600 leading-relaxed">
-                              {service.description}
-                            </div>
-                          </div>
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
               <Link href="/cases" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">
                 성공사례
-              </Link>
-              <Link href="/about" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">
-                회사소개
-              </Link>
-              <Link href="/support" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">
-                고객지원
               </Link>
             </div>
 
@@ -193,7 +117,7 @@ export default function Header() {
                 onClick={() => handleNavigation('/diagnosis')}
               >
                 <Sparkles className="w-4 h-4 mr-2" />
-                무료AI진단
+                무료진단
               </Button>
               
               <Button 
@@ -210,7 +134,7 @@ export default function Header() {
                 onClick={() => handleNavigation('/chatbot')}
               >
                 <Bot className="w-4 h-4 mr-2" />
-                AI챗봇
+                AI상담
               </Button>
             </div>
 
@@ -232,16 +156,16 @@ export default function Header() {
                 {/* 모바일 메뉴 헤더 */}
                 <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-200">
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center border border-gray-200">
                       <img 
-                        src={getImagePath('/company-star-logo.svg')} 
-                        alt="경영지도센터 로고" 
-                        className="w-4 h-4 object-contain filter brightness-0 invert"
+                        src={getImagePath('/LOGO.JPG')} 
+                        alt="기업이벤트 로고" 
+                        className="w-6 h-6 object-contain"
                       />
                     </div>
                     <div>
                       <h2 className="font-semibold text-gray-900">메뉴</h2>
-                      <p className="text-xs text-gray-600">경영지도센터</p>
+                      <p className="text-xs text-gray-600">기업이벤트</p>
                     </div>
                   </div>
                   <Button
@@ -255,12 +179,12 @@ export default function Header() {
                 </div>
 
                 <div className="space-y-6">
-                  {/* 인기 서비스 섹션 */}
+                  {/* 핵심 서비스 섹션 */}
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-4">인기 서비스</h3>
+                    <h3 className="font-semibold text-gray-900 mb-4">핵심 서비스</h3>
                     
                     <div className="space-y-3">
-                      {/* BM Zen 프로필링크 - 모바일 */}
+                      {/* 사업분석 - 모바일 */}
                       <Button 
                         className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200 rounded-apple-sm p-4 h-auto"
                         onClick={() => handleMobileNavigation('/services/business-analysis')}
@@ -270,8 +194,24 @@ export default function Header() {
                             <Brain className="w-5 h-5 text-white" />
                           </div>
                           <div className="flex-1 text-left">
-                            <div className="font-semibold text-white">BM Zen 프로필링크</div>
-                            <div className="text-sm text-blue-100">AI 성장전략 컨설팅</div>
+                            <div className="font-semibold text-white">프리미엄 사업분석</div>
+                            <div className="text-sm text-blue-100">전략적 성장 솔루션</div>
+                          </div>
+                        </div>
+                      </Button>
+                      
+                      {/* AI솔루션 - 모바일 */}
+                      <Button 
+                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200 rounded-apple-sm p-4 h-auto"
+                        onClick={() => handleMobileNavigation('/services/ai-productivity')}
+                      >
+                        <div className="flex items-center w-full">
+                          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-3">
+                            <Sparkles className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <div className="font-semibold text-white">AI 혁신 솔루션</div>
+                            <div className="text-sm text-purple-100">차세대 비즈니스 도구</div>
                           </div>
                         </div>
                       </Button>
@@ -316,7 +256,7 @@ export default function Header() {
                             <Sparkles className="w-5 h-5 text-white" />
                           </div>
                           <div className="flex-1 text-left">
-                            <div className="font-semibold text-white">무료AI진단</div>
+                            <div className="font-semibold text-white">무료 진단</div>
                             <div className="text-sm text-gray-300">맞춤 분석 리포트</div>
                           </div>
                         </div>
@@ -348,7 +288,7 @@ export default function Header() {
                             <Bot className="w-5 h-5 text-gray-700" />
                           </div>
                           <div className="flex-1 text-left">
-                            <div className="font-semibold">AI챗봇</div>
+                            <div className="font-semibold">AI상담</div>
                             <div className="text-sm text-gray-600">24시간 상담</div>
                           </div>
                         </div>
@@ -359,7 +299,7 @@ export default function Header() {
                   {/* 구분선 */}
                   <div className="border-t border-gray-200"></div>
                   
-                  {/* 페이지 메뉴 */}
+                  {/* 페이지 메뉴 - 간소화 */}
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-4">페이지 메뉴</h3>
                     <div className="grid grid-cols-2 gap-3">
@@ -367,7 +307,7 @@ export default function Header() {
                         { href: '/', label: '홈', icon: '🏠' },
                         { href: '/services', label: '서비스', icon: '🛠️' },
                         { href: '/cases', label: '성공사례', icon: '🏆' },
-                        { href: '/about', label: '회사소개', icon: '🏢' }
+                        { href: '/diagnosis', label: 'AI진단', icon: '🔍' }
                       ].map((item) => (
                         <Link
                           key={item.href}
@@ -394,7 +334,7 @@ export default function Header() {
                       </div>
                       <Button
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full py-2 text-sm"
-                        onClick={() => handleMobileNavigation('/support/contact')}
+                        onClick={() => handleMobileNavigation('/consultation')}
                       >
                         <MessageCircle className="w-3 h-3 mr-2" />
                         1:1 문의하기
