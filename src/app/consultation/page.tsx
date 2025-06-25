@@ -618,7 +618,7 @@ export default function ConsultationPage() {
                           개인정보 수집 및 이용에 동의합니다 <span className="text-red-500">*</span>
                         </label>
                         <p className="text-xs text-gray-500 mt-1">
-                          상담 목적으로만 사용되며, 상담 완료 후 안전하게 폐기됩니다.
+                          상담 서비스 제공 및 마케팅 활용을 위한 개인정보 수집 및 이용에 동의합니다. 수집된 정보는 상담 진행, 맞춤형 서비스 제공, 마케팅 정보 안내 목적으로 사용되며, 개인정보보호법에 따라 3년간 보관됩니다.
                         </p>
                       </div>
                     </div>

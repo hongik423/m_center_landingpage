@@ -142,12 +142,12 @@ export default function AIProductivityPage() {
                   <span className="text-sm font-medium text-purple-800">고용노동부 노사발전재단 주관</span>
                 </div>
                 
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
                   <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                     2025년 일터혁신 상생컨설팅
                   </span>
                   <br />
-                  <span className="text-2xl md:text-3xl lg:text-4xl text-gray-700">
+                  <span className="text-xl md:text-2xl lg:text-3xl text-gray-700">
                     AI 활용 생산성향상
                   </span>
                 </h1>
@@ -1275,7 +1275,7 @@ export default function AIProductivityPage() {
       <section className="py-16 bg-gradient-to-r from-purple-600 to-blue-600">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-4xl mx-auto text-white">
-            <h2 className="text-3xl font-bold mb-4">
+            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4">
               🚨 2025년 일터혁신 상생컨설팅 신청 마감 임박!
             </h2>
             <p className="text-xl mb-6 text-purple-100">

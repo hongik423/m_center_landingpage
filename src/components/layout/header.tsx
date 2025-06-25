@@ -57,9 +57,14 @@ export default function Header() {
                       className="w-8 h-8 object-contain"
                     />
                   </div>
-                      <span className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-200 text-sm">
-                      M-CENTER (경영지도센터)
-                    </span>
+                      <div className="text-center">
+                        <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-200 text-sm">
+                          M-CENTER
+                        </div>
+                        <div className="text-xs text-gray-600 group-hover:text-blue-500 transition-colors duration-200">
+                          경영지도센터장
+                        </div>
+                      </div>
                 </div>
               </Link>
             </div>
@@ -99,6 +104,10 @@ export default function Header() {
               <Link href="/services/website" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 flex items-center whitespace-nowrap">
                 <Globe className="w-3.5 h-3.5 mr-1 text-cyan-500" />
                 웹사이트
+              </Link>
+              
+              <Link href="/center-leader" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 whitespace-nowrap">
+                센터장프로필
               </Link>
               
               <Link href="/cases" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 whitespace-nowrap">
@@ -170,7 +179,8 @@ export default function Header() {
                     </div>
                     <div>
                       <h2 className="font-semibold text-gray-900">메뉴</h2>
-                      <p className="text-xs text-gray-600">M-CENTER (경영지도센터)</p>
+                      <p className="text-xs text-gray-600">M-CENTER</p>
+                      <p className="text-xs text-gray-500">경영지도센터장</p>
                     </div>
                   </div>
                   <Button
@@ -327,7 +337,7 @@ export default function Header() {
                       {[
                         { href: '/', label: '홈', icon: '🏠' },
                         { href: '/services', label: '서비스', icon: '🛠️' },
-                        { href: '/services/website', label: '웹사이트', icon: '🌐' },
+                        { href: '/center-leader', label: '센터장프로필', icon: '👨‍💼' },
                         { href: '/cases', label: '성공사례', icon: '🏆' },
                         { href: '/diagnosis', label: 'AI진단', icon: '🔍' }
                       ].map((item) => (

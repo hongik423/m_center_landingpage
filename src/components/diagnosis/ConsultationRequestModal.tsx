@@ -475,7 +475,7 @@ export default function ConsultationRequestModal({
                   개인정보 수집 및 이용 동의 *
                 </Label>
                 <p className="text-xs text-gray-600 mt-1">
-                  상담 서비스 제공을 위해 개인정보를 수집하며, 목적 달성 후 즉시 파기됩니다.
+                  상담 서비스 제공 및 마케팅 활용을 위한 개인정보 수집 및 이용에 동의합니다. 수집된 정보는 상담 진행, 맞춤형 서비스 제공, 마케팅 정보 안내 목적으로 사용되며, 개인정보보호법에 따라 3년간 보관됩니다.
                 </p>
               </div>
             </div>

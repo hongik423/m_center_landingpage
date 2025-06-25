@@ -217,17 +217,7 @@ export default function WebsitePage() {
       ],
       icon: Bot
     },
-    {
-      category: '세무사 연동 고급 기능',
-      description: '세무사와 완벽하게 연동되는 스마트 시스템',
-      features: [
-        { name: '실시간 세무 연동', capability: '온라인 매출 자동 집계 및 세무 보고', handoff: '전자세금계산서 자동 발행' },
-        { name: '고객 관리 자동화', capability: '신규 고객 정보 세무사에게 즉시 전달', handoff: '세무 상담 필요 고객 식별' },
-        { name: '부가세 신고', capability: '부가세 신고 대상 거래 자동 분류', handoff: '월별 손익 현황 공유' },
-        { name: '일정 연동', capability: '세무사 일정과 연동한 상담 예약', handoff: '실시간 스케줄 관리' }
-      ],
-      icon: Building2
-    },
+
     {
       category: '학습형 AI 시스템',
       description: '사용할수록 더 똑똑해지는 AI',
@@ -241,13 +231,7 @@ export default function WebsitePage() {
     }
   ];
 
-  // 세무사 수익 구조 혁신
-  const revenueStructure = [
-    { source: '기본 세무 수수료', existing: '월 100만원', withWebsite: '월 100만원', increase: '유지' },
-    { source: '온라인 매출 수수료', existing: '-', withWebsite: '월 200만원 (매출의 2%)', increase: '+200만원' },
-    { source: '디지털 마케팅 수수료', existing: '-', withWebsite: '월 100만원', increase: '+100만원' },
-    { source: '웹사이트 유지관리', existing: '-', withWebsite: '월 50만원', increase: '+50만원' }
-  ];
+
 
   // 성과 지표
   const performanceMetrics = [
@@ -485,31 +469,7 @@ export default function WebsitePage() {
               ))}
             </div>
 
-            {/* 세무사 수익 구조 혁신 */}
-            <div className="mt-12 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 md:p-8 border border-purple-200">
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">세무사 수익 구조 혁신</h3>
-                <p className="text-gray-600">웹사이트 + AI 챗봇으로 연간 총 수익 350% 증가</p>
-              </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {revenueStructure.map((item, index) => (
-                  <div key={index} className="bg-white rounded-xl p-4 shadow-md">
-                    <div className="text-sm font-medium text-gray-600 mb-2">{item.source}</div>
-                    <div className="space-y-1">
-                      <div className="text-xs text-gray-500">기존: {item.existing}</div>
-                      <div className="text-sm font-bold text-purple-600">{item.withWebsite}</div>
-                      <div className="text-xs text-green-600 font-medium">{item.increase}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="text-center mt-6">
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-100 to-emerald-100 px-4 py-2 rounded-full">
-                  <TrendingUp className="w-4 h-4 text-green-600" />
-                  <span className="text-sm font-bold text-green-800">연간 총 수익: 1,200만원 → 5,400만원 (+350%)</span>
-                </div>
-              </div>
-            </div>
+
           </div>
         </div>
       </section>

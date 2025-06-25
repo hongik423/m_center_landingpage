@@ -17,6 +17,12 @@ export default function FloatingChatbot() {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // 드래그 기능을 위한 상태 추가
+  const [position, setPosition] = useState({ x: 20, y: 20 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   // 환영 메시지 추가
   useEffect(() => {
@@ -54,6 +60,51 @@ export default function FloatingChatbot() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // 드래그 이벤트 핸들러들
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+    setDragStart({ x: e.clientX, y: e.clientY });
+    setDragOffset({ x: position.x, y: position.y });
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging) return;
+    
+    const deltaY = e.clientY - dragStart.y;
+    const newY = dragOffset.y + deltaY;
+    
+    // 화면 경계 제한 (위아래만)
+    const maxY = window.innerHeight - 90; // 버튼 높이 고려
+    const minY = 20;
+    
+    setPosition(prev => ({
+      x: prev.x, // x 좌표는 고정 (오른쪽 끝에 유지)
+      y: Math.max(minY, Math.min(maxY, newY))
+    }));
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // 전역 마우스 이벤트 리스너
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = 'none'; // 드래그 중 텍스트 선택 방지
+      document.body.style.cursor = 'grabbing';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+    };
+  }, [isDragging, dragStart, dragOffset]);
 
   // AI 메시지 전송
   const handleSendMessage = async (message: string) => {
@@ -134,35 +185,45 @@ export default function FloatingChatbot() {
 
   return (
     <>
-      {/* 🔥 강제로 보이는 플로팅 챗봇 버튼 */}
+      {/* 🔥 드래그 가능한 플로팅 챗봇 버튼 */}
       <div
         id="floating-chatbot-button"
         className={`${isOpen ? 'hidden' : 'block'}`}
         style={{
           position: 'fixed',
-          bottom: '20px',
-          right: '20px',
+          bottom: `${position.y}px`,
+          right: `${position.x}px`,
           width: '70px',
           height: '70px',
           backgroundColor: '#4285F4',
           borderRadius: '50%',
-          cursor: 'pointer',
+          cursor: isDragging ? 'grabbing' : 'grab',
           zIndex: 999999,
           display: isOpen ? 'none' : 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           boxShadow: '0 4px 20px rgba(66, 133, 244, 0.4)',
           border: '3px solid white',
-          transition: 'all 0.3s ease'
+          transition: isDragging ? 'none' : 'all 0.3s ease',
+          userSelect: 'none'
         }}
-        onClick={() => setIsOpen(true)}
+        onClick={(e) => {
+          if (!isDragging) {
+            setIsOpen(true);
+          }
+        }}
+        onMouseDown={handleMouseDown}
         onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.1)';
-          e.currentTarget.style.backgroundColor = '#9C27B0';
+          if (!isDragging) {
+            e.currentTarget.style.transform = 'scale(1.1)';
+            e.currentTarget.style.backgroundColor = '#9C27B0';
+          }
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.backgroundColor = '#4285F4';
+          if (!isDragging) {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.backgroundColor = '#4285F4';
+          }
         }}
       >
         {/* 별-AI상담사 아이콘 */}
@@ -173,7 +234,8 @@ export default function FloatingChatbot() {
             width: '60px',
             height: '60px',
             borderRadius: '50%',
-            objectFit: 'cover'
+            objectFit: 'cover',
+            pointerEvents: 'none'
           }}
         />
         
@@ -195,7 +257,7 @@ export default function FloatingChatbot() {
           }}
           className="tooltip"
         >
-          별-AI상담사 클릭!
+          드래그로 이동 가능!
         </div>
       </div>
 
@@ -204,8 +266,8 @@ export default function FloatingChatbot() {
         <div
           style={{
             position: 'fixed',
-            bottom: '20px',
-            right: '20px',
+            bottom: `${position.y}px`,
+            right: `${position.x}px`,
             width: '380px',
             height: '500px',
             backgroundColor: 'white',
@@ -229,17 +291,17 @@ export default function FloatingChatbot() {
               justifyContent: 'space-between'
             }}
           >
-                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-               <img
-                 src={getImagePath('/star-counselor-icon.svg')}
-                 alt="별-AI상담사"
-                 style={{
-                   width: '35px',
-                   height: '35px',
-                   borderRadius: '50%',
-                   objectFit: 'cover'
-                 }}
-               />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <img
+                src={getImagePath('/star-counselor-icon.svg')}
+                alt="별-AI상담사"
+                style={{
+                  width: '35px',
+                  height: '35px',
+                  borderRadius: '50%',
+                  objectFit: 'cover'
+                }}
+              />
               <div>
                 <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
                   별-AI상담사
