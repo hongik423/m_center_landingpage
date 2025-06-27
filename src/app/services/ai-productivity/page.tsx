@@ -860,7 +860,7 @@ export default function AIProductivityPage() {
                       <div className="bg-yellow-100 p-3 rounded-lg text-center">
                         <span className="text-xs font-bold text-yellow-800">🚨 중요 안내</span>
                         <div className="text-xs text-yellow-700 mt-1">
-                          신청 시 반드시 "경영지도센터" 선택 필수
+                          신청 시 반드시 "아이엔제이컨설팅" 선택 필수
                         </div>
                       </div>
                     </div>
@@ -1226,7 +1226,7 @@ export default function AIProductivityPage() {
                     💡 추천 신청 전략
                   </CardTitle>
                   <p className="text-center text-orange-700">
-                    최적의 성과를 위한 경영지도센터 맞춤형 전략
+                    최적의 성과를 위한 아이엔제이컨설팅 맞춤형 전략
                   </p>
                 </CardHeader>
                 <CardContent>
@@ -1298,7 +1298,7 @@ export default function AIProductivityPage() {
                   <h4 className="font-semibold mb-2">2️⃣ 컨설팅 수행기관 선택</h4>
                   <p className="text-purple-100">
                     신청시 반드시<br />
-                    <span className="text-yellow-300">"경영지도센터"</span> 선택
+                    <span className="text-yellow-300">"아이엔제이컨설팅"</span> 선택
                   </p>
                 </div>
                 <div>

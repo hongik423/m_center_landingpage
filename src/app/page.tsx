@@ -37,7 +37,7 @@ const services = [
     icon: Brain,
     color: 'bg-gradient-to-br from-blue-500 to-purple-600 text-white',
     bgColor: 'from-blue-50 to-purple-50',
-    href: '/services',
+    href: '/services/business-analysis',
     benefits: ['95% 성공률 보장', '매출 4배 증가', '5단계 전략 프레임워크'],
     badge: '⭐ 추천',
     featured: true
@@ -50,7 +50,7 @@ const services = [
     icon: Brain,
     color: 'bg-purple-100 text-purple-600',
     bgColor: 'from-purple-50 to-pink-50',
-    href: '/chatbot',
+    href: '/services/ai-productivity',
     benefits: ['정부 100% 지원', '20주 집중 프로그램', '업무 효율성 40% 향상'],
     badge: '🎯 정부지원'
   },
@@ -62,7 +62,7 @@ const services = [
     icon: Factory,
     color: 'bg-orange-100 text-orange-600',
     bgColor: 'from-orange-50 to-red-50',
-    href: '/services',
+    href: '/services/factory-auction',
     benefits: ['투자비 40% 절약', '전문가 동행', '완전 위탁 진행'],
     badge: '💰 절약'
   },
@@ -74,7 +74,7 @@ const services = [
     icon: Rocket,
     color: 'bg-green-100 text-green-600',
     bgColor: 'from-green-50 to-emerald-50',
-    href: '/services',
+    href: '/services/tech-startup',
     benefits: ['평균 5억원 확보', '성공률 85%', '3년 사후관리'],
     badge: '🚀 성장'
   },
@@ -86,7 +86,7 @@ const services = [
     icon: Award,
     color: 'bg-blue-100 text-blue-600',
     bgColor: 'from-blue-50 to-cyan-50',
-    href: '/services',
+    href: '/services/certification',
     benefits: ['5천만원 세제혜택', '통합 인증 관리', '100% 취득 보장'],
     badge: '🏆 인증'
   },
@@ -98,7 +98,7 @@ const services = [
     icon: Globe,
     color: 'bg-indigo-100 text-indigo-600',
     bgColor: 'from-indigo-50 to-violet-50',
-    href: '/services',
+    href: '/services/website',
     benefits: ['매출 30% 증대', '지능형 최적화', '무료 1년 관리'],
     badge: '🌐 디지털'
   }
@@ -521,18 +521,30 @@ export default function Home() {
                     ✓ {service.subtitle}
                   </div>
                   
-                  <Link href={service.href}>
-                    <Button 
-                      className={`w-full font-semibold py-3 transition-all duration-300 ${
-                        service.featured 
-                          ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg' 
-                          : 'bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      {service.featured ? '지금 시작하기' : '자세히 보기'}
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
-                  </Link>
+                  <div className="space-y-3">
+                    <Link href={service.href}>
+                      <Button 
+                        className={`w-full font-semibold py-3 transition-all duration-300 ${
+                          service.featured 
+                            ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg' 
+                            : 'bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white shadow-lg'
+                        }`}
+                      >
+                        지금 시작하기
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </Button>
+                    </Link>
+                    
+                    <Link href={service.href}>
+                      <Button 
+                        variant="outline"
+                        className="w-full font-semibold py-3 bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300"
+                      >
+                        자세히 보기
+                        <FileText className="ml-2 w-4 h-4" />
+                      </Button>
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
             ))}
