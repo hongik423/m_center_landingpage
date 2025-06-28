@@ -1523,7 +1523,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
               </div>
               
               <div className="bg-yellow-50 p-4 rounded-lg">
-                <h4 className="font-semibold text-yellow-800 mb-2 text-sm md:text-base">✨ GEMINI AI 처리 중인 작업들</h4>
+                <h4 className="font-semibold text-yellow-800 mb-2 text-sm md:text-base">✨ 고급 분석 시스템 처리 중</h4>
                 <div className="text-xs md:text-sm text-yellow-700 space-y-1 text-left">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -1531,7 +1531,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                    <span>🤖 GEMINI AI 기반 SWOT 분석 및 시장 트렌드 매칭</span>
+                    <span>🔮 고급 분석 엔진 기반 SWOT 분석 및 시장 트렌드 매칭</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
@@ -1539,7 +1539,11 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                    <span>📋 GEMINI AI 맞춤형 2000자 고급 보고서 생성</span>
+                    <span>📋 정교한 점수 계산 및 맞춤형 2000자 진단 보고서 생성</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <span>🔍 기업 검색 및 최신 시장 정보 반영</span>
                   </div>
                 </div>
               </div>

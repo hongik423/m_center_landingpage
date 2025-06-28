@@ -211,8 +211,8 @@ function CalculatorSelector({ calculators, onSelect, selectedId }: CalculatorSel
                     2
                   </div>
                   <div className="min-w-0">
-                    <h4 className="font-bold text-gray-900 text-sm sm:text-base">단계별 입력</h4>
-                    <p className="text-xs sm:text-sm text-gray-600 leading-tight">가이드에 따라 정보 입력</p>
+                    <h4 className="font-bold text-gray-900 text-sm sm:text-base">📋 샘플 활용</h4>
+                    <p className="text-xs sm:text-sm text-gray-600 leading-tight">"샘플 데이터" 버튼으로 빠른 테스트</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-100">
@@ -225,6 +225,19 @@ function CalculatorSelector({ calculators, onSelect, selectedId }: CalculatorSel
                   </div>
                 </div>
               </div>
+              
+              {/* 🔥 새로운 샘플 데이터 안내 섹션 */}
+              <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-green-600 text-xl">📋</span>
+                  <h4 className="font-bold text-green-800 text-sm">💡 샘플 데이터로 빠른 체험!</h4>
+                </div>
+                <p className="text-xs text-green-700 leading-relaxed">
+                  각 계산기에는 <strong>실제 사례 기반 샘플 데이터</strong>가 준비되어 있습니다. 
+                  계산기 선택 후 <strong className="bg-green-200 px-1 rounded">"샘플 데이터"</strong> 버튼을 클릭하여 
+                  즉시 테스트해보세요!
+                </p>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -234,14 +247,15 @@ function CalculatorSelector({ calculators, onSelect, selectedId }: CalculatorSel
         {calculators.map((calc) => (
           <Card 
             key={calc.id}
-            className={`cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 touch-manipulation border ${
-              selectedId === calc.id ? 'ring-2 ring-blue-500 shadow-lg border-blue-200 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
-            }`}
+            className={`cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1 touch-manipulation border 
+              transform hover:scale-[1.02] active:scale-[0.98] active:shadow-md
+              ${selectedId === calc.id ? 'ring-2 ring-blue-500 shadow-lg border-blue-200 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}
+            `}
             onClick={() => onSelect(calc.id)}
           >
             <CardHeader className="pb-3 px-4 sm:px-5 pt-4 sm:pt-5">
               <div className="flex items-center justify-between mb-3">
-                <div className={`p-2.5 sm:p-3 rounded-xl bg-${calc.color}-50 flex-shrink-0`}>
+                <div className={`p-2.5 sm:p-3 rounded-xl bg-${calc.color}-50 flex-shrink-0 transition-transform duration-200 group-hover:scale-110`}>
                   <calc.icon className={`w-5 h-5 sm:w-6 sm:h-6 text-${calc.color}-600`} />
                 </div>
                 <Badge variant="secondary" className="text-xs px-2 py-1 flex-shrink-0">
@@ -268,38 +282,32 @@ function CalculatorSelector({ calculators, onSelect, selectedId }: CalculatorSel
                 </div>
               </div>
               
-              {/* 🔥 모바일용 프로세스 안내 - 더 간결하게 */}
-              <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-3 rounded-lg mb-4 border border-gray-100">
+              {/* 🔥 개선된 샘플 데이터 안내 */}
+              <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-3 rounded-lg mb-4 border border-orange-200">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
-                    <span className="text-xs text-white font-bold">i</span>
+                  <div className="w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
+                    <span className="text-xs text-white font-bold">💡</span>
                   </div>
-                  <h4 className="text-xs font-bold text-gray-800">간편 계산 과정</h4>
+                  <h4 className="text-xs font-bold text-orange-800">샘플 데이터 체험</h4>
                 </div>
-                <div className="flex items-center justify-between text-xs text-gray-600">
-                  <span className="flex items-center gap-1">
-                    <div className="w-4 h-4 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold text-xs">1</div>
-                    정보입력
-                  </span>
-                  <ArrowRight className="w-3 h-3 text-gray-400" />
-                  <span className="flex items-center gap-1">
-                    <div className="w-4 h-4 bg-green-100 rounded-full flex items-center justify-center text-green-700 font-bold text-xs">2</div>
-                    자동계산
-                  </span>
-                  <ArrowRight className="w-3 h-3 text-gray-400" />
-                  <span className="flex items-center gap-1">
-                    <div className="w-4 h-4 bg-purple-100 rounded-full flex items-center justify-center text-purple-700 font-bold text-xs">3</div>
-                    결과확인
-                  </span>
+                <div className="text-xs text-orange-700">
+                  <div className="flex items-center justify-between">
+                    <span>✨ 원클릭 테스트</span>
+                    <span>🎯 실제 사례 기반</span>
+                  </div>
+                  <div className="mt-1 text-center text-orange-600 font-medium">
+                    선택 후 "샘플 데이터" 버튼 클릭!
+                  </div>
                 </div>
               </div>
               
               <Button 
-                className={`w-full text-sm py-3 touch-manipulation font-semibold transition-all duration-200 ${
-                  selectedId === calc.id 
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md' 
-                    : 'border-2 hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50'
-                }`}
+                className={`w-full text-sm py-3 touch-manipulation font-semibold transition-all duration-200 
+                  transform hover:scale-[1.02] active:scale-[0.98] active:shadow-inner
+                  ${selectedId === calc.id 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg' 
+                    : 'border-2 hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50 hover:shadow-md'
+                  }`}
                 variant={selectedId === calc.id ? "default" : "outline"}
               >
                 {selectedId === calc.id ? (

@@ -25,7 +25,8 @@ import {
   Clock,
   Shield,
   Target,
-  Info
+  Info,
+  RefreshCw
 } from 'lucide-react';
 import { BusinessInheritanceInput, BusinessInheritanceResult, PracticalChecklist } from '@/types/tax-calculator.types';
 import { BusinessInheritanceCalculator } from '@/lib/utils/business-inheritance-calculations';
@@ -1302,10 +1303,17 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
 
       {/* 계산 버튼 */}
       <div className="flex justify-center space-x-4">
+        {/* 🔥 개선된 가업상속세 계산하기 버튼 */}
         <Button
           onClick={handleCalculate}
-          disabled={isCalculating}
-          className="px-8 py-2"
+          disabled={isCalculating || !inputs.businessValue}
+          className={`px-8 py-2 transition-all duration-200 transform
+            ${!inputs.businessValue ? 
+              'bg-gray-400 cursor-not-allowed' :
+              isCalculating ? 'animate-pulse' :
+              'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+            }
+          `}
           size="lg"
         >
           {isCalculating ? (
@@ -1313,15 +1321,33 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
               <Calculator className="w-4 h-4 mr-2 animate-spin" />
               계산 중...
             </>
+          ) : !inputs.businessValue ? (
+            <>
+              <Calculator className="w-4 h-4 mr-2 opacity-50" />
+              사업체 가치 입력 필요
+            </>
           ) : (
             <>
               <Calculator className="w-4 h-4 mr-2" />
-              가업상속세 계산하기
+              {result ? '재계산하기' : '가업상속세 계산하기'}
             </>
           )}
         </Button>
-        <Button variant="outline" onClick={handleReset} size="lg">
-          입력 초기화
+        
+        {/* 🔥 개선된 입력 초기화 버튼 */}
+        <Button 
+          variant="outline" 
+          onClick={handleReset} 
+          size="lg"
+          className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95]
+            hover:bg-red-50 hover:border-red-300 hover:text-red-700 hover:shadow-md
+            relative overflow-hidden group"
+        >
+          <span className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+          <span className="relative flex items-center">
+            <RefreshCw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform duration-300" />
+            입력 초기화
+          </span>
         </Button>
       </div>
 

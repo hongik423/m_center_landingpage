@@ -30,7 +30,8 @@ import {
   AlertTriangle,
   DollarSign,
   Factory,
-  Briefcase
+  Briefcase,
+  RefreshCw
 } from 'lucide-react';
 
 import { CorporateTaxInput, CorporateTaxResult, CorporateTaxValidation } from '@/types/tax-calculator.types';
@@ -1735,22 +1736,56 @@ const CorporateTaxCalculatorComponent: React.FC = () => {
 
               {/* 버튼 영역 */}
               <div className="flex flex-wrap gap-3">
+                {/* 🔥 개선된 계산하기 버튼 */}
                 <Button
                   onClick={calculateTax}
                   disabled={isCalculating || !validation.isValid}
-                  className="flex items-center space-x-2"
+                  className={`flex items-center space-x-2 transition-all duration-200 transform
+                    ${!validation.isValid ? 
+                      'bg-gray-400 cursor-not-allowed' :
+                      isCalculating ? 'animate-pulse' :
+                      'bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                    }
+                  `}
                 >
                   <Calculator className="h-4 w-4" />
-                  <span>{isCalculating ? '계산 중...' : '법인세 계산'}</span>
+                  <span>
+                    {isCalculating ? '계산 중...' : 
+                     !validation.isValid ? '입력값 확인 필요' :
+                     (result ? '재계산하기' : '법인세 계산')
+                    }
+                  </span>
                 </Button>
                 
-                <Button variant="outline" onClick={loadSampleData}>
-                  <Target className="h-4 w-4 mr-2" />
-                  샘플 데이터
+                {/* 🔥 개선된 샘플 데이터 버튼 */}
+                <Button 
+                  variant="outline" 
+                  onClick={loadSampleData}
+                  className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95]
+                    bg-gradient-to-r from-orange-50 to-yellow-50 hover:from-orange-100 hover:to-yellow-100
+                    border-orange-200 text-orange-700 hover:border-orange-300 hover:shadow-md
+                    relative overflow-hidden group"
+                >
+                  <span className="absolute inset-0 bg-gradient-to-r from-orange-100 to-yellow-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="relative flex items-center">
+                    <Target className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-200" />
+                    샘플 데이터
+                  </span>
                 </Button>
                 
-                <Button variant="outline" onClick={resetInput}>
-                  초기화
+                {/* 🔥 개선된 초기화 버튼 */}
+                <Button 
+                  variant="outline" 
+                  onClick={resetInput}
+                  className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95]
+                    hover:bg-red-50 hover:border-red-300 hover:text-red-700 hover:shadow-md
+                    relative overflow-hidden group"
+                >
+                  <span className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="relative flex items-center">
+                    <RefreshCw className="h-4 w-4 mr-2 group-hover:rotate-180 transition-transform duration-300" />
+                    초기화
+                  </span>
                 </Button>
               </div>
             </CardContent>

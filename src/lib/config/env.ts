@@ -11,8 +11,8 @@ const GOOGLE_SHEETS_ID = '1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug';
 
 // 환경변수 스키마 정의 (EmailJS 제거됨)
 const envSchema = z.object({
-  // Gemini API (서버 사이드 전용)
-  GEMINI_API_KEY: z.string().min(1, 'Gemini API Key는 필수입니다').optional(),
+  // 고급 분석 API (서버 사이드 전용)
+  GEMINI_API_KEY: z.string().min(1, '고급 분석 API Key는 필수입니다').optional(),
   
   // Google Sheets & Apps Script (클라이언트 사이드 허용)
   NEXT_PUBLIC_GOOGLE_SHEETS_ID: z.string().min(1, 'Google Sheets ID는 필수입니다').optional(),
@@ -92,29 +92,29 @@ export const appConfig = {
 };
 
 /**
- * Gemini API Key (서버 전용) - 보안 강화
+ * 고급 분석 API Key (서버 전용) - 보안 강화
  */
 export function getGeminiKey(): string {
   const key = process.env.GEMINI_API_KEY;
   
   if (!key) {
-    console.warn('⚠️ GEMINI_API_KEY가 설정되지 않았습니다.');
+    console.warn('⚠️ 고급 분석 API Key가 설정되지 않았습니다.');
     console.info('💡 .env.local 파일에 GEMINI_API_KEY=AIzaSy... 를 추가하세요.');
-    console.info('🔗 Gemini API 키 발급: https://makersuite.google.com/app/apikey');
+    console.info('🔗 고급 분석 API 키 발급: https://makersuite.google.com/app/apikey');
     console.info('📝 설정 후 개발 서버를 재시작하세요: npm run dev');
     return ''; // 빈 문자열 반환으로 폴백 모드 활성화
   }
   
   // 개발용 임시 키 체크
   if (key.includes('temp') || key.includes('development') || key.includes('replace') || key.includes('your-')) {
-    console.warn('⚠️ 개발용 임시 Gemini API Key가 설정되어 있습니다.');
+    console.warn('⚠️ 개발용 임시 고급 분석 API Key가 설정되어 있습니다.');
     console.info('💡 실제 Google AI Studio에서 발급받은 API 키로 교체하세요.');
     return ''; // 빈 문자열 반환으로 폴백 모드 활성화
   }
   
-  // API 키 형식 검증 (Gemini API 키는 AIza로 시작)
+  // API 키 형식 검증 (AIza로 시작)
   if (!key.startsWith('AIza')) {
-    console.error('❌ 유효하지 않은 Gemini API Key 형식입니다.');
+    console.error('❌ 유효하지 않은 고급 분석 API Key 형식입니다.');
     console.error('💡 올바른 형식: AIzaSy... 로 시작하는 키');
     console.error('💡 Google AI Studio (https://makersuite.google.com/app/apikey)에서 발급받으세요.');
     return ''; // 빈 문자열 반환으로 폴백 모드 활성화
@@ -122,12 +122,12 @@ export function getGeminiKey(): string {
   
   // 키 길이 검증 (일반적으로 39자)
   if (key.length < 30 || key.length > 50) {
-    console.error('❌ Gemini API Key 길이가 비정상적입니다.');
+    console.error('❌ 고급 분석 API Key 길이가 비정상적입니다.');
     console.error('💡 올바른 키인지 확인하세요.');
     return ''; // 빈 문자열 반환으로 폴백 모드 활성화
   }
   
-  console.log('✅ Gemini API Key 검증 완료:', maskApiKey(key));
+  console.log('✅ 고급 분석 API Key 검증 완료:', maskApiKey(key));
   return key;
 }
 
@@ -228,11 +228,11 @@ export function logEnvStatus(): void {
   if (isDevelopment()) {
     console.log('🔧 환경변수 상태 (Google Apps Script 통합):', {
       nodeEnv: process.env.NODE_ENV,
-      hasGeminiKey: !!process.env.GEMINI_API_KEY,
+      hasAnalysisKey: !!process.env.GEMINI_API_KEY,
       hasGoogleSheetsId: !!process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
       hasGoogleScriptUrl: !!process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
       hasBaseUrl: !!process.env.NEXT_PUBLIC_BASE_URL,
-      geminiKeyMasked: process.env.GEMINI_API_KEY ? maskApiKey(process.env.GEMINI_API_KEY) : 'None',
+      analysisKeyMasked: process.env.GEMINI_API_KEY ? maskApiKey(process.env.GEMINI_API_KEY) : 'None',
       googleScriptUrlMasked: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL ? 
         `${process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL.slice(0, 50)}...` : 'Default',
     });

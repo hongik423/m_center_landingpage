@@ -360,23 +360,32 @@ export default function TechStartupPage() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4">
+                  {/* 🔥 개선된 무료 상담 신청 버튼 */}
                   <Button 
                     size="lg"
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 shadow-xl hover:shadow-2xl transform hover:scale-[1.05] active:scale-[0.95] transition-all duration-200 relative overflow-hidden group"
                     onClick={() => router.push('/consultation')}
                   >
-                    <Rocket className="w-5 h-5 mr-2" />
-                    무료 상담 신청
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    <span className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                    <span className="relative flex items-center">
+                      <Rocket className="w-5 h-5 mr-2 group-hover:animate-bounce transition-transform duration-200" />
+                      무료 상담 신청
+                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+                    </span>
                   </Button>
+                  
+                  {/* 🔥 개선된 기술사업화 적합성 진단 버튼 */}
                   <Button 
                     variant="outline"
                     size="lg"
-                    className="px-8 py-4 border-2 border-blue-200 hover:bg-blue-50"
+                    className="px-8 py-4 border-2 border-blue-200 hover:border-blue-600 text-gray-700 hover:text-blue-600 hover:bg-blue-50 transform hover:scale-[1.05] active:scale-[0.95] transition-all duration-200 relative overflow-hidden group"
                     onClick={() => router.push('/diagnosis')}
                   >
-                    <Brain className="w-5 h-5 mr-2" />
-                    기술사업화 적합성 진단
+                    <span className="absolute inset-0 bg-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                    <span className="relative flex items-center">
+                      <Brain className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" />
+                      기술사업화 적합성 진단
+                    </span>
                   </Button>
                 </div>
               </div>

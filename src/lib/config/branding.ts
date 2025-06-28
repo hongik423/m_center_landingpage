@@ -7,60 +7,51 @@
 
 // 🏢 기업 정보
 export const COMPANY_INFO = {
-  // 기업명 및 브랜드
-  name: '기업의별 경영지도센터',
-  brandName: '기업의별 경영지도센터',
-  shortName: '기업의별',
-  englishName: 'Business Consulting Center',
-  
-  // 슬로건
-  slogan: '기업의별, 성공을 설계하다',
-  tagline: '기업성장의 든든한 파트너',
-  
-  // 기업 설명
-  description: 'AI 기반 기업 진단 및 컨설팅 서비스를 제공하는 전문 경영지도센터',
-  mission: '중소기업의 지속가능한 성장과 혁신을 통한 경쟁력 강화 지원'
+  name: '기업의별 M-CENTER',
+  fullName: '기업의별 경영지도센터',
+  slogan: '기업의 별이 되어드립니다',
+  mission: '기업의 지속가능한 성장과 혁신을 지원합니다',
+  vision: '대한민국 모든 기업이 글로벌 경쟁력을 갖춘 별이 되는 세상',
+  coreValues: [
+    '💫 혁신 (Innovation)',
+    '🤝 신뢰 (Trust)', 
+    '🎯 성과 (Performance)',
+    '🌟 탁월함 (Excellence)'
+  ],
+  address: '서울특별시 강남구',
+  website: 'https://m-center-landingpage.vercel.app',
+  email: 'hongik423@gmail.com'
 } as const;
 
 // 👨‍💼 담당자 정보
 export const CONSULTANT_INFO = {
-  // 담당자 기본 정보
-  name: '이후경 경영지도센터장',
-  title: '경영지도센터장',
-  position: '책임컨설턴트',
-  experience: '25년 경영지도 경험',
-  
-  // 연락처 정보
+  name: '이후경',
+  title: '책임 경영지도사',
   phone: '010-9251-9743',
-  email: 'hongik423@gmail.com',
-  
-  // 전문 분야
-  expertise: [
-    'BM ZEN 사업분석',
-    'AI 활용 생산성향상',
-    '정부지원사업 연계',
-    '기업진단 및 컨설팅'
-  ],
-  
-  // 소개문
-  introduction: '25년간 축적된 경영지도 노하우로 기업의 성장과 혁신을 지원하는 전문 컨설턴트입니다.'
+  email: 'lhk@injc.kr',
+  experience: '25년',
+  specialization: '기업 경영 혁신 및 성장 전략',
+  certification: '경영지도사, 기술지도사',
+  company: '기업의별 M-CENTER',
+  description: '25년간 500개 이상 기업의 경영 혁신을 이끌어온 경영 전문가'
 } as const;
 
 // 📞 연락처 정보
 export const CONTACT_INFO = {
-  // 주요 연락처
-  mainEmail: 'hongik423@gmail.com',
   mainPhone: '010-9251-9743',
-  
-  // 업무 시간
+  emergencyPhone: '010-9251-9743',
+  email: 'hongik423@gmail.com',
+  kakaoTalk: '@mcenter',
   businessHours: '평일 09:00-18:00',
-  responseTime: '24시간 이내 답변',
+  consultationHours: '평일/주말 09:00-21:00',
+  responseTime: '24시간 이내 연락',
+  visitConsultation: '무료 현장 방문 상담 가능',
   
-  // 상담 관련
+  // 상담 관련 정보 (하위 호환성)
   consultationInfo: {
     freeConsultation: '첫 상담은 완전 무료입니다!',
     consultationTime: '30분',
-    availableTime: '평일 09:00-18:00',
+    availableTime: '평일/주말 09:00-21:00',
     responseMethod: '전화 또는 이메일'
   }
 } as const;

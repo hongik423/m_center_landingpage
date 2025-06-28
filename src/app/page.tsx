@@ -434,9 +434,10 @@ export default function Home() {
                     </div>
 
                     <div className="space-y-4 mb-6 lg:mb-8">
+                      {/* 🔥 개선된 AI상담사와 채팅 버튼 */}
                       <Button 
                         className="mobile-button w-full btn-hero bg-gradient-to-r from-indigo-500 to-purple-600 
-                                  hover:from-indigo-600 hover:to-purple-700"
+                                  hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl relative overflow-hidden group"
                         onClick={() => {
                           const chatbot = document.querySelector('[data-floating-chatbot]') as HTMLElement;
                           if (chatbot) {
@@ -446,16 +447,23 @@ export default function Home() {
                           }
                         }}
                       >
-                        <Sparkles className="w-5 h-5 mr-2 text-yellow-400" />
-                        <span className="text-overflow-safe">AI상담사와 채팅</span>
+                        <span className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                        <span className="relative flex items-center">
+                          <Sparkles className="w-5 h-5 mr-2 text-yellow-400 group-hover:animate-spin transition-transform duration-200" />
+                          <span className="text-overflow-safe">AI상담사와 채팅</span>
+                        </span>
                       </Button>
                       
+                      {/* 🔥 개선된 상담신청 버튼 */}
                       <Link href="/consultation">
                         <Button 
-                          className="mobile-button w-full btn-secondary"
+                          className="mobile-button w-full btn-secondary transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] hover:shadow-md relative overflow-hidden group"
                         >
-                          <Users className="w-5 h-5 mr-2" />
-                          <span className="text-overflow-safe">상담신청</span>
+                          <span className="absolute inset-0 bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                          <span className="relative flex items-center">
+                            <Users className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" />
+                            <span className="text-overflow-safe">상담신청</span>
+                          </span>
                         </Button>
                       </Link>
                     </div>
@@ -741,9 +749,13 @@ export default function Home() {
                 최적의 로드맵을 제시합니다
               </p>
               <Link href="/diagnosis">
-                <Button className="mobile-button btn-hero bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
-                  <Target className="w-5 h-5 mr-2" />
-                  <span className="text-overflow-safe">우리 기업 성장 단계 진단받기</span>
+                {/* 🔥 개선된 우리 기업 성장 단계 진단받기 버튼 */}
+                <Button className="mobile-button btn-hero bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group">
+                  <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="relative flex items-center">
+                    <Target className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-200" />
+                    <span className="text-overflow-safe">우리 기업 성장 단계 진단받기</span>
+                  </span>
                 </Button>
               </Link>
             </div>
@@ -807,11 +819,15 @@ export default function Home() {
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
                   <Link href="/diagnosis">
+                    {/* 🔥 개선된 무료 전문가 진단 신청하기 버튼 */}
                     <Button 
-                      className="btn-hero bg-white text-blue-600 hover:bg-gray-50 shadow-xl"
+                      className="btn-hero bg-white text-blue-600 hover:bg-gray-50 shadow-xl transform hover:scale-[1.05] active:scale-[0.95] transition-all duration-200 relative overflow-hidden group"
                     >
-                      <Cpu className="w-5 h-5 mr-2" />
-                      무료 전문가 진단 신청하기
+                      <span className="absolute inset-0 bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                      <span className="relative flex items-center">
+                        <Cpu className="w-5 h-5 mr-2 group-hover:animate-pulse transition-transform duration-200" />
+                        무료 전문가 진단 신청하기
+                      </span>
                     </Button>
                   </Link>
                 </div>

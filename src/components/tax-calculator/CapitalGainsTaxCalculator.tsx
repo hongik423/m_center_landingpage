@@ -1950,26 +1950,64 @@ export default function CapitalGainsTaxCalculatorComponent() {
               <div className="flex space-x-2 pt-4">
                 <Button 
                   onClick={calculate} 
-                  disabled={isCalculating}
-                  className="flex-1"
+                  disabled={isCalculating || (!inputs.acquisitionPrice || !inputs.disposalPrice)}
+                  className={`flex-1 transition-all duration-200 transform
+                    ${(!inputs.acquisitionPrice || !inputs.disposalPrice) ? 
+                      'bg-gray-400 cursor-not-allowed' :
+                      isCalculating ? 'animate-pulse' :
+                      'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                    }
+                  `}
                 >
                   {isCalculating ? (
                     <>
                       <RotateCcw className="w-4 h-4 mr-2 animate-spin" />
                       계산 중...
                     </>
+                  ) : (!inputs.acquisitionPrice || !inputs.disposalPrice) ? (
+                    <>
+                      <Calculator className="w-4 h-4 mr-2 opacity-50" />
+                      가격 정보 입력 필요
+                    </>
                   ) : (
                     <>
                       <Calculator className="w-4 h-4 mr-2" />
-                      계산하기
+                      {results ? '재계산하기' : '계산하기'}
                     </>
                   )}
                 </Button>
-                <Button variant="outline" onClick={loadSampleData} size="sm">
-                  샘플 데이터
+                
+                {/* 🔥 개선된 샘플 데이터 버튼 */}
+                <Button 
+                  variant="outline" 
+                  onClick={loadSampleData} 
+                  size="sm"
+                  className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95]
+                    bg-gradient-to-r from-orange-50 to-yellow-50 hover:from-orange-100 hover:to-yellow-100
+                    border-orange-200 text-orange-700 hover:border-orange-300 hover:shadow-md
+                    relative overflow-hidden group"
+                >
+                  <span className="absolute inset-0 bg-gradient-to-r from-orange-100 to-yellow-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="relative flex items-center">
+                    <span className="mr-1 text-lg">📋</span>
+                    샘플
+                  </span>
                 </Button>
-                <Button variant="outline" onClick={reset} size="sm">
-                  초기화
+                
+                {/* 🔥 개선된 초기화 버튼 */}
+                <Button 
+                  variant="outline" 
+                  onClick={reset} 
+                  size="sm"
+                  className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95]
+                    hover:bg-red-50 hover:border-red-300 hover:text-red-700 hover:shadow-md
+                    relative overflow-hidden group"
+                >
+                  <span className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="relative flex items-center">
+                    <RotateCcw className="w-4 h-4 mr-1 group-hover:rotate-180 transition-transform duration-300" />
+                    초기화
+                  </span>
                 </Button>
               </div>
             </CardContent>
@@ -2135,27 +2173,46 @@ export default function CapitalGainsTaxCalculatorComponent() {
                   )}
 
                   <div className="flex space-x-2 pt-4">
+                    {/* 🔥 개선된 계산과정 보기/숨기기 버튼 */}
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setShowBreakdown(!showBreakdown)}
-                      className="flex-1"
+                      className="flex-1 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]
+                        bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100
+                        border-blue-200 text-blue-700 hover:border-blue-300 hover:shadow-md
+                        relative overflow-hidden group"
                     >
-                      {showBreakdown ? (
-                        <>
-                          <EyeOff className="w-4 h-4 mr-2" />
-                          계산과정 숨기기
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="w-4 h-4 mr-2" />
-                          계산과정 보기
-                        </>
-                      )}
+                      <span className="absolute inset-0 bg-gradient-to-r from-blue-100 to-indigo-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                      <span className="relative flex items-center">
+                        {showBreakdown ? (
+                          <>
+                            <EyeOff className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-200" />
+                            계산과정 숨기기
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-200" />
+                            계산과정 보기
+                          </>
+                        )}
+                      </span>
                     </Button>
-                    <Button variant="outline" size="sm">
-                      <Download className="w-4 h-4 mr-2" />
-                      저장
+                    
+                    {/* 🔥 개선된 저장 버튼 */}
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95]
+                        bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100
+                        border-green-200 text-green-700 hover:border-green-300 hover:shadow-md
+                        relative overflow-hidden group"
+                    >
+                      <span className="absolute inset-0 bg-gradient-to-r from-green-100 to-emerald-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                      <span className="relative flex items-center">
+                        <Download className="w-4 h-4 mr-2 group-hover:animate-bounce" />
+                        저장
+                      </span>
                     </Button>
                   </div>
 

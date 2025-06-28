@@ -21,7 +21,8 @@ import {
   RefreshCw,
   Download,
   PieChart,
-  Percent
+  Percent,
+  X
 } from 'lucide-react';
 import { ComprehensiveIncomeTaxInput, ComprehensiveIncomeTaxResult } from '@/types/tax-calculator.types';
 import { ComprehensiveIncomeTaxCalculator, ComprehensiveTaxInputValidator } from '@/lib/utils/tax-calculations';
@@ -435,6 +436,9 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [isCalculating, setIsCalculating] = useState(false);
   const [isSavingPDF, setIsSavingPDF] = useState(false);
+  const [showSampleModal, setShowSampleModal] = useState(false);
+  const [loadingSample, setLoadingSample] = useState(false);
+  const [loadedSampleType, setLoadedSampleType] = useState<string>('');
 
   const updateInput = (field: keyof ComprehensiveIncomeTaxInput, value: any) => {
     setInputs(prev => ({ ...prev, [field]: value }));
@@ -492,50 +496,248 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
       medicalExpenses: 0,
       educationExpenses: 0,
       donationAmount: 0,
-          creditCardUsage: 0,
-    childrenCount: 0,
-    childrenUnder6Count: 0,
-    childTaxCredit: 0,
-    earnedIncomeTaxCredit: 0,
+      creditCardUsage: 0,
+      childrenCount: 0,
+      childrenUnder6Count: 0,
+      childTaxCredit: 0,
+      earnedIncomeTaxCredit: 0,
       previousYearTaxPaid: 0,
       isSmallBusiness: false
     });
     setResults(null);
+    setLoadedSampleType('');
   };
 
-  const loadSampleData = () => {
-    setInputs({
-      interestIncome: 1000000,        // 100만원
-      dividendIncome: 500000,         // 50만원
-      businessIncome: 30000000,       // 3000만원
-      realEstateRentalIncome: 12000000, // 1200만원
-      earnedIncome: 40000000,         // 4000만원
-      pensionIncome: 0,
-      otherIncome: 2000000,           // 200만원
-      businessExpenses: 10000000,     // 1000만원
-      rentalExpenses: 3000000,        // 300만원
-      earnedIncomeDeduction: 14000000, // 근로소득공제
-      dependents: 2,                  // 부양가족 2명
-      spouseCount: 1,                 // 배우자 1명
-      disabledCount: 0,               // 장애인 0명
-      elderlyCount: 0,                // 경로우대자 0명
-      personalPensionContribution: 4000000,  // 400만원
-      pensionSavings: 0,
-      housingFund: 240000,            // 24만원
-      medicalExpenses: 3000000,       // 300만원
-      educationExpenses: 1000000,     // 100만원
-      donationAmount: 1000000,        // 100만원
-      creditCardUsage: 15000000,      // 1500만원
-      childrenCount: 2,               // 자녀 2명
-      childrenUnder6Count: 0,         // 6세 이하 0명  
-      childTaxCredit: 0,              // 자동계산
-      earnedIncomeTaxCredit: 0,
-      previousYearTaxPaid: 5000000,   // 기납부세액 500만원
-      isSmallBusiness: false
-    });
+  const sampleCases = {
+    office_worker: {
+      name: "👔 직장인 (4천만원)",
+      description: "일반적인 직장인의 종합소득세 계산",
+      icon: "💼",
+      data: {
+        interestIncome: 800000,        // 80만원 (예적금 이자)
+        dividendIncome: 300000,        // 30만원 (주식 배당)
+        businessIncome: 0,
+        realEstateRentalIncome: 0,
+        earnedIncome: 40000000,        // 4000만원 (급여)
+        pensionIncome: 0,
+        otherIncome: 0,
+        businessExpenses: 0,
+        rentalExpenses: 0,
+        earnedIncomeDeduction: 7500000, // 자동계산
+        dependents: 1,                 // 부양가족 1명
+        spouseCount: 1,                // 배우자 1명
+        disabledCount: 0,
+        elderlyCount: 0,
+        personalPensionContribution: 3600000,  // 360만원
+        pensionSavings: 0,
+        housingFund: 240000,
+        medicalExpenses: 2000000,      // 200만원
+        educationExpenses: 0,
+        donationAmount: 500000,        // 50만원
+        creditCardUsage: 12000000,     // 1200만원
+        childrenCount: 1,              // 자녀 1명
+        childrenUnder6Count: 0,
+        childTaxCredit: 150000,        // 자동계산
+        earnedIncomeTaxCredit: 0,
+        previousYearTaxPaid: 3500000,  // 기납부세액 350만원
+        isSmallBusiness: false
+      }
+    },
+    freelancer: {
+      name: "💻 프리랜서 (6천만원)",
+      description: "사업소득과 근로소득이 혼재된 프리랜서",
+      icon: "🎨",
+      data: {
+        interestIncome: 1200000,       // 120만원
+        dividendIncome: 800000,        // 80만원
+        businessIncome: 35000000,      // 3500만원 (프리랜서 수입)
+        realEstateRentalIncome: 0,
+        earnedIncome: 25000000,        // 2500만원 (파트타임 급여)
+        pensionIncome: 0,
+        otherIncome: 5000000,          // 500만원 (강의료)
+        businessExpenses: 35000000,    // 3500만원 (사업 필요경비)
+        rentalExpenses: 14400000,      // 1440만원 (임대 필요경비, 40%)
+        earnedIncomeDeduction: 0,
+        dependents: 0,
+        spouseCount: 0,
+        disabledCount: 0,
+        elderlyCount: 1,               // 경로우대자 1명
+        personalPensionContribution: 4000000,  // 400만원
+        pensionSavings: 0,
+        housingFund: 240000,
+        medicalExpenses: 5000000,      // 500만원
+        educationExpenses: 2000000,    // 200만원
+        donationAmount: 3000000,       // 300만원
+        creditCardUsage: 30000000,     // 3000만원
+        childrenCount: 0,              // 성인 자녀는 공제 대상 아님
+        childrenUnder6Count: 0,
+        childTaxCredit: 420000,        // 자동계산 (15+30+12만원)
+        earnedIncomeTaxCredit: 0,
+        previousYearTaxPaid: 18000000, // 기납부세액 1800만원
+        isSmallBusiness: false
+      }
+    },
+    business_owner: {
+      name: "🏢 사업자 (1억 2천만원)",
+      description: "임대소득과 사업소득이 있는 사업자",
+      icon: "🏪",
+      data: {
+        interestIncome: 2000000,       // 200만원
+        dividendIncome: 1500000,       // 150만원
+        businessIncome: 80000000,      // 8000만원 (사업소득)
+        realEstateRentalIncome: 36000000, // 3600만원 (임대소득)
+        earnedIncome: 0,
+        pensionIncome: 15000000,       // 1500만원 (연금)
+        otherIncome: 5000000,          // 500만원 (기타소득)
+        businessExpenses: 35000000,    // 3500만원 (사업 필요경비)
+        rentalExpenses: 14400000,      // 1440만원 (임대경비 40%)
+        earnedIncomeDeduction: 0,
+        dependents: 2,                 // 부양가족 2명
+        spouseCount: 1,                // 배우자 1명
+        disabledCount: 0,
+        elderlyCount: 2,               // 경로우대자 2명 (본인+배우자)
+        personalPensionContribution: 4000000,  // 400만원
+        pensionSavings: 0,
+        housingFund: 240000,
+        medicalExpenses: 5000000,      // 500만원
+        educationExpenses: 2000000,    // 200만원
+        donationAmount: 3000000,       // 300만원
+        creditCardUsage: 30000000,     // 3000만원
+        childrenCount: 2,              // 자녀 2명
+        childrenUnder6Count: 1,        // 6세 이하 1명
+        childTaxCredit: 420000,        // 자동계산 (15+30+12만원)
+        earnedIncomeTaxCredit: 0,
+        previousYearTaxPaid: 18000000, // 기납부세액 1800만원
+        isSmallBusiness: false
+      }
+    },
+    senior: {
+      name: "🎂 은퇴자 (연금+임대)",
+      description: "연금소득과 임대소득이 주요 수입인 은퇴자",
+      icon: "👴",
+      data: {
+        interestIncome: 3000000,       // 300만원 (예적금)
+        dividendIncome: 2000000,       // 200만원 (배당)
+        businessIncome: 0,
+        realEstateRentalIncome: 24000000, // 2400만원 (임대)
+        earnedIncome: 0,
+        pensionIncome: 15000000,       // 1500만원 (연금)
+        otherIncome: 0,
+        businessExpenses: 0,
+        rentalExpenses: 9600000,       // 960만원 (임대경비 40%)
+        earnedIncomeDeduction: 0,
+        dependents: 0,
+        spouseCount: 1,                // 배우자 1명
+        disabledCount: 0,
+        elderlyCount: 2,               // 경로우대자 2명 (본인+배우자)
+        personalPensionContribution: 0,
+        pensionSavings: 0,
+        housingFund: 0,
+        medicalExpenses: 8000000,      // 800만원 (의료비 많음)
+        educationExpenses: 0,
+        donationAmount: 2000000,       // 200만원
+        creditCardUsage: 15000000,     // 1500만원
+        childrenCount: 0,              // 성인 자녀는 공제 대상 아님
+        childrenUnder6Count: 0,
+        childTaxCredit: 0,
+        earnedIncomeTaxCredit: 0,
+        previousYearTaxPaid: 5000000,  // 기납부세액 500만원
+        isSmallBusiness: false
+      }
+    }
   };
 
-  // PDF 저장 함수
+  const loadSampleData = async (sampleType?: string) => {
+    if (!sampleType) {
+      // 기존 기본 샘플 유지
+      setInputs({
+        interestIncome: 1000000,
+        dividendIncome: 500000,
+        businessIncome: 30000000,
+        realEstateRentalIncome: 12000000,
+        earnedIncome: 40000000,
+        pensionIncome: 0,
+        otherIncome: 2000000,
+        businessExpenses: 10000000,
+        rentalExpenses: 3000000,
+        earnedIncomeDeduction: 14000000,
+        dependents: 2,
+        spouseCount: 1,
+        disabledCount: 0,
+        elderlyCount: 0,
+        personalPensionContribution: 4000000,
+        pensionSavings: 0,
+        housingFund: 240000,
+        medicalExpenses: 3000000,
+        educationExpenses: 1000000,
+        donationAmount: 1000000,
+        creditCardUsage: 15000000,
+        childrenCount: 2,
+        childrenUnder6Count: 0,
+        childTaxCredit: 0,
+        earnedIncomeTaxCredit: 0,
+        previousYearTaxPaid: 5000000,
+        isSmallBusiness: false
+      });
+      setLoadedSampleType('기본 샘플');
+      return;
+    }
+
+    const selectedCase = sampleCases[sampleType as keyof typeof sampleCases];
+    if (!selectedCase) return;
+
+    setLoadingSample(true);
+    
+    try {
+      // 🔥 부드러운 로딩 애니메이션
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      setInputs(selectedCase.data);
+      setLoadedSampleType(selectedCase.name);
+      setShowSampleModal(false);
+      
+      // 🔥 성공 토스트 표시
+      const successToast = document.createElement('div');
+      successToast.innerHTML = `
+        <div style="
+          position: fixed; top: 20px; right: 20px; z-index: 9999;
+          background: linear-gradient(135deg, #10b981, #059669);
+          color: white; padding: 16px 24px; border-radius: 12px;
+          box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+          transform: translateX(100%); transition: all 0.5s ease;
+          font-weight: 600; display: flex; align-items: center; gap: 8px;
+        ">
+          <span style="font-size: 20px;">${selectedCase.icon}</span>
+          <div>
+            <div style="font-size: 14px; margin-bottom: 2px;">샘플 데이터 로드 완료!</div>
+            <div style="font-size: 12px; opacity: 0.9;">${selectedCase.name}</div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(successToast);
+      
+      // 애니메이션 실행
+      setTimeout(() => {
+        successToast.firstElementChild!.style.transform = 'translateX(0)';
+      }, 100);
+      
+      // 자동 제거
+      setTimeout(() => {
+        successToast.firstElementChild!.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+          if (document.body.contains(successToast)) {
+            document.body.removeChild(successToast);
+          }
+        }, 500);
+      }, 3000);
+      
+    } catch (error) {
+      console.error('샘플 데이터 로드 오류:', error);
+    } finally {
+      setLoadingSample(false);
+    }
+  };
+
   const handleSavePDF = async () => {
     if (!results) {
       alert('계산 결과가 없습니다. 먼저 계산을 실행해주세요.');
@@ -782,6 +984,12 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
               <Badge variant="secondary" className="bg-green-50 text-green-700">
                 2024년 적용
               </Badge>
+              {/* 🔥 로드된 샘플 정보 표시 */}
+              {loadedSampleType && (
+                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
+                  📋 {loadedSampleType}
+                </Badge>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -797,15 +1005,225 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
       {/* 간단한 면책 조항 */}
       <TaxCalculatorDisclaimer variant="summary" />
 
+      {/* 🔥 샘플 선택 모달 */}
+      {showSampleModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b p-6 rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    📋 샘플 데이터 선택
+                  </h3>
+                  <p className="text-gray-600">
+                    직업군별 실제 사례를 기반으로 한 샘플 데이터를 선택하여 빠르게 테스트해보세요
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowSampleModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Object.entries(sampleCases).map(([key, sample]) => (
+                  <Card 
+                    key={key}
+                    className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1 
+                      transform hover:scale-[1.02] active:scale-[0.98] border-2 hover:border-blue-300"
+                    onClick={() => loadSampleData(key)}
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="text-3xl">{sample.icon}</div>
+                        <div>
+                          <CardTitle className="text-lg font-bold text-gray-900">
+                            {sample.name}
+                          </CardTitle>
+                          <CardDescription className="text-sm text-gray-600">
+                            {sample.description}
+                          </CardDescription>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2 text-sm">
+                        {/* 주요 소득 정보 미리보기 */}
+                        <div className="grid grid-cols-2 gap-2">
+                          {sample.data.earnedIncome > 0 && (
+                            <div className="bg-blue-50 p-2 rounded">
+                              <div className="text-blue-700 font-medium">근로소득</div>
+                              <div className="text-blue-600 font-mono text-xs">
+                                {sample.data.earnedIncome.toLocaleString()}원
+                              </div>
+                            </div>
+                          )}
+                          {sample.data.businessIncome > 0 && (
+                            <div className="bg-purple-50 p-2 rounded">
+                              <div className="text-purple-700 font-medium">사업소득</div>
+                              <div className="text-purple-600 font-mono text-xs">
+                                {sample.data.businessIncome.toLocaleString()}원
+                              </div>
+                            </div>
+                          )}
+                          {sample.data.realEstateRentalIncome > 0 && (
+                            <div className="bg-orange-50 p-2 rounded">
+                              <div className="text-orange-700 font-medium">임대소득</div>
+                              <div className="text-orange-600 font-mono text-xs">
+                                {sample.data.realEstateRentalIncome.toLocaleString()}원
+                              </div>
+                            </div>
+                          )}
+                          {sample.data.pensionIncome > 0 && (
+                            <div className="bg-gray-50 p-2 rounded">
+                              <div className="text-gray-700 font-medium">연금소득</div>
+                              <div className="text-gray-600 font-mono text-xs">
+                                {sample.data.pensionIncome.toLocaleString()}원
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* 총소득 */}
+                        <div className="bg-green-50 p-3 rounded-lg border border-green-200 mt-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-green-700 font-medium">예상 총소득</span>
+                            <span className="text-green-600 font-bold font-mono">
+                              {(sample.data.interestIncome + sample.data.dividendIncome + 
+                                sample.data.businessIncome + sample.data.realEstateRentalIncome + 
+                                sample.data.earnedIncome + sample.data.pensionIncome + 
+                                sample.data.otherIncome).toLocaleString()}원
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <Button 
+                        className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white 
+                          transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                        disabled={loadingSample}
+                      >
+                        {loadingSample ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                            로딩 중...
+                          </>
+                        ) : (
+                          <>
+                            <Calculator className="w-4 h-4 mr-2" />
+                            이 샘플 선택하기
+                          </>
+                        )}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              
+              {/* 기본 샘플 버튼 */}
+              <Card className="mt-4 border-2 border-gray-300 border-dashed">
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <h4 className="font-medium text-gray-700 mb-2">
+                      🎯 기본 종합 샘플
+                    </h4>
+                    <p className="text-sm text-gray-600 mb-3">
+                      모든 소득 유형이 포함된 종합적인 샘플 데이터
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => loadSampleData()}
+                      disabled={loadingSample}
+                      className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      {loadingSample ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                          로딩 중...
+                        </>
+                      ) : (
+                        <>
+                          📊 기본 샘플 선택
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 입력 폼 */}
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg font-semibold flex items-center">
-                <Building className="w-5 h-5 mr-2 text-green-600" />
-                소득 정보
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold flex items-center">
+                  <Building className="w-5 h-5 mr-2 text-green-600" />
+                  소득 정보
+                </CardTitle>
+                
+                {/* 🔥 개선된 컨트롤 버튼들 */}
+                <div className="flex items-center space-x-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowSampleModal(true)} 
+                    size="sm"
+                    className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] 
+                      bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100
+                      border-blue-200 text-blue-700 hover:border-blue-300"
+                  >
+                    <span className="mr-1">📋</span>
+                    샘플 데이터
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={reset}
+                    size="sm"
+                    className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
+                      hover:bg-red-50 hover:border-red-200 hover:text-red-700"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-1" />
+                    초기화
+                  </Button>
+                </div>
+              </div>
+              
+              {/* 🔥 현재 로드된 샘플 정보 표시 */}
+              {loadedSampleType && (
+                <div className="bg-gradient-to-r from-green-50 to-blue-50 p-3 rounded-lg border border-green-200 mt-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-green-600 text-lg">✅</span>
+                      <div>
+                        <div className="text-sm font-medium text-green-800">
+                          현재 샘플: {loadedSampleType}
+                        </div>
+                        <div className="text-xs text-green-600">
+                          샘플 데이터가 로드되어 있습니다. 값을 수정하거나 다른 샘플을 선택할 수 있습니다.
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setLoadedSampleType('')}
+                      className="text-green-600 hover:text-green-800 hover:bg-green-100"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardHeader>
             <CardContent className="space-y-6">
               {/* 소득별 입력 */}
@@ -880,7 +1298,7 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
                   />
                 </div>
 
-                                  {/* 🔥 스마트 자동 계산 대시보드 */}
+                {/* 🔥 스마트 자동 계산 대시보드 */}
                 <Card className="border-purple-200 bg-purple-50">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-purple-700 text-lg">
@@ -1280,63 +1698,204 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
               <div className="flex space-x-2 pt-4">
                 <Button 
                   onClick={calculate} 
-                  disabled={isCalculating}
-                  className="flex-1"
+                  disabled={isCalculating || totalIncome <= 0}
+                  className={`flex-1 transition-all duration-200 transform
+                    ${totalIncome > 0 && !isCalculating ? 
+                      'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]' : 
+                      'bg-gray-400 cursor-not-allowed'
+                    }
+                    ${isCalculating ? 'animate-pulse' : ''}
+                  `}
                 >
                   {isCalculating ? (
                     <>
                       <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
                       계산 중...
                     </>
+                  ) : totalIncome <= 0 ? (
+                    <>
+                      <Calculator className="w-4 h-4 mr-2 opacity-50" />
+                      소득 입력 필요
+                    </>
                   ) : (
                     <>
                       <Calculator className="w-4 h-4 mr-2" />
-                      계산하기
+                      {results ? '재계산하기' : '계산하기'}
                     </>
                   )}
                 </Button>
-                <Button variant="outline" onClick={loadSampleData} size="sm">
-                  샘플 데이터
+                
+                {/* 🔥 개선된 샘플 데이터 버튼 */}
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowSampleModal(true)} 
+                  size="sm"
+                  className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95]
+                    bg-gradient-to-r from-orange-50 to-yellow-50 hover:from-orange-100 hover:to-yellow-100
+                    border-orange-200 text-orange-700 hover:border-orange-300 hover:shadow-md
+                    relative overflow-hidden group"
+                >
+                  <span className="absolute inset-0 bg-gradient-to-r from-orange-100 to-yellow-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="relative flex items-center">
+                    <span className="mr-1 text-lg">📋</span>
+                    샘플
+                  </span>
                 </Button>
-                <Button variant="outline" onClick={reset} size="sm">
-                  초기화
+                
+                {/* 🔥 개선된 초기화 버튼 */}
+                <Button 
+                  variant="outline" 
+                  onClick={reset} 
+                  size="sm"
+                  className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95]
+                    hover:bg-red-50 hover:border-red-300 hover:text-red-700 hover:shadow-md
+                    relative overflow-hidden group"
+                >
+                  <span className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="relative flex items-center">
+                    <RefreshCw className="w-4 h-4 mr-1 group-hover:rotate-180 transition-transform duration-300" />
+                    초기화
+                  </span>
                 </Button>
               </div>
+              
+              {/* 🔥 실시간 계산 상태 표시 */}
+              {totalIncome > 0 && (
+                <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border border-green-200 mt-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                      <div>
+                        <div className="text-sm font-medium text-green-800">
+                          실시간 계산 활성화됨
+                        </div>
+                        <div className="text-xs text-green-600">
+                          총소득: {totalIncome.toLocaleString('ko-KR')}원 · 
+                          입력값 변경시 자동으로 계산됩니다
+                        </div>
+                      </div>
+                    </div>
+                    {results && (
+                      <Badge className="bg-green-100 text-green-700 border-green-300">
+                        계산 완료
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
 
         {/* 결과 표시 */}
         <div className="space-y-6">
+          {/* 🔥 로딩 상태 표시 개선 */}
+          {isCalculating && (
+            <Card className="border-blue-200 bg-blue-50">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-center space-x-4">
+                  <div className="flex space-x-1">
+                    {[0, 1, 2].map((i) => (
+                      <div
+                        key={i}
+                        className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"
+                        style={{ animationDelay: `${i * 0.1}s` }}
+                      ></div>
+                    ))}
+                  </div>
+                  <div className="text-blue-700 font-medium">
+                    종합소득세 계산 중...
+                  </div>
+                </div>
+                <div className="w-full bg-blue-200 rounded-full h-2 mt-4">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                    style={{ width: '100%' }}
+                  ></div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
           {results && (
             <>
               {/* 주요 결과 */}
-              <Card>
+              <Card className="border-green-200 bg-gradient-to-br from-green-50 to-blue-50">
                 <CardHeader>
-                  <CardTitle className="text-lg font-semibold flex items-center">
-                    <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
-                    계산 결과
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-semibold flex items-center">
+                      <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
+                      계산 결과
+                    </CardTitle>
+                    
+                    {/* 🔥 개선된 PDF 저장 버튼 */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSavePDF}
+                      disabled={isSavingPDF}
+                      className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95]
+                        bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100
+                        border-purple-200 text-purple-700 hover:border-purple-300 hover:shadow-md
+                        relative overflow-hidden group"
+                    >
+                      <span className="absolute inset-0 bg-gradient-to-r from-purple-100 to-pink-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                      <span className="relative flex items-center">
+                        {isSavingPDF ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 mr-1 animate-spin" />
+                            저장중...
+                          </>
+                        ) : (
+                          <>
+                            <Download className="w-4 h-4 mr-1 group-hover:animate-bounce" />
+                            PDF 저장
+                          </>
+                        )}
+                      </span>
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-4">
-                    <div className="bg-green-50 p-4 rounded-xl">
-                      <div className="text-sm text-green-600 font-medium">종합소득결정세액</div>
-                      <div className="text-2xl font-bold text-green-900 font-mono">
-                        {formatCurrency(results.determinedTax)}
+                    {/* 🔥 개선된 주요 결과 표시 */}
+                    <div className="bg-gradient-to-r from-green-100 to-emerald-100 p-6 rounded-xl border border-green-200 shadow-sm">
+                      <div className="text-center">
+                        <div className="text-sm text-green-600 font-medium mb-1">🎯 최종 결정세액</div>
+                        <div className="text-3xl font-bold text-green-900 font-mono mb-2">
+                          {formatCurrency(results.determinedTax)}
+                        </div>
+                        <div className="text-sm text-green-600">
+                          납부하실 종합소득세 금액입니다
+                        </div>
+                        
+                        {/* 🔥 유효세율과 한계세율 표시 */}
+                        <div className="grid grid-cols-2 gap-3 mt-4">
+                          <div className="bg-white p-3 rounded-lg border border-green-200">
+                            <div className="text-xs text-green-600">유효세율</div>
+                            <div className="text-lg font-bold text-green-800">
+                              {results.effectiveRate.toFixed(2)}%
+                            </div>
+                          </div>
+                          <div className="bg-white p-3 rounded-lg border border-green-200">
+                            <div className="text-xs text-green-600">한계세율</div>
+                            <div className="text-lg font-bold text-green-800">
+                              {results.marginalRate.toFixed(2)}%
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-sm text-green-600 mt-1">최종 납부할 세액</div>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-blue-50 p-3 rounded-lg">
+                      <div className="bg-blue-50 p-3 rounded-lg transform transition-all duration-200 hover:scale-[1.02] hover:shadow-md">
                         <div className="text-sm text-blue-600">총수입금액</div>
                         <div className="text-base font-semibold text-blue-900 font-mono">
                           {formatCurrency(results.totalIncome)}
                         </div>
                         <div className="text-xs text-blue-500 mt-1">필요경비 차감 전</div>
                       </div>
-                      <div className="bg-cyan-50 p-3 rounded-lg">
+                      <div className="bg-cyan-50 p-3 rounded-lg transform transition-all duration-200 hover:scale-[1.02] hover:shadow-md">
                         <div className="text-sm text-cyan-600">총소득금액</div>
                         <div className="text-base font-semibold text-cyan-900 font-mono">
                           {formatCurrency(results.totalGrossIncome)}
@@ -1346,14 +1905,14 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-purple-50 p-3 rounded-lg">
+                      <div className="bg-purple-50 p-3 rounded-lg transform transition-all duration-200 hover:scale-[1.02] hover:shadow-md">
                         <div className="text-sm text-purple-600">종합소득공제</div>
                         <div className="text-base font-semibold text-purple-900 font-mono">
                           {formatCurrency(results.totalDeductibleAmount)}
                         </div>
                         <div className="text-xs text-purple-500 mt-1">인적공제+소득공제</div>
                       </div>
-                      <div className="bg-indigo-50 p-3 rounded-lg">
+                      <div className="bg-indigo-50 p-3 rounded-lg transform transition-all duration-200 hover:scale-[1.02] hover:shadow-md">
                         <div className="text-sm text-indigo-600">과세표준</div>
                         <div className="text-base font-semibold text-indigo-900 font-mono">
                           {formatCurrency(results.taxableIncome)}
@@ -1363,14 +1922,14 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-red-50 p-3 rounded-lg">
+                      <div className="bg-red-50 p-3 rounded-lg transform transition-all duration-200 hover:scale-[1.02] hover:shadow-md">
                         <div className="text-sm text-red-600">산출세액</div>
                         <div className="text-base font-semibold text-red-900 font-mono">
                           {formatCurrency(results.progressiveTax)}
                         </div>
                         <div className="text-xs text-red-500 mt-1">누진세율 적용</div>
                       </div>
-                      <div className="bg-yellow-50 p-3 rounded-lg">
+                      <div className="bg-yellow-50 p-3 rounded-lg transform transition-all duration-200 hover:scale-[1.02] hover:shadow-md">
                         <div className="text-sm text-yellow-600">지방소득세</div>
                         <div className="text-base font-semibold text-yellow-900 font-mono">
                           {formatCurrency(results.localIncomeTax)}

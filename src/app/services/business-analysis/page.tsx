@@ -196,10 +196,13 @@ export default function BusinessAnalysisPage() {
                 variant="ghost" 
                 size="sm"
                 onClick={() => router.push('/services')}
-                className="p-0 h-auto font-normal"
+                className="p-0 h-auto font-normal transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] px-2 py-1 rounded-md hover:bg-blue-50 relative overflow-hidden group"
               >
-                <ArrowLeft className="w-4 h-4 mr-1" />
-                서비스 목록
+                <span className="absolute inset-0 bg-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative flex items-center">
+                  <ArrowLeft className="w-4 h-4 mr-1 group-hover:translate-x-[-2px] transition-transform duration-200" />
+                  서비스 목록
+                </span>
               </Button>
               <span>/</span>
               <span className="text-blue-600 font-medium">BM ZEN 사업분석</span>
@@ -297,19 +300,25 @@ export default function BusinessAnalysisPage() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button 
                     size="lg"
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group"
                     onClick={() => router.push('/consultation')}
                   >
-                    맞춤형 상담 신청 (차별성 확인)
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    <span className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                    <span className="relative flex items-center">
+                      맞춤형 상담 신청 (차별성 확인)
+                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+                    </span>
                   </Button>
                   <Button 
                     variant="outline"
                     size="lg"
-                    className="px-8 py-4"
+                    className="px-8 py-4 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 hover:shadow-md relative overflow-hidden group"
                     onClick={() => router.push('/diagnosis')}
                   >
-                    무료 진단 받기
+                    <span className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                    <span className="relative">
+                      무료 진단 받기
+                    </span>
                   </Button>
                 </div>
               </div>
@@ -371,13 +380,18 @@ export default function BusinessAnalysisPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-2 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
+                className={`py-4 px-2 border-b-2 font-medium text-sm whitespace-nowrap transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] relative overflow-hidden group ${
                   activeTab === tab.id
                     ? 'border-blue-600 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
-                {tab.label}
+                {activeTab !== tab.id && (
+                  <span className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                )}
+                <span className="relative">
+                  {tab.label}
+                </span>
               </button>
             ))}
           </div>

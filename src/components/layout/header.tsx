@@ -74,96 +74,159 @@ export default function Header() {
 
             {/* 데스크톱 네비게이션 - 서비스 직접 표시 */}
             <div className="hidden lg:flex items-center space-x-4">
-              <Link href="/" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200">
+              <Link 
+                href="/" 
+                className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] px-2 py-1 rounded-md hover:bg-blue-50"
+              >
                 홈
               </Link>
               
               {/* 핵심 서비스들을 직접 표시 */}
-              <Link href="/services/business-analysis" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 flex items-center whitespace-nowrap">
-                <Brain className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                사업분석
+              <Link 
+                href="/services/business-analysis" 
+                className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] flex items-center whitespace-nowrap px-2 py-1 rounded-md hover:bg-blue-50 relative overflow-hidden group"
+              >
+                <span className="absolute inset-0 bg-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative flex items-center">
+                  <Brain className="w-3.5 h-3.5 mr-1 text-blue-500 group-hover:scale-110 transition-transform duration-200" />
+                  사업분석
+                </span>
               </Link>
               
-              <Link href="/services/ai-productivity" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 flex items-center whitespace-nowrap">
-                <Sparkles className="w-3.5 h-3.5 mr-1 text-purple-500" />
-                AI솔루션
+              <Link 
+                href="/services/ai-productivity" 
+                className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] flex items-center whitespace-nowrap px-2 py-1 rounded-md hover:bg-purple-50 relative overflow-hidden group"
+              >
+                <span className="absolute inset-0 bg-purple-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative flex items-center">
+                  <Sparkles className="w-3.5 h-3.5 mr-1 text-purple-500 group-hover:scale-110 transition-transform duration-200" />
+                  AI솔루션
+                </span>
               </Link>
               
-              <Link href="/services/factory-auction" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 flex items-center whitespace-nowrap hidden xl:flex">
-                <Factory className="w-3.5 h-3.5 mr-1 text-orange-500" />
-                공장구매
+              <Link 
+                href="/services/factory-auction" 
+                className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] flex items-center whitespace-nowrap hidden xl:flex px-2 py-1 rounded-md hover:bg-orange-50 relative overflow-hidden group"
+              >
+                <span className="absolute inset-0 bg-orange-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative flex items-center">
+                  <Factory className="w-3.5 h-3.5 mr-1 text-orange-500 group-hover:scale-110 transition-transform duration-200" />
+                  공장구매
+                </span>
               </Link>
               
-              <Link href="/services/tech-startup" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 flex items-center whitespace-nowrap hidden xl:flex">
-                <Rocket className="w-3.5 h-3.5 mr-1 text-green-500" />
-                기술창업
+              <Link 
+                href="/services/tech-startup" 
+                className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] flex items-center whitespace-nowrap hidden xl:flex px-2 py-1 rounded-md hover:bg-green-50 relative overflow-hidden group"
+              >
+                <span className="absolute inset-0 bg-green-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative flex items-center">
+                  <Rocket className="w-3.5 h-3.5 mr-1 text-green-500 group-hover:scale-110 transition-transform duration-200" />
+                  기술창업
+                </span>
               </Link>
               
-              <Link href="/services/certification" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 flex items-center whitespace-nowrap">
-                <Award className="w-3.5 h-3.5 mr-1 text-red-500" />
-                ISO/벤처
+              <Link 
+                href="/services/certification" 
+                className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] flex items-center whitespace-nowrap px-2 py-1 rounded-md hover:bg-red-50 relative overflow-hidden group"
+              >
+                <span className="absolute inset-0 bg-red-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative flex items-center">
+                  <Award className="w-3.5 h-3.5 mr-1 text-red-500 group-hover:scale-110 transition-transform duration-200" />
+                  ISO/벤처
+                </span>
               </Link>
               
-              <Link href="/services/website" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 flex items-center whitespace-nowrap">
-                <Globe className="w-3.5 h-3.5 mr-1 text-cyan-500" />
-                웹사이트
+              <Link 
+                href="/services/website" 
+                className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] flex items-center whitespace-nowrap px-2 py-1 rounded-md hover:bg-cyan-50 relative overflow-hidden group"
+              >
+                <span className="absolute inset-0 bg-cyan-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative flex items-center">
+                  <Globe className="w-3.5 h-3.5 mr-1 text-cyan-500 group-hover:scale-110 transition-transform duration-200" />
+                  웹사이트
+                </span>
               </Link>
               
-              <Link href="/center-leader" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 whitespace-nowrap">
+              <Link 
+                href="/center-leader" 
+                className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] whitespace-nowrap px-2 py-1 rounded-md hover:bg-blue-50"
+              >
                 센터장프로필
               </Link>
               
-              <Link href="/cases" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 whitespace-nowrap">
+              <Link 
+                href="/cases" 
+                className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] whitespace-nowrap px-2 py-1 rounded-md hover:bg-blue-50"
+              >
                 성공사례
               </Link>
             </div>
 
             {/* 액션 버튼들 - Apple Store 스타일 */}
             <div className="hidden md:flex lg:flex items-center space-x-2">
+              {/* 🔥 개선된 세금계산기 버튼 */}
               <Button 
                 variant="outline"
-                className="border border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200"
+                className="border border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] hover:shadow-md relative overflow-hidden group"
                 onClick={() => handleNavigation('/tax-calculator')}
               >
-                <Calculator className="w-3.5 h-3.5 mr-1.5" />
-                세금계산기
+                <span className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative flex items-center">
+                  <Calculator className="w-3.5 h-3.5 mr-1.5 group-hover:scale-110 transition-transform duration-200" />
+                  세금계산기
+                </span>
               </Button>
               
+              {/* 🔥 개선된 무료진단 버튼 */}
               <Button 
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full text-sm font-medium shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-1.5 rounded-full text-sm font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.05] active:scale-[0.95] transition-all duration-200 relative overflow-hidden group"
                 onClick={() => handleNavigation('/diagnosis')}
               >
-                <Sparkles className="w-3.5 h-3.5 mr-1.5" />
-                무료진단
+                <span className="absolute inset-0 bg-gradient-to-r from-blue-700 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative flex items-center">
+                  <Sparkles className="w-3.5 h-3.5 mr-1.5 group-hover:rotate-12 transition-transform duration-200" />
+                  무료진단
+                </span>
               </Button>
               
+              {/* 🔥 개선된 상담 버튼 */}
               <Button 
                 variant="outline"
-                className="border border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200"
+                className="border border-gray-300 hover:border-green-600 text-gray-700 hover:text-green-600 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] hover:shadow-md relative overflow-hidden group"
                 onClick={() => handleNavigation('/consultation')}
               >
-                <Phone className="w-3.5 h-3.5 mr-1.5" />
-                상담
+                <span className="absolute inset-0 bg-green-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative flex items-center">
+                  <Phone className="w-3.5 h-3.5 mr-1.5 group-hover:animate-pulse transition-transform duration-200" />
+                  상담
+                </span>
               </Button>
               
+              {/* 🔥 개선된 AI상담 버튼 */}
               <Button 
-                className="bg-gray-900 hover:bg-gray-800 text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-apple-button transform hover:-translate-y-0.5 transition-all duration-200"
+                className="bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.05] active:scale-[0.95] transition-all duration-200 relative overflow-hidden group"
                 onClick={() => handleNavigation('/chatbot')}
               >
-                <Bot className="w-3.5 h-3.5 mr-1.5" />
-                AI상담
+                <span className="absolute inset-0 bg-gradient-to-r from-gray-800 to-gray-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative flex items-center">
+                  <Bot className="w-3.5 h-3.5 mr-1.5 group-hover:animate-bounce transition-transform duration-200" />
+                  AI상담
+                </span>
               </Button>
             </div>
 
             {/* 모바일 햄버거 메뉴 */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
+                {/* 🔥 개선된 햄버거 메뉴 버튼 */}
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="md:hidden w-10 h-10 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                  className="md:hidden w-10 h-10 rounded-full hover:bg-gray-100 transition-all duration-200 transform hover:scale-[1.1] active:scale-[0.9] relative overflow-hidden group"
                 >
-                  <Menu className="w-5 h-5 text-gray-700" />
+                  <span className="absolute inset-0 bg-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <Menu className="w-5 h-5 text-gray-700 relative z-10 group-hover:rotate-90 transition-transform duration-300" />
                 </Button>
               </SheetTrigger>
               <SheetContent 
@@ -186,13 +249,15 @@ export default function Header() {
                       <p className="text-xs text-gray-500">경영지도센터장</p>
                     </div>
                   </div>
+                  {/* 🔥 개선된 닫기 버튼 */}
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="w-8 h-8 rounded-full hover:bg-gray-100"
+                    className="w-8 h-8 rounded-full hover:bg-gray-100 transition-all duration-200 transform hover:scale-[1.1] active:scale-[0.9] relative overflow-hidden group"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <X className="w-4 h-4 text-gray-600" />
+                    <span className="absolute inset-0 bg-red-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                    <X className="w-4 h-4 text-gray-600 relative z-10 group-hover:rotate-90 transition-transform duration-300" />
                   </Button>
                 </div>
 
@@ -210,15 +275,16 @@ export default function Header() {
                         <Link
                           key={item.href}
                           href={item.href}
-                          className="flex items-center p-3 rounded-apple-sm hover:bg-gray-50 transition-colors duration-200 border border-gray-200 hover:border-blue-600 group"
+                          className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-all duration-200 border border-gray-200 hover:border-blue-600 group transform hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
-                          <div className="w-8 h-8 bg-gray-100 group-hover:bg-blue-600 group-hover:text-white rounded-lg flex items-center justify-center mr-3 transition-colors">
+                          <span className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                          <div className="w-8 h-8 bg-gray-100 group-hover:bg-blue-600 group-hover:text-white rounded-lg flex items-center justify-center mr-3 transition-all duration-200 relative z-10 group-hover:scale-110">
                             <span className="text-lg">{item.icon}</span>
                           </div>
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0 relative z-10">
                             <span className="text-sm font-medium text-gray-900 group-hover:text-blue-600 text-overflow-safe">{item.label}</span>
-                            <div className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full inline-block mt-1">
+                            <div className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full inline-block mt-1 group-hover:bg-white transition-colors duration-200">
                               <span className="text-overflow-safe">{item.badge}</span>
                             </div>
                           </div>
@@ -243,22 +309,23 @@ export default function Header() {
                         <Link
                           key={item.href}
                           href={item.href}
-                          className="flex flex-col items-center p-3 rounded-apple-sm hover:bg-gray-50 transition-colors duration-200 border border-gray-200 hover:border-blue-600 group"
+                          className="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-all duration-200 border border-gray-200 hover:border-blue-600 group transform hover:scale-[1.05] active:scale-[0.95] relative overflow-hidden"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
-                          <div className="w-8 h-8 bg-gray-100 group-hover:bg-blue-600 group-hover:text-white rounded-lg flex items-center justify-center mb-2 transition-colors">
+                          <span className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                          <div className="w-8 h-8 bg-gray-100 group-hover:bg-blue-600 group-hover:text-white rounded-lg flex items-center justify-center mb-2 transition-all duration-200 relative z-10 group-hover:scale-110">
                             <span className="text-lg">{item.icon}</span>
                           </div>
-                          <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600 text-center text-overflow-safe">{item.label}</span>
+                          <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600 text-center text-overflow-safe relative z-10">{item.label}</span>
                         </Link>
                       ))}
                     </div>
                   </div>
 
                   {/* 하단 연락처 */}
-                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-apple-lg border border-blue-200">
+                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-200 transform hover:scale-[1.02] transition-all duration-200">
                     <h4 className="font-semibold text-gray-900 mb-3 text-center">
-                                                <span className="text-overflow-safe">📞 상담신청</span>
+                      <span className="text-overflow-safe">📞 상담신청</span>
                     </h4>
                     <div className="space-y-3">
                       <div className="flex items-center justify-center gap-3">
@@ -280,19 +347,28 @@ export default function Header() {
                   
                   {/* 모바일 액션 버튼들 */}
                   <div className="grid grid-cols-2 gap-3 pt-2">
+                    {/* 🔥 개선된 무료 진단 버튼 */}
                     <Button 
-                      className="mobile-button bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                      className="mobile-button bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] relative overflow-hidden group shadow-lg"
                       onClick={() => handleMobileNavigation('/diagnosis')}
                     >
-                      <Target className="w-4 h-4 mr-2" />
-                      <span className="text-overflow-safe">무료 진단</span>
+                      <span className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                      <span className="relative flex items-center">
+                        <Target className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-200" />
+                        <span className="text-overflow-safe">무료 진단</span>
+                      </span>
                     </Button>
+                    
+                    {/* 🔥 개선된 전문가 상담 버튼 */}
                     <Button 
-                      className="mobile-button bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                      className="mobile-button bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] relative overflow-hidden group shadow-lg"
                       onClick={() => handleMobileNavigation('/consultation')}
                     >
-                      <Users className="w-4 h-4 mr-2" />
-                      <span className="text-overflow-safe">전문가 상담</span>
+                      <span className="absolute inset-0 bg-gradient-to-r from-green-700 to-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                      <span className="relative flex items-center">
+                        <Users className="w-4 h-4 mr-2 group-hover:animate-pulse transition-transform duration-200" />
+                        <span className="text-overflow-safe">전문가 상담</span>
+                      </span>
                     </Button>
                   </div>
                 </div>

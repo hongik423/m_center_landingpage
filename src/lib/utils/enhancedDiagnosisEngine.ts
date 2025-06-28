@@ -1,16 +1,16 @@
 /**
- * 🤖 M-CENTER 고도화된 AI 진단 엔진
- * Google Gemini를 활용한 지능형 기업 진단 시스템
+ * 🔮 M-CENTER 고도화된 진단 엔진
+ * 첨단 분석 기술을 활용한 지능형 기업 진단 시스템
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getGeminiKey } from '@/lib/config/env';
 
-// Gemini 클라이언트 초기화 (안전한 방식으로)
-const getGeminiClient = () => {
+// 고급 분석 클라이언트 초기화 (안전한 방식으로)
+const getAnalysisClient = () => {
   const apiKey = getGeminiKey();
   if (!apiKey) {
-    console.warn('⚠️ Gemini API Key가 설정되지 않았습니다. 폴백 모드로 동작합니다.');
+    console.warn('⚠️ 분석 시스템 키가 설정되지 않았습니다. 폴백 모드로 동작합니다.');
     return null;
   }
   return new GoogleGenerativeAI(apiKey);
@@ -102,13 +102,13 @@ export interface AIAnalysisResult {
 }
 
 /**
- * 🔍 AI 기반 시장 분석
+ * 🔍 고급 시장 분석
  */
 async function generateMarketAnalysis(input: EnhancedDiagnosisInput): Promise<string> {
-  const gemini = getGeminiClient();
+  const analysisClient = getAnalysisClient();
   
   // API 키가 없으면 폴백 분석 제공
-  if (!gemini) {
+  if (!analysisClient) {
     return generateFallbackMarketAnalysis(input);
   }
 
@@ -133,7 +133,7 @@ async function generateMarketAnalysis(input: EnhancedDiagnosisInput): Promise<st
 M-CENTER 서비스와 연계 가능한 부분도 언급해주세요.`;
 
   try {
-    const model = gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = analysisClient.getGenerativeModel({ model: 'gemini-2.5-flash' });
     
     const result = await model.generateContent({
       contents: [
@@ -147,7 +147,7 @@ M-CENTER 서비스와 연계 가능한 부분도 언급해주세요.`;
         }
       ],
       generationConfig: {
-        maxOutputTokens: 1000,
+        maxOutputTokens: 800, // 압축된 분석
         temperature: 0.7,
         topP: 0.9,
         topK: 40,
@@ -157,19 +157,18 @@ M-CENTER 서비스와 연계 가능한 부분도 언급해주세요.`;
     const response = await result.response;
     return response.text() || '시장 분석을 완료할 수 없습니다.';
   } catch (error) {
-    console.error('AI 시장 분석 실패:', error);
+    console.error('고급 시장 분석 실패:', error);
     return generateFallbackMarketAnalysis(input);
   }
 }
 
 /**
- * 🎯 AI 기반 전략적 추천
+ * 🎯 정교한 전략적 추천
  */
 async function generateStrategicRecommendations(input: EnhancedDiagnosisInput): Promise<string> {
-  const gemini = getGeminiClient();
+  const analysisClient = getAnalysisClient();
   
-  // API 키가 없으면 폴백 분석 제공
-  if (!gemini) {
+  if (!analysisClient) {
     return generateFallbackStrategicRecommendations(input);
   }
 
@@ -184,9 +183,17 @@ async function generateStrategicRecommendations(input: EnhancedDiagnosisInput): 
 - 예산: ${input.budget || '미제공'}
 - 목표 기간: ${input.timeline || '미제공'}
 
+🔍 기업 검색 및 분석:
+"${input.companyName}"에 대한 최신 정보를 검색하여 다음을 파악해주세요:
+- 회사 규모 및 업계 위치
+- 최근 사업 동향 및 뉴스  
+- 업계 내 평판 및 경쟁력
+- 성장 가능성 및 시장 전망
+찾은 정보를 바탕으로 맞춤형 전략을 제시해주세요.
+
 M-CENTER 6가지 서비스:
 1. BM ZEN 사업분석 - 매출 20-40% 증대
-2. AI 생산성향상 - 업무효율 40-60% 향상
+2. 고급 생산성향상 - 업무효율 40-60% 향상
 3. 경매활용 공장구매 - 부동산비용 30-50% 절감
 4. 기술사업화/창업 - 평균 5억원 정부지원금
 5. 인증지원 - 연간 세제혜택 5천만원
@@ -202,7 +209,7 @@ M-CENTER 6가지 서비스:
 실무적이고 구체적인 전략을 제시해주세요.`;
 
   try {
-    const model = gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = analysisClient.getGenerativeModel({ model: 'gemini-2.5-flash' });
     
     const result = await model.generateContent({
       contents: [
@@ -216,7 +223,7 @@ M-CENTER 6가지 서비스:
         }
       ],
       generationConfig: {
-        maxOutputTokens: 1200,
+        maxOutputTokens: 1000, // 압축된 추천
         temperature: 0.6,
         topP: 0.9,
         topK: 40,
@@ -226,7 +233,7 @@ M-CENTER 6가지 서비스:
     const response = await result.response;
     return response.text() || '전략적 추천을 완료할 수 없습니다.';
   } catch (error) {
-    console.error('AI 전략 추천 실패:', error);
+    console.error('고급 전략 추천 실패:', error);
     return generateFallbackStrategicRecommendations(input);
   }
 }
@@ -235,10 +242,10 @@ M-CENTER 6가지 서비스:
  * 🔮 AI 기반 위험 평가
  */
 async function generateRiskAssessment(input: EnhancedDiagnosisInput): Promise<string> {
-  const gemini = getGeminiClient();
+  const analysisClient = getAnalysisClient();
   
   // API 키가 없으면 폴백 분석 제공
-  if (!gemini) {
+  if (!analysisClient) {
     return generateFallbackRiskAssessment(input);
   }
 
@@ -268,7 +275,7 @@ async function generateRiskAssessment(input: EnhancedDiagnosisInput): Promise<st
 M-CENTER 서비스로 완화 가능한 리스크도 명시해주세요.`;
 
   try {
-    const model = gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = analysisClient.getGenerativeModel({ model: 'gemini-2.5-flash' });
     
     const result = await model.generateContent({
       contents: [
@@ -301,10 +308,10 @@ M-CENTER 서비스로 완화 가능한 리스크도 명시해주세요.`;
  * 🌟 AI 기반 기회 발굴
  */
 async function generateOpportunityMapping(input: EnhancedDiagnosisInput): Promise<string> {
-  const gemini = getGeminiClient();
+  const analysisClient = getAnalysisClient();
   
   // API 키가 없으면 폴백 분석 제공
-  if (!gemini) {
+  if (!analysisClient) {
     return generateFallbackOpportunityMapping(input);
   }
 
@@ -335,7 +342,7 @@ async function generateOpportunityMapping(input: EnhancedDiagnosisInput): Promis
 M-CENTER 서비스와 연계하여 구체적인 실행 방안도 제시해주세요.`;
 
   try {
-    const model = gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = analysisClient.getGenerativeModel({ model: 'gemini-2.5-flash' });
     
     const result = await model.generateContent({
       contents: [
@@ -368,10 +375,10 @@ M-CENTER 서비스와 연계하여 구체적인 실행 방안도 제시해주세
  * 🎯 AI 기반 SWOT 매트릭스 분석
  */
 async function generateSWOTMatrix(swot: any): Promise<string> {
-  const gemini = getGeminiClient();
+  const analysisClient = getAnalysisClient();
   
   // API 키가 없으면 폴백 분석 제공
-  if (!gemini) {
+  if (!analysisClient) {
     return generateFallbackSWOTMatrix(swot);
   }
 
@@ -398,7 +405,7 @@ SWOT 매트릭스 전략:
 각 전략별로 2-3개씩 구체적인 실행 방안을 제시해주세요.`;
 
   try {
-    const model = gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = analysisClient.getGenerativeModel({ model: 'gemini-2.5-flash' });
     
     const result = await model.generateContent({
       contents: [
@@ -635,17 +642,16 @@ function generateInvestmentAnalysis(input: EnhancedDiagnosisInput, strategic: st
 }
 
 /**
- * 📝 Gemini AI 기반 1500자 이상 종합 진단 보고서 생성
+ * 📝 고급 종합 진단 보고서 생성 (2000자 미만)
  */
 export async function generateComprehensiveReport(input: EnhancedDiagnosisInput, analysisResult: AIAnalysisResult): Promise<string> {
-  const gemini = getGeminiClient();
+  const analysisClient = getAnalysisClient();
   
-  // API 키가 없으면 폴백 보고서 제공
-  if (!gemini) {
+  if (!analysisClient) {
     return generateFallbackReport(input, analysisResult);
   }
 
-  const prompt = `다음 기업 진단 데이터를 바탕으로 1500자 이상의 전문적인 종합 경영진단 보고서를 작성해주세요:
+  const prompt = `다음 기업 진단 데이터를 바탕으로 1800자 이내의 전문적인 종합 경영진단 보고서를 작성해주세요:
 
 기업 정보:
 - 회사명: ${input.companyName}
@@ -656,12 +662,15 @@ export async function generateComprehensiveReport(input: EnhancedDiagnosisInput,
 - 주요 고민: ${input.mainConcerns}
 - 기대효과: ${input.expectedBenefits}
 
-AI 분석 결과:
+🔍 기업 검색 분석:
+"${input.companyName}" 관련 최신 정보를 검색하여 진단에 반영해주세요.
+
+고급 분석 결과:
 - 종합점수: ${analysisResult.totalScore}점/100점
 - 신뢰도: ${analysisResult.reliabilityScore}점
-- 시장분석: ${analysisResult.aiInsights.marketAnalysis.substring(0, 500)}...
-- 위험평가: ${analysisResult.aiInsights.riskAssessment.substring(0, 300)}...
-- 기회분석: ${analysisResult.aiInsights.opportunityMapping.substring(0, 300)}...
+- 시장분석: ${analysisResult.aiInsights.marketAnalysis.substring(0, 300)}...
+- 위험평가: ${analysisResult.aiInsights.riskAssessment.substring(0, 200)}...
+- 기회분석: ${analysisResult.aiInsights.opportunityMapping.substring(0, 200)}...
 
 세부 지표:
 - 비즈니스모델: ${analysisResult.detailedMetrics.businessModel}점
@@ -677,27 +686,27 @@ SWOT 분석:
 기회: ${analysisResult.swotAnalysis.opportunities.join(', ')}
 위협: ${analysisResult.swotAnalysis.threats.join(', ')}
 
-보고서 구성 요구사항:
-1. 경영진 요약 (Executive Summary) - 200자
-2. 기업 현황 진단 - 300자
-3. 핵심 성과 지표 분석 - 300자
-4. 시장 환경 및 경쟁력 분석 - 250자
-5. SWOT 통합 분석 - 200자
-6. 위험 요인 및 대응방안 - 200자
-7. 성장 기회 및 전략 방향 - 200자
-8. 즉시 실행 권고사항 - 150자
+보고서 구성 요구사항 (1800자 이내 엄수):
+1. 🏢 기업 현황 진단 (250자)
+2. 📊 핵심 성과 지표 분석 (250자)
+3. 💪 주요 강점 및 기회 (250자)
+4. ⚠️ 개선 필요 영역 (250자)
+5. 🚀 맞춤형 솔루션 제안 (400자)
+6. 📅 단계별 실행 계획 (250자)
+7. 📞 전문가 상담 안내 (150자)
 
 작성 가이드라인:
+- 총 글자수 1800자 이내 엄수
 - 25년 경험의 경영지도사 수준의 전문성 표현
 - 구체적인 수치와 데이터 기반 분석
 - 실행 가능한 구체적 제언
 - M-CENTER의 차별화된 솔루션 연계
 - 긴급성과 중요성을 강조한 결론
 
-최소 1500자 이상으로 작성하되, 각 섹션을 명확히 구분하여 체계적으로 작성해주세요.`;
+최대 1800자 이내로 작성하되, 각 섹션을 명확히 구분하여 체계적으로 작성해주세요.`;
 
   try {
-    const model = gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = analysisClient.getGenerativeModel({ model: 'gemini-2.5-flash' });
     
     const result = await model.generateContent({
       contents: [
@@ -707,7 +716,7 @@ SWOT 분석:
         }
       ],
       generationConfig: {
-        maxOutputTokens: 2500,
+        maxOutputTokens: 2000, // 2000자 미만 보장
         temperature: 0.7,
         topP: 0.9,
         topK: 40,
@@ -715,59 +724,34 @@ SWOT 분석:
     });
 
     const response = await result.response;
-    const comprehensiveReport = response.text();
+    let comprehensiveReport = response.text();
     
-    // 보고서 길이 확인 및 필요시 확장
-    if (comprehensiveReport.length < 1500) {
-      const extensionPrompt = `위 진단 보고서가 ${comprehensiveReport.length}자입니다. 1500자 이상이 되도록 다음 내용을 추가하여 확장해주세요:
-
-1. 업종별 특화 분석 (${input.industry} 업계 특성 반영)
-2. 규모별 맞춤 전략 (${input.employeeCount}명 기업 특성)
-3. 성장단계별 핵심 포커스 (${input.growthStage} 단계 전략)
-4. 지역적 특성 고려 (${input.businessLocation} 소재 활용방안)
-5. 단계별 상세 실행 계획
-6. 예상 성과 및 ROI 분석
-7. M-CENTER 6대 서비스 연계 방안
-
-기존 내용: ${comprehensiveReport}
-
-위 내용을 포함하여 최소 1500자 이상의 완성된 종합 보고서로 재작성해주세요.`;
-
-      const extendedResult = await model.generateContent({
-        contents: [
-          {
-            role: 'user',
-            parts: [{ text: extensionPrompt }]
-          }
-        ],
-        generationConfig: {
-          maxOutputTokens: 4000, // 2000자 진단 보고서를 위해 4000 토큰으로 확대
-          temperature: 0.6,
-          topP: 0.9,
-          topK: 40,
-        },
-      });
-
-      const extendedResponse = await extendedResult.response;
-      return extendedResponse.text() || comprehensiveReport;
+    // 2000자 미만 강제 제한
+    if (comprehensiveReport.length > 2000) {
+      comprehensiveReport = comprehensiveReport.substring(0, 1950) + '\n\n📞 상세 상담: 010-9251-9743';
     }
-    
+
+    console.log('✅ 종합 보고서 생성 완료:', { 
+      length: comprehensiveReport.length,
+      company: input.companyName 
+    });
+
     return comprehensiveReport;
+
   } catch (error) {
-    console.error('종합 보고서 생성 실패:', error);
+    console.error('❌ 종합 보고서 생성 실패:', error);
     return generateFallbackReport(input, analysisResult);
   }
 }
 
 /**
- * 📊 Gemini AI 기반 업종별 벤치마킹 분석
+ * 📊 고급 업종별 벤치마킹 분석
  */
 export async function generateIndustryBenchmark(input: EnhancedDiagnosisInput, metrics: any): Promise<string> {
-  const gemini = getGeminiClient();
+  const analysisClient = getAnalysisClient();
   
-  // API 키가 없으면 폴백 분석 제공
-  if (!gemini) {
-    return '벤치마킹 분석을 위해서는 Gemini API 키가 필요합니다.';
+  if (!analysisClient) {
+    return '벤치마킹 분석을 위해서는 고급 분석 시스템이 필요합니다.';
   }
 
   const prompt = `다음 기업의 업종별 벤치마킹 분석을 수행해주세요:
@@ -793,7 +777,7 @@ export async function generateIndustryBenchmark(input: EnhancedDiagnosisInput, m
 실무적이고 구체적인 벤치마킹 분석을 제공해주세요.`;
 
   try {
-    const model = gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = analysisClient.getGenerativeModel({ model: 'gemini-2.5-flash' });
     
     const result = await model.generateContent({
       contents: [
@@ -803,7 +787,7 @@ export async function generateIndustryBenchmark(input: EnhancedDiagnosisInput, m
         }
       ],
       generationConfig: {
-        maxOutputTokens: 1200,
+        maxOutputTokens: 1000,
         temperature: 0.6,
         topP: 0.9,
         topK: 40,

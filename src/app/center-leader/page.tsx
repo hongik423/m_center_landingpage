@@ -85,19 +85,26 @@ export default function CenterLeaderPage() {
                 <Link href="/consultation">
                   <Button 
                     size="lg" 
-                    className="bg-white text-blue-900 hover:bg-blue-50 font-semibold px-8 py-3"
+                    className="bg-white text-blue-900 hover:bg-blue-50 font-semibold px-8 py-3 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group"
                   >
-                    <Phone className="w-5 h-5 mr-2" />
-                    무료 상담 신청
+                    <span className="absolute inset-0 bg-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                    <span className="relative flex items-center">
+                      <Phone className="w-5 h-5 mr-2 group-hover:animate-pulse" />
+                      무료 상담 신청
+                    </span>
                   </Button>
                 </Link>
+                
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="border-white text-white hover:bg-white/10 font-semibold px-8 py-3"
+                  className="border-white text-white hover:bg-white/10 font-semibold px-8 py-3 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] hover:shadow-lg relative overflow-hidden group"
                 >
-                  <Download className="w-5 h-5 mr-2" />
-                  프로필 다운로드
+                  <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="relative flex items-center">
+                    <Download className="w-5 h-5 mr-2 group-hover:translate-y-1 transition-transform duration-200" />
+                    프로필 다운로드
+                  </span>
                 </Button>
               </div>
             </div>
@@ -308,15 +315,16 @@ export default function CenterLeaderPage() {
               }
             ].map((service, index) => (
               <Link key={index} href={service.link} className="block">
-                <Card className="shadow-lg hover:shadow-xl transition-all duration-300 border-0 cursor-pointer hover:scale-105">
-                  <CardHeader>
-                    <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mb-4 text-blue-600">
+                <Card className="shadow-lg hover:shadow-xl transition-all duration-200 border-0 cursor-pointer transform hover:scale-[1.05] active:scale-[0.95] relative overflow-hidden group">
+                  <span className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <CardHeader className="relative z-10">
+                    <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mb-4 text-blue-600 group-hover:scale-110 transition-transform duration-200">
                       {service.icon}
                     </div>
-                    <CardTitle className="text-lg">{service.title}</CardTitle>
+                    <CardTitle className="text-lg group-hover:text-blue-600 transition-colors duration-200">{service.title}</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <CardDescription className="text-gray-600">{service.description}</CardDescription>
+                  <CardContent className="relative z-10">
+                    <CardDescription className="text-gray-600 group-hover:text-gray-700 transition-colors duration-200">{service.description}</CardDescription>
                   </CardContent>
                 </Card>
               </Link>
@@ -416,9 +424,10 @@ export default function CenterLeaderPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Link href="/diagnosis" className="block">
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-all duration-300 cursor-pointer">
-                <CardContent className="p-6 text-center">
-                  <Target className="w-8 h-8 mx-auto mb-3 text-yellow-300" />
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-all duration-200 cursor-pointer transform hover:scale-[1.05] active:scale-[0.95] relative overflow-hidden group">
+                <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <CardContent className="p-6 text-center relative z-10">
+                  <Target className="w-8 h-8 mx-auto mb-3 text-yellow-300 group-hover:scale-110 transition-transform duration-200" />
                   <h3 className="font-semibold mb-2">무료진단</h3>
                   <p className="text-blue-100 text-sm mb-3">AI 기반 정밀 진단</p>
                   <p className="text-xs text-blue-200">24시간 접수</p>
@@ -426,7 +435,7 @@ export default function CenterLeaderPage() {
               </Card>
             </Link>
             
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white transform hover:scale-[1.05] transition-all duration-200">
               <CardContent className="p-6 text-center">
                 <Mail className="w-8 h-8 mx-auto mb-3 text-yellow-300" />
                 <h3 className="font-semibold mb-2">이메일 문의</h3>
@@ -436,9 +445,10 @@ export default function CenterLeaderPage() {
             </Card>
             
             <Link href="/consultation" className="block">
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-all duration-300 cursor-pointer">
-                <CardContent className="p-6 text-center">
-                  <MessageCircle className="w-8 h-8 mx-auto mb-3 text-yellow-300" />
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-all duration-200 cursor-pointer transform hover:scale-[1.05] active:scale-[0.95] relative overflow-hidden group">
+                <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <CardContent className="p-6 text-center relative z-10">
+                  <MessageCircle className="w-8 h-8 mx-auto mb-3 text-yellow-300 group-hover:scale-110 transition-transform duration-200" />
                   <h3 className="font-semibold mb-2">현장 방문</h3>
                   <p className="text-blue-100 text-sm mb-3">무료 진단</p>
                   <p className="text-xs text-blue-200">정밀 현황 분석</p>
@@ -451,20 +461,27 @@ export default function CenterLeaderPage() {
             <Link href="/diagnosis">
               <Button 
                 size="lg"
-                className="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-8 py-4 text-lg"
+                className="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-8 py-4 text-lg transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group"
               >
-                <Target className="w-5 h-5 mr-2" />
-                무료진단 신청
+                <span className="absolute inset-0 bg-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative flex items-center">
+                  <Target className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-200" />
+                  무료진단 신청
+                </span>
               </Button>
             </Link>
+            
             <Link href="/consultation">
               <Button 
                 variant="outline"
                 size="lg"
-                className="border-white text-white hover:bg-white/10 font-semibold px-8 py-4 text-lg"
+                className="border-white text-white hover:bg-white/10 font-semibold px-8 py-4 text-lg transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] hover:shadow-lg relative overflow-hidden group"
               >
-                <MessageCircle className="w-5 h-5 mr-2" />
-                1:1 상담 신청
+                <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative flex items-center">
+                  <MessageCircle className="w-5 h-5 mr-2 group-hover:animate-pulse transition-transform duration-200" />
+                  1:1 상담 신청
+                </span>
               </Button>
             </Link>
           </div>

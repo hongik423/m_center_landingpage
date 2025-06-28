@@ -73,122 +73,264 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  console.log('🧪 이메일 시스템 테스트 API 시작');
+  
   try {
-    const { testType } = await request.json();
+    const { testType, data } = await request.json();
     
-    const results = {
-      timestamp: new Date().toISOString(),
-      testType: testType || 'full',
-      results: {} as any
-    };
+    console.log('📋 테스트 유형:', testType);
+    console.log('📊 테스트 데이터:', data);
 
-    if (testType === 'googlesheets' || !testType) {
-      // 구글시트 연동 테스트
-      console.log('🔵 구글시트 연동 테스트 시작...');
+    switch (testType) {
+      case 'google-script-connection':
+        return await testGoogleScriptConnection();
       
-      const testDiagnosisData = {
-        companyName: '테스트회사',
-        industry: 'IT',
-        businessManager: '홍길동',
-        contactName: '홍길동',
-        contactPhone: '010-1234-5678',
-        contactEmail: 'test@example.com',
-        employeeCount: '11-30',
-        establishmentDifficulty: 'growth',
-        mainConcerns: '매출 증대 및 효율성 개선',
-        expectedBenefits: '생산성 향상 및 비용 절감',
-        businessLocation: '서울시 강남구',
-        privacyConsent: true
-      };
-
-      const sheetResult = await saveDiagnosisToGoogleSheets(testDiagnosisData, '시스템_테스트');
-      results.results.googleSheets = {
-        success: sheetResult.success,
-        message: sheetResult.message,
-        error: sheetResult.error,
-        platform: sheetResult.platform
-      };
+      case 'consultation-email':
+        return await testConsultationEmail(data);
+      
+      case 'diagnosis-email':
+        return await testDiagnosisEmail(data);
+      
+      default:
+        return NextResponse.json({
+          success: false,
+          error: '지원하지 않는 테스트 유형입니다.',
+          supportedTypes: ['google-script-connection', 'consultation-email', 'diagnosis-email']
+        }, { status: 400 });
     }
-
-    if (testType === 'email' || !testType) {
-      // 이메일 발송 테스트
-      console.log('📧 이메일 시스템 테스트 시작...');
-      
-      const testDiagnosisEmailData = {
-        companyName: '테스트회사',
-        name: '홍길동',
-        phone: '010-1234-5678',
-        email: 'test@example.com',
-        businessType: 'IT',
-        message: '시스템 테스트용 진단신청입니다.',
-        privacyConsent: true
-      };
-      
-      const emailResult = await sendDiagnosisConfirmation(testDiagnosisEmailData);
-
-      results.results.emailService = {
-        success: emailResult.success,
-        message: emailResult.message,
-        service: emailResult.service || 'Google Apps Script',
-        features: emailResult.features || [],
-        error: emailResult.success ? null : emailResult.message
-      };
-    }
-
-    if (testType === 'consultation' || !testType) {
-      // 상담신청 테스트
-      console.log('🔵 상담신청 연동 테스트 시작...');
-      
-      const testConsultationData = {
-        consultationType: '경영전략 상담',
-        name: '김철수',
-        phone: '010-9876-5432',
-        email: 'consultation@example.com',
-        company: '테스트상담회사',
-        position: '대표',
-        consultationArea: '사업계획',
-        inquiryContent: '사업 확장에 대한 상담을 원합니다.',
-        preferredTime: '평일 오후',
-        privacyConsent: true
-      };
-
-      const consultationResult = await saveConsultationToGoogleSheets(
-        testConsultationData,
-        { isLinked: false, score: '', primaryService: '', resultUrl: '' }
-      );
-      
-      results.results.consultation = {
-        success: consultationResult.success,
-        message: consultationResult.message,
-        error: consultationResult.error,
-        platform: consultationResult.platform
-      };
-    }
-
-    // 전체 결과 평가
-    const allTests = Object.values(results.results);
-    const successCount = allTests.filter((test: any) => test.success).length;
-    const totalCount = allTests.length;
-
-    return NextResponse.json({
-      success: successCount === totalCount,
-      message: `시스템 테스트 완료: ${successCount}/${totalCount} 성공`,
-      data: results,
-      summary: {
-        totalTests: totalCount,
-        successfulTests: successCount,
-        failedTests: totalCount - successCount,
-        overallStatus: successCount === totalCount ? '✅ 모든 시스템 정상' : '⚠️ 일부 시스템 점검 필요'
-      }
-    });
 
   } catch (error) {
-    console.error('❌ 시스템 테스트 오류:', error);
+    console.error('❌ 테스트 API 오류:', error);
     
     return NextResponse.json({
       success: false,
-      error: '시스템 테스트 중 오류가 발생했습니다.',
-      details: error instanceof Error ? error.message : '알 수 없는 오류'
+      error: '테스트 실행 중 오류가 발생했습니다.',
+      details: error instanceof Error ? error.message : '알 수 없는 오류',
+      timestamp: new Date().toISOString()
     }, { status: 500 });
+  }
+}
+
+// Google Apps Script 연결 테스트
+async function testGoogleScriptConnection() {
+  const startTime = Date.now();
+  
+  try {
+    console.log('🔗 Google Apps Script 연결 테스트 시작');
+    
+    const googleScriptUrl = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || 
+      'https://script.google.com/macros/s/AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX/exec';
+
+    // 기본 ping 테스트
+    const testData = {
+      action: 'ping',
+      testType: 'connection',
+      timestamp: Date.now(),
+      source: 'test-system-api'
+    };
+
+    console.log('📤 Google Apps Script 테스트 요청:', testData);
+
+    // POST 방식 테스트
+    let response;
+    let responseText = '';
+    let method = 'POST';
+
+    try {
+      response = await fetch(googleScriptUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(testData),
+        mode: 'cors'
+      });
+
+      if (response.ok) {
+        responseText = await response.text();
+        console.log('✅ POST 방식 성공:', responseText);
+      } else if (response.status === 405) {
+        console.warn('⚠️ POST 방식 405 오류, GET 방식으로 재시도');
+        throw new Error('405_METHOD_NOT_ALLOWED');
+      } else {
+        throw new Error(`HTTP_${response.status}`);
+      }
+    } catch (fetchError) {
+      console.warn('⚠️ POST 방식 실패, GET 방식 시도:', fetchError);
+      
+      // GET 방식 백업 테스트
+      method = 'GET';
+      const queryParams = new URLSearchParams();
+      Object.entries(testData).forEach(([key, value]) => {
+        queryParams.append(key, String(value));
+      });
+
+      response = await fetch(`${googleScriptUrl}?${queryParams.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+        mode: 'cors'
+      });
+
+      if (response.ok) {
+        responseText = await response.text();
+        console.log('✅ GET 방식 성공:', responseText);
+      } else {
+        throw new Error(`GET_HTTP_${response.status}`);
+      }
+    }
+
+    const duration = Date.now() - startTime;
+
+    return NextResponse.json({
+      success: true,
+      message: `Google Apps Script 연결 성공 (${method} 방식)`,
+      data: {
+        method: method,
+        duration: `${duration}ms`,
+        response: responseText,
+        url: googleScriptUrl.substring(0, 50) + '...',
+        timestamp: new Date().toISOString(),
+        testType: 'connection'
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    console.error('❌ Google Apps Script 연결 테스트 실패:', error);
+    
+    return NextResponse.json({
+      success: false,
+      message: 'Google Apps Script 연결 실패',
+      error: error instanceof Error ? error.message : '알 수 없는 오류',
+      data: {
+        duration: `${duration}ms`,
+        timestamp: new Date().toISOString(),
+        testType: 'connection',
+        details: '네트워크 또는 서버 연결 문제'
+      },
+      timestamp: new Date().toISOString()
+    });
+  }
+}
+
+// 상담신청 이메일 테스트
+async function testConsultationEmail(testData: any) {
+  const startTime = Date.now();
+  
+  try {
+    console.log('📧 상담신청 이메일 테스트 시작');
+    
+    const { submitConsultationToGoogle } = await import('@/lib/utils/emailService');
+    
+    const consultationData = {
+      name: testData.name || '테스트사용자',
+      email: testData.email || 'test@example.com',
+      phone: testData.phone || '010-0000-0000',
+      company: testData.company || '테스트회사',
+      consultationType: testData.consultationType || 'phone',
+      consultationArea: 'test',
+      inquiryContent: '이메일 발송 테스트입니다.',
+      privacyConsent: true,
+      submitDate: new Date().toISOString()
+    };
+
+    console.log('📤 상담신청 테스트 데이터:', consultationData);
+
+    const result = await submitConsultationToGoogle(consultationData);
+    const duration = Date.now() - startTime;
+
+    console.log('✅ 상담신청 이메일 테스트 완료:', result);
+
+    return NextResponse.json({
+      success: result.success,
+      message: result.message,
+      data: {
+        ...result,
+        duration: `${duration}ms`,
+        testType: 'consultation-email'
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    console.error('❌ 상담신청 이메일 테스트 실패:', error);
+    
+    return NextResponse.json({
+      success: false,
+      message: '상담신청 이메일 테스트 실패',
+      error: error instanceof Error ? error.message : '알 수 없는 오류',
+      data: {
+        duration: `${duration}ms`,
+        testType: 'consultation-email'
+      },
+      timestamp: new Date().toISOString()
+    });
+  }
+}
+
+// 진단 이메일 테스트
+async function testDiagnosisEmail(testData: any) {
+  const startTime = Date.now();
+  
+  try {
+    console.log('🔬 진단 이메일 테스트 시작');
+    
+    const { submitDiagnosisToGoogle } = await import('@/lib/utils/emailService');
+    
+    const diagnosisData = {
+      companyName: testData.company || '테스트회사',
+      contactName: testData.name || '테스트사용자',
+      contactEmail: testData.email || 'test@example.com',
+      contactPhone: testData.phone || '010-0000-0000',
+      industry: 'technology',
+      employeeCount: '10-30',
+      mainConcerns: '매출 증대',
+      expectedBudget: '미정',
+      urgency: '보통',
+      privacyConsent: true,
+      submitDate: new Date().toISOString(),
+      diagnosisScore: 85,
+      recommendedServices: '테스트 서비스',
+      reportType: '테스트_진단',
+      diagnosisFormType: '테스트_이메일'
+    };
+
+    console.log('📤 진단 테스트 데이터:', diagnosisData);
+
+    const result = await submitDiagnosisToGoogle(diagnosisData);
+    const duration = Date.now() - startTime;
+
+    console.log('✅ 진단 이메일 테스트 완료:', result);
+
+    return NextResponse.json({
+      success: result.success,
+      message: result.message,
+      data: {
+        ...result,
+        duration: `${duration}ms`,
+        testType: 'diagnosis-email'
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    console.error('❌ 진단 이메일 테스트 실패:', error);
+    
+    return NextResponse.json({
+      success: false,
+      message: '진단 이메일 테스트 실패',
+      error: error instanceof Error ? error.message : '알 수 없는 오류',
+      data: {
+        duration: `${duration}ms`,
+        testType: 'diagnosis-email'
+      },
+      timestamp: new Date().toISOString()
+    });
   }
 } 

@@ -1074,10 +1074,15 @@ export default function EarnedIncomeTaxCalculatorComponent() {
             variant="outline"
             size="sm"
             onClick={resetAllData}
-            className="text-red-600 border-red-300 hover:bg-red-50"
+            className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95]
+              hover:bg-red-50 hover:border-red-300 hover:text-red-700 hover:shadow-md
+              text-red-600 border-red-300 relative overflow-hidden group"
           >
-            <RotateCcw className="w-4 h-4 mr-2" />
-            초기화
+            <span className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+            <span className="relative flex items-center">
+              <RotateCcw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform duration-300" />
+              전체 초기화
+            </span>
           </Button>
         </div>
       )}

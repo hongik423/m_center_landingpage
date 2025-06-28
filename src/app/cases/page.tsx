@@ -329,14 +329,19 @@ export default function CasesPage() {
               <button
                 key={case_.id}
                 onClick={() => setSelectedCase(case_)}
-                className={`flex items-center gap-3 px-6 py-3 rounded-full font-medium transition-all duration-200 ${
+                className={`flex items-center gap-3 px-6 py-3 rounded-full font-medium transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] relative overflow-hidden group ${
                   selectedCase.id === case_.id
                     ? 'bg-blue-600 text-white shadow-lg'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                <case_.icon className="w-5 h-5" />
-                {case_.company}
+                {selectedCase.id !== case_.id && (
+                  <span className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                )}
+                <span className="relative flex items-center gap-3">
+                  <case_.icon className={`w-5 h-5 ${selectedCase.id === case_.id ? '' : 'group-hover:scale-110 transition-transform duration-200'}`} />
+                  {case_.company}
+                </span>
               </button>
             ))}
           </div>
@@ -543,16 +548,24 @@ export default function CasesPage() {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/diagnosis">
-              <Button className="bg-white text-blue-600 hover:bg-gray-50 px-8 py-4 text-lg font-semibold">
-                <Brain className="w-5 h-5 mr-2" />
-                무료 AI 진단 시작하기
+              {/* 🔥 개선된 무료 AI 진단 시작하기 버튼 */}
+              <Button className="bg-white text-blue-600 hover:bg-gray-50 px-8 py-4 text-lg font-semibold transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group">
+                <span className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative flex items-center">
+                  <Brain className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" />
+                  무료 AI 진단 시작하기
+                </span>
               </Button>
             </Link>
             
             <Link href="/consultation">
-              <Button variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg font-semibold">
-                <Users className="w-5 h-5 mr-2" />
-                전문가 상담 신청
+              {/* 🔥 개선된 전문가 상담 신청 버튼 */}
+              <Button variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg font-semibold transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] hover:shadow-lg relative overflow-hidden group">
+                <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative flex items-center">
+                  <Users className="w-5 h-5 mr-2 group-hover:animate-pulse transition-transform duration-200" />
+                  전문가 상담 신청
+                </span>
               </Button>
             </Link>
           </div>

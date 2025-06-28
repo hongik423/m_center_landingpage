@@ -82,6 +82,9 @@ export function NumberInput({
   const [isComposing, setIsComposing] = useState(false);
   const [dynamicMessage, setDynamicMessage] = useState('');
   const [hasWarning, setHasWarning] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [hasRecentChange, setHasRecentChange] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   
   // 🔧 props 통합 (기존 호환성)
@@ -113,6 +116,15 @@ export function NumberInput({
       setDynamicMessage(dynamicInfo(value, dependentValue));
     }
   }, [dynamicInfo, value, dependentValue]);
+
+  // 🔥 최근 변경 표시 효과
+  useEffect(() => {
+    if (value > 0) {
+      setHasRecentChange(true);
+      const timer = setTimeout(() => setHasRecentChange(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [value]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
@@ -157,6 +169,9 @@ export function NumberInput({
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(true);
+    setIsClicked(true);
+    setTimeout(() => setIsClicked(false), 150);
+    
     // 포커스 시 쉼표 제거하여 편집하기 쉽게 만들기
     const rawNumber = parseNumberInput(displayValue);
     if (rawNumber > 0) {
@@ -192,6 +207,13 @@ export function NumberInput({
     if (finalValue !== numericValue) {
       onChange(finalValue);
     }
+  };
+
+  const handleMouseEnter = () => setIsHovered(true);
+  const handleMouseLeave = () => setIsHovered(false);
+  const handleMouseDown = () => {
+    setIsClicked(true);
+    setTimeout(() => setIsClicked(false), 150);
   };
 
   const handleCompositionStart = () => {
@@ -264,10 +286,11 @@ export function NumberInput({
           <Label 
             htmlFor={label.replace(/\s/g, '')} 
             className={`
-              text-sm font-medium flex items-center gap-2
+              text-sm font-medium flex items-center gap-2 transition-colors duration-200
               ${required && !isCompleted ? 'text-red-700 font-semibold' : 
                 required && isCompleted ? 'text-green-700 font-semibold' : 
                 'text-gray-700'}
+              ${isFocused ? 'text-blue-700' : ''}
             `}
           >
             <span>{label}</span>
@@ -311,7 +334,7 @@ export function NumberInput({
       )}
       
       {/* 🔴 개선된 입력 필드 */}
-      <div className="relative">
+      <div className="relative group">
         {prefix && (
           <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm z-10">
             {prefix}
@@ -331,6 +354,9 @@ export function NumberInput({
           onPaste={handlePaste}
           onCompositionStart={handleCompositionStart}
           onCompositionEnd={handleCompositionEnd}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onMouseDown={handleMouseDown}
           placeholder={required ? `${placeholder} (필수)` : placeholder}
           disabled={disabled}
           autoComplete="off"
@@ -347,18 +373,34 @@ export function NumberInput({
             ${prefix ? 'pl-8' : ''}
             ${finalSuffix ? 'pr-12' : ''}
             text-right font-mono transition-all duration-200
+            
+            ${isHovered && !disabled ? 'shadow-md scale-[1.01]' : ''}
+            ${isFocused ? 'ring-2 ring-blue-200 shadow-lg scale-[1.01]' : ''}
+            ${isClicked ? 'scale-[0.99]' : ''}
+            ${hasRecentChange ? 'animate-pulse border-green-400' : ''}
+            
+            transform hover:scale-[1.01] focus:scale-[1.01] active:scale-[0.99]
+            hover:shadow-md focus:shadow-lg
           `}
         />
         
         {finalSuffix && (
-          <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm z-10">
+          <span className={`
+            absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm z-10
+            transition-colors duration-200
+            ${isFocused ? 'text-blue-600' : ''}
+          `}>
             {finalSuffix}
           </span>
         )}
         
         {required && !isCompleted && (
           <div className="absolute -right-2 -top-2">
-            <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
+            <span className={`
+              inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full
+              transition-transform duration-200
+              ${isHovered ? 'scale-110' : ''}
+            `}>
               !
             </span>
           </div>
@@ -366,7 +408,12 @@ export function NumberInput({
         
         {required && isCompleted && (
           <div className="absolute -right-2 -top-2">
-            <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-green-500 rounded-full">
+            <span className={`
+              inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-green-500 rounded-full
+              transition-transform duration-200
+              ${isHovered ? 'scale-110' : ''}
+              ${hasRecentChange ? 'animate-bounce' : ''}
+            `}>
               ✓
             </span>
           </div>

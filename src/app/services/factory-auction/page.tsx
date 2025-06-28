@@ -78,20 +78,27 @@ export default function FactoryAuctionPage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <Button 
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg rounded-full font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-4 text-lg rounded-full font-medium transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group"
               onClick={() => router.push('/consultation')}
             >
-              <Phone className="w-5 h-5 mr-2" />
-              전문가 상담 신청
-              <ArrowRight className="w-5 h-5 ml-2" />
+              <span className="absolute inset-0 bg-gradient-to-r from-blue-700 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+              <span className="relative flex items-center">
+                <Phone className="w-5 h-5 mr-2 group-hover:animate-pulse transition-transform duration-200" />
+                전문가 상담 신청
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+              </span>
             </Button>
+            
             <Button 
               variant="outline" 
-              className="border-2 border-gray-300 hover:border-gray-400 px-8 py-4 text-lg rounded-full font-medium transition-all duration-200"
+              className="border-2 border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 px-8 py-4 text-lg rounded-full font-medium transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] hover:shadow-md relative overflow-hidden group"
               onClick={() => router.push('/diagnosis')}
             >
-              <Search className="w-5 h-5 mr-2" />
-              무료 투자 진단
+              <span className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+              <span className="relative flex items-center">
+                <Search className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" />
+                무료 투자 진단
+              </span>
             </Button>
           </div>
 
@@ -188,19 +195,26 @@ export default function FactoryAuctionPage() {
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Button 
-              className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 text-lg rounded-full font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 text-lg rounded-full font-medium transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group"
               onClick={() => router.push('/consultation')}
             >
-              <Phone className="w-5 h-5 mr-2" />
-              무료 상담 신청
+              <span className="absolute inset-0 bg-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+              <span className="relative flex items-center">
+                <Phone className="w-5 h-5 mr-2 group-hover:animate-pulse transition-transform duration-200" />
+                무료 상담 신청
+              </span>
             </Button>
+            
             <Button 
               variant="outline" 
-              className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg rounded-full font-medium transition-all duration-200"
+              className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg rounded-full font-medium transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] relative overflow-hidden group"
               onClick={() => router.push('/diagnosis')}
             >
-              <Search className="w-5 h-5 mr-2" />
-              투자 진단 받기
+              <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+              <span className="relative flex items-center">
+                <Search className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" />
+                투자 진단 받기
+              </span>
             </Button>
           </div>
 

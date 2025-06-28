@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calculator, PieChart, Users, Building, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Calculator, PieChart, Users, Building, Shield, AlertTriangle, CheckCircle, RotateCcw, RefreshCw } from 'lucide-react';
 import { InheritanceTaxCalculator, InheritanceTaxInputValidator } from '@/lib/utils/inheritance-tax-calculations';
 import { InheritanceTaxInput, InheritanceTaxResult } from '@/types/tax-calculator.types';
 import { INHERITANCE_TAX_LIMITS_2024 } from '@/constants/tax-rates-2024';
@@ -913,22 +913,62 @@ export const InheritanceTaxCalculatorComponent: React.FC = () => {
               <div className="flex gap-3">
                 <Button 
                   onClick={handleCalculate} 
-                  disabled={isCalculating}
-                  className="flex-1"
+                  disabled={isCalculating || !input.totalInheritance}
+                  className={`flex-1 transition-all duration-200 transform
+                    ${!input.totalInheritance ? 
+                      'bg-gray-400 cursor-not-allowed' :
+                      isCalculating ? 'animate-pulse' :
+                      'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                    }
+                  `}
                 >
-                  {isCalculating ? '계산 중...' : '상속세 계산'}
+                  {isCalculating ? (
+                    <>
+                      <RotateCcw className="w-4 h-4 mr-2 animate-spin" />
+                      계산 중...
+                    </>
+                  ) : !input.totalInheritance ? (
+                    <>
+                      <Calculator className="w-4 h-4 mr-2 opacity-50" />
+                      상속재산 입력 필요
+                    </>
+                  ) : (
+                    <>
+                      <Calculator className="w-4 h-4 mr-2" />
+                      {result ? '재계산하기' : '상속세 계산'}
+                    </>
+                  )}
                 </Button>
+                
+                {/* 🔥 개선된 샘플 데이터 버튼 */}
                 <Button 
                   variant="outline" 
                   onClick={loadSampleData}
+                  className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95]
+                    bg-gradient-to-r from-orange-50 to-yellow-50 hover:from-orange-100 hover:to-yellow-100
+                    border-orange-200 text-orange-700 hover:border-orange-300 hover:shadow-md
+                    relative overflow-hidden group"
                 >
-                  샘플 데이터
+                  <span className="absolute inset-0 bg-gradient-to-r from-orange-100 to-yellow-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="relative flex items-center">
+                    <span className="mr-1 text-lg">📋</span>
+                    샘플 데이터
+                  </span>
                 </Button>
+                
+                {/* 🔥 개선된 초기화 버튼 */}
                 <Button 
                   variant="outline" 
                   onClick={resetForm}
+                  className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95]
+                    hover:bg-red-50 hover:border-red-300 hover:text-red-700 hover:shadow-md
+                    relative overflow-hidden group"
                 >
-                  초기화
+                  <span className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="relative flex items-center">
+                    <RefreshCw className="w-4 h-4 mr-1 group-hover:rotate-180 transition-transform duration-300" />
+                    초기화
+                  </span>
                 </Button>
               </div>
 

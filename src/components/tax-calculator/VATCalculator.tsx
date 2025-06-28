@@ -20,7 +20,8 @@ import {
   CheckCircle,
   Info,
   Building2,
-  Clock
+  Clock,
+  RefreshCw
 } from 'lucide-react';
 import { VATInput, VATResult } from '@/types/tax-calculator.types';
 import { calculateVAT, determineBusinessType, getVATRateByBusiness, VAT_RATES, SIMPLIFIED_THRESHOLD, EXEMPT_THRESHOLD } from '@/lib/utils/vat-calculations';
@@ -796,10 +797,17 @@ export default function VATCalculator() {
 
               {/* 계산 버튼 */}
               <div className="flex gap-3">
+                {/* 🔥 개선된 세액 계산하기 버튼 */}
                 <Button 
                   onClick={handleCalculate}
                   disabled={isCalculating || inputs.businessType === 'exempt'}
-                  className="flex-1"
+                  className={`flex-1 transition-all duration-200 transform
+                    ${inputs.businessType === 'exempt' ? 
+                      'bg-gray-400 cursor-not-allowed' :
+                      isCalculating ? 'animate-pulse' :
+                      'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                    }
+                  `}
                   size="lg"
                 >
                   {isCalculating ? (
@@ -807,15 +815,33 @@ export default function VATCalculator() {
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
                       계산 중...
                     </>
+                  ) : inputs.businessType === 'exempt' ? (
+                    <>
+                      <Calculator className="w-4 h-4 mr-2 opacity-50" />
+                      면세사업자는 계산 불필요
+                    </>
                   ) : (
                     <>
                       <Calculator className="w-4 h-4 mr-2" />
-                      세액 계산하기
+                      {result ? '재계산하기' : '세액 계산하기'}
                     </>
                   )}
                 </Button>
-                <Button variant="outline" onClick={handleReset} size="lg">
-                  초기화
+                
+                {/* 🔥 개선된 초기화 버튼 */}
+                <Button 
+                  variant="outline" 
+                  onClick={handleReset} 
+                  size="lg"
+                  className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95]
+                    hover:bg-red-50 hover:border-red-300 hover:text-red-700 hover:shadow-md
+                    relative overflow-hidden group"
+                >
+                  <span className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="relative flex items-center">
+                    <RefreshCw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform duration-300" />
+                    초기화
+                  </span>
                 </Button>
               </div>
 

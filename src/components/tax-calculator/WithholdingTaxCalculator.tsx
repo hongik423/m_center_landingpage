@@ -1276,10 +1276,17 @@ const WithholdingTaxCalculator: React.FC = () => {
               <Card className="border-emerald-200 bg-emerald-50">
                 <CardContent className="p-6">
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    {/* 🔥 개선된 세액계산하기 버튼 */}
                     <Button
                       onClick={handleCalculate}
-                      disabled={isCalculating}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+                      disabled={isCalculating || !input.paymentAmount}
+                      className={`px-8 py-4 text-lg font-semibold shadow-lg transition-all duration-200 transform
+                        ${!input.paymentAmount ? 
+                          'bg-gray-400 cursor-not-allowed' :
+                          isCalculating ? 'animate-pulse' :
+                          'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                        }
+                      `}
                       size="lg"
                     >
                       {isCalculating ? (
@@ -1287,14 +1294,20 @@ const WithholdingTaxCalculator: React.FC = () => {
                           <RefreshCw className="w-5 h-5 mr-3 animate-spin" />
                           계산 중...
                         </>
+                      ) : !input.paymentAmount ? (
+                        <>
+                          <Calculator className="w-5 h-5 mr-3 opacity-50" />
+                          지급액 입력 필요
+                        </>
                       ) : (
                         <>
                           <Calculator className="w-5 h-5 mr-3" />
-                          세액계산하기
+                          {result ? '재계산하기' : '세액계산하기'}
                         </>
                       )}
                     </Button>
                     
+                    {/* 🔥 개선된 초기화 버튼 */}
                     <Button
                       onClick={() => {
                         setInput({
@@ -1315,11 +1328,17 @@ const WithholdingTaxCalculator: React.FC = () => {
                         setActiveTab('input');
                       }}
                       variant="outline"
-                      className="px-6 py-4 text-lg font-medium border-2 border-gray-300 hover:border-gray-400"
+                      className="px-6 py-4 text-lg font-medium border-2 border-gray-300 hover:border-gray-400
+                        transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95]
+                        hover:bg-red-50 hover:border-red-300 hover:text-red-700 hover:shadow-md
+                        relative overflow-hidden group"
                       size="lg"
                     >
-                      <RefreshCw className="w-5 h-5 mr-3" />
-                      초기화
+                                             <span className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                       <span className="relative flex items-center">
+                         <RefreshCw className="w-5 h-5 mr-3 group-hover:rotate-180 transition-transform duration-300" />
+                         전체 초기화
+                       </span>
                     </Button>
                   </div>
                   

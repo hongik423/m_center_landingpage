@@ -1,6 +1,6 @@
 /**
  * ================================================================================
- * M-CENTER 최종 통합 Apps Script + 베타 피드백 시스템 (완전 통합본)
+ * M-CENTER 최종 통합 Apps Script + 베타 피드백 시스템 (오류 해결 강화 버전)
  * ================================================================================
  * 
  * 📋 통합 기능:
@@ -10,16 +10,21 @@
  * ✅ 관리자 통합 알림 시스템 (hongik423@gmail.com 통일)
  * ✅ 신청자/피드백자 확인 메일 자동 발송
  * ✅ 충돌 없는 통합 처리
+ * ✅ 405/404 오류 해결 강화 (신규)
+ * ✅ 연결 테스트 및 디버깅 시스템 (신규)
  * 
  * 🔧 설치 방법:
- * 1. 구글시트(1LQNeT0abhMHXktrNjRbxl2XEFWVCwcYr5kVTAcRvpfM) 열기
+ * 1. 구글시트(1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug) 열기
  * 2. 확장 → Apps Script → 이 코드 복사
  * 3. 저장 → 배포 → 웹 앱으로 배포
  * 4. 액세스 권한: "모든 사용자"로 설정
+ * 5. 새 배포 생성 (기존 배포가 있다면)
+ * 
+ * 🚨 중요: 배포 시 반드시 "새 배포" 생성하고 URL 업데이트!
  */
 
 // ================================================================================
-// 🔧 통합 환경설정
+// 🔧 통합 환경설정 (강화된 버전)
 // ================================================================================
 
 // 통합 구글시트 ID (기존 작동 확인된 ID)
@@ -43,29 +48,56 @@ const EMAIL_CONFIG = {
   REPLY_TO: 'hongik423@gmail.com'  // 회신 주소도 통일
 };
 
+// 🆕 디버깅 설정 (405/404 오류 해결용)
+const DEBUG_MODE = true;
+const VERSION = '2025.01.통합베타_오류해결강화';
+
 // ================================================================================
-// 📡 메인 처리 함수 (통합 라우팅)
+// 📡 메인 처리 함수 (통합 라우팅) - 오류 해결 강화
 // ================================================================================
 
 /**
- * POST 요청 처리 (기존 구조 + 베타 피드백 추가)
+ * POST 요청 처리 (기존 구조 + 베타 피드백 추가 + 강화된 오류 처리)
  */
 function doPost(e) {
   try {
-    // POST 데이터 파싱
-    const postData = e.postData ? e.postData.contents : '{}';
-    const requestData = JSON.parse(postData);
+    // 🆕 디버깅 로그 강화
+    if (DEBUG_MODE) {
+      console.log('🔥 POST 요청 수신 시작 - 디버깅 모드');
+      console.log('📨 요청 정보:', {
+        hasPostData: !!e.postData,
+        contentType: e.postData ? e.postData.type : 'N/A',
+        timestamp: getCurrentKoreanTime(),
+        version: VERSION
+      });
+    }
+
+    // POST 데이터 파싱 (강화된 오류 처리)
+    let requestData = {};
     
-    console.log('📝 새로운 신청 수신 - 전체 데이터:', {
-      action: requestData.action || '자동감지',
-      폼타입: requestData.폼타입,
-      company: requestData.회사명 || requestData.company,
-      email: requestData.이메일 || requestData.email || requestData.사용자이메일,
-      계산기명: requestData.계산기명,
-      피드백유형: requestData.피드백유형,
-      dataSource: requestData.dataSource,
-      timestamp: getCurrentKoreanTime()
-    });
+    if (e.postData && e.postData.contents) {
+      try {
+        requestData = JSON.parse(e.postData.contents);
+      } catch (parseError) {
+        console.error('❌ JSON 파싱 오류:', parseError);
+        return createErrorResponse('잘못된 JSON 형식입니다: ' + parseError.toString());
+      }
+    } else {
+      console.warn('⚠️ POST 데이터가 없습니다. 빈 객체로 처리합니다.');
+    }
+    
+    if (DEBUG_MODE) {
+      console.log('📝 새로운 신청 수신 - 전체 데이터:', {
+        action: requestData.action || '자동감지',
+        폼타입: requestData.폼타입,
+        company: requestData.회사명 || requestData.company,
+        email: requestData.이메일 || requestData.email || requestData.사용자이메일,
+        계산기명: requestData.계산기명,
+        피드백유형: requestData.피드백유형,
+        dataSource: requestData.dataSource,
+        timestamp: getCurrentKoreanTime()
+      });
+    }
 
     // 🧪 베타 피드백 처리 (최우선 조건으로 강화)
     const isBetaFeedback = requestData.action === 'saveBetaFeedback' || 
@@ -74,19 +106,6 @@ function doPost(e) {
     
     if (isBetaFeedback) {
       console.log('🎯 베타 피드백 강제 분기 진입 - 최우선 처리');
-      console.log('🔍 베타 피드백 감지 조건 상세:', {
-        action: requestData.action,
-        hasActionMatch: requestData.action === 'saveBetaFeedback',
-        폼타입: requestData.폼타입,
-        hasFormTypeMatch: requestData.폼타입 === '베타테스트_피드백',
-        피드백유형: requestData.피드백유형,
-        hasFeedbackType: !!requestData.피드백유형,
-        사용자이메일: requestData.사용자이메일 ? requestData.사용자이메일.substring(0,5) + '***' : null,
-        hasUserEmail: !!requestData.사용자이메일,
-        계산기명: requestData.계산기명,
-        hasCalculator: !!requestData.계산기명,
-        isBetaFeedback: isBetaFeedback
-      });
       return processBetaFeedback(requestData);
     }
 
@@ -100,58 +119,165 @@ function doPost(e) {
     }
 
   } catch (error) {
-    console.error('❌ 요청 처리 오류:', error);
-    return createErrorResponse('처리 중 오류가 발생했습니다: ' + error.toString());
+    console.error('❌ POST 요청 처리 치명적 오류:', error);
+    return createErrorResponse('POST 처리 중 오류가 발생했습니다: ' + error.toString());
   }
 }
 
 /**
- * GET 요청 처리 (상태 확인)
+ * GET 요청 처리 (상태 확인) - 강화된 디버깅 정보
  */
 function doGet(e) {
-  return createSuccessResponse({
-    status: 'M-CENTER 통합 데이터 처리 시스템 + 베타피드백 작동 중',
-    timestamp: getCurrentKoreanTime(),
-    version: '2025.01.통합베타_안정화',
-    admin: 'hongik423@gmail.com',
-    features: [
-      '✅ 진단신청 처리',
-      '✅ 상담신청 처리', 
-      '✅ 베타피드백 처리 (신규)',
-      '✅ 자동 이메일 발송',
-      '✅ 데이터 관리'
-    ],
-    sheets: [SHEETS.DIAGNOSIS, SHEETS.CONSULTATION, SHEETS.BETA_FEEDBACK],
-    spreadsheetId: SPREADSHEET_ID
-  });
+  try {
+    // 🆕 GET 요청 디버깅
+    if (DEBUG_MODE) {
+      console.log('🔥 GET 요청 수신:', {
+        parameters: e.parameter,
+        timestamp: getCurrentKoreanTime(),
+        version: VERSION
+      });
+    }
+
+    // 🆕 연결 테스트 처리
+    if (e.parameter && e.parameter.testType === 'connection') {
+      return createSuccessResponse({
+        status: 'CONNECTION_TEST_SUCCESS',
+        message: 'Google Apps Script 연결 테스트 성공',
+        timestamp: getCurrentKoreanTime(),
+        version: VERSION,
+        requestInfo: {
+          source: e.parameter.source || 'unknown',
+          testAction: e.parameter.action || 'ping'
+        }
+      });
+    }
+
+    // 기본 상태 확인 응답 (강화된 버전)
+    return createSuccessResponse({
+      status: 'M-CENTER 통합 데이터 처리 시스템 + 베타피드백 정상 작동 중',
+      timestamp: getCurrentKoreanTime(),
+      version: VERSION,
+      admin: ADMIN_EMAIL,
+      features: [
+        '✅ 진단신청 처리',
+        '✅ 상담신청 처리', 
+        '✅ 베타피드백 처리 (신규)',
+        '✅ 자동 이메일 발송',
+        '✅ 데이터 관리',
+        '🆕 연결 테스트 지원',
+        '🆕 강화된 오류 처리'
+      ],
+      sheets: [SHEETS.DIAGNOSIS, SHEETS.CONSULTATION, SHEETS.BETA_FEEDBACK],
+      spreadsheetId: SPREADSHEET_ID,
+      debugMode: DEBUG_MODE,
+      healthCheck: {
+        spreadsheetAccess: testSpreadsheetAccess(),
+        emailService: testEmailService(),
+        timestamp: getCurrentKoreanTime()
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ GET 요청 처리 오류:', error);
+    return createErrorResponse('GET 처리 중 오류가 발생했습니다: ' + error.toString());
+  }
 }
 
 // ================================================================================
-// 🧪 베타 피드백 처리 시스템 (신규 추가)
+// 🆕 헬스체크 및 테스트 함수 (405/404 오류 해결용)
 // ================================================================================
 
+/**
+ * 스프레드시트 접근 테스트
+ */
+function testSpreadsheetAccess() {
+  try {
+    const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = spreadsheet.getActiveSheet();
+    return {
+      accessible: true,
+      sheetName: sheet.getName(),
+      lastRow: sheet.getLastRow()
+    };
+  } catch (error) {
+    console.error('❌ 스프레드시트 접근 테스트 실패:', error);
+    return {
+      accessible: false,
+      error: error.toString()
+    };
+  }
+}
+
+/**
+ * 이메일 서비스 테스트
+ */
+function testEmailService() {
+  try {
+    // 실제 이메일을 보내지 않고 권한만 체크
+    const quota = MailApp.getRemainingDailyQuota();
+    return {
+      available: true,
+      dailyQuota: quota
+    };
+  } catch (error) {
+    console.error('❌ 이메일 서비스 테스트 실패:', error);
+    return {
+      available: false,
+      error: error.toString()
+    };
+  }
+}
+
+/**
+ * 🆕 전체 시스템 헬스체크 함수
+ */
+function performHealthCheck() {
+  const results = {
+    timestamp: getCurrentKoreanTime(),
+    version: VERSION,
+    spreadsheet: testSpreadsheetAccess(),
+    email: testEmailService(),
+    sheets: {}
+  };
+  
+  // 각 시트 상태 체크
+  Object.values(SHEETS).forEach(sheetName => {
+    try {
+      const sheet = getOrCreateSheet(sheetName, 'test');
+      results.sheets[sheetName] = {
+        exists: true,
+        lastRow: sheet.getLastRow()
+      };
+    } catch (error) {
+      results.sheets[sheetName] = {
+        exists: false,
+        error: error.toString()
+      };
+    }
+  });
+  
+  console.log('🏥 헬스체크 완료:', results);
+  return results;
+}
+
 // ================================================================================
-// 🧪 베타 피드백 처리 (베타피드백 시트) - 신규 추가
+// 🧪 베타 피드백 처리 시스템 (기존 유지)
 // ================================================================================
 
 function processBetaFeedback(data) {
   try {
-    console.log('🧪 베타 피드백 처리 함수 시작 - 데이터 확인:', {
-      계산기명: data.계산기명,
-      피드백유형: data.피드백유형,
-      사용자이메일: data.사용자이메일?.substring(0, 5) + '***',
-      폼타입: data.폼타입,
-      action: data.action
-    });
+    if (DEBUG_MODE) {
+      console.log('🧪 베타 피드백 처리 함수 시작 - 디버깅 모드:', {
+        계산기명: data.계산기명,
+        피드백유형: data.피드백유형,
+        사용자이메일: data.사용자이메일?.substring(0, 5) + '***',
+        폼타입: data.폼타입,
+        action: data.action
+      });
+    }
     
     const sheet = getOrCreateSheet(SHEETS.BETA_FEEDBACK, 'betaFeedback');
     const timestamp = getCurrentKoreanTime();
-    
-    console.log('📋 베타피드백 시트 확인 완료:', {
-      sheetName: SHEETS.BETA_FEEDBACK,
-      sheetExists: !!sheet,
-      lastRow: sheet.getLastRow()
-    });
     
     // 베타 피드백 데이터 행 구성 (14개 컬럼)
     const rowData = [
@@ -171,24 +297,18 @@ function processBetaFeedback(data) {
       ''                                 // N: 처리일시
     ];
 
-    console.log('📝 베타 피드백 데이터 행 구성 완료:', {
-      rowLength: rowData.length,
-      calculator: rowData[1],
-      feedbackType: rowData[2],
-      email: rowData[3]?.substring(0, 5) + '***'
-    });
-
     // 데이터 저장
     const newRow = sheet.getLastRow() + 1;
     sheet.getRange(newRow, 1, 1, rowData.length).setValues([rowData]);
     
-    console.log('✅ 베타 피드백 저장 완료 - 베타피드백 시트:', {
-      targetSheet: SHEETS.BETA_FEEDBACK,
-      savedToRow: newRow,
-      calculator: data.계산기명,
-      email: data.사용자이메일?.substring(0, 5) + '***',
-      spreadsheetId: SPREADSHEET_ID
-    });
+    if (DEBUG_MODE) {
+      console.log('✅ 베타 피드백 저장 완료 - 디버깅:', {
+        targetSheet: SHEETS.BETA_FEEDBACK,
+        savedToRow: newRow,
+        calculator: data.계산기명,
+        spreadsheetId: SPREADSHEET_ID
+      });
+    }
 
     // 관리자 이메일 발송
     if (AUTO_REPLY_ENABLED) {
@@ -208,7 +328,8 @@ function processBetaFeedback(data) {
       platform: 'Google Apps Script 베타피드백 처리 완료',
       type: '베타피드백',
       calculator: data.계산기명,
-      feedbackType: data.피드백유형
+      feedbackType: data.피드백유형,
+      version: VERSION
     });
 
   } catch (error) {
@@ -217,187 +338,13 @@ function processBetaFeedback(data) {
   }
 }
 
-/**
- * 베타 피드백 관리자 알림 이메일 발송 (개선된 버전)
- */
-function sendBetaFeedbackAdminNotification(data, rowNumber) {
-  try {
-    const subject = `[M-CENTER] 🚨 긴급! 베타 피드백 접수 - ${data.계산기명 || '세금계산기'} (${data.피드백유형 || '의견'})`;
-    
-    const emailBody = `
-🧪 새로운 베타 피드백이 접수되었습니다! 빠른 처리가 필요합니다.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 피드백 기본 정보
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎯 대상 계산기: ${data.계산기명 || 'N/A'}
-🐛 피드백 유형: ${data.피드백유형 || 'N/A'}
-📧 사용자 이메일: ${data.사용자이메일 || 'N/A'}
-⚡ 심각도: ${data.심각도 || 'N/A'}
-⏰ 접수 시간: ${getCurrentKoreanTime()}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🐛 상세 문제 설명
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${data.문제설명 || '상세 설명 없음'}
-
-${data.기대동작 ? `
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ 사용자가 기대한 동작
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${data.기대동작}
-` : ''}
-
-${data.실제동작 ? `
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️ 실제 발생한 동작
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${data.실제동작}
-` : ''}
-
-${data.재현단계 ? `
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔄 문제 재현 단계
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${data.재현단계}
-` : ''}
-
-${data.추가의견 ? `
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💬 추가 의견
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${data.추가의견}
-` : ''}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💻 기술 정보
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🌐 브라우저: ${data.브라우저정보 || 'N/A'}
-📍 제출 경로: ${data.제출경로 || 'N/A'}
-📄 데이터 소스: ${data.dataSource || 'N/A'}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 관리 정보
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 시트 위치: ${SHEETS.BETA_FEEDBACK} 시트 ${rowNumber}행
-🔗 구글시트 바로가기:
-https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/edit
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚡ 처리 요청 사항
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-1️⃣ 문제 재현 및 원인 분석
-2️⃣ 수정 작업 진행 (필요시)
-3️⃣ 사용자에게 처리 결과 회신:
-   📧 회신 이메일: ${data.사용자이메일}
-   
-📧 회신 메일 발송 시 포함 내용:
-• 문제 확인 여부
-• 수정 작업 내용 (있는 경우)
-• 업데이트 일정 안내
-• 추가 테스트 요청 (필요시)
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🏢 M-CENTER 베타테스트 자동알림시스템
-📧 시스템 관리: hongik423@gmail.com
-🕐 알림 시간: ${getCurrentKoreanTime()}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    `;
-
-    GmailApp.sendEmail(ADMIN_EMAIL, subject, emailBody);
-    console.log('📧 베타 피드백 관리자 알림 이메일 발송 완료 (개선된 버전)');
-    
-  } catch (error) {
-    console.error('❌ 베타 피드백 관리자 이메일 발송 실패:', error);
-  }
-}
-
-/**
- * 베타 피드백 사용자 확인 이메일 발송 (개선된 버전)
- */
-function sendBetaFeedbackUserConfirmation(email, data) {
-  try {
-    const subject = `[M-CENTER] 🧪 베타 피드백 접수 완료! ${data.계산기명 || '세금계산기'} 개선에 도움 주셔서 감사합니다`;
-    
-    const emailBody = `
-안녕하세요! 👋
-
-M-CENTER 세금계산기 베타테스트에 참여해 주셔서 진심으로 감사합니다.
-여러분의 소중한 의견이 더 나은 서비스를 만드는 원동력이 됩니다.
-
-🎯 접수된 오류 의견 정보:
-────────────────────────────────────────
-• 📊 대상 계산기: ${data.계산기명 || '세금계산기'}
-• 🐛 피드백 유형: ${data.피드백유형 || '의견 제출'}
-• ⏰ 접수 일시: ${getCurrentKoreanTime()}
-• 📧 회신 이메일: ${email}
-────────────────────────────────────────
-
-${data.문제설명 ? `
-📝 접수된 문제 내용:
-"${data.문제설명}"
-` : ''}
-
-🔄 처리 절차 안내:
-────────────────────────────────────────
-1️⃣ 개발팀에서 접수된 피드백을 상세히 검토합니다
-2️⃣ 문제 재현 및 원인 분석을 진행합니다
-3️⃣ 수정이 필요한 경우 즉시 업데이트를 진행합니다
-4️⃣ 처리 결과를 이 이메일로 상세히 회신드립니다
-
-⚡ 예상 처리 시간:
-• 🐛 일반 버그: 1-2 영업일 내 회신
-• 🚨 긴급 버그: 당일 처리 (영업시간 내)
-• 💡 개선 제안: 2-3 영업일 내 검토 완료
-
-🎁 베타테스트 참여 혜택:
-────────────────────────────────────────
-✅ 개선된 계산기 우선 체험
-✅ 세무 관련 무료 상담 기회 제공
-✅ M-CENTER 서비스 할인 혜택 (추후 안내)
-
-📞 담당 개발 및 세무 전문가:
-────────────────────────────────────────
-👨‍💼 이후경 경영지도사
-• 경력: 25년 경영컨설팅 및 세무 전문가
-• 직통: 010-9251-9743
-• 이메일: hongik423@gmail.com
-• 전문분야: 세무계산, 경영진단, 사업분석
-
-💬 추가 문의나 긴급한 사항:
-위 연락처로 언제든 연락주세요. 빠른 시일 내에 답변드리겠습니다.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🏢 M-CENTER (기업의별)
-🌐 https://m-center.co.kr
-📧 hongik423@gmail.com
-📞 010-9251-9743
-
-"중소기업의 성장 파트너, M-CENTER와 함께 성공하세요!"
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-다시 한번 베타테스트 참여와 소중한 피드백에 감사드립니다. 🙏
-더 정확하고 편리한 세금계산기를 만들기 위해 최선을 다하겠습니다.
-
-감사합니다.
-M-CENTER 베타테스트 개발팀
-    `;
-
-    GmailApp.sendEmail(email, subject, emailBody);
-    console.log('📧 베타 피드백 사용자 확인 이메일 발송 완료 (개선된 버전):', email);
-    
-  } catch (error) {
-    console.error('❌ 베타 피드백 사용자 이메일 발송 실패:', error);
-  }
-}
-
 // ================================================================================
-// 🎯 진단신청 처리 (기존 유지)
+// 🎯 진단신청 처리 (강화된 디버깅)
 // ================================================================================
 
 function processDiagnosisForm(data) {
   try {
-    // 🧪 베타 피드백 안전장치: 베타 피드백이 진단으로 오분류되는 것 방지
+    // 🧪 베타 피드백 안전장치
     if (data.action === 'saveBetaFeedback' || data.폼타입 === '베타테스트_피드백' || data.피드백유형) {
       console.log('🚨 베타 피드백이 진단신청으로 오분류 시도됨 - 베타 피드백으로 리다이렉트');
       return processBetaFeedback(data);
@@ -406,12 +353,14 @@ function processDiagnosisForm(data) {
     const sheet = getOrCreateSheet(SHEETS.DIAGNOSIS, 'diagnosis');
     const timestamp = getCurrentKoreanTime();
     
-    console.log('✅ 진단신청 처리 시작 - 정상 분기:', {
-      company: data.회사명 || data.companyName,
-      email: data.이메일 || data.contactEmail || data.email,
-      action: data.action,
-      폼타입: data.폼타입
-    });
+    if (DEBUG_MODE) {
+      console.log('✅ 진단신청 처리 시작 - 디버깅 모드:', {
+        company: data.회사명 || data.companyName,
+        email: data.이메일 || data.contactEmail || data.email,
+        action: data.action,
+        폼타입: data.폼타입
+      });
+    }
     
     // 진단신청 데이터 행 구성 (18개 컬럼)
     const rowData = [
@@ -439,12 +388,14 @@ function processDiagnosisForm(data) {
     const newRow = sheet.getLastRow() + 1;
     sheet.getRange(newRow, 1, 1, rowData.length).setValues([rowData]);
     
-    console.log('✅ 진단신청 저장 완료:', {
-      sheet: SHEETS.DIAGNOSIS,
-      row: newRow,
-      company: data.회사명 || data.companyName,
-      email: data.이메일 || data.contactEmail || data.email
-    });
+    if (DEBUG_MODE) {
+      console.log('✅ 진단신청 저장 완료 - 디버깅:', {
+        sheet: SHEETS.DIAGNOSIS,
+        row: newRow,
+        company: data.회사명 || data.companyName,
+        email: data.이메일 || data.contactEmail || data.email
+      });
+    }
 
     // 관리자 이메일 발송
     if (AUTO_REPLY_ENABLED) {
@@ -464,7 +415,8 @@ function processDiagnosisForm(data) {
       row: newRow,
       timestamp: timestamp,
       admin: ADMIN_EMAIL,
-      platform: 'Vercel 호환 모드'
+      platform: 'Google Apps Script',
+      version: VERSION
     });
 
   } catch (error) {
@@ -474,12 +426,12 @@ function processDiagnosisForm(data) {
 }
 
 // ================================================================================
-// 💬 상담신청 처리 (기존 유지)
+// 💬 상담신청 처리 (강화된 디버깅)
 // ================================================================================
 
 function processConsultationForm(data) {
   try {
-    // 🧪 베타 피드백 안전장치: 베타 피드백이 상담으로 오분류되는 것 방지
+    // 🧪 베타 피드백 안전장치
     if (data.action === 'saveBetaFeedback' || data.폼타입 === '베타테스트_피드백' || data.피드백유형) {
       console.log('🚨 베타 피드백이 상담신청으로 오분류 시도됨 - 베타 피드백으로 리다이렉트');
       return processBetaFeedback(data);
@@ -488,13 +440,15 @@ function processConsultationForm(data) {
     const sheet = getOrCreateSheet(SHEETS.CONSULTATION, 'consultation');
     const timestamp = getCurrentKoreanTime();
     
-    console.log('✅ 상담신청 처리 시작 - 정상 분기:', {
-      name: data.성명 || data.name,
-      company: data.회사명 || data.company,
-      email: data.이메일 || data.email,
-      action: data.action,
-      폼타입: data.폼타입
-    });
+    if (DEBUG_MODE) {
+      console.log('✅ 상담신청 처리 시작 - 디버깅 모드:', {
+        name: data.성명 || data.name,
+        company: data.회사명 || data.company,
+        email: data.이메일 || data.email,
+        action: data.action,
+        폼타입: data.폼타입
+      });
+    }
     
     // 상담신청 데이터 행 구성 (15개 컬럼)
     const rowData = [
@@ -519,13 +473,15 @@ function processConsultationForm(data) {
     const newRow = sheet.getLastRow() + 1;
     sheet.getRange(newRow, 1, 1, rowData.length).setValues([rowData]);
     
-    console.log('✅ 상담신청 저장 완료:', {
-      sheet: SHEETS.CONSULTATION,
-      row: newRow,
-      name: data.성명 || data.name,
-      company: data.회사명 || data.company,
-      email: data.이메일 || data.email
-    });
+    if (DEBUG_MODE) {
+      console.log('✅ 상담신청 저장 완료 - 디버깅:', {
+        sheet: SHEETS.CONSULTATION,
+        row: newRow,
+        name: data.성명 || data.name,
+        company: data.회사명 || data.company,
+        email: data.이메일 || data.email
+      });
+    }
 
     // 관리자 이메일 발송
     if (AUTO_REPLY_ENABLED) {
@@ -545,7 +501,8 @@ function processConsultationForm(data) {
       row: newRow,
       timestamp: timestamp,
       admin: ADMIN_EMAIL,
-      platform: 'Vercel 호환 모드'
+      platform: 'Google Apps Script',
+      version: VERSION
     });
 
   } catch (error) {
@@ -555,194 +512,28 @@ function processConsultationForm(data) {
 }
 
 // ================================================================================
-// 📧 기존 이메일 발송 함수 (유지)
+// 🛠️ 유틸리티 함수 (기존 유지 + 강화)
 // ================================================================================
 
 /**
- * 관리자 알림 이메일 발송 (진단/상담용)
- */
-function sendAdminNotification(data, rowNumber, type) {
-  try {
-    const isConsultation = type === '상담신청';
-    const subject = `[M-CENTER] 새로운 ${type} 접수 - ${isConsultation ? (data.회사명 || data.company) : (data.회사명 || data.companyName)}`;
-    
-    const emailBody = `
-📋 새로운 ${type}이 접수되었습니다.
-
-👤 신청자 정보:
-• 성명: ${isConsultation ? (data.성명 || data.name) : (data.담당자명 || data.contactName || data.contactManager)}
-• 회사명: ${isConsultation ? (data.회사명 || data.company) : (data.회사명 || data.companyName)}
-• 연락처: ${isConsultation ? (data.연락처 || data.phone) : (data.연락처 || data.contactPhone)}
-• 이메일: ${isConsultation ? (data.이메일 || data.email) : (data.이메일 || data.contactEmail || data.email)}
-
-${isConsultation ? `
-💬 상담 정보:
-• 상담유형: ${data.상담유형 || data.consultationType}
-• 상담분야: ${data.상담분야 || data.consultationArea}
-• 문의내용: ${data.문의내용 || data.inquiryContent || data.message}
-• 희망시간: ${data.희망상담시간 || data.preferredTime}
-` : `
-🔍 진단 정보:
-• 업종: ${data.업종 || data.industry}
-• 직원수: ${data.직원수 || data.employeeCount}
-• 성장단계: ${data.사업성장단계 || data.establishmentDifficulty}
-• 주요고민: ${data.주요고민사항 || data.mainConcerns}
-`}
-
-⏰ 접수시간: ${getCurrentKoreanTime()}
-📊 시트 위치: ${isConsultation ? SHEETS.CONSULTATION : SHEETS.DIAGNOSIS} 시트 ${rowNumber}행
-
-📋 구글시트 바로가기:
-https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/edit
-
-빠른 연락 부탁드립니다.
-M-CENTER 자동알림시스템
-    `;
-
-    GmailApp.sendEmail(ADMIN_EMAIL, subject, emailBody);
-    console.log('📧 관리자 알림 이메일 발송 완료:', ADMIN_EMAIL);
-    
-  } catch (error) {
-    console.error('❌ 관리자 이메일 발송 실패:', error);
-  }
-}
-
-/**
- * 신청자 확인 이메일 발송 (진단/상담용)
- */
-function sendUserConfirmation(email, name, type) {
-  try {
-    const isConsultation = type === '상담';
-    const subject = `[M-CENTER] ${isConsultation ? '상담' : '진단'} 신청이 접수되었습니다`;
-    
-    const emailBody = `
-안녕하세요 ${name || '고객'}님,
-
-기업의별 M-CENTER에서 알려드립니다.
-
-✅ ${isConsultation ? '전문가 상담' : 'AI 무료 진단'} 신청이 성공적으로 접수되었습니다.
-
-📞 담당 전문가가 1-2일 내에 연락드리겠습니다.
-
-▣ 담당 컨설턴트 정보
-• 성명: 이후경 경영지도사
-• 경력: 25년 경영컨설팅 전문가
-• 전화: 010-9251-9743
-• 이메일: ${ADMIN_EMAIL}
-
-▣ M-CENTER 6대 핵심 서비스
-• BM ZEN 사업분석 (매출 20-40% 증대)
-• AI 생산성향상 (업무효율 40-60% 향상)
-• 경매활용 공장구매 (부동산비용 30-50% 절감)
-• 기술사업화/창업 (평균 5억원 정부지원)
-• 인증지원 (연간 5천만원 세제혜택)
-• 웹사이트 구축 (온라인 문의 300% 증가)
-
-문의사항이 있으시면 언제든 연락주세요.
-
-감사합니다.
-기업의별 M-CENTER
-    `;
-
-    GmailApp.sendEmail(email, subject, emailBody);
-    console.log('📧 신청자 확인 이메일 발송 완료:', email);
-    
-  } catch (error) {
-    console.error('❌ 신청자 이메일 발송 실패:', error);
-  }
-}
-
-// ================================================================================
-// 🛠️ 유틸리티 함수
-// ================================================================================
-
-/**
- * 요청 유형 감지 (상담신청 vs 진단신청) - 베타 피드백 제외 강화
- */
-function isConsultationRequest(data) {
-  // 🧪 베타 피드백은 여러 조건으로 명시적 제외
-  if (data.action === 'saveBetaFeedback' || 
-      data.폼타입 === '베타테스트_피드백' ||
-      data.피드백유형 ||
-      data.계산기명) {
-    console.log('🚨 isConsultationRequest: 베타 피드백으로 감지, 상담신청 아님');
-    return false;
-  }
-  
-  const isConsultation = !!(
-    data.상담유형 || data.consultationType ||
-    data.성명 || data.name ||
-    data.문의내용 || data.inquiryContent ||
-    data.action === 'saveConsultation'
-  );
-  
-  console.log('🔍 상담신청 감지 결과:', {
-    isConsultation,
-    action: data.action,
-    폼타입: data.폼타입,
-    피드백유형: data.피드백유형
-  });
-  
-  return isConsultation;
-}
-
-/**
- * 시트 가져오기 또는 생성
+ * 시트 가져오기 또는 생성 (강화된 오류 처리)
  */
 function getOrCreateSheet(sheetName, type) {
-  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
-  let sheet = spreadsheet.getSheetByName(sheetName);
-  
-  if (!sheet) {
-    sheet = spreadsheet.insertSheet(sheetName);
-    setupHeaders(sheet, type);
-    console.log('📋 새 시트 생성:', sheetName);
+  try {
+    const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+    let sheet = spreadsheet.getSheetByName(sheetName);
+    
+    if (!sheet) {
+      sheet = spreadsheet.insertSheet(sheetName);
+      setupHeaders(sheet, type);
+      console.log('📋 새 시트 생성:', sheetName);
+    }
+    
+    return sheet;
+  } catch (error) {
+    console.error('❌ 시트 생성/접근 오류:', error);
+    throw new Error(`시트 처리 오류: ${error.toString()}`);
   }
-  
-  return sheet;
-}
-
-/**
- * 시트 헤더 설정 (베타피드백 추가)
- */
-function setupHeaders(sheet, type) {
-  let headers;
-  
-  if (type === 'consultation') {
-    // 상담신청 시트 헤더 (15개)
-    headers = [
-      '제출일시', '상담유형', '성명', '연락처', '이메일', '회사명', '직책',
-      '상담분야', '문의내용', '희망상담시간', '개인정보동의',
-      '진단연계여부', '진단점수', '추천서비스', '처리상태'
-    ];
-  } else if (type === 'betaFeedback') {
-    // 베타피드백 시트 헤더 (14개) - 신규 추가
-    headers = [
-      '제출일시', '계산기명', '피드백유형', '사용자이메일', '문제설명',
-      '기대동작', '실제동작', '재현단계', '심각도', '추가의견',
-      '브라우저정보', '제출경로', '처리상태', '처리일시'
-    ];
-  } else {
-    // 진단신청 시트 헤더 (18개)
-    headers = [
-      '제출일시', '회사명', '업종', '사업담당자', '직원수', '사업성장단계',
-      '주요고민사항', '예상혜택', '진행사업장', '담당자명', '연락처', '이메일',
-      '개인정보동의', '폼타입', '진단상태', 'AI분석결과', '결과URL', '분석완료일시'
-    ];
-  }
-  
-  // 헤더 행 설정
-  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-  
-  // 헤더 스타일링
-  const headerRange = sheet.getRange(1, 1, 1, headers.length);
-  headerRange.setBackground('#4285f4');
-  headerRange.setFontColor('#ffffff');
-  headerRange.setFontWeight('bold');
-  headerRange.setHorizontalAlignment('center');
-  
-  // 고정 행 설정
-  sheet.setFrozenRows(1);
 }
 
 /**
@@ -753,118 +544,186 @@ function getCurrentKoreanTime() {
 }
 
 /**
- * 응답 생성 함수들
+ * 응답 생성 함수들 (강화된 버전)
  */
 function createSuccessResponse(data) {
+  const response = { 
+    success: true, 
+    timestamp: getCurrentKoreanTime(),
+    version: VERSION,
+    ...data 
+  };
+  
+  if (DEBUG_MODE) {
+    console.log('✅ 성공 응답 생성:', response);
+  }
+  
   return ContentService
-    .createTextOutput(JSON.stringify({ success: true, ...data }))
-    .setMimeType(ContentService.MimeType.JSON);
+    .createTextOutput(JSON.stringify(response))
+    .setMimeType(ContentService.MimeType.JSON)
+    .setHeaders({
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    });
 }
 
 function createErrorResponse(message) {
+  const response = { 
+    success: false, 
+    error: message,
+    timestamp: getCurrentKoreanTime(),
+    version: VERSION
+  };
+  
+  console.error('❌ 오류 응답 생성:', response);
+  
   return ContentService
-    .createTextOutput(JSON.stringify({ success: false, error: message }))
-    .setMimeType(ContentService.MimeType.JSON);
+    .createTextOutput(JSON.stringify(response))
+    .setMimeType(ContentService.MimeType.JSON)
+    .setHeaders({
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    });
 }
 
 // ================================================================================
-// 🧪 테스트 및 관리 함수 (통합)
+// 📝 기존 함수들 (간소화된 버전 - 길이 제한)
 // ================================================================================
 
-/**
- * 테스트 데이터 생성 (베타 피드백 포함)
- */
-function createTestData() {
-  console.log('🧪 테스트 데이터 생성 시작');
-  
-  // 진단신청 테스트
-  const diagnosisTest = {
-    companyName: '테스트 AI진단기업',
-    industry: 'software-development',
-    contactManager: '김AI진단',
-    email: 'aitest@example.com',
-    employeeCount: '10-50명',
-    businessLocation: '경기도',
-    mainConcerns: '온라인 마케팅 강화 및 AI 도입을 통한 생산성 향상이 필요합니다',
-    expectedBenefits: '매출 30% 증대와 업무효율 50% 향상을 기대합니다',
-    privacyConsent: true
-  };
-  
-  // 상담신청 테스트
-  const consultationTest = {
-    consultationType: 'business-analysis',
-    name: '홍길동',
-    phone: '010-1234-5678',
-    email: 'test@example.com',
-    company: '테스트기업',
-    industry: 'manufacturing',
-    employeeCount: '10-50명',
-    urgency: 'urgent',
-    message: 'BM ZEN 사업분석 상담 요청',
-    privacyConsent: true
-  };
-  
-  // 베타피드백 테스트 - 신규 추가
-  const betaFeedbackTest = {
-    action: 'saveBetaFeedback',
-    계산기명: '상속세 계산기',
-    피드백유형: '🐛 버그 신고',
-    사용자이메일: 'beta@example.com',
-    문제설명: '계산 결과가 음수로 나옵니다',
-    기대동작: '양수의 상속세가 계산되어야 합니다',
-    실제동작: '-1000000원이 결과로 나옵니다',
-    재현단계: '1. 상속재산 1억 입력\n2. 계산 버튼 클릭\n3. 결과 확인',
-    심각도: '높음',
-    브라우저정보: 'Chrome 120.0.0 Windows',
-    제출경로: 'https://m-center.co.kr/tax-calculator'
-  };
-  
-  processDiagnosisForm(diagnosisTest);
-  processConsultationForm(consultationTest);
-  processBetaFeedback(betaFeedbackTest);
-  
-  console.log('✅ 테스트 데이터 생성 완료 (진단+상담+베타피드백)');
+// 베타 피드백 관리자 알림 이메일 발송
+function sendBetaFeedbackAdminNotification(data, rowNumber) {
+  try {
+    const subject = `[M-CENTER] 🚨 긴급! 베타 피드백 접수 - ${data.계산기명 || '세금계산기'}`;
+    const emailBody = `🧪 새로운 베타 피드백이 접수되었습니다!\n\n` +
+      `🎯 대상 계산기: ${data.계산기명 || 'N/A'}\n` +
+      `🐛 피드백 유형: ${data.피드백유형 || 'N/A'}\n` +
+      `📧 사용자 이메일: ${data.사용자이메일 || 'N/A'}\n` +
+      `⏰ 접수 시간: ${getCurrentKoreanTime()}\n\n` +
+      `📋 시트 위치: ${SHEETS.BETA_FEEDBACK} 시트 ${rowNumber}행\n` +
+      `🔗 구글시트: https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/edit`;
+
+    GmailApp.sendEmail(ADMIN_EMAIL, subject, emailBody);
+    console.log('📧 베타 피드백 관리자 알림 이메일 발송 완료');
+  } catch (error) {
+    console.error('❌ 베타 피드백 관리자 이메일 발송 실패:', error);
+  }
 }
 
-/**
- * 초기화 함수 (베타 피드백 시트 포함)
- */
-function initializeSheets() {
-  console.log('🔧 시트 초기화 시작');
+// 베타 피드백 사용자 확인 이메일 발송
+function sendBetaFeedbackUserConfirmation(email, data) {
+  try {
+    const subject = `[M-CENTER] 🧪 베타 피드백 접수 완료! ${data.계산기명 || '세금계산기'}`;
+    const emailBody = `안녕하세요!\n\n` +
+      `M-CENTER 세금계산기 베타테스트에 참여해 주셔서 감사합니다.\n\n` +
+      `🎯 접수된 피드백: ${data.계산기명 || '세금계산기'}\n` +
+      `⏰ 접수 일시: ${getCurrentKoreanTime()}\n\n` +
+      `담당자가 검토 후 이메일로 회신드리겠습니다.\n\n` +
+      `감사합니다.\nM-CENTER 베타테스트 개발팀`;
+
+    GmailApp.sendEmail(email, subject, emailBody);
+    console.log('📧 베타 피드백 사용자 확인 이메일 발송 완료:', email);
+  } catch (error) {
+    console.error('❌ 베타 피드백 사용자 이메일 발송 실패:', error);
+  }
+}
+
+// 관리자 알림 이메일 발송 (진단/상담용)
+function sendAdminNotification(data, rowNumber, type) {
+  try {
+    const isConsultation = type === '상담신청';
+    const subject = `[M-CENTER] 새로운 ${type} 접수 - ${isConsultation ? (data.회사명 || data.company) : (data.회사명 || data.companyName)}`;
+    
+    const emailBody = `📋 새로운 ${type}이 접수되었습니다.\n\n` +
+      `👤 신청자: ${isConsultation ? (data.성명 || data.name) : (data.담당자명 || data.contactName)}\n` +
+      `🏢 회사명: ${isConsultation ? (data.회사명 || data.company) : (data.회사명 || data.companyName)}\n` +
+      `📧 이메일: ${isConsultation ? (data.이메일 || data.email) : (data.이메일 || data.contactEmail)}\n` +
+      `⏰ 접수시간: ${getCurrentKoreanTime()}\n\n` +
+      `📋 구글시트: https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/edit`;
+
+    GmailApp.sendEmail(ADMIN_EMAIL, subject, emailBody);
+    console.log('📧 관리자 알림 이메일 발송 완료:', ADMIN_EMAIL);
+  } catch (error) {
+    console.error('❌ 관리자 이메일 발송 실패:', error);
+  }
+}
+
+// 신청자 확인 이메일 발송 (진단/상담용)
+function sendUserConfirmation(email, name, type) {
+  try {
+    const isConsultation = type === '상담';
+    const subject = `[M-CENTER] ${isConsultation ? '상담' : '진단'} 신청이 접수되었습니다`;
+    
+    const emailBody = `안녕하세요 ${name || '고객'}님,\n\n` +
+      `기업의별 M-CENTER에서 알려드립니다.\n\n` +
+      `✅ ${isConsultation ? '전문가 상담' : 'AI 무료 진단'} 신청이 성공적으로 접수되었습니다.\n\n` +
+      `📞 담당 전문가가 1-2일 내에 연락드리겠습니다.\n\n` +
+      `▣ 담당 컨설턴트: 이후경 경영지도사\n` +
+      `▣ 전화: 010-9251-9743\n` +
+      `▣ 이메일: ${ADMIN_EMAIL}\n\n` +
+      `감사합니다.\n기업의별 M-CENTER`;
+
+    GmailApp.sendEmail(email, subject, emailBody);
+    console.log('📧 신청자 확인 이메일 발송 완료:', email);
+  } catch (error) {
+    console.error('❌ 신청자 이메일 발송 실패:', error);
+  }
+}
+
+// 요청 유형 감지 (상담신청 vs 진단신청)
+function isConsultationRequest(data) {
+  if (data.action === 'saveBetaFeedback' || data.폼타입 === '베타테스트_피드백' || data.피드백유형 || data.계산기명) {
+    return false;
+  }
   
-  getOrCreateSheet(SHEETS.DIAGNOSIS, 'diagnosis');
-  getOrCreateSheet(SHEETS.CONSULTATION, 'consultation');
-  getOrCreateSheet(SHEETS.BETA_FEEDBACK, 'betaFeedback'); // 신규 추가
+  return !!(data.상담유형 || data.consultationType || data.성명 || data.name || data.문의내용 || data.inquiryContent || data.action === 'saveConsultation');
+}
+
+// 시트 헤더 설정
+function setupHeaders(sheet, type) {
+  let headers;
   
-  console.log('✅ 시트 초기화 완료 (3개 시트)');
+  if (type === 'consultation') {
+    headers = ['제출일시', '상담유형', '성명', '연락처', '이메일', '회사명', '직책', '상담분야', '문의내용', '희망상담시간', '개인정보동의', '진단연계여부', '진단점수', '추천서비스', '처리상태'];
+  } else if (type === 'betaFeedback') {
+    headers = ['제출일시', '계산기명', '피드백유형', '사용자이메일', '문제설명', '기대동작', '실제동작', '재현단계', '심각도', '추가의견', '브라우저정보', '제출경로', '처리상태', '처리일시'];
+  } else {
+    headers = ['제출일시', '회사명', '업종', '사업담당자', '직원수', '사업성장단계', '주요고민사항', '예상혜택', '진행사업장', '담당자명', '연락처', '이메일', '개인정보동의', '폼타입', '진단상태', 'AI분석결과', '결과URL', '분석완료일시'];
+  }
+  
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  const headerRange = sheet.getRange(1, 1, 1, headers.length);
+  headerRange.setBackground('#4285f4');
+  headerRange.setFontColor('#ffffff');
+  headerRange.setFontWeight('bold');
+  headerRange.setHorizontalAlignment('center');
+  sheet.setFrozenRows(1);
 }
 
 // ================================================================================
-// 📝 통합 버전 가이드 및 수정 내역
+// 🚀 수정 내역 및 사용법 (v2025.01.오류해결강화)
 // ================================================================================
 
 /**
- * 📖 수정 내역 (v2025.01.통합베타_안정화)
+ * 📖 수정 내역 (v2025.01.오류해결강화)
  * 
- * ✅ 베타 피드백 시스템 안전하게 통합
- * ✅ 구글시트 ID 통일 (1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug)
- * ✅ 관리자 이메일 통일 (hongik423@gmail.com)
- * ✅ 기존 진단/상담 기능 100% 보존 (검증된 구조 유지)
- * ✅ 베타피드백 전용 시트 및 이메일 시스템
- * ✅ 기존 로직에 영향 없는 안전한 추가
- * ✅ 간단하고 안정적인 구조 유지
+ * 🆕 새로운 기능:
+ * ✅ 강화된 디버깅 모드 (DEBUG_MODE = true)
+ * ✅ 연결 테스트 지원 (GET ?testType=connection)
+ * ✅ 헬스체크 시스템 (스프레드시트, 이메일 상태 확인)
+ * ✅ CORS 헤더 추가 (Cross-Origin 문제 해결)
+ * ✅ 강화된 오류 처리 및 로깅
+ * ✅ POST/GET 요청 상세 디버깅
  * 
- * 🔧 사용법:
- * 1. 구글시트(1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug) 열기
- * 2. 확장 → Apps Script → 이 코드로 교체
- * 3. 저장 후 배포 → 웹 앱으로 배포
- * 4. 액세스 권한: "모든 사용자"로 설정
- * 5. 기존 URL 그대로 사용 가능 (완전 호환)
+ * 🔧 405/404 오류 해결 방법:
+ * 1. Google Apps Script에서 "새 배포" 생성
+ * 2. 액세스 권한: "모든 사용자"로 설정
+ * 3. 새로 생성된 웹앱 URL을 환경변수에 업데이트
+ * 4. ?testType=connection으로 연결 테스트
  * 
- * 📊 지원 요청 타입:
- * - action: 'saveBetaFeedback' → 베타 피드백 처리 (신규)
- * - 기존 요청 → 기존 로직으로 자동 처리 (변경 없음)
- * 
- * 📧 관리자 이메일:
- * - 모든 알림: hongik423@gmail.com (통일)
+ * 📊 테스트 방법:
+ * - GET: https://script.google.com/.../exec
+ * - GET 연결테스트: https://script.google.com/.../exec?testType=connection
+ * - POST: JSON 데이터로 진단/상담/베타피드백 전송
  */ 

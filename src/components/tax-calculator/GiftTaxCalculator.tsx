@@ -10,7 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { AlertTriangle, Calculator, TrendingUp, Users, DollarSign, Info, CheckCircle, Clock, PieChart, BarChart3, Target, Lightbulb, Gift, Heart, GraduationCap, Calendar, FileText, PiggyBank, TrendingDown } from 'lucide-react';
+import { AlertTriangle, Calculator, TrendingUp, Users, DollarSign, Info, CheckCircle, Clock, PieChart, BarChart3, Target, Lightbulb, Gift, Heart, GraduationCap, Calendar, FileText, PiggyBank, TrendingDown, RefreshCw } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -671,36 +671,63 @@ export default function GiftTaxCalculatorComponent() {
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">
+                {/* 🔥 개선된 샘플 데이터 버튼 */}
                 <Button 
                   onClick={loadSampleData}
                   variant="outline"
                   size="sm"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95]
+                    bg-gradient-to-r from-orange-50 to-yellow-50 hover:from-orange-100 hover:to-yellow-100
+                    border-orange-200 text-orange-700 hover:border-orange-300 hover:shadow-md
+                    relative overflow-hidden group"
                 >
-                  <FileText className="w-4 h-4" />
-                  샘플 데이터
+                  <span className="absolute inset-0 bg-gradient-to-r from-orange-100 to-yellow-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="relative flex items-center gap-2">
+                    <FileText className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
+                    샘플 데이터
+                  </span>
                 </Button>
+                
+                {/* 🔥 개선된 초기화 버튼 */}
                 <Button 
                   onClick={resetInputs}
                   variant="outline"
                   size="sm"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95]
+                    hover:bg-red-50 hover:border-red-300 hover:text-red-700 hover:shadow-md
+                    relative overflow-hidden group"
                 >
-                  <AlertTriangle className="w-4 h-4" />
-                  초기화
+                  <span className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="relative flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300" />
+                    초기화
+                  </span>
                 </Button>
+                
+                {/* 🔥 개선된 계산하기 버튼 */}
                 <Button 
                   onClick={handleCalculate}
                   size="sm"
-                  disabled={isCalculating}
-                  className="flex items-center gap-2"
+                  disabled={isCalculating || !input.giftAmount}
+                  className={`flex items-center gap-2 transition-all duration-200 transform
+                    ${!input.giftAmount ? 
+                      'bg-gray-400 cursor-not-allowed' :
+                      isCalculating ? 'animate-pulse' :
+                      'bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                    }
+                  `}
                 >
                   {isCalculating ? (
                     <Clock className="w-4 h-4 animate-spin" />
+                  ) : !input.giftAmount ? (
+                    <Calculator className="w-4 h-4 opacity-50" />
                   ) : (
                     <Calculator className="w-4 h-4" />
                   )}
-                  계산하기
+                  {isCalculating ? '계산 중...' :
+                   !input.giftAmount ? '증여금액 입력 필요' :
+                   (result ? '재계산하기' : '계산하기')
+                  }
                 </Button>
               </div>
             </CardContent>
