@@ -741,7 +741,7 @@ SWOT 분석:
           }
         ],
         generationConfig: {
-          maxOutputTokens: 3000,
+          maxOutputTokens: 4000, // 2000자 진단 보고서를 위해 4000 토큰으로 확대
           temperature: 0.6,
           topP: 0.9,
           topK: 40,

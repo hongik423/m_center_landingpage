@@ -406,7 +406,7 @@ export async function POST(request: NextRequest) {
             temperature: 0.7,
             topK: 40,
             topP: 0.95,
-            maxOutputTokens: 2048, // 토큰 제한 증가
+            maxOutputTokens: 4000, // 2000자 한국어 답변을 위해 4000 토큰으로 확대
           },
         });
 

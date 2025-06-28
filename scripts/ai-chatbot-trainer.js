@@ -419,7 +419,7 @@ async function generateTrainingData() {
           }
         ],
         generationConfig: {
-          maxOutputTokens: 2000,
+          maxOutputTokens: 4000, // 2000자 훈련 답변을 위해 4000 토큰으로 확대
           temperature: 0.8,
           topP: 0.9,
           topK: 40,
@@ -505,7 +505,7 @@ async function analyzeChatbotPerformance() {
         }
       ],
       generationConfig: {
-        maxOutputTokens: 1500,
+        maxOutputTokens: 4000, // 2000자 성능 분석을 위해 4000 토큰으로 확대
         temperature: 0.6,
         topP: 0.9,
         topK: 40,
