@@ -70,7 +70,7 @@ export function FloatingErrorReportButton({
   };
 
   return (
-    <div className={`fixed bottom-6 right-6 z-50 ${className}`}>
+    <div className={`fixed bottom-6 right-6 z-[9998] ${className}`}>
       {/* 확장된 정보 패널 */}
       {isExpanded && (
         <div className="absolute bottom-16 right-0 mb-2 w-80 max-w-[calc(100vw-3rem)] bg-white border border-red-200 rounded-lg shadow-xl p-4 animate-in slide-in-from-bottom-2 duration-300">

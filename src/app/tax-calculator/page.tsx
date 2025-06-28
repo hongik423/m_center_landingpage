@@ -388,21 +388,48 @@ export default function TaxCalculatorPage() {
   const [fontSize, setFontSize] = useState('normal');
   const [highContrast, setHighContrast] = useState(false);
   
-  // 🚨 오류신고 버튼을 위한 함수
+  // 🚨 오류신고 버튼을 위한 함수 - 개선된 버전
   const scrollToErrorReport = () => {
     // 베타 피드백 폼이 있는 위치로 스크롤
     const feedbackSection = document.querySelector('[data-beta-feedback]');
     if (feedbackSection) {
+      // 먼저 스크롤
       feedbackSection.scrollIntoView({ 
         behavior: 'smooth', 
         block: 'center' 
       });
       
-      // 베타 피드백 폼 자동 열기
-      const feedbackButton = feedbackSection.querySelector('button');
-      if (feedbackButton) {
-        setTimeout(() => feedbackButton.click(), 500);
-      }
+      // 베타 피드백 폼 자동 열기 (여러 방법으로 시도)
+      setTimeout(() => {
+        // 첫 번째 시도: 오류 신고하기 버튼 찾기
+        let feedbackButton = feedbackSection.querySelector('button:has(svg + span)') as HTMLButtonElement;
+        
+        // 두 번째 시도: 텍스트로 찾기
+        if (!feedbackButton) {
+          const buttons = feedbackSection.querySelectorAll('button');
+          buttons.forEach(button => {
+            if (button.textContent?.includes('오류 신고')) {
+              feedbackButton = button as HTMLButtonElement;
+            }
+          });
+        }
+        
+        // 버튼 클릭
+        if (feedbackButton) {
+          feedbackButton.click();
+          console.log('✅ 베타 피드백 폼 자동 열기 성공');
+        } else {
+          console.log('⚠️ 베타 피드백 버튼을 찾을 수 없음');
+        }
+      }, 800); // 스크롤 완료 후 약간 더 기다림
+    } else {
+      console.log('⚠️ 베타 피드백 섹션을 찾을 수 없음');
+      
+      // 대안: 페이지 하단으로 스크롤
+      window.scrollTo({
+        top: document.body.scrollHeight - window.innerHeight,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -800,21 +827,32 @@ export default function TaxCalculatorPage() {
                       </div>
                     </div>
                     
-                    <div className="text-xs md:text-sm text-orange-700 bg-gradient-to-r from-yellow-100 to-orange-100 p-3 rounded-lg border border-orange-200">
-                      <div className="flex items-center gap-2 font-bold text-orange-800 mb-2">
-                        <CheckCircle className="w-4 h-4" />
-                        💌 피드백 절차 요약
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2 text-xs">
-                        <span className="bg-orange-200 px-2 py-1 rounded font-medium">계산기 사용</span>
-                        <span>→</span>
-                        <span className="bg-red-200 px-2 py-1 rounded font-medium">오류 발견</span>
-                        <span>→</span>
-                        <span className="bg-blue-200 px-2 py-1 rounded font-medium">신고 버튼 클릭</span>
-                        <span>→</span>
-                        <span className="bg-green-200 px-2 py-1 rounded font-medium">이메일 회신</span>
-                      </div>
-                    </div>
+                                         <div className="text-xs md:text-sm text-orange-700 bg-gradient-to-r from-yellow-100 to-orange-100 p-3 rounded-lg border border-orange-200">
+                       <div className="flex items-center gap-2 font-bold text-orange-800 mb-2">
+                         <CheckCircle className="w-4 h-4" />
+                         💌 피드백 절차 요약
+                       </div>
+                       <div className="flex flex-wrap items-center gap-2 text-xs mb-3">
+                         <span className="bg-orange-200 px-2 py-1 rounded font-medium">계산기 사용</span>
+                         <span>→</span>
+                         <span className="bg-red-200 px-2 py-1 rounded font-medium">오류 발견</span>
+                         <span>→</span>
+                         <span className="bg-blue-200 px-2 py-1 rounded font-medium">신고 버튼 클릭</span>
+                         <span>→</span>
+                         <span className="bg-green-200 px-2 py-1 rounded font-medium">이메일 회신</span>
+                       </div>
+                       
+                       {/* 🚨 즉시 오류신고 버튼 */}
+                       <div className="flex justify-center mt-3">
+                         <Button
+                           onClick={scrollToErrorReport}
+                           className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold px-6 py-2 text-sm shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                         >
+                           <Bug className="w-4 h-4 mr-2" />
+                           🚨 지금 바로 오류신고하기
+                         </Button>
+                       </div>
+                     </div>
                   </div>
                 </div>
               </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Send, MessageCircle, X, Bot, User } from 'lucide-react';
 import { getImagePath } from '@/lib/utils';
 
@@ -18,8 +18,8 @@ export default function FloatingChatbot() {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // 드래그 기능을 위한 상태 추가
-  const [position, setPosition] = useState({ x: 20, y: 20 });
+  // 드래그 기능을 위한 상태 추가 - 오류신고 버튼과 겹치지 않게 위치 조정
+  const [position, setPosition] = useState({ x: 20, y: 120 }); // y를 120으로 변경하여 오류신고 버튼(bottom-6) 위에 위치
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -61,50 +61,112 @@ export default function FloatingChatbot() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // 드래그 이벤트 핸들러들
-  const handleMouseDown = (e: React.MouseEvent) => {
+  // 🔥 개선된 드래그 이벤트 핸들러들 - useCallback으로 메모이제이션
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
     setDragOffset({ x: position.x, y: position.y });
-  };
+  }, [position.x, position.y]);
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const touch = e.touches[0];
+    setIsDragging(true);
+    setDragStart({ x: touch.clientX, y: touch.clientY });
+    setDragOffset({ x: position.x, y: position.y });
+  }, [position.x, position.y]);
+
+  const handleMouseMove = useCallback((e: MouseEvent | TouchEvent) => {
     if (!isDragging) return;
     
-    const deltaY = e.clientY - dragStart.y;
+    let clientX, clientY;
+    if (e instanceof MouseEvent) {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    } else {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    }
+    
+    const deltaX = clientX - dragStart.x;
+    const deltaY = clientY - dragStart.y;
+    const newX = dragOffset.x - deltaX; // 오른쪽에서의 거리이므로 반대로
     const newY = dragOffset.y + deltaY;
     
-    // 화면 경계 제한 (위아래만)
-    const maxY = window.innerHeight - 90; // 버튼 높이 고려
+    // 화면 경계 제한 (전체 2D 드래그)
+    const maxX = window.innerWidth - 90; // 버튼 크기 고려
+    const minX = 20;
+    const maxY = window.innerHeight - 90;
     const minY = 20;
     
-    setPosition(prev => ({
-      x: prev.x, // x 좌표는 고정 (오른쪽 끝에 유지)
-      y: Math.max(minY, Math.min(maxY, newY))
-    }));
-  };
+    // 🚨 오류신고 버튼과의 충돌 방지 (우하단 영역)
+    let finalX = Math.max(minX, Math.min(maxX, newX));
+    let finalY = Math.max(minY, Math.min(maxY, newY));
+    
+    // 오류신고 버튼 영역 (우하단 90x90 픽셀) 충돌 감지
+    const errorButtonArea = {
+      left: window.innerWidth - 110, // right-6 (24px) + button width (70px) + margin
+      right: window.innerWidth - 20,
+      top: window.innerHeight - 110, // bottom-6 (24px) + button height (70px) + margin
+      bottom: window.innerHeight - 20
+    };
+    
+    const chatbotArea = {
+      left: window.innerWidth - finalX - 70, // AI 챗봇의 실제 화면 위치
+      right: window.innerWidth - finalX,
+      top: window.innerHeight - finalY - 70,
+      bottom: window.innerHeight - finalY
+    };
+    
+    // 충돌 감지
+    const isColliding = (
+      chatbotArea.left < errorButtonArea.right &&
+      chatbotArea.right > errorButtonArea.left &&
+      chatbotArea.top < errorButtonArea.bottom &&
+      chatbotArea.bottom > errorButtonArea.top
+    );
+    
+    // 충돌 시 위치 조정
+    if (isColliding) {
+      // 오류신고 버튼 위로 이동
+      finalY = Math.min(finalY, window.innerHeight - 150); // 오류신고 버튼 위 30px 여유 공간
+    }
+    
+    setPosition({
+      x: finalX,
+      y: finalY
+    });
+  }, [isDragging, dragStart.x, dragStart.y, dragOffset.x, dragOffset.y]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false);
-  };
+  }, []);
 
-  // 전역 마우스 이벤트 리스너
+  // 🔥 전역 마우스 및 터치 이벤트 리스너 - 의존성 배열 최적화
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleMouseMove, { passive: false });
+      document.addEventListener('touchend', handleMouseUp);
       document.body.style.userSelect = 'none'; // 드래그 중 텍스트 선택 방지
       document.body.style.cursor = 'grabbing';
+      document.body.style.touchAction = 'none'; // 터치 스크롤 방지
     }
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchmove', handleMouseMove);
+      document.removeEventListener('touchend', handleMouseUp);
       document.body.style.userSelect = '';
       document.body.style.cursor = '';
+      document.body.style.touchAction = '';
     };
-  }, [isDragging, dragStart, dragOffset]);
+  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   // AI 메시지 전송
   const handleSendMessage = async (message: string) => {
@@ -213,6 +275,7 @@ export default function FloatingChatbot() {
           }
         }}
         onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
         onMouseEnter={(e) => {
           if (!isDragging) {
             e.currentTarget.style.transform = 'scale(1.1)';
@@ -257,7 +320,7 @@ export default function FloatingChatbot() {
           }}
           className="tooltip"
         >
-          드래그로 이동 가능!
+          드래그로 자유롭게 이동 가능!
         </div>
       </div>
 
