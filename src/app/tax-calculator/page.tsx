@@ -1061,197 +1061,227 @@ export default function TaxCalculatorPage() {
             </div>
           ) : (
             // 계산기 선택 화면
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              {/* 🎯 개선된 세금 종류 메뉴바 - 디자인 겹침 문제 해결 */}
-              <div className="mb-12 md:mb-16">
-                {/* 간단한 제목 */}
-                <div className="text-center mb-8 md:mb-12">
-                  <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">세금 종류 선택</h3>
-                  <p className="text-gray-600 text-lg">계산하고 싶은 세금 종류를 선택해주세요</p>
+            <div className="w-full">
+              {/* 🍎 애플 스토어 스타일 세금 메뉴바 - 미니멀 & 트렌디 */}
+              <div className="mb-16 md:mb-20">
+                {/* 깔끔한 제목 - 애플 스타일 */}
+                <div className="text-center mb-12 md:mb-16">
+                  <h3 className="text-3xl md:text-4xl font-light text-gray-900 mb-3 tracking-tight">세금계산기</h3>
+                  <p className="text-lg text-gray-600 font-light">필요한 계산기를 선택해주세요</p>
                 </div>
                 
-                {/* 🔥 개선된 탭 메뉴바 - 충분한 여백과 간격 확보 */}
-                <div className="bg-white border-2 border-gray-100 rounded-2xl p-4 md:p-6 lg:p-8 shadow-lg">
-                  <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 bg-gray-50 border-2 border-gray-200 rounded-xl p-2 md:p-3 lg:p-4 gap-3 md:gap-4 lg:gap-6">
-                    <TabsTrigger 
-                      value="personal" 
-                      className="group flex flex-col items-center justify-center min-h-[140px] md:min-h-[160px] lg:min-h-[180px] 
-                                py-6 md:py-8 px-4 md:px-6 rounded-xl text-gray-700 font-medium transition-all duration-300
-                                hover:bg-blue-50 hover:border-blue-200 hover:shadow-md hover:scale-105
-                                data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-blue-600
-                                data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:scale-105
-                                data-[state=active]:border-2 data-[state=active]:border-blue-400
-                                border-2 border-transparent cursor-pointer"
-                    >
-                      <User className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 mb-3 md:mb-4 
-                                     text-blue-600 group-hover:scale-110 transition-all duration-300
-                                     data-[state=active]:text-white flex-shrink-0" />
-                      <span className="text-lg md:text-xl lg:text-2xl font-bold mb-2 text-center leading-tight">개인세금</span>
-                      <span className="text-sm md:text-base text-center leading-tight opacity-80 px-2">
-                        <span className="block mb-1">근로·종합소득세</span>
-                        <span className="block">양도·상속·증여세</span>
-                      </span>
-                    </TabsTrigger>
-                    
-                    <TabsTrigger 
-                      value="corporate" 
-                      className="group flex flex-col items-center justify-center min-h-[140px] md:min-h-[160px] lg:min-h-[180px] 
-                                py-6 md:py-8 px-4 md:px-6 rounded-xl text-gray-700 font-medium transition-all duration-300
-                                hover:bg-green-50 hover:border-green-200 hover:shadow-md hover:scale-105
-                                data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-green-600
-                                data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:scale-105
-                                data-[state=active]:border-2 data-[state=active]:border-green-400
-                                border-2 border-transparent cursor-pointer"
-                    >
-                      <Building2 className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 mb-3 md:mb-4 
-                                         text-green-600 group-hover:scale-110 transition-all duration-300
-                                         data-[state=active]:text-white flex-shrink-0" />
-                      <span className="text-lg md:text-xl lg:text-2xl font-bold mb-2 text-center leading-tight">법인세금</span>
-                      <span className="text-sm md:text-base text-center leading-tight opacity-80 px-2">
-                        <span className="block mb-1">법인세·부가가치세</span>
-                        <span className="block">원천징수세</span>
-                      </span>
-                    </TabsTrigger>
-                    
-                    <TabsTrigger 
-                      value="business-inheritance" 
-                      className="group flex flex-col items-center justify-center min-h-[140px] md:min-h-[160px] lg:min-h-[180px] 
-                                py-6 md:py-8 px-4 md:px-6 rounded-xl text-gray-700 font-medium transition-all duration-300
-                                hover:bg-violet-50 hover:border-violet-200 hover:shadow-md hover:scale-105
-                                data-[state=active]:bg-gradient-to-br data-[state=active]:from-violet-500 data-[state=active]:to-violet-600
-                                data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:scale-105
-                                data-[state=active]:border-2 data-[state=active]:border-violet-400
-                                border-2 border-transparent cursor-pointer"
-                    >
-                      <Crown className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 mb-3 md:mb-4 
-                                      text-violet-600 group-hover:scale-110 transition-all duration-300
-                                      data-[state=active]:text-white flex-shrink-0" />
-                      <span className="text-lg md:text-xl lg:text-2xl font-bold mb-2 text-center leading-tight">가업상속세</span>
-                      <span className="text-sm md:text-base text-center leading-tight opacity-80 px-2">
-                        <span className="block mb-1">중소기업 가업승계</span>
-                        <span className="block">최대 500억 공제</span>
-                      </span>
-                    </TabsTrigger>
-                    
-                    <TabsTrigger 
-                      value="stock-transfer" 
-                      className="group flex flex-col items-center justify-center min-h-[140px] md:min-h-[160px] lg:min-h-[180px] 
-                                py-6 md:py-8 px-4 md:px-6 rounded-xl text-gray-700 font-medium transition-all duration-300
-                                hover:bg-pink-50 hover:border-pink-200 hover:shadow-md hover:scale-105
-                                data-[state=active]:bg-gradient-to-br data-[state=active]:from-pink-500 data-[state=active]:to-pink-600
-                                data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:scale-105
-                                data-[state=active]:border-2 data-[state=active]:border-pink-400
-                                border-2 border-transparent cursor-pointer"
-                    >
-                      <TrendingUp className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 mb-3 md:mb-4 
-                                          text-pink-600 group-hover:scale-110 transition-all duration-300
-                                          data-[state=active]:text-white flex-shrink-0" />
-                      <span className="text-lg md:text-xl lg:text-2xl font-bold mb-2 text-center leading-tight">주식이동세</span>
-                      <span className="text-sm md:text-base text-center leading-tight opacity-80 px-2">
-                        <span className="block mb-1">주식 매매시</span>
-                        <span className="block">양도소득세 계산</span>
-                      </span>
-                    </TabsTrigger>
-                  </TabsList>
-                  
-                  {/* 선택된 탭 설명 */}
-                  <div className="mt-6 md:mt-8 text-center">
-                    <div className="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      <span className="text-sm font-medium text-gray-700">
-                        {activeTab === 'personal' && '개인 납세자를 위한 세금계산기가 선택되었습니다'}
-                        {activeTab === 'corporate' && '법인 사업자를 위한 세금계산기가 선택되었습니다'}
-                        {activeTab === 'business-inheritance' && '가업상속공제 전문 계산기가 선택되었습니다'}
-                        {activeTab === 'stock-transfer' && '주식양도소득세 전문 계산기가 선택되었습니다'}
-                      </span>
+                {/* 🍎 애플 스토어 스타일 카드 그리드 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto">
+                  <button 
+                    onClick={() => setActiveTab('personal')}
+                    className={`group relative bg-white border rounded-2xl p-6 md:p-8 
+                              hover:border-gray-300/80 hover:shadow-lg hover:-translate-y-1 
+                              transition-all duration-300 cursor-pointer text-left h-auto min-h-[200px] flex flex-col justify-between
+                              ${activeTab === 'personal' 
+                                ? 'border-blue-500/50 shadow-xl bg-blue-50/30' 
+                                : 'border-gray-200/60'}`}
+                  >
+                    <div>
+                      <div className="mb-6">
+                        <User className={`w-10 h-10 transition-colors duration-300 ${
+                          activeTab === 'personal' 
+                            ? 'text-blue-600' 
+                            : 'text-gray-700 group-hover:text-blue-600'
+                        }`} />
+                      </div>
+                      <h4 className="text-xl font-semibold text-gray-900 mb-3 tracking-tight">개인세금</h4>
+                      <p className="text-sm text-gray-600 leading-relaxed font-light">
+                        근로소득세, 종합소득세<br />
+                        양도·상속·증여세
+                      </p>
                     </div>
+                    <div className="pt-4">
+                      <div className="text-xs text-gray-500 font-medium">PERSONAL TAX</div>
+                    </div>
+                  </button>
+                  
+                  <button 
+                    onClick={() => setActiveTab('corporate')}
+                    className={`group relative bg-white border rounded-2xl p-6 md:p-8 
+                              hover:border-gray-300/80 hover:shadow-lg hover:-translate-y-1 
+                              transition-all duration-300 cursor-pointer text-left h-auto min-h-[200px] flex flex-col justify-between
+                              ${activeTab === 'corporate' 
+                                ? 'border-green-500/50 shadow-xl bg-green-50/30' 
+                                : 'border-gray-200/60'}`}
+                  >
+                    <div>
+                      <div className="mb-6">
+                        <Building2 className={`w-10 h-10 transition-colors duration-300 ${
+                          activeTab === 'corporate' 
+                            ? 'text-green-600' 
+                            : 'text-gray-700 group-hover:text-green-600'
+                        }`} />
+                      </div>
+                      <h4 className="text-xl font-semibold text-gray-900 mb-3 tracking-tight">법인세금</h4>
+                      <p className="text-sm text-gray-600 leading-relaxed font-light">
+                        법인세, 부가가치세<br />
+                        원천징수세
+                      </p>
+                    </div>
+                    <div className="pt-4">
+                      <div className="text-xs text-gray-500 font-medium">CORPORATE TAX</div>
+                    </div>
+                  </button>
+                  
+                  <button 
+                    onClick={() => setActiveTab('business-inheritance')}
+                    className={`group relative bg-white border rounded-2xl p-6 md:p-8 
+                              hover:border-gray-300/80 hover:shadow-lg hover:-translate-y-1 
+                              transition-all duration-300 cursor-pointer text-left h-auto min-h-[200px] flex flex-col justify-between
+                              ${activeTab === 'business-inheritance' 
+                                ? 'border-violet-500/50 shadow-xl bg-violet-50/30' 
+                                : 'border-gray-200/60'}`}
+                  >
+                    <div>
+                      <div className="mb-6">
+                        <Crown className={`w-10 h-10 transition-colors duration-300 ${
+                          activeTab === 'business-inheritance' 
+                            ? 'text-violet-600' 
+                            : 'text-gray-700 group-hover:text-violet-600'
+                        }`} />
+                      </div>
+                      <h4 className="text-xl font-semibold text-gray-900 mb-3 tracking-tight">가업상속세</h4>
+                      <p className="text-sm text-gray-600 leading-relaxed font-light">
+                        중소기업 가업승계<br />
+                        최대 500억 공제
+                      </p>
+                    </div>
+                    <div className="pt-4">
+                      <div className="text-xs text-gray-500 font-medium">BUSINESS SUCCESSION</div>
+                    </div>
+                  </button>
+                  
+                  <button 
+                    onClick={() => setActiveTab('stock-transfer')}
+                    className={`group relative bg-white border rounded-2xl p-6 md:p-8 
+                              hover:border-gray-300/80 hover:shadow-lg hover:-translate-y-1 
+                              transition-all duration-300 cursor-pointer text-left h-auto min-h-[200px] flex flex-col justify-between
+                              ${activeTab === 'stock-transfer' 
+                                ? 'border-rose-500/50 shadow-xl bg-rose-50/30' 
+                                : 'border-gray-200/60'}`}
+                  >
+                    <div>
+                      <div className="mb-6">
+                        <TrendingUp className={`w-10 h-10 transition-colors duration-300 ${
+                          activeTab === 'stock-transfer' 
+                            ? 'text-rose-600' 
+                            : 'text-gray-700 group-hover:text-rose-600'
+                        }`} />
+                      </div>
+                      <h4 className="text-xl font-semibold text-gray-900 mb-3 tracking-tight">주식이동세</h4>
+                      <p className="text-sm text-gray-600 leading-relaxed font-light">
+                        주식 매매시<br />
+                        양도소득세 계산
+                      </p>
+                    </div>
+                    <div className="pt-4">
+                      <div className="text-xs text-gray-500 font-medium">STOCK TRANSFER</div>
+                    </div>
+                  </button>
+                </div>
+                
+                {/* 선택된 카테고리 안내 - 애플 스타일 */}
+                <div className="text-center mt-12">
+                  <div className="inline-flex items-center gap-3 bg-gray-100/70 backdrop-blur-sm px-6 py-3 rounded-full border border-gray-200/60">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-gray-700">
+                      {activeTab === 'personal' && '개인 납세자용 계산기'}
+                      {activeTab === 'corporate' && '법인 사업자용 계산기'}
+                      {activeTab === 'business-inheritance' && '가업상속공제 전문 계산기'}
+                      {activeTab === 'stock-transfer' && '주식양도소득세 전문 계산기'}
+                    </span>
                   </div>
                 </div>
               </div>
 
-              {/* 탭 컨텐츠 - 추가 여백 확보 */}
-              <TabsContent value="personal" className="space-y-8 mt-8 md:mt-12">
-                <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg border border-gray-100">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                      <User className="w-6 h-6 text-blue-600" />
+              {/* 탭 컨텐츠 - 애플 스타일 클린 디자인 */}
+              {activeTab === 'personal' && (
+                <div className="space-y-8 mt-12">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-gray-200/60 shadow-lg">
+                    <div className="flex items-center gap-4 mb-8">
+                      <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center border border-blue-100">
+                        <User className="w-7 h-7 text-blue-600" />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl md:text-3xl font-light text-gray-900 tracking-tight">개인세금 계산기</h2>
+                        <p className="text-gray-600 text-lg font-light mt-1">개인 납세자를 위한 정확한 세금 계산</p>
+                      </div>
                     </div>
-                    <div>
-                      <h2 className="text-2xl md:text-3xl font-bold text-gray-900">개인세금 계산기</h2>
-                      <p className="text-gray-600 text-lg">개인 납세자를 위한 다양한 세금 계산기</p>
-                    </div>
+                    <CalculatorSelector 
+                      calculators={personalTaxCalculators}
+                      onSelect={handleCalculatorSelect}
+                      selectedId={selectedCalculator}
+                    />
                   </div>
-                  <CalculatorSelector 
-                    calculators={personalTaxCalculators}
-                    onSelect={handleCalculatorSelect}
-                    selectedId={selectedCalculator}
-                  />
                 </div>
-              </TabsContent>
+              )}
 
-              <TabsContent value="corporate" className="space-y-8 mt-8 md:mt-12">
-                <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg border border-gray-100">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                      <Building2 className="w-6 h-6 text-green-600" />
+              {activeTab === 'corporate' && (
+                <div className="space-y-8 mt-12">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-gray-200/60 shadow-lg">
+                    <div className="flex items-center gap-4 mb-8">
+                      <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center border border-green-100">
+                        <Building2 className="w-7 h-7 text-green-600" />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl md:text-3xl font-light text-gray-900 tracking-tight">법인세금 계산기</h2>
+                        <p className="text-gray-600 text-lg font-light mt-1">법인 사업자를 위한 전문 세금 계산</p>
+                      </div>
                     </div>
-                    <div>
-                      <h2 className="text-2xl md:text-3xl font-bold text-gray-900">법인세금 계산기</h2>
-                      <p className="text-gray-600 text-lg">법인 사업자를 위한 세금 계산기</p>
-                    </div>
+                    <CalculatorSelector 
+                      calculators={corporateTaxCalculators}
+                      onSelect={handleCalculatorSelect}
+                      selectedId={selectedCalculator}
+                    />
                   </div>
-                  <CalculatorSelector 
-                    calculators={corporateTaxCalculators}
-                    onSelect={handleCalculatorSelect}
-                    selectedId={selectedCalculator}
-                  />
                 </div>
-              </TabsContent>
+              )}
 
-              <TabsContent value="business-inheritance" className="space-y-8 mt-8 md:mt-12">
-                <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg border border-gray-100">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center">
-                      <Crown className="w-6 h-6 text-violet-600" />
+              {activeTab === 'business-inheritance' && (
+                <div className="space-y-8 mt-12">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-gray-200/60 shadow-lg">
+                    <div className="flex items-center gap-4 mb-8">
+                      <div className="w-14 h-14 bg-violet-50 rounded-2xl flex items-center justify-center border border-violet-100">
+                        <Crown className="w-7 h-7 text-violet-600" />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl md:text-3xl font-light text-gray-900 tracking-tight">가업상속세금 계산기</h2>
+                        <p className="text-gray-600 text-lg font-light mt-1">중소기업 가업상속공제 전문 계산</p>
+                      </div>
                     </div>
-                    <div>
-                      <h2 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-2">
-                        가업상속세금 계산기
-                      </h2>
-                      <p className="text-gray-600 text-lg">
-                        중소기업·중견기업 가업상속공제를 적용한 상속세 계산과 10년 사후관리 시스템
-                      </p>
-                    </div>
+                    <SingleCalculatorDisplay 
+                      calculator={businessInheritanceCalculator}
+                      onSelect={handleCalculatorSelect}
+                    />
                   </div>
-                  <SingleCalculatorDisplay 
-                    calculator={businessInheritanceCalculator}
-                    onSelect={handleCalculatorSelect}
-                  />
                 </div>
-              </TabsContent>
+              )}
 
-              <TabsContent value="stock-transfer" className="space-y-8 mt-8 md:mt-12">
-                <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg border border-gray-100">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center">
-                      <TrendingUp className="w-6 h-6 text-pink-600" />
+              {activeTab === 'stock-transfer' && (
+                <div className="space-y-8 mt-12">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-gray-200/60 shadow-lg">
+                    <div className="flex items-center gap-4 mb-8">
+                      <div className="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center border border-rose-100">
+                        <TrendingUp className="w-7 h-7 text-rose-600" />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl md:text-3xl font-light text-gray-900 tracking-tight">주식이동세금 계산기</h2>
+                        <p className="text-gray-600 text-lg font-light mt-1">주식 양도소득세 전문 계산</p>
+                      </div>
                     </div>
-                    <div>
-                      <h2 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-2">
-                        주식이동세금 계산기
-                      </h2>
-                      <p className="text-gray-600 text-lg">
-                        주식 매매시 발생하는 양도소득세 정확한 계산과 절세 전략 제공
-                      </p>
-                    </div>
+                    <SingleCalculatorDisplay 
+                      calculator={stockTransferCalculator}
+                      onSelect={handleCalculatorSelect}
+                    />
                   </div>
-                  <SingleCalculatorDisplay 
-                    calculator={stockTransferCalculator}
-                    onSelect={handleCalculatorSelect}
-                  />
                 </div>
-              </TabsContent>
-            </Tabs>
+              )}
+            </div>
           )}
 
           {/* 세금계산기 특징 카드들 - 모바일 최적화 (계산기가 선택되지 않았을 때만 표시) */}
