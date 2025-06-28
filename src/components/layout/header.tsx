@@ -17,7 +17,10 @@ import {
   Sparkles,
   Calculator,
   MessageCircle,
-  X
+  X,
+  Mail,
+  Target,
+  Users
 } from 'lucide-react';
 import { getImagePath } from '@/lib/utils';
 
@@ -194,145 +197,41 @@ export default function Header() {
                 </div>
 
                 <div className="space-y-6">
-                  {/* 핵심 서비스 섹션 */}
+                  {/* 주요 서비스 메뉴 - 간소화 */}
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-4">핵심 서비스</h3>
-                    
+                    <h3 className="font-semibold text-gray-900 mb-4 text-overflow-safe">⭐ 주요 서비스</h3>
                     <div className="space-y-3">
-                      {/* 사업분석 - 모바일 */}
-                      <Button 
-                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200 rounded-apple-sm p-4 h-auto"
-                        onClick={() => handleMobileNavigation('/services/business-analysis')}
-                      >
-                        <div className="flex items-center w-full">
-                          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-3">
-                            <Brain className="w-5 h-5 text-white" />
+                      {[
+                        { href: '/services/business-analysis', label: '프리미엄 사업분석', icon: '🎯', badge: '추천' },
+                        { href: '/services/ai-productivity', label: 'AI 생산성향상', icon: '🤖', badge: '정부지원' },
+                        { href: '/services/factory-auction', label: '공장구매 컨설팅', icon: '🏭', badge: '절약' },
+                        { href: '/tax-calculator', label: '세금계산기', icon: '🧮', badge: '무료' }
+                      ].map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className="flex items-center p-3 rounded-apple-sm hover:bg-gray-50 transition-colors duration-200 border border-gray-200 hover:border-blue-600 group"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <div className="w-8 h-8 bg-gray-100 group-hover:bg-blue-600 group-hover:text-white rounded-lg flex items-center justify-center mr-3 transition-colors">
+                            <span className="text-lg">{item.icon}</span>
                           </div>
-                          <div className="flex-1 text-left">
-                            <div className="font-semibold text-white">프리미엄 사업분석</div>
-                            <div className="text-sm text-blue-100">전략적 성장 솔루션</div>
+                          <div className="flex-1 min-w-0">
+                            <span className="text-sm font-medium text-gray-900 group-hover:text-blue-600 text-overflow-safe">{item.label}</span>
+                            <div className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full inline-block mt-1">
+                              <span className="text-overflow-safe">{item.badge}</span>
+                            </div>
                           </div>
-                        </div>
-                      </Button>
-                      
-                      {/* AI솔루션 - 모바일 */}
-                      <Button 
-                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200 rounded-apple-sm p-4 h-auto"
-                        onClick={() => handleMobileNavigation('/services/ai-productivity')}
-                      >
-                        <div className="flex items-center w-full">
-                          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-3">
-                            <Sparkles className="w-5 h-5 text-white" />
-                          </div>
-                          <div className="flex-1 text-left">
-                            <div className="font-semibold text-white">AI 혁신 솔루션</div>
-                            <div className="text-sm text-purple-100">차세대 비즈니스 도구</div>
-                          </div>
-                        </div>
-                      </Button>
-                      
-                      {/* 인증지원 - 모바일 */}
-                      <Button 
-                        className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200 rounded-apple-sm p-4 h-auto"
-                        onClick={() => handleMobileNavigation('/services/certification')}
-                      >
-                        <div className="flex items-center w-full">
-                          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-3">
-                            <Award className="w-5 h-5 text-white" />
-                          </div>
-                          <div className="flex-1 text-left">
-                            <div className="font-semibold text-white">ISO/벤처</div>
-                            <div className="text-sm text-orange-100">연간 5천만원 세제혜택</div>
-                          </div>
-                        </div>
-                      </Button>
-                      
-                      {/* 웹사이트 - 모바일 */}
-                      <Button 
-                        className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200 rounded-apple-sm p-4 h-auto"
-                        onClick={() => handleMobileNavigation('/services/website')}
-                      >
-                        <div className="flex items-center w-full">
-                          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-3">
-                            <Globe className="w-5 h-5 text-white" />
-                          </div>
-                          <div className="flex-1 text-left">
-                            <div className="font-semibold text-white">웹사이트</div>
-                            <div className="text-sm text-cyan-100">매출증대 웹사이트구축</div>
-                          </div>
-                        </div>
-                      </Button>
-                      
-                      <Button 
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200 rounded-apple-sm p-4 h-auto"
-                        onClick={() => handleMobileNavigation('/tax-calculator')}
-                      >
-                        <div className="flex items-center w-full">
-                          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-3">
-                            <Calculator className="w-5 h-5 text-white" />
-                          </div>
-                          <div className="flex-1 text-left">
-                            <div className="font-semibold text-white">세금계산기</div>
-                            <div className="text-sm text-blue-100">11개 전문 계산기</div>
-                          </div>
-                        </div>
-                      </Button>
-                      
-                      <Button 
-                        className="w-full bg-gray-900 hover:bg-gray-800 text-white shadow-apple-button hover:shadow-apple-button-hover transform hover:-translate-y-0.5 transition-all duration-200 rounded-apple-sm p-4 h-auto"
-                        onClick={() => handleMobileNavigation('/diagnosis')}
-                      >
-                        <div className="flex items-center w-full">
-                          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-3">
-                            <Sparkles className="w-5 h-5 text-white" />
-                          </div>
-                          <div className="flex-1 text-left">
-                            <div className="font-semibold text-white">무료 진단</div>
-                            <div className="text-sm text-gray-300">맞춤 분석 리포트</div>
-                          </div>
-                        </div>
-                      </Button>
-
-                      <Button 
-                        variant="outline"
-                        className="w-full border border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 rounded-apple-sm p-4 h-auto transition-all duration-200"
-                        onClick={() => handleMobileNavigation('/consultation')}
-                      >
-                        <div className="flex items-center w-full">
-                          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
-                            <Phone className="w-5 h-5 text-gray-700" />
-                          </div>
-                          <div className="flex-1 text-left">
-                            <div className="font-semibold">무료상담</div>
-                            <div className="text-sm text-gray-600">전문가 1:1 상담</div>
-                          </div>
-                        </div>
-                      </Button>
-
-                      <Button
-                        variant="outline"
-                        className="w-full border border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 rounded-apple-sm p-4 h-auto transition-all duration-200"
-                        onClick={() => handleMobileNavigation('/chatbot')}
-                      >
-                        <div className="flex items-center w-full">
-                          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
-                            <Bot className="w-5 h-5 text-gray-700" />
-                          </div>
-                          <div className="flex-1 text-left">
-                            <div className="font-semibold">AI상담</div>
-                            <div className="text-sm text-gray-600">24시간 상담</div>
-                          </div>
-                        </div>
-                      </Button>
+                        </Link>
+                      ))}
                     </div>
                   </div>
-
-                  {/* 구분선 */}
+                  
                   <div className="border-t border-gray-200"></div>
                   
                   {/* 페이지 메뉴 - 간소화 */}
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-4">페이지 메뉴</h3>
+                    <h3 className="font-semibold text-gray-900 mb-4 text-overflow-safe">페이지 메뉴</h3>
                     <div className="grid grid-cols-2 gap-3">
                       {[
                         { href: '/', label: '홈', icon: '🏠' },
@@ -350,28 +249,51 @@ export default function Header() {
                           <div className="w-8 h-8 bg-gray-100 group-hover:bg-blue-600 group-hover:text-white rounded-lg flex items-center justify-center mb-2 transition-colors">
                             <span className="text-lg">{item.icon}</span>
                           </div>
-                          <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600">{item.label}</span>
+                          <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600 text-center text-overflow-safe">{item.label}</span>
                         </Link>
                       ))}
                     </div>
                   </div>
 
                   {/* 하단 연락처 */}
-                  <div className="bg-gray-50 rounded-apple p-4 border border-gray-200">
-                    <div className="text-center">
-                      <h4 className="font-semibold text-gray-900 mb-2">전문가 직접 상담</h4>
-                      <div className="text-sm text-gray-600 mb-3">
-                        <p>평일 9:00-18:00</p>
-                        <p className="font-semibold text-blue-600">010-9251-9743</p>
+                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-apple-lg border border-blue-200">
+                    <h4 className="font-semibold text-gray-900 mb-3 text-center">
+                      <span className="text-overflow-safe">📞 전문가 직접 상담</span>
+                    </h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-center gap-3">
+                        <Phone className="w-5 h-5 text-blue-600" />
+                        <div className="text-center">
+                          <div className="font-bold text-blue-600 text-overflow-safe">010-9251-9743</div>
+                          <div className="text-xs text-gray-600 text-overflow-safe">이후경 경영지도사</div>
+                        </div>
                       </div>
-                      <Button
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full py-2 text-sm"
-                        onClick={() => handleMobileNavigation('/consultation')}
-                      >
-                        <MessageCircle className="w-3 h-3 mr-2" />
-                        1:1 문의하기
-                      </Button>
+                      <div className="flex items-center justify-center gap-3">
+                        <Mail className="w-5 h-5 text-blue-600" />
+                        <div className="text-center">
+                          <div className="font-medium text-gray-900 text-overflow-safe">hongik423@gmail.com</div>
+                          <div className="text-xs text-gray-600 text-overflow-safe">24시간 이메일 접수</div>
+                        </div>
+                      </div>
                     </div>
+                  </div>
+                  
+                  {/* 모바일 액션 버튼들 */}
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <Button 
+                      className="mobile-button bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                      onClick={() => handleMobileNavigation('/diagnosis')}
+                    >
+                      <Target className="w-4 h-4 mr-2" />
+                      <span className="text-overflow-safe">무료 진단</span>
+                    </Button>
+                    <Button 
+                      className="mobile-button bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                      onClick={() => handleMobileNavigation('/consultation')}
+                    >
+                      <Users className="w-4 h-4 mr-2" />
+                      <span className="text-overflow-safe">전문가 상담</span>
+                    </Button>
                   </div>
                 </div>
               </SheetContent>

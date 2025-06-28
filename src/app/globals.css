@@ -518,25 +518,91 @@
     @apply active:scale-95 transition-transform duration-150;
   }
   
-  /* 모바일 입력 필드 최적화 */
-  .mobile-input {
-    @apply min-h-[44px] px-4 py-3 text-base rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200;
-    -webkit-appearance: none;
+  /* 🎯 모바일 UI 개선 - 중앙정렬 및 박스 오버플로우 방지 */
+  .mobile-centered {
+    @apply text-center mx-auto max-w-full;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    -webkit-hyphens: auto;
+    hyphens: auto;
   }
   
-  /* 모바일 버튼 스타일 */
+  .mobile-text {
+    @apply leading-relaxed;
+    word-break: keep-all;
+    line-break: auto;
+    text-align: justify;
+    text-justify: inter-word;
+  }
+  
+  .mobile-card {
+    @apply p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200;
+    overflow: hidden;
+    word-wrap: break-word;
+  }
+  
   .mobile-button {
-    @apply min-h-[44px] px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200;
+    @apply min-h-[48px] px-6 py-3 text-base font-medium rounded-xl transition-all duration-200;
+    @apply touch-target touch-feedback;
     -webkit-tap-highlight-color: transparent;
+    min-width: 120px;
   }
   
-  /* 스크롤 인디케이터 숨김 (필요시) */
-  .hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  /* 📱 반응형 텍스트 크기 최적화 */
+  .text-mobile-xs { @apply text-sm leading-5; }
+  .text-mobile-sm { @apply text-base leading-6; }
+  .text-mobile-base { @apply text-lg leading-7; }
+  .text-mobile-lg { @apply text-xl leading-8; }
+  .text-mobile-xl { @apply text-2xl leading-9; }
+  
+  /* 📦 모바일 컨테이너 최적화 */
+  .mobile-container {
+    @apply w-full max-w-full px-4 mx-auto;
+    box-sizing: border-box;
   }
-  .hide-scrollbar::-webkit-scrollbar {
-    display: none;
+  
+  @screen sm {
+    .mobile-container {
+      @apply px-6 max-w-lg;
+    }
+  }
+  
+  @screen md {
+    .mobile-container {
+      @apply px-8 max-w-4xl;
+    }
+  }
+  
+  @screen lg {
+    .mobile-container {
+      @apply px-12 max-w-6xl;
+    }
+  }
+  
+  /* 🎨 모바일 카드 레이아웃 개선 */
+  .service-card-mobile {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100;
+    @apply p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+    @apply overflow-hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* 📝 텍스트 오버플로우 방지 */
+  .text-overflow-safe {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: keep-all;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+    white-space: normal;
+  }
+  
+  /* 🔗 링크 텍스트 줄바꿈 최적화 */
+  .link-text-wrap {
+    word-break: keep-all;
+    line-break: anywhere;
+    white-space: normal;
   }
 }
 

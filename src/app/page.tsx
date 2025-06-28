@@ -225,18 +225,18 @@ function MetricCard({ metric }: { metric: typeof performanceMetrics[0] }) {
     : count.toLocaleString();
 
   return (
-    <Card className="result-card group cursor-pointer animate-scale-in">
+    <Card className="service-card-mobile group cursor-pointer animate-scale-in">
       <CardContent className="p-6 text-center">
         <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl 
                         flex items-center justify-center mx-auto mb-4 
                         group-hover:scale-110 transition-transform duration-300">
           <metric.icon className={`w-8 h-8 ${metric.color}`} />
         </div>
-        <div className={`text-4xl font-bold mb-2 ${metric.color} font-mono`}>
-          {displayValue}
+        <div className={`text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 ${metric.color} font-mono mobile-centered`}>
+          <span className="text-overflow-safe">{displayValue}</span>
           <span className="text-lg ml-1 text-gray-500">{metric.suffix}</span>
         </div>
-        <p className="text-gray-600 font-medium text-sm">{metric.label}</p>
+        <p className="text-gray-600 font-medium text-sm mobile-text text-overflow-safe">{metric.label}</p>
       </CardContent>
     </Card>
   );
@@ -256,22 +256,22 @@ export default function Home() {
           <div className="absolute bottom-20 left-1/3 w-40 h-40 bg-green-400 rounded-full blur-xl"></div>
         </div>
         
-        <div className="container-custom relative z-10">
+        <div className="mobile-container relative z-10">
           <div className="max-w-5xl mx-auto text-center">
             {/* 상단 배지 */}
             <div className="inline-flex items-center gap-2 badge-primary mb-6 animate-bounce-gentle">
               <Sparkles className="w-4 h-4" />
-              <span className="font-semibold">프리미엄 비즈니스 혁신 프레임워크</span>
+              <span className="font-semibold text-overflow-safe">프리미엄 비즈니스 혁신 프레임워크</span>
             </div>
             
-            <h1 className="text-hero text-gray-900 mb-6 leading-tight animate-slide-in">
-              <span className="block">기업 성장의 새로운 차원을</span>
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-hero text-gray-900 mb-6 leading-tight animate-slide-in mobile-centered">
+              <span className="block text-overflow-safe">기업 성장의 새로운 차원을</span>
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent text-overflow-safe">
                 경험하세요
               </span>
             </h1>
             
-            <p className="text-body-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed px-4 animate-slide-in" 
+            <p className="text-body-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed px-4 animate-slide-in mobile-text" 
                style={{ animationDelay: '0.2s' }}>
               <strong className="text-gray-800">혁신 AI, 스마트 투자, 기술창업, 프리미엄 인증, 디지털 혁신</strong> - 
               6대 영역 통합 솔루션으로 차원이 다른 비즈니스 성과를 만나보세요
@@ -281,30 +281,30 @@ export default function Home() {
                  style={{ animationDelay: '0.4s' }}>
               <Link href="/services">
                 <Button 
-                  className="btn-hero bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 
-                            text-white shadow-xl hover:shadow-2xl"
+                  className="mobile-button btn-hero bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 
+                            text-white shadow-xl hover:shadow-2xl w-full sm:w-auto"
                 >
                   <Sparkles className="w-5 h-5 mr-2" />
-                  프리미엄 사업분석 시작하기
+                  <span className="text-overflow-safe">프리미엄 사업분석 시작하기</span>
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
               
               <Link href="/diagnosis">
                 <Button 
-                  className="btn-primary bg-green-500 hover:bg-green-600"
+                  className="mobile-button btn-primary bg-green-500 hover:bg-green-600 w-full sm:w-auto"
                 >
                   <Zap className="w-5 h-5 mr-2" />
-                  무료 전문가 진단
+                  <span className="text-overflow-safe">무료 전문가 진단</span>
                 </Button>
               </Link>
               
               <Link href="/consultation">
                 <Button 
-                  className="btn-secondary"
+                  className="mobile-button btn-secondary w-full sm:w-auto"
                 >
                   <Users className="w-5 h-5 mr-2" />
-                  전문가 상담 신청
+                  <span className="text-overflow-safe">전문가 상담 신청</span>
                 </Button>
               </Link>
             </div>
@@ -314,45 +314,45 @@ export default function Home() {
 
       {/* AI 상담사 섹션 - 신비롭고 고급스러운 표현으로 변경 */}
       <section className="section-padding bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative">
-        <div className="container-custom">
+        <div className="mobile-container">
           <div className="text-center mb-16">
             <div className="badge-primary mb-6 animate-bounce-gentle">
               <Brain className="w-5 h-5 mr-2 animate-pulse" />
-              <span className="font-semibold">차세대 지능형 상담 시스템</span>
+              <span className="font-semibold text-overflow-safe">차세대 지능형 상담 시스템</span>
             </div>
             
-            <h2 className="text-h1 text-gray-900 mb-4 animate-slide-in">
+            <h2 className="text-h1 text-gray-900 mb-4 animate-slide-in mobile-centered">
               <span className="text-4xl mr-3">🧠</span>
-              AI 전문 상담사와 바로 대화하기
+              <span className="text-overflow-safe">AI 전문 상담사와 바로 대화하기</span>
             </h2>
             
-            <p className="text-body-lg text-gray-600 max-w-4xl mx-auto">
+            <p className="text-body-lg text-gray-600 max-w-4xl mx-auto mobile-text">
               <strong className="text-blue-600">최첨단 AI 기술</strong>로 무장한 전문 상담사가 24시간 대기 중입니다.<br />
               기업 성장에 관한 모든 궁금증을 지금 바로 해결해보세요!
             </p>
           </div>
           
           <div className="max-w-6xl mx-auto">
-            <Card className="result-card bg-white/90 backdrop-blur-sm">
-              <CardContent className="p-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <Card className="service-card-mobile bg-white/90 backdrop-blur-sm">
+              <CardContent className="p-4 sm:p-6 lg:p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
                   {/* 좌측: AI 상담사 소개 */}
                   <div className="animate-slide-in">
-                    <div className="flex items-center mb-8">
-                      <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 
-                                      rounded-3xl flex items-center justify-center mr-6 shadow-lg">
-                        <Brain className="w-10 h-10 text-white" />
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start mb-6 lg:mb-8">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-indigo-500 to-purple-600 
+                                      rounded-3xl flex items-center justify-center mb-4 sm:mb-0 sm:mr-6 shadow-lg">
+                        <Brain className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                       </div>
-                      <div>
-                        <h3 className="text-h3 text-gray-900 mb-1">M-CENTER 전문 AI 상담사</h3>
-                        <div className="flex items-center gap-2">
+                      <div className="text-center sm:text-left">
+                        <h3 className="text-h3 text-gray-900 mb-1 text-overflow-safe">M-CENTER 전문 AI 상담사</h3>
+                        <div className="flex flex-col sm:flex-row items-center gap-2">
                           <span className="badge-primary">Advanced AI</span>
                           <span className="badge-success">24시간 상담</span>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="space-y-4 mb-8">
+                    <div className="space-y-4 mb-6 lg:mb-8">
                       {[
                         {
                           title: '전문 분야별 맞춤 상담',
@@ -377,18 +377,18 @@ export default function Home() {
                       ].map((item, index) => (
                         <div key={index} className="flex items-start gap-4">
                           <CheckCircle2 className="w-6 h-6 text-green-500 mt-0.5 flex-shrink-0" />
-                          <div className="flex-1">
-                            <p className="font-semibold text-gray-900 mb-2">{item.title}</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-gray-900 mb-2 text-overflow-safe">{item.title}</p>
                             {item.desc && (
-                              <p className="text-sm text-gray-600">{item.desc}</p>
+                              <p className="text-sm text-gray-600 mobile-text">{item.desc}</p>
                             )}
                             {item.links && (
-                              <div className="flex flex-wrap gap-1">
+                              <div className="flex flex-wrap gap-1 mt-2">
                                 {item.links.map((link, linkIndex) => (
                                   <span key={linkIndex} className="text-sm">
                                     <Link 
                                       href={link.href} 
-                                      className={`${link.color} font-medium hover:underline transition-colors duration-200`}
+                                      className={`${link.color} font-medium hover:underline transition-colors duration-200 link-text-wrap`}
                                     >
                                       {link.name}
                                     </Link>
@@ -404,10 +404,10 @@ export default function Home() {
                       ))}
                     </div>
 
-                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl">
+                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 sm:p-6 rounded-2xl">
                       <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                         <span className="text-xl">💬</span>
-                        상담 예시 질문:
+                        <span className="text-overflow-safe">상담 예시 질문:</span>
                       </h4>
                       <ul className="text-sm text-gray-700 space-y-2">
                         {[
@@ -417,8 +417,8 @@ export default function Home() {
                           "정부지원 사업은 어떤 것들이 있나요?"
                         ].map((question, index) => (
                           <li key={index} className="flex items-start gap-2">
-                            <span className="text-blue-500 font-bold">•</span>
-                            <span>"{question}"</span>
+                            <span className="text-blue-500 font-bold flex-shrink-0">•</span>
+                            <span className="text-overflow-safe">"{question}"</span>
                           </li>
                         ))}
                       </ul>
@@ -426,16 +426,16 @@ export default function Home() {
                   </div>
 
                   {/* 우측: 즉시 채팅 시작 */}
-                  <div className="bg-gradient-to-br from-gray-50 to-indigo-50 p-8 rounded-3xl animate-scale-in"
+                  <div className="bg-gradient-to-br from-gray-50 to-indigo-50 p-6 sm:p-8 rounded-3xl animate-scale-in"
                        style={{ animationDelay: '0.3s' }}>
-                    <div className="text-center mb-8">
-                      <h4 className="text-h4 text-gray-900 mb-3">지금 바로 시작하세요!</h4>
-                      <p className="text-gray-600">우측 하단 채팅 아이콘을 클릭하거나<br />아래 버튼을 눌러 상담을 시작하세요</p>
+                    <div className="text-center mb-6 lg:mb-8">
+                      <h4 className="text-h4 text-gray-900 mb-3 text-overflow-safe">지금 바로 시작하세요!</h4>
+                      <p className="text-gray-600 mobile-text">우측 하단 채팅 아이콘을 클릭하거나<br />아래 버튼을 눌러 상담을 시작하세요</p>
                     </div>
 
-                    <div className="space-y-4 mb-8">
+                    <div className="space-y-4 mb-6 lg:mb-8">
                       <Button 
-                        className="w-full btn-hero bg-gradient-to-r from-indigo-500 to-purple-600 
+                        className="mobile-button w-full btn-hero bg-gradient-to-r from-indigo-500 to-purple-600 
                                   hover:from-indigo-600 hover:to-purple-700"
                         onClick={() => {
                           const chatbot = document.querySelector('[data-floating-chatbot]') as HTMLElement;
@@ -447,21 +447,21 @@ export default function Home() {
                         }}
                       >
                         <Star className="w-5 h-5 mr-2 text-yellow-400" />
-                        별-AI상담사와 채팅 시작하기
+                        <span className="text-overflow-safe">별-AI상담사와 채팅 시작하기</span>
                       </Button>
                       
                       <Link href="/consultation">
                         <Button 
-                          className="w-full btn-secondary"
+                          className="mobile-button w-full btn-secondary"
                         >
                           <Users className="w-5 h-5 mr-2" />
-                          전문가 직접 상담 신청 (010-9251-9743)
+                          <span className="text-overflow-safe">전문가 직접 상담 신청 (010-9251-9743)</span>
                         </Button>
                       </Link>
                     </div>
 
                     <div className="bg-white/90 p-4 rounded-2xl border border-indigo-200">
-                      <div className="flex items-center justify-center gap-6 text-sm text-gray-600">
+                      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-sm text-gray-600">
                         <div className="flex items-center gap-2">
                           <Clock className="w-4 h-4 text-green-500" />
                           <span className="font-medium">24시간</span>
@@ -486,91 +486,89 @@ export default function Home() {
 
       {/* 6대 핵심서비스 - 토스 스타일 */}
       <section className="section-padding bg-white">
-        <div className="container-custom">
+        <div className="mobile-container">
           <div className="text-center mb-16">
-            <h2 className="text-h1 text-gray-900 mb-4">
-              6대 핵심서비스
+            <h2 className="text-h1 text-gray-900 mb-4 mobile-centered">
+              <span className="text-overflow-safe">6대 핵심서비스</span>
             </h2>
-            <p className="text-body-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-body-lg text-gray-600 max-w-3xl mx-auto mobile-text">
               기업 성장 단계별 맞춤형 솔루션으로 경쟁력을 확보하세요
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {services.map((service, index) => (
               <Link href={service.href} key={service.id} className="block">
                 <Card 
-                  className={`service-card group relative overflow-hidden cursor-pointer
+                  className={`service-card-mobile group relative overflow-hidden cursor-pointer
                              ${service.featured ? 'ring-2 ring-blue-400 ring-opacity-50 scale-105' : ''} 
                              bg-gradient-to-br ${service.bgColor} hover:shadow-xl hover:-translate-y-2 transition-all duration-300`}
                 >
                   {service.featured && (
                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
                       <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white 
-                                      px-4 py-1 rounded-full text-sm font-bold shadow-lg">
-                        {service.badge}
+                                      px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                        ⭐ 추천
                       </div>
                     </div>
                   )}
                   
-                  {/* 배경 아이콘 */}
-                  <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <service.icon className="w-16 h-16" />
-                  </div>
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className={`w-12 h-12 rounded-2xl ${service.color} 
+                                      flex items-center justify-center shadow-lg 
+                                      group-hover:scale-110 transition-transform duration-300`}>
+                        <service.icon className="w-6 h-6" />
+                      </div>
+                      <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                        {service.badge}
+                      </span>
+                    </div>
+                    
+                    <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                      <span className="text-overflow-safe">{service.title}</span>
+                    </CardTitle>
+                    
+                    <div className="text-sm font-semibold text-blue-600 mb-2">
+                      <span className="text-overflow-safe">{service.subtitle}</span>
+                    </div>
+                    
+                    <p className="text-sm text-gray-600 mobile-text">
+                      {service.description}
+                    </p>
+                  </CardHeader>
                   
-                  <CardContent className="p-8 relative z-10">
-                    <div className={`w-20 h-20 ${service.color} rounded-3xl flex items-center justify-center 
-                                    mb-6 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                      <service.icon className="w-10 h-10" />
-                    </div>
-                    
-                    <div className="text-center mb-6">
-                      <span className="badge-primary mb-3 inline-block">{service.badge}</span>
-                      <h3 className={`text-h4 mb-3 ${service.featured ? 'text-blue-600' : 'text-gray-900'}`}>
-                        {service.title}
-                      </h3>
-                      <p className="text-gray-600 mb-4">
-                        {service.description}
-                      </p>
-                    </div>
-                    
-                    <div className="space-y-3 mb-6">
+                  <CardContent className="pt-0">
+                    {/* 혜택 리스트 */}
+                    <div className="space-y-2 mb-6">
                       {service.benefits.map((benefit, idx) => (
-                        <div key={idx} className="flex items-center text-sm text-gray-700">
-                          <CheckCircle className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" />
-                          {benefit}
+                        <div key={idx} className="flex items-center gap-2 text-sm">
+                          <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                          <span className="text-gray-700 text-overflow-safe">{benefit}</span>
                         </div>
                       ))}
                     </div>
                     
-                    <div className={`font-bold mb-6 text-center p-3 rounded-xl
-                                    ${service.featured ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-700'}`}>
-                      ✓ {service.subtitle}
-                    </div>
-                    
+                    {/* 버튼 그룹 */}
                     <div className="space-y-3">
-                      <div className="w-full">
-                        <Button 
-                          className={`w-full font-semibold py-3 transition-all duration-300 pointer-events-none ${
-                            service.featured 
-                              ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg' 
-                              : 'bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white shadow-lg'
-                          }`}
-                        >
-                          지금 시작하기
-                          <ArrowRight className="ml-2 w-4 h-4" />
-                        </Button>
-                      </div>
+                      <Button 
+                        className={`mobile-button w-full font-semibold py-3 transition-all duration-300 pointer-events-none ${ 
+                          service.featured 
+                            ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg' 
+                            : 'bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white shadow-lg'
+                        }`}
+                      >
+                        <span className="text-overflow-safe">지금 시작하기</span>
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </Button>
                       
-                      <div className="w-full">
-                        <Button 
-                          variant="outline"
-                          className="w-full font-semibold py-3 bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300 pointer-events-none"
-                        >
-                          자세히 보기
-                          <FileText className="ml-2 w-4 h-4" />
-                        </Button>
-                      </div>
+                      <Button 
+                        variant="outline" 
+                        className="mobile-button w-full border-2 border-gray-200 hover:border-blue-600 hover:bg-blue-50 hover:text-blue-600 transition-all duration-300 pointer-events-none"
+                      >
+                        <span className="text-overflow-safe">자세히 보기</span>
+                        <FileText className="ml-2 w-4 h-4" />
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -632,18 +630,18 @@ export default function Home() {
       </section>
 
       {/* 실시간 성과 지표 - 토스 스타일 */}
-      <section className="section-padding bg-white">
-        <div className="container-custom">
+      <section className="section-padding bg-gradient-to-br from-blue-50 to-purple-50">
+        <div className="mobile-container">
           <div className="text-center mb-16">
-            <h2 className="text-h1 text-gray-900 mb-4">
-              실시간 성과 지표
+            <h2 className="text-h1 text-gray-900 mb-4 mobile-centered">
+              <span className="text-overflow-safe">실시간 성과 지표</span>
             </h2>
-            <p className="text-body-lg text-gray-600">
-              기업의별 경영지도센터와 함께한 기업들의 성과를 확인해보세요
+            <p className="text-body-lg text-gray-600 max-w-3xl mx-auto mobile-text">
+              M-CENTER와 함께한 기업들의 실제 성과를 확인하세요
             </p>
           </div>
           
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {performanceMetrics.map((metric, index) => (
               <MetricCard key={index} metric={metric} />
             ))}
@@ -651,48 +649,104 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 고객 후기 - 토스 스타일 */}
-      <section className="section-padding gradient-bg-primary">
-        <div className="container-custom">
+      {/* 고객 추천 후기 - 토스 스타일 */}
+      <section className="section-padding bg-white">
+        <div className="mobile-container">
           <div className="text-center mb-16">
-            <h2 className="text-h1 text-gray-900 mb-4">
-              고객 후기
+            <h2 className="text-h1 text-gray-900 mb-4 mobile-centered">
+              <span className="text-overflow-safe">고객 성공 스토리</span>
             </h2>
-            <p className="text-body-lg text-gray-600">
-              실제 고객들의 생생한 경험담을 들어보세요
+            <p className="text-body-lg text-gray-600 max-w-3xl mx-auto mobile-text">
+              M-CENTER를 선택한 기업들의 진솔한 경험담을 들어보세요
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="result-card group">
-                <CardContent className="p-8">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="text-3xl">{testimonial.avatar}</div>
-                    <div className="flex">
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                      ))}
+              <Card key={index} className="service-card-mobile bg-gradient-to-br from-white to-gray-50 hover:shadow-lg transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="flex items-center mb-6">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 
+                                    rounded-full flex items-center justify-center text-2xl mr-4">
+                      {testimonial.avatar}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-bold text-gray-900 text-overflow-safe">{testimonial.name}</h4>
+                      <p className="text-sm text-gray-600 text-overflow-safe">{testimonial.title}</p>
+                      <p className="text-xs text-blue-600 font-medium text-overflow-safe">{testimonial.company}</p>
                     </div>
                   </div>
                   
-                  <Quote className="w-8 h-8 text-blue-300 mb-4" />
+                  <div className="flex items-center mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                    ))}
+                  </div>
                   
-                  <p className="text-gray-700 mb-6 leading-relaxed italic">
-                    "{testimonial.content}"
+                  <Quote className="w-8 h-8 text-blue-200 mb-4" />
+                  <p className="text-gray-700 italic leading-relaxed mobile-text">
+                    {testimonial.content}
                   </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 기업 성장 단계별 맞춤 전략 */}
+      <section className="section-padding bg-gradient-to-br from-gray-50 to-blue-50">
+        <div className="mobile-container">
+          <div className="text-center mb-16">
+            <h2 className="text-h1 text-gray-900 mb-4 mobile-centered">
+              <span className="text-overflow-safe">기업 성장 단계별 맞춤 전략</span>
+            </h2>
+            <p className="text-body-lg text-gray-600 max-w-4xl mx-auto mobile-text">
+              창업부터 지속가능한 혁신까지, 각 단계에 최적화된 솔루션을 제공합니다
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+            {growthStages.map((stage, index) => (
+              <Card key={index} className={`service-card-mobile text-center ${stage.color} hover:shadow-lg transition-all duration-300`}>
+                <CardContent className="p-6">
+                  <div className="text-4xl mb-4">{stage.icon}</div>
+                  <div className="bg-white/80 backdrop-blur-sm rounded-full px-3 py-1 mb-4 inline-block">
+                    <span className="text-sm font-bold text-gray-700 text-overflow-safe">{stage.step}</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2 text-overflow-safe">{stage.title}</h3>
+                  <p className="text-sm text-gray-600 mb-4 mobile-text">{stage.description}</p>
+                  <div className="text-xs text-blue-600 font-medium mb-4 text-overflow-safe">{stage.period}</div>
                   
-                  <div className="border-t pt-4">
-                    <div className="font-bold text-gray-900 text-lg">
-                      {testimonial.name}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {testimonial.title}, {testimonial.company}
-                    </div>
+                  <div className="space-y-2">
+                    {stage.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-center text-sm text-gray-700 justify-center">
+                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
+                        <span className="text-overflow-safe">{feature}</span>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
             ))}
+          </div>
+          
+          <div className="text-center mt-12">
+            <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-lg border border-blue-200 max-w-4xl mx-auto">
+              <h3 className="text-h3 text-gray-900 mb-4 mobile-centered">
+                <span className="text-overflow-safe">💡 단계별 맞춤 전략 설계</span>
+              </h3>
+              <p className="text-gray-600 mb-6 mobile-text">
+                귀하의 기업이 현재 어느 단계에 있든, M-CENTER는 다음 성장을 위한 
+                최적의 로드맵을 제시합니다
+              </p>
+              <Link href="/diagnosis">
+                <Button className="mobile-button btn-hero bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
+                  <Target className="w-5 h-5 mr-2" />
+                  <span className="text-overflow-safe">우리 기업 성장 단계 진단받기</span>
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

@@ -77,46 +77,56 @@ export function FloatingErrorReportButton({
         });
         console.log('📜 베타 피드백 섹션으로 스크롤 완료');
         
-        // 베타 피드백 폼 자동 열기 (여러 방법으로 시도)
+        // 베타 피드백 폼 자동 열기
         setTimeout(() => {
           console.log('🔍 베타 피드백 버튼 찾기 시작...');
           
-                     // 첫 번째 시도: 바로 텍스트 매칭으로 시작 (CSS :contains()는 표준이 아니므로 제외)
-           let feedbackButton: HTMLButtonElement | null = null;
+          // 오류 신고하기 버튼을 찾는 여러가지 방법
+          let feedbackButton: HTMLButtonElement | null = null;
           
-          // 두 번째 시도: 더 정확한 텍스트 매칭
+          // 첫 번째 시도: Bug 아이콘이 있는 빨간색 버튼 찾기
+          const bugButtons = feedbackSection.querySelectorAll('button[class*="red"], button[class*="bg-red"]');
+          for (const button of bugButtons) {
+            const svgElements = button.querySelectorAll('svg');
+            for (const svg of svgElements) {
+              if (svg.innerHTML.includes('M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z') ||
+                  svg.getAttribute('data-testid')?.includes('bug') ||
+                  svg.outerHTML.includes('lucide-bug')) {
+                feedbackButton = button as HTMLButtonElement;
+                console.log('✅ Bug 아이콘 버튼 발견');
+                break;
+              }
+            }
+            if (feedbackButton) break;
+          }
+          
+          // 두 번째 시도: 텍스트 매칭
           if (!feedbackButton) {
             const buttons = feedbackSection.querySelectorAll('button');
-            console.log(`🔍 총 ${buttons.length}개 버튼 발견, 검색 중...`);
+            console.log(`🔍 총 ${buttons.length}개 버튼 발견, 텍스트 검색 중...`);
             
             buttons.forEach((button, index) => {
               const buttonText = button.textContent || '';
+              const buttonHtml = button.innerHTML || '';
               console.log(`버튼 ${index + 1}: "${buttonText}"`);
               
               if (buttonText.includes('오류 신고') || 
                   buttonText.includes('신고하기') || 
                   buttonText.includes('🚨') ||
-                  buttonText.includes('Bug') ||
-                  button.innerHTML.includes('Bug')) {
+                  buttonHtml.includes('Bug') ||
+                  buttonHtml.includes('bug')) {
                 feedbackButton = button as HTMLButtonElement;
-                console.log(`✅ 매칭된 버튼 발견: "${buttonText}"`);
+                console.log(`✅ 텍스트 매칭 버튼 발견: "${buttonText}"`);
               }
             });
           }
           
-          // 세 번째 시도: Bug 아이콘이 있는 버튼 찾기
+          // 세 번째 시도: 빨간색 계열 버튼 찾기
           if (!feedbackButton) {
-            const bugButtons = feedbackSection.querySelectorAll('button svg[class*="lucide-bug"], button svg[data-testid="bug"]');
-            if (bugButtons.length > 0) {
-              feedbackButton = bugButtons[0].closest('button') as HTMLButtonElement;
-              console.log('🐛 Bug 아이콘으로 버튼 발견');
+            feedbackButton = feedbackSection.querySelector('button[class*="red"]:first-of-type') as HTMLButtonElement;
+            if (feedbackButton) {
+              console.log('🎨 빨간색 버튼으로 발견');
             }
-          }
-          
-          // 네 번째 시도: 클래스명으로 찾기
-          if (!feedbackButton) {
-            feedbackButton = feedbackSection.querySelector('button[class*="red"], button[class*="error"], button[class*="report"]') as HTMLButtonElement;
-            console.log('🎨 클래스명으로 버튼 찾기 시도');
           }
           
           // 버튼 클릭
@@ -124,13 +134,62 @@ export function FloatingErrorReportButton({
             console.log('🎯 베타 피드백 버튼 클릭 시도');
             feedbackButton.click();
             console.log('✅ 베타 피드백 폼 자동 열기 성공!');
-          } else {
-            console.warn('⚠️ 베타 피드백 버튼을 찾을 수 없음 - 모든 selector 실패');
             
-            // 최후의 수단: 사용자에게 수동 클릭 안내
-            alert('🚨 오류신고를 위해 페이지 하단의 "오류 신고하기" 버튼을 클릭해주세요!');
+            // 성공 알림 (모바일에서 짧은 알림)
+            if (window.innerWidth < 768) {
+              const successMsg = document.createElement('div');
+              successMsg.textContent = '✅ 오류신고 폼이 열렸습니다!';
+              successMsg.style.cssText = `
+                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                background: #10b981; color: white; padding: 12px 24px; border-radius: 8px;
+                font-weight: bold; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+              `;
+              document.body.appendChild(successMsg);
+              setTimeout(() => document.body.removeChild(successMsg), 2000);
+            }
+          } else {
+            console.warn('⚠️ 베타 피드백 버튼을 찾을 수 없음');
+            
+            // 대안: 페이지 하단으로 스크롤하고 사용자에게 안내
+            window.scrollTo({
+              top: document.body.scrollHeight - window.innerHeight + 100,
+              behavior: 'smooth'
+            });
+            
+            // 모바일 친화적 안내 메시지
+            setTimeout(() => {
+              const alertMsg = document.createElement('div');
+              alertMsg.innerHTML = `
+                <div style="text-align: center;">
+                  <div style="font-size: 24px; margin-bottom: 8px;">🚨</div>
+                  <div style="font-weight: bold; margin-bottom: 4px;">오류신고 안내</div>
+                  <div style="font-size: 14px;">화면 하단의 "오류 신고하기" 버튼을 찾아 클릭해주세요!</div>
+                </div>
+              `;
+              alertMsg.style.cssText = `
+                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                background: white; border: 2px solid #ef4444; padding: 20px; border-radius: 12px;
+                font-family: inherit; z-index: 9999; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+                max-width: 90vw; width: 300px;
+              `;
+              document.body.appendChild(alertMsg);
+              
+              // 3초 후 자동 제거
+              setTimeout(() => {
+                if (document.body.contains(alertMsg)) {
+                  document.body.removeChild(alertMsg);
+                }
+              }, 3000);
+              
+              // 클릭시 제거
+              alertMsg.addEventListener('click', () => {
+                if (document.body.contains(alertMsg)) {
+                  document.body.removeChild(alertMsg);
+                }
+              });
+            }, 1000);
           }
-        }, 800); // 스크롤 완료 후 약간 더 기다림
+        }, 1000); // 스크롤 완료 후 더 안정적인 대기시간
       } else {
         console.warn('⚠️ 베타 피드백 섹션을 찾을 수 없음');
         
@@ -144,23 +203,78 @@ export function FloatingErrorReportButton({
         setTimeout(() => {
           console.log('📜 페이지 하단으로 스크롤');
           window.scrollTo({
-            top: document.body.scrollHeight - window.innerHeight,
+            top: document.body.scrollHeight - window.innerHeight + 100,
             behavior: 'smooth'
           });
           
-          // 3초 후 사용자에게 안내
+          // 사용자에게 안내
           setTimeout(() => {
-            alert('🚨 오류신고를 위해 화면 하단의 "오류 신고하기" 버튼을 찾아 클릭해주세요!');
-          }, 3000);
+            const alertMsg = document.createElement('div');
+            alertMsg.innerHTML = `
+              <div style="text-align: center;">
+                <div style="font-size: 24px; margin-bottom: 8px;">🔍</div>
+                <div style="font-weight: bold; margin-bottom: 4px;">오류신고 폼 찾기</div>
+                <div style="font-size: 14px;">화면 하단에서 오류신고 폼을 찾아주세요!</div>
+              </div>
+            `;
+            alertMsg.style.cssText = `
+              position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+              background: white; border: 2px solid #f59e0b; padding: 20px; border-radius: 12px;
+              font-family: inherit; z-index: 9999; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+              max-width: 90vw; width: 300px;
+            `;
+            document.body.appendChild(alertMsg);
+            
+            setTimeout(() => {
+              if (document.body.contains(alertMsg)) {
+                document.body.removeChild(alertMsg);
+              }
+            }, 3000);
+            
+            alertMsg.addEventListener('click', () => {
+              if (document.body.contains(alertMsg)) {
+                document.body.removeChild(alertMsg);
+              }
+            });
+          }, 2000);
         }, 500);
       }
     } catch (error) {
       console.error('❌ 플로팅 버튼 클릭 중 오류:', error);
       
-      // 오류 발생 시 onReportClick 함수 실행
+      // 오류 발생 시 안전한 대안
       if (onReportClick) {
         console.log('🔄 오류 발생으로 onReportClick 함수 실행');
         onReportClick();
+      } else {
+        // 최후의 수단: 사용자에게 직접 안내
+        const errorMsg = document.createElement('div');
+        errorMsg.innerHTML = `
+          <div style="text-align: center;">
+            <div style="font-size: 24px; margin-bottom: 8px;">⚠️</div>
+            <div style="font-weight: bold; margin-bottom: 4px;">시스템 오류</div>
+            <div style="font-size: 14px;">페이지를 새로고침 후 다시 시도해주세요.</div>
+          </div>
+        `;
+        errorMsg.style.cssText = `
+          position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+          background: white; border: 2px solid #dc2626; padding: 20px; border-radius: 12px;
+          font-family: inherit; z-index: 9999; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+          max-width: 90vw; width: 300px;
+        `;
+        document.body.appendChild(errorMsg);
+        
+        setTimeout(() => {
+          if (document.body.contains(errorMsg)) {
+            document.body.removeChild(errorMsg);
+          }
+        }, 4000);
+        
+        errorMsg.addEventListener('click', () => {
+          if (document.body.contains(errorMsg)) {
+            document.body.removeChild(errorMsg);
+          }
+        });
       }
     }
   };

@@ -23,7 +23,8 @@ import {
   AlertCircle,
   RefreshCw,
   X,
-  Bug
+  Bug,
+  AlertTriangle
 } from 'lucide-react';
 import Header from '@/components/layout/header';
 import EarnedIncomeTaxCalculatorComponent from '@/components/tax-calculator/EarnedIncomeTaxCalculator';
@@ -40,6 +41,7 @@ import BusinessInheritanceCalculatorComponent from '@/components/tax-calculator/
 import StockTransferTaxCalculator from '@/components/tax-calculator/StockTransferTaxCalculator';
 import { FloatingErrorReportButton } from '@/components/ui/floating-error-report-button';
 import { Label } from '@/components/ui/label';
+import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
 
 // 개인세금 계산기 목록
 const personalTaxCalculators = [
@@ -390,46 +392,218 @@ export default function TaxCalculatorPage() {
   
   // 🚨 오류신고 버튼을 위한 함수 - 개선된 버전
   const scrollToErrorReport = () => {
-    // 베타 피드백 폼이 있는 위치로 스크롤
-    const feedbackSection = document.querySelector('[data-beta-feedback]');
-    if (feedbackSection) {
-      // 먼저 스크롤
-      feedbackSection.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center' 
-      });
+    console.log('🔥 상단 오류신고 버튼 클릭됨');
+    
+    try {
+      // 베타 피드백 폼이 있는 위치로 스크롤
+      const feedbackSection = document.querySelector('[data-beta-feedback]');
+      console.log('📍 베타 피드백 섹션 찾기:', feedbackSection);
       
-      // 베타 피드백 폼 자동 열기 (여러 방법으로 시도)
-      setTimeout(() => {
-        // 첫 번째 시도: 오류 신고하기 버튼 찾기
-        let feedbackButton = feedbackSection.querySelector('button:has(svg + span)') as HTMLButtonElement;
+      if (feedbackSection) {
+        // 먼저 스크롤
+        feedbackSection.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+        console.log('📜 베타 피드백 섹션으로 스크롤 완료');
         
-        // 두 번째 시도: 텍스트로 찾기
-        if (!feedbackButton) {
-          const buttons = feedbackSection.querySelectorAll('button');
-          buttons.forEach(button => {
-            if (button.textContent?.includes('오류 신고')) {
-              feedbackButton = button as HTMLButtonElement;
+        // 베타 피드백 폼 자동 열기
+        setTimeout(() => {
+          console.log('🔍 베타 피드백 버튼 찾기 시작...');
+          
+          // 오류 신고하기 버튼을 찾는 여러가지 방법
+          let feedbackButton: HTMLButtonElement | null = null;
+          
+          // 첫 번째 시도: Bug 아이콘이 있는 빨간색 버튼 찾기
+          const bugButtons = feedbackSection.querySelectorAll('button[class*="red"], button[class*="bg-red"]');
+          for (const button of bugButtons) {
+            const svgElements = button.querySelectorAll('svg');
+            for (const svg of svgElements) {
+              if (svg.innerHTML.includes('M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z') ||
+                  svg.getAttribute('data-testid')?.includes('bug') ||
+                  svg.outerHTML.includes('lucide-bug')) {
+                feedbackButton = button as HTMLButtonElement;
+                console.log('✅ Bug 아이콘 버튼 발견');
+                break;
+              }
+            }
+            if (feedbackButton) break;
+          }
+          
+          // 두 번째 시도: 텍스트 매칭
+          if (!feedbackButton) {
+            const buttons = feedbackSection.querySelectorAll('button');
+            console.log(`🔍 총 ${buttons.length}개 버튼 발견, 텍스트 검색 중...`);
+            
+            buttons.forEach((button, index) => {
+              const buttonText = button.textContent || '';
+              const buttonHtml = button.innerHTML || '';
+              console.log(`버튼 ${index + 1}: "${buttonText}"`);
+              
+              if (buttonText.includes('오류 신고') || 
+                  buttonText.includes('신고하기') || 
+                  buttonText.includes('🚨') ||
+                  buttonHtml.includes('Bug') ||
+                  buttonHtml.includes('bug')) {
+                feedbackButton = button as HTMLButtonElement;
+                console.log(`✅ 텍스트 매칭 버튼 발견: "${buttonText}"`);
+              }
+            });
+          }
+          
+          // 세 번째 시도: 빨간색 계열 버튼 찾기
+          if (!feedbackButton) {
+            feedbackButton = feedbackSection.querySelector('button[class*="red"]:first-of-type') as HTMLButtonElement;
+            if (feedbackButton) {
+              console.log('🎨 빨간색 버튼으로 발견');
+            }
+          }
+          
+          // 버튼 클릭
+          if (feedbackButton) {
+            console.log('🎯 베타 피드백 버튼 클릭 시도');
+            feedbackButton.click();
+            console.log('✅ 베타 피드백 폼 자동 열기 성공!');
+            
+            // 성공 알림 (모바일에서 짧은 알림)
+            if (window.innerWidth < 768) {
+              const successMsg = document.createElement('div');
+              successMsg.textContent = '✅ 오류신고 폼이 열렸습니다!';
+              successMsg.style.cssText = `
+                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                background: #10b981; color: white; padding: 12px 24px; border-radius: 8px;
+                font-weight: bold; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+              `;
+              document.body.appendChild(successMsg);
+              setTimeout(() => document.body.removeChild(successMsg), 2000);
+            }
+          } else {
+            console.warn('⚠️ 베타 피드백 버튼을 찾을 수 없음');
+            
+            // 대안: 페이지 하단으로 스크롤하고 사용자에게 안내
+            window.scrollTo({
+              top: document.body.scrollHeight - window.innerHeight + 100,
+              behavior: 'smooth'
+            });
+            
+            // 모바일 친화적 안내 메시지
+            setTimeout(() => {
+              const alertMsg = document.createElement('div');
+              alertMsg.innerHTML = `
+                <div style="text-align: center;">
+                  <div style="font-size: 24px; margin-bottom: 8px;">🚨</div>
+                  <div style="font-weight: bold; margin-bottom: 4px;">오류신고 안내</div>
+                  <div style="font-size: 14px;">화면 하단의 "오류 신고하기" 버튼을 찾아 클릭해주세요!</div>
+                </div>
+              `;
+              alertMsg.style.cssText = `
+                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                background: white; border: 2px solid #ef4444; padding: 20px; border-radius: 12px;
+                font-family: inherit; z-index: 9999; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+                max-width: 90vw; width: 300px;
+              `;
+              document.body.appendChild(alertMsg);
+              
+              // 3초 후 자동 제거
+              setTimeout(() => {
+                if (document.body.contains(alertMsg)) {
+                  document.body.removeChild(alertMsg);
+                }
+              }, 3000);
+              
+              // 클릭시 제거
+              alertMsg.addEventListener('click', () => {
+                if (document.body.contains(alertMsg)) {
+                  document.body.removeChild(alertMsg);
+                }
+              });
+            }, 1000);
+          }
+        }, 1000); // 스크롤 완료 후 더 안정적인 대기시간
+      } else {
+        console.warn('⚠️ 베타 피드백 섹션을 찾을 수 없음');
+        
+        // 대안: 페이지 하단으로 스크롤
+        setTimeout(() => {
+          console.log('📜 페이지 하단으로 스크롤');
+          window.scrollTo({
+            top: document.body.scrollHeight - window.innerHeight + 100,
+            behavior: 'smooth'
+          });
+          
+          // 사용자에게 안내
+          setTimeout(() => {
+            const alertMsg = document.createElement('div');
+            alertMsg.innerHTML = `
+              <div style="text-align: center;">
+                <div style="font-size: 24px; margin-bottom: 8px;">🔍</div>
+                <div style="font-weight: bold; margin-bottom: 4px;">오류신고 폼 찾기</div>
+                <div style="font-size: 14px;">화면 하단에서 오류신고 폼을 찾아주세요!</div>
+              </div>
+            `;
+            alertMsg.style.cssText = `
+              position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+              background: white; border: 2px solid #f59e0b; padding: 20px; border-radius: 12px;
+              font-family: inherit; z-index: 9999; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+              max-width: 90vw; width: 300px;
+            `;
+            document.body.appendChild(alertMsg);
+            
+            setTimeout(() => {
+              if (document.body.contains(alertMsg)) {
+                document.body.removeChild(alertMsg);
+              }
+            }, 3000);
+            
+            alertMsg.addEventListener('click', () => {
+              if (document.body.contains(alertMsg)) {
+                document.body.removeChild(alertMsg);
+              }
+            });
+          }, 2000);
+        }, 500);
+      }
+    } catch (error) {
+      console.error('❌ 상단 오류신고 버튼 클릭 중 오류:', error);
+      
+      // 오류 발생 시 안전한 대안
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.body.scrollHeight - window.innerHeight + 100,
+          behavior: 'smooth'
+        });
+        
+        // 최후의 수단: 사용자에게 직접 안내
+        setTimeout(() => {
+          const errorMsg = document.createElement('div');
+          errorMsg.innerHTML = `
+            <div style="text-align: center;">
+              <div style="font-size: 24px; margin-bottom: 8px;">⚠️</div>
+              <div style="font-weight: bold; margin-bottom: 4px;">시스템 오류</div>
+              <div style="font-size: 14px;">페이지를 새로고침 후 다시 시도해주세요.</div>
+            </div>
+          `;
+          errorMsg.style.cssText = `
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; border: 2px solid #dc2626; padding: 20px; border-radius: 12px;
+            font-family: inherit; z-index: 9999; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            max-width: 90vw; width: 300px;
+          `;
+          document.body.appendChild(errorMsg);
+          
+          setTimeout(() => {
+            if (document.body.contains(errorMsg)) {
+              document.body.removeChild(errorMsg);
+            }
+          }, 4000);
+          
+          errorMsg.addEventListener('click', () => {
+            if (document.body.contains(errorMsg)) {
+              document.body.removeChild(errorMsg);
             }
           });
-        }
-        
-        // 버튼 클릭
-        if (feedbackButton) {
-          feedbackButton.click();
-          console.log('✅ 베타 피드백 폼 자동 열기 성공');
-        } else {
-          console.log('⚠️ 베타 피드백 버튼을 찾을 수 없음');
-        }
-      }, 800); // 스크롤 완료 후 약간 더 기다림
-    } else {
-      console.log('⚠️ 베타 피드백 섹션을 찾을 수 없음');
-      
-      // 대안: 페이지 하단으로 스크롤
-      window.scrollTo({
-        top: document.body.scrollHeight - window.innerHeight,
-        behavior: 'smooth'
-      });
+        }, 2000);
+      }, 500);
     }
   };
 
@@ -747,139 +921,178 @@ export default function TaxCalculatorPage() {
       
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
-          {/* 헤더 섹션 - 모바일 최적화된 사용자 안내 */}
-          <div className="text-center mb-12 md:mb-16 lg:mb-20">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 px-3 py-2 md:px-4 md:py-2 rounded-full mb-6 md:mb-8">
-              <Calculator className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
-              <span className="text-xs md:text-sm font-medium text-blue-800">스마트 세금계산 시스템</span>
+          {/* 🎯 상단 베타테스트 안내 섹션 - 시각적 강화 */}
+          <section className="bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 relative overflow-hidden">
+            <div className="absolute inset-0 bg-black/10"></div>
+            {/* 배경 패턴 */}
+            <div className="absolute inset-0 opacity-20">
+              <div className="absolute top-5 left-5 w-20 h-20 bg-white rounded-full blur-xl"></div>
+              <div className="absolute top-20 right-10 w-32 h-32 bg-yellow-300 rounded-full blur-xl"></div>
+              <div className="absolute bottom-10 left-1/3 w-24 h-24 bg-orange-300 rounded-full blur-xl"></div>
             </div>
             
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-3 md:mb-4 leading-tight">
-              <div className="flex items-center justify-center gap-3 mb-2">
-                스마트 세금계산기
-                <Badge className="bg-orange-100 text-orange-700 border-orange-300 text-sm md:text-base px-2 py-1 animate-pulse">
-                  🧪 BETA
-                </Badge>
-              </div>
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                단계별 가이드로 쉽고 정확하게
-              </span>
-            </h1>
-            
-            <p className="text-sm sm:text-base lg:text-xl text-gray-600 mb-4 md:mb-6 max-w-3xl mx-auto px-4 leading-relaxed">
-              <strong>2024년 최신 세율</strong>을 적용한 단계별 가이드 시스템으로 
-              <strong>누구나 쉽게</strong> 세금을 계산할 수 있습니다. 
-              <strong>입력값 검증</strong>, <strong>실시간 도움말</strong>, <strong>오류 방지</strong> 기능으로 
-              정확한 계산 결과를 보장합니다.
-            </p>
-
-            {/* 🧪 베타테스트 안내 */}
-            <div className="max-w-4xl mx-auto mb-8 md:mb-12 px-4">
-              <div className="bg-gradient-to-r from-red-50 via-orange-50 to-yellow-50 border border-red-200 rounded-lg p-4 md:p-6 relative overflow-hidden">
-                {/* 배경 패턴 */}
-                <div className="absolute inset-0 opacity-5">
-                  <div className="absolute top-2 right-2 w-16 h-16 bg-red-400 rounded-full blur-xl"></div>
-                  <div className="absolute bottom-2 left-2 w-12 h-12 bg-orange-400 rounded-full blur-lg"></div>
+            <div className="mobile-container relative z-10 py-8 lg:py-12">
+              <div className="text-center text-white">
+                {/* 메인 타이틀 */}
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 mobile-centered">
+                  <span className="text-overflow-safe">🧮 M-CENTER 전문 세금계산기</span>
+                </h1>
+                
+                <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
+                  <Bug className="w-5 h-5 text-yellow-300" />
+                  <span className="font-semibold text-overflow-safe">BETA 테스트 진행 중 - 오류 신고 환영!</span>
                 </div>
                 
-                <div className="flex items-start gap-3 relative z-10">
-                  <div className="flex-shrink-0">
-                    <Badge className="bg-red-100 text-red-700 border-red-300 font-bold animate-pulse">
-                      🧪 베타테스트
-                    </Badge>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-red-900 mb-3 text-lg flex items-center gap-2">
-                      🚨 베타테스트 중인 서비스입니다
-                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                    </h3>
-                    <p className="text-sm md:text-base text-red-800 font-medium mb-4 leading-relaxed">
-                      현재 <strong>세무계산기 베타테스트</strong>를 진행 중입니다. 사용 중 발견하신 
-                      <span className="text-red-600 font-bold">계산 오류, 버그, 불편사항</span>이 있으시면 
-                      <span className="bg-red-100 px-2 py-1 rounded font-bold text-red-700">화면 우하단 플로팅 버튼</span> 또는 
-                      각 계산기 하단의 <strong>"🚨 오류 신고하기"</strong> 버튼을 통해 의견을 보내주세요. 
-                      여러분의 소중한 피드백이 더 나은 서비스를 만듭니다.
-                    </p>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                      <div className="bg-white p-3 rounded-lg border border-red-200">
-                        <div className="flex items-center gap-2 text-red-700 font-semibold text-sm mb-2">
-                          <Bug className="w-4 h-4" />
-                          오류 신고 방법
-                        </div>
-                        <ul className="text-xs text-red-600 space-y-1">
-                          <li>• 📱 <strong>플로팅 버튼:</strong> 화면 우하단 빨간 버튼</li>
-                          <li>• 📋 <strong>각 계산기:</strong> 하단 "오류 신고하기" 버튼</li>
-                          <li>• ⚡ <strong>즉시 접수:</strong> 개발팀 실시간 알림</li>
-                        </ul>
-                      </div>
+                {/* 베타테스트 주요 안내 */}
+                <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 lg:p-8 text-gray-900 shadow-xl border border-white/20 max-w-5xl mx-auto">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
+                    <div className="text-left">
+                      <h2 className="text-xl lg:text-2xl font-bold mb-4 text-red-600 mobile-centered">
+                        <span className="text-overflow-safe">🚨 중요 안내: 베타 테스트 중</span>
+                      </h2>
                       
-                      <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                        <div className="flex items-center gap-2 text-blue-700 font-semibold text-sm mb-2">
-                          <Clock className="w-4 h-4" />
-                          처리 프로세스
+                      <div className="space-y-3 text-sm lg:text-base">
+                        <div className="flex items-start gap-3">
+                          <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="font-semibold text-overflow-safe">현재 베타 테스트 단계입니다</p>
+                            <p className="text-gray-600 mobile-text">계산 결과는 참고용이며, 실제 세무신고 시 전문가 검토를 권장합니다</p>
+                          </div>
                         </div>
-                        <ul className="text-xs text-blue-600 space-y-1">
-                          <li>• 📧 <strong>접수 확인:</strong> 이메일 자동 발송</li>
-                          <li>• 🔧 <strong>빠른 수정:</strong> 1-2일 내 처리</li>
-                          <li>• 📬 <strong>결과 회신:</strong> 수정 완료 후 알림</li>
-                        </ul>
+                        
+                        <div className="flex items-start gap-3">
+                          <Shield className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="font-semibold text-overflow-safe">2024년 최신 세법 반영</p>
+                            <p className="text-gray-600 mobile-text">11개 전문 계산기로 정확한 세금 계산을 지원합니다</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     
-                                         <div className="text-xs md:text-sm text-orange-700 bg-gradient-to-r from-yellow-100 to-orange-100 p-3 rounded-lg border border-orange-200">
-                       <div className="flex items-center gap-2 font-bold text-orange-800 mb-2">
-                         <CheckCircle className="w-4 h-4" />
-                         💌 피드백 절차 요약
-                       </div>
-                       <div className="flex flex-wrap items-center gap-2 text-xs mb-3">
-                         <span className="bg-orange-200 px-2 py-1 rounded font-medium">계산기 사용</span>
-                         <span>→</span>
-                         <span className="bg-red-200 px-2 py-1 rounded font-medium">오류 발견</span>
-                         <span>→</span>
-                         <span className="bg-blue-200 px-2 py-1 rounded font-medium">신고 버튼 클릭</span>
-                         <span>→</span>
-                         <span className="bg-green-200 px-2 py-1 rounded font-medium">이메일 회신</span>
-                       </div>
-                       
-                       {/* 🚨 즉시 오류신고 버튼 */}
-                       <div className="flex justify-center mt-3">
-                         <Button
-                           onClick={scrollToErrorReport}
-                           className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold px-6 py-2 text-sm shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-                         >
-                           <Bug className="w-4 h-4 mr-2" />
-                           🚨 지금 바로 오류신고하기
-                         </Button>
-                       </div>
-                     </div>
+                    <div className="bg-gradient-to-br from-red-50 to-orange-50 p-6 rounded-xl border border-red-200">
+                      <h3 className="font-bold text-gray-900 mb-4 text-center">
+                        <span className="text-overflow-safe">🔧 오류 신고 방법 (3가지)</span>
+                      </h3>
+                      
+                      <div className="space-y-3 text-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                          <span className="text-overflow-safe">아래 "🚨 지금 바로 오류신고하기" 버튼 클릭</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                          <span className="text-overflow-safe">우측 하단 빨간색 플로팅 버튼 클릭</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 bg-yellow-500 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                          <span className="text-overflow-safe">각 계산기 하단의 오류신고 폼 이용</span>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <div className="flex items-center gap-2 text-blue-700">
+                          <Clock className="w-4 h-4" />
+                          <span className="text-sm font-medium text-overflow-safe">처리 절차: 24시간 접수 → 1-2일 검토 → 이메일 회신</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* 상단 오류신고 버튼 */}
+                  <div className="text-center mt-6">
+                    <Button 
+                      onClick={scrollToErrorReport}
+                      className="mobile-button bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 
+                               text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                    >
+                      <Bug className="w-5 h-5 mr-2" />
+                      <span className="text-overflow-safe">🚨 지금 바로 오류신고하기</span>
+                    </Button>
                   </div>
                 </div>
               </div>
             </div>
+          </section>
 
-            <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-8 md:mb-12 px-4">
-              <Badge variant="outline" className="text-xs md:text-sm px-2 py-1 md:px-4 md:py-2">
-                <CheckCircle className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-                단계별 입력 가이드
-              </Badge>
-              <Badge variant="outline" className="text-xs md:text-sm px-2 py-1 md:px-4 md:py-2">
-                <Shield className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-                실시간 입력 검증
-              </Badge>
-              <Badge variant="outline" className="text-xs md:text-sm px-2 py-1 md:px-4 md:py-2">
-                <ArrowRight className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-                진행 상황 표시
-              </Badge>
-              <Badge variant="outline" className="text-xs md:text-sm px-2 py-1 md:px-4 md:py-2 hidden sm:inline-flex">
-                <FileText className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-                상세 설명 제공
-              </Badge>
-              <Badge variant="outline" className="text-xs md:text-sm px-2 py-1 md:px-4 md:py-2 hidden sm:inline-flex">
-                <PiggyBank className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-                절세 팁 안내
-              </Badge>
+          {/* 헤더 섹션 - 모바일 최적화된 사용자 안내 */}
+          <div className="text-center mb-12 md:mb-16 lg:mb-20 mobile-container">
+            {/* 메인 타이틀 */}
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 mobile-centered">
+              <span className="text-overflow-safe">전문 세금계산기</span>
+            </h1>
+            
+            {/* 서브 타이틀 */}
+            <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-4xl mx-auto mobile-text">
+              2024년 최신 세법을 반영한 11개 전문 계산기로 정확한 세금 계산을 경험하세요
+            </p>
+            
+            {/* 특징 배지들 */}
+            <div className="flex flex-wrap justify-center gap-3 mb-8">
+              {[
+                { icon: "🎯", text: "2024년 최신 세법", color: "bg-blue-100 text-blue-700" },
+                { icon: "⚡", text: "실시간 계산", color: "bg-green-100 text-green-700" },
+                { icon: "🔒", text: "100% 무료", color: "bg-purple-100 text-purple-700" },
+                { icon: "🛡️", text: "정확성 보장", color: "bg-orange-100 text-orange-700" }
+              ].map((badge, index) => (
+                <div key={index} className={`${badge.color} px-4 py-2 rounded-full font-semibold text-sm`}>
+                  <span className="mr-2">{badge.icon}</span>
+                  <span className="text-overflow-safe">{badge.text}</span>
+                </div>
+              ))}
             </div>
+          </div>
+
+          {/* 계산기 목록 그리드 - 모바일 반응형 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8 mb-16 mobile-container">
+            {taxCalculators.map((calculator) => (
+              <div
+                key={calculator.id}
+                className={`service-card-mobile bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 
+                           border-l-4 ${calculator.color} p-6 cursor-pointer transform hover:-translate-y-2 group`}
+                onClick={() => setSelectedCalculator(calculator.id)}
+              >
+                {/* 계산기 아이콘 */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`w-12 h-12 rounded-xl ${calculator.iconBg} flex items-center justify-center 
+                                  group-hover:scale-110 transition-transform duration-300`}>
+                    <calculator.icon className={`w-6 h-6 ${calculator.iconColor}`} />
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${calculator.badge.bg} ${calculator.badge.text}`}>
+                    <span className="text-overflow-safe">{calculator.badge.label}</span>
+                  </span>
+                </div>
+                
+                {/* 계산기 제목 */}
+                <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                  <span className="text-overflow-safe">{calculator.title}</span>
+                </h3>
+                
+                {/* 계산기 설명 */}
+                <p className="text-sm text-gray-600 mb-4 mobile-text line-clamp-2">
+                  {calculator.description}
+                </p>
+                
+                {/* 대상 및 특징 */}
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-xs text-gray-500">
+                    <span className="font-semibold mr-1">대상:</span>
+                    <span className="text-overflow-safe">{calculator.target}</span>
+                  </div>
+                  <div className="flex items-center text-xs text-blue-600">
+                    <span className="font-semibold mr-1">특징:</span>
+                    <span className="text-overflow-safe">{calculator.features[0]}</span>
+                  </div>
+                </div>
+                
+                {/* 계산 시작 버튼 */}
+                <button className={`mobile-button w-full py-2.5 rounded-xl font-semibold text-sm 
+                                   transition-all duration-300 border-2 ${calculator.buttonStyle}`}>
+                  <span className="text-overflow-safe">계산하기</span>
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
+            ))}
           </div>
 
           {/* 세금계산기 특징 카드들 - 모바일 최적화 */}
@@ -954,7 +1167,7 @@ export default function TaxCalculatorPage() {
                         {personalTaxCalculators.find(c => c.id === selectedCalculator)?.title ||
                          corporateTaxCalculators.find(c => c.id === selectedCalculator)?.title ||
                          businessInheritanceCalculator.id === selectedCalculator ? businessInheritanceCalculator.title :
-                         stockTransferCalculator.id === selectedCalculator ? stockTransferCalculator.title : ''}
+                         stockTransferCalculator.id === selectedCalculator ? stockTransferCalculator.title : '세금계산기'}
                       </p>
                     </div>
                   </div>
@@ -977,9 +1190,7 @@ export default function TaxCalculatorPage() {
                       <span>계산기 활성화됨</span>
                     </div>
                     <span className="text-gray-400">•</span>
-                    <span>단계별 입력 가이드 제공</span>
-                    <span className="text-gray-400">•</span>
-                    <span className="hidden sm:inline">실시간 검증 활성화</span>
+                    <span className="hidden sm:inline">단계별 입력 가이드 제공</span>
                   </div>
                 </div>
               </div>
@@ -1121,6 +1332,9 @@ export default function TaxCalculatorPage() {
         }
         onReportClick={scrollToErrorReport}
       />
+
+      {/* 🚨 베타피드백 폼 */}
+      <BetaFeedbackForm />
     </div>
   );
 } 
