@@ -984,6 +984,164 @@ function getScoreComment(score: number): string {
   return '매우 부족 (즉시 개선 필요)';
 }
 
+// 🔍 **종합 평가의견 생성 함수**
+function generateComprehensiveEvaluation(categoryScores: any, data: LevelUpDiagnosisFormData): string {
+  const totalScore = Math.round(
+    (categoryScores.productService.score * 0.25 +
+     categoryScores.customerService.score * 0.20 +
+     categoryScores.marketing.score * 0.25 +
+     categoryScores.procurement.score * 0.15 +
+     categoryScores.storeManagement.score * 0.15) * 20
+  );
+
+  const grade = getLevelUpGrade(totalScore);
+  const companyName = data.companyName;
+  const industry = data.industry;
+  const employeeCount = data.employeeCount;
+
+  let evaluation = `${companyName}은 ${industry} 업종에서 ${employeeCount} 규모로 운영되고 있으며, `;
+
+  if (totalScore >= 90) {
+    evaluation += `종합 점수 ${totalScore}점으로 S급 우수 기업으로 평가됩니다. 모든 경영 영역에서 탁월한 성과를 보이고 있으며, 업계 선도 기업으로서의 위상을 확고히 하고 있습니다. 지속적인 혁신과 성장을 통해 시장 리더십을 강화할 수 있는 기반이 잘 갖추어져 있습니다.`;
+  } else if (totalScore >= 80) {
+    evaluation += `종합 점수 ${totalScore}점으로 A급 양호한 수준의 경영 역량을 보유하고 있습니다. 대부분의 경영 영역에서 안정적인 성과를 나타내고 있으며, 일부 영역의 보완을 통해 S급 우수 기업으로 발전할 수 있는 잠재력을 가지고 있습니다.`;
+  } else if (totalScore >= 70) {
+    evaluation += `종합 점수 ${totalScore}점으로 B급 보통 수준의 경영 역량을 나타냅니다. 기본적인 경영 기능은 수행하고 있으나, 경쟁력 강화를 위해서는 체계적인 개선이 필요한 상황입니다. 핵심 영역 중심의 집중 개선을 통해 단기간 내 가시적 성과를 창출할 수 있습니다.`;
+  } else if (totalScore >= 60) {
+    evaluation += `종합 점수 ${totalScore}점으로 C급 개선이 필요한 수준입니다. 여러 경영 영역에서 체계적인 보완이 필요하며, 전문가의 지원을 통해 단계적으로 개선해 나갈 필요가 있습니다. 우선순위 영역 중심의 집중 투자를 통해 경영 효율성을 제고할 수 있습니다.`;
+  } else {
+    evaluation += `종합 점수 ${totalScore}점으로 D급 시급한 개선이 필요한 상황입니다. 전반적인 경영 시스템의 점검과 재구성이 필요하며, 전문 컨설팅을 통한 근본적인 개선 작업이 시급합니다. 체계적인 개선 계획 수립과 단계별 실행을 통해 경영 정상화를 추진해야 합니다.`;
+  }
+
+  // 카테고리별 세부 평가 추가
+  const categories = Object.values(categoryScores) as any[];
+  const topCategory = categories.reduce((prev, current) => prev.score > current.score ? prev : current);
+  const bottomCategory = categories.reduce((prev, current) => prev.score < current.score ? prev : current);
+
+  evaluation += `\n\n특히 ${topCategory.name} 영역에서 ${topCategory.score.toFixed(1)}점으로 상대적으로 우수한 성과를 보이고 있어, 이를 기반으로 한 성장 전략 수립이 가능합니다. 반면 ${bottomCategory.name} 영역은 ${bottomCategory.score.toFixed(1)}점으로 우선적인 개선이 필요한 영역으로 분석됩니다.`;
+
+  return evaluation;
+}
+
+// 🚀 **중점 일터혁신 개선방안 생성 함수**
+function generateWorkplaceInnovationPlan(categoryScores: any, data: LevelUpDiagnosisFormData): string {
+  const companyName = data.companyName;
+  const industry = data.industry;
+  const concerns = data.mainConcerns;
+  const expectedBenefits = data.expectedBenefits;
+
+  // 가장 낮은 점수 영역 2개 식별
+  const categories = Object.values(categoryScores) as any[];
+  const sortedCategories = categories.sort((a, b) => a.score - b.score);
+  const topPriority = sortedCategories[0];
+  const secondPriority = sortedCategories[1];
+
+  let plan = `${companyName}의 일터혁신을 위한 핵심 개선 과제를 다음과 같이 제시합니다.\n\n`;
+
+  plan += `**🎯 1순위 개선 과제: ${topPriority.name} (${topPriority.score.toFixed(1)}점)**\n`;
+  
+  if (topPriority.name.includes('상품') || topPriority.name.includes('서비스')) {
+    plan += `• 상품/서비스 차별화 전략 수립 및 품질 관리 체계 구축\n`;
+    plan += `• 고객 니즈 분석을 통한 맞춤형 상품 개발\n`;
+    plan += `• 경쟁력 있는 가격 정책 수립 및 가치 제안 강화\n`;
+  } else if (topPriority.name.includes('고객')) {
+    plan += `• CRM 시스템 도입을 통한 체계적 고객 관리\n`;
+    plan += `• 고객 응대 매뉴얼 및 서비스 표준 프로세스 구축\n`;
+    plan += `• 고객 만족도 조사 및 피드백 반영 시스템 운영\n`;
+  } else if (topPriority.name.includes('마케팅')) {
+    plan += `• 디지털 마케팅 역량 강화 및 온라인 채널 확대\n`;
+    plan += `• 데이터 기반 마케팅 전략 수립 및 성과 측정 체계 구축\n`;
+    plan += `• 브랜드 아이덴티티 강화 및 고객 접점 다양화\n`;
+  } else if (topPriority.name.includes('구매') || topPriority.name.includes('재고')) {
+    plan += `• 공급망 관리 시스템 구축 및 재고 최적화\n`;
+    plan += `• 구매 프로세스 표준화 및 비용 절감 방안 수립\n`;
+    plan += `• 데이터 기반 수요 예측 및 재고 관리 자동화\n`;
+  } else {
+    plan += `• 매장 환경 개선 및 고객 동선 최적화\n`;
+    plan += `• 청결도 관리 체계 구축 및 정기 점검 시스템 운영\n`;
+    plan += `• 작업 효율성 향상을 위한 공간 배치 및 프로세스 개선\n`;
+  }
+
+  plan += `\n**🎯 2순위 개선 과제: ${secondPriority.name} (${secondPriority.score.toFixed(1)}점)**\n`;
+  
+  if (secondPriority.name.includes('상품') || secondPriority.name.includes('서비스')) {
+    plan += `• 품질 관리 체계 고도화 및 지속적 개선 문화 구축\n`;
+    plan += `• 신제품 개발 프로세스 체계화 및 시장 테스트 강화\n`;
+  } else if (secondPriority.name.includes('고객')) {
+    plan += `• 고객 응대 교육 강화 및 서비스 품질 표준화\n`;
+    plan += `• 고객 유지 전략 수립 및 충성도 프로그램 운영\n`;
+  } else if (secondPriority.name.includes('마케팅')) {
+    plan += `• 시장 조사 및 경쟁 분석 체계 구축\n`;
+    plan += `• 통합 마케팅 커뮤니케이션 전략 수립\n`;
+  } else if (secondPriority.name.includes('구매') || secondPriority.name.includes('재고')) {
+    plan += `• 협력업체 관리 체계 구축 및 파트너십 강화\n`;
+    plan += `• 재고 회전율 개선 및 폐기 손실 최소화\n`;
+  } else {
+    plan += `• 매장 이미지 개선 및 브랜드 일관성 유지\n`;
+    plan += `• 고객 편의시설 확충 및 접근성 개선\n`;
+  }
+
+  plan += `\n**🔧 실행 방안**\n`;
+  plan += `• **단기 (1-3개월)**: 현황 진단 → 개선 계획 수립 → 기초 시스템 구축\n`;
+  plan += `• **중기 (4-6개월)**: 시스템 운영 → 성과 모니터링 → 지속적 개선\n`;
+  plan += `• **장기 (7-12개월)**: 성과 확산 → 고도화 → 차기 혁신 과제 발굴\n\n`;
+
+  plan += `**💡 기대 효과**\n`;
+  plan += `이러한 일터혁신을 통해 ${expectedBenefits}의 목표 달성이 가능하며, "${concerns}" 등의 고민사항 해결을 위한 구체적 방안을 제시합니다.`;
+
+  return plan;
+}
+
+// 🏆 **등급 평가 함수**
+function getLevelUpGrade(score: number): string {
+  if (score >= 90) return 'S급 (우수)';
+  if (score >= 80) return 'A급 (양호)';
+  if (score >= 70) return 'B급 (보통)';
+  if (score >= 60) return 'C급 (개선필요)';
+  return 'D급 (시급개선)';
+}
+
+// 📊 **시장 포지션 분석 함수**
+function getMarketPosition(score: number): string {
+  if (score >= 90) return '시장 선도기업 (Market Leader)';
+  if (score >= 80) return '시장 우위기업 (Market Challenger)';
+  if (score >= 70) return '시장 추종기업 (Market Follower)';
+  if (score >= 60) return '시장 틈새기업 (Market Nicher)';
+  return '시장 진입기업 (Market Entrant)';
+}
+
+// 📈 **업종별 성장률 분석 함수**
+function getIndustryGrowth(industry: string): string {
+  const growthMap: Record<string, string> = {
+    'it': '연 12-15% 고성장 (IT/테크)',
+    'healthcare': '연 8-12% 고성장 (의료/헬스케어)',
+    'education': '연 5-8% 중성장 (교육/문화)',
+    'service': '연 4-7% 안정성장 (서비스업)',
+    'manufacturing': '연 3-6% 안정성장 (제조업)',
+    'retail': '연 2-5% 중성장 (소매/유통)',
+    'food': '연 3-6% 중성장 (외식/식품)',
+    'construction': '연 1-3% 저성장 (건설/부동산)',
+    'finance': '연 2-4% 저성장 (금융/보험)',
+    'other': '연 3-5% 평균성장 (기타)'
+  };
+  return growthMap[industry] || '연 3-5% 평균성장';
+}
+
+// 📋 **점수별 상세 설명 함수**
+function getLevelUpGradeDescription(score: number): string {
+  if (score >= 90) {
+    return '모든 경영 영역에서 탁월한 성과를 보이는 우수 기업입니다. 업계 표준을 선도하며 지속적인 혁신을 통해 시장 리더십을 유지하고 있습니다.';
+  } else if (score >= 80) {
+    return '대부분의 경영 영역에서 양호한 수준을 유지하고 있습니다. 일부 영역의 개선을 통해 우수 기업으로 발전할 수 있는 기반을 갖추고 있습니다.';
+  } else if (score >= 70) {
+    return '기본적인 경영 기능은 수행하고 있으나 경쟁력 강화를 위한 체계적 개선이 필요합니다. 핵심 영역 중심의 집중 투자가 효과적입니다.';
+  } else if (score >= 60) {
+    return '여러 경영 영역에서 보완이 필요한 상황입니다. 전문가 지원을 통한 단계적 개선으로 경영 효율성을 제고할 수 있습니다.';
+  } else {
+    return '전반적인 경영 시스템의 점검과 재구성이 필요합니다. 전문 컨설팅을 통한 근본적 개선으로 경영 정상화를 추진해야 합니다.';
+  }
+}
+
 export default function SimplifiedDiagnosisForm({ onComplete, onBack }: SimplifiedDiagnosisFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [processingStage, setProcessingStage] = useState<string>('');

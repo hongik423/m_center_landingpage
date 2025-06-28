@@ -1414,8 +1414,49 @@ export async function POST(request: NextRequest) {
     try {
       console.log('🔄 통합 데이터 처리 시작 (구글시트 + 이메일)...');
       
-      // 진단 데이터 처리를 위한 표준화된 폼 데이터 생성
+      // 📊 **문항별 점수 데이터 추출 및 변환**
+      const detailedScores = {};
+      const categoryScores = diagnosisResult.categoryScores || {};
+      
+      // 20개 평가 항목의 점수를 Google Apps Script 형식으로 변환
+      Object.values(categoryScores).forEach((category: any) => {
+        if (category.items && Array.isArray(category.items)) {
+          category.items.forEach((item: any) => {
+            // 각 항목의 영문 키로 매핑
+            const keyMapping = {
+              '기획수준': 'planning_level',
+              '차별화정도': 'differentiation_level', 
+              '가격설정': 'pricing_level',
+              '전문성': 'expertise_level',
+              '품질': 'quality_level',
+              '고객맞이': 'customer_greeting',
+              '고객응대': 'customer_service',
+              '불만관리': 'complaint_management',
+              '고객유지': 'customer_retention',
+              '고객특성이해': 'customer_understanding',
+              '마케팅계획': 'marketing_planning',
+              '오프라인마케팅': 'offline_marketing',
+              '온라인마케팅': 'online_marketing',
+              '판매전략': 'sales_strategy',
+              '구매관리': 'purchase_management',
+              '재고관리': 'inventory_management',
+              '외관관리': 'exterior_management',
+              '인테리어관리': 'interior_management',
+              '청결도': 'cleanliness',
+              '작업동선': 'work_flow'
+            };
+            
+            const englishKey = keyMapping[item.name as keyof typeof keyMapping];
+            if (englishKey) {
+              detailedScores[englishKey] = item.score || 0;
+            }
+          });
+        }
+      });
+
+      // 진단 데이터 처리를 위한 **확장된** 폼 데이터 생성
       const diagnosisFormData = {
+        // 기본 진단 정보
         companyName: data.companyName,
         industry: data.industry, 
         businessStage: data.growthStage,
@@ -1435,7 +1476,33 @@ export async function POST(request: NextRequest) {
         recommendedServices: data.diagnosisResults?.recommendedServices?.map(s => s.name || s.id).join(', ') || 
                            diagnosisResult.recommendedServices.map(s => s.name).join(', '),
         reportType: data.diagnosisResults?.reportType || '간소화된_AI진단',
-        diagnosisFormType: 'AI_무료진단_레벨업시트' // 폼 타입 명시
+        diagnosisFormType: 'AI_무료진단_레벨업시트', // 폼 타입 명시
+        
+        // 📊 **NEW: 문항별 상세 점수 (20개 항목)**
+        문항별점수: detailedScores,
+        detailedScores: detailedScores,
+        
+        // 📊 **NEW: 카테고리별 점수 (5개 영역)**
+        카테고리점수: categoryScores,
+        categoryScores: categoryScores,
+        
+        // 📝 **NEW: 진단결과보고서 요약**
+        진단보고서요약: summaryReport,
+        summaryReport: summaryReport,
+        
+        // 🎯 **NEW: 종합 점수 및 메타 정보**
+        종합점수: diagnosisResult.totalScore,
+        totalScore: diagnosisResult.totalScore,
+        추천서비스: diagnosisResult.recommendedServices,
+        recommendedServices: diagnosisResult.recommendedServices,
+        강점영역: diagnosisResult.strengths || [],
+        약점영역: diagnosisResult.weaknesses || [],
+        
+        // 📈 **NEW: 추가 메타 정보**
+        보고서글자수: summaryReport.length,
+        평가일시: new Date().toISOString(),
+        분석엔진버전: 'enhanced-v2.5',
+        신비감유지: true // AI 기술 노출 방지 플래그
       };
 
       // processDiagnosisSubmission 사용하여 통합 처리

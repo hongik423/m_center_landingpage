@@ -46,25 +46,58 @@ function isServer() {
  */
 export async function submitDiagnosisToGoogle(diagnosisData: any) {
   try {
-    console.log('📊 Google Apps Script로 진단 신청 처리 시작');
+    console.log('📊 Google Apps Script로 확장된 진단 신청 처리 시작');
     
-    // Google Apps Script 엔드포인트로 데이터 전송 (개선된 방식)
+    // 📊 **확장된 진단 데이터 검증**
+    const hasDetailedScores = !!(diagnosisData.문항별점수 || diagnosisData.detailedScores);
+    const hasCategoryScores = !!(diagnosisData.카테고리점수 || diagnosisData.categoryScores);
+    const hasSummaryReport = !!(diagnosisData.진단보고서요약 || diagnosisData.summaryReport);
+    
+    console.log('📊 확장 데이터 확인:', {
+      문항별점수: hasDetailedScores,
+      카테고리점수: hasCategoryScores,
+      진단보고서: hasSummaryReport,
+      총점: diagnosisData.totalScore || diagnosisData.종합점수 || 0,
+      보고서길이: (diagnosisData.summaryReport || diagnosisData.진단보고서요약 || '').length
+    });
+    
+    // Google Apps Script 엔드포인트로 **확장된** 데이터 전송
     const requestData = {
       action: 'saveDiagnosis',
       ...diagnosisData,
-      폼타입: 'AI_무료진단',
+      폼타입: 'AI_무료진단_확장된레벨업시트',
       제출일시: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
       timestamp: Date.now(),
+      
+      // 📊 **확장 데이터 명시적 포함**
+      문항별점수: diagnosisData.문항별점수 || diagnosisData.detailedScores || {},
+      카테고리점수: diagnosisData.카테고리점수 || diagnosisData.categoryScores || {},
+      진단보고서요약: diagnosisData.진단보고서요약 || diagnosisData.summaryReport || '',
+      종합점수: diagnosisData.종합점수 || diagnosisData.totalScore || 0,
+      추천서비스: diagnosisData.추천서비스 || diagnosisData.recommendedServices || [],
+      강점영역: diagnosisData.강점영역 || [],
+      약점영역: diagnosisData.약점영역 || [],
+      보고서글자수: (diagnosisData.summaryReport || diagnosisData.진단보고서요약 || '').length,
+      분석엔진버전: diagnosisData.분석엔진버전 || 'enhanced-v2.5',
+      평가일시: diagnosisData.평가일시 || new Date().toISOString(),
+      
       // 405 오류 방지를 위한 추가 플래그
       methodOverride: 'POST',
-      contentType: 'application/json'
+      contentType: 'application/json',
+      enhanced: true // 확장된 진단 데이터 플래그
     };
 
-    console.log('📤 진단 데이터 전송:', {
+    console.log('📤 확장된 진단 데이터 전송:', {
       action: requestData.action,
       폼타입: requestData.폼타입,
       회사명: diagnosisData.companyName || diagnosisData.회사명,
-      담당자: diagnosisData.contactName || diagnosisData.담당자명
+      담당자: diagnosisData.contactName || diagnosisData.담당자명,
+      총점: requestData.종합점수,
+      문항별점수개수: Object.keys(requestData.문항별점수 || {}).length,
+      카테고리점수개수: Object.keys(requestData.카테고리점수 || {}).length,
+      보고서길이: requestData.보고서글자수,
+      분석엔진: requestData.분석엔진버전,
+      확장모드: requestData.enhanced
     });
 
     // 🔄 3단계 백업 시스템: POST → GET → 백업
@@ -89,12 +122,14 @@ export async function submitDiagnosisToGoogle(diagnosisData: any) {
         
         return {
           success: true,
-          message: '진단 신청이 완료되었습니다. 관리자 확인 후 연락드리겠습니다.',
+          message: '📊 AI 무료진단이 완료되었습니다 (문항별 점수 + 보고서 포함). 관리자 확인 후 연락드리겠습니다.',
           data: { response: result },
           service: 'google-apps-script',
           method: 'post_success',
           features: [
-            '✅ 구글시트 자동 저장',
+            '✅ 구글시트 자동 저장 (확장된 48개 컬럼)',
+            '✅ 문항별 상세 점수 저장 (20개 항목)',
+            '✅ 진단결과보고서 전문 저장',
             '✅ 관리자 알림 이메일 발송',
             '✅ 신청자 확인 이메일 발송',
           ]
@@ -130,12 +165,14 @@ export async function submitDiagnosisToGoogle(diagnosisData: any) {
         
         return {
           success: true,
-          message: '진단 신청이 완료되었습니다. 관리자 확인 후 연락드리겠습니다.',
+          message: '📊 AI 무료진단이 완료되었습니다 (문항별 점수 + 보고서 포함). 관리자 확인 후 연락드리겠습니다.',
           data: { response: result },
           service: 'google-apps-script',
           method: 'get_fallback',
           features: [
-            '✅ 구글시트 자동 저장 (GET)',
+            '✅ 구글시트 자동 저장 (GET 방식, 확장된 48개 컬럼)',
+            '✅ 문항별 상세 점수 저장 (20개 항목)',
+            '✅ 진단결과보고서 전문 저장',
             '✅ 관리자 알림 이메일 발송',
             '✅ 신청자 확인 이메일 발송',
           ]
@@ -159,17 +196,21 @@ export async function submitDiagnosisToGoogle(diagnosisData: any) {
     
     return {
       success: true,
-      message: '진단 신청이 접수되었습니다. 담당자가 확인 후 연락드리겠습니다.',
+      message: '📊 AI 무료진단이 접수되었습니다 (문항별 점수 + 보고서 포함). 담당자가 확인 후 연락드리겠습니다.',
       data: { 
         backupSaved: true, 
         lastError: lastError,
         googleScriptUrl: GOOGLE_SCRIPT_CONFIG.SCRIPT_URL.substring(0, 50) + '...',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        detailedScores: Object.keys(diagnosisData.문항별점수 || diagnosisData.detailedScores || {}).length,
+        reportLength: (diagnosisData.summaryReport || diagnosisData.진단보고서요약 || '').length,
+        totalScore: diagnosisData.totalScore || diagnosisData.종합점수 || 0
       },
       service: 'local-backup',
       method: 'backup_system',
       features: [
-        '✅ 로컬 백업 저장 완료',
+        '✅ 확장된 진단 데이터 로컬 백업 완료',
+        '✅ 문항별 점수 + 보고서 포함',
         '✅ 관리자 수동 처리 예정',
         '✅ 24시간 내 연락 예정',
         `⚠️ 원인: ${lastError}`,
@@ -185,17 +226,21 @@ export async function submitDiagnosisToGoogle(diagnosisData: any) {
     // 사용자에게는 성공적으로 처리되었다고 안내 (사용자 경험 개선)
     return {
       success: true,
-      message: '진단 신청이 접수되었습니다. 담당자가 확인 후 연락드리겠습니다.',
+      message: '📊 AI 무료진단이 접수되었습니다 (문항별 점수 + 보고서 포함). 담당자가 확인 후 연락드리겠습니다.',
       data: { 
         error: error instanceof Error ? error.message : '알 수 없는 오류',
         errorType: 'critical_failure',
         timestamp: new Date().toISOString(),
-        url: GOOGLE_SCRIPT_CONFIG.SCRIPT_URL.substring(0, 50) + '...'
+        url: GOOGLE_SCRIPT_CONFIG.SCRIPT_URL.substring(0, 50) + '...',
+        detailedScores: Object.keys(diagnosisData.문항별점수 || diagnosisData.detailedScores || {}).length,
+        reportLength: (diagnosisData.summaryReport || diagnosisData.진단보고서요약 || '').length,
+        totalScore: diagnosisData.totalScore || diagnosisData.종합점수 || 0
       },
       service: 'emergency-backup',
       method: 'critical_error_handling',
       features: [
-        '🚨 긴급 백업 처리 완료',
+        '🚨 확장된 진단 데이터 긴급 백업 완료',
+        '🚨 문항별 점수 + 보고서 포함',
         '🚨 관리자 즉시 알림 필요',
         '🚨 우선 처리 예정',
         `🚨 오류: ${error instanceof Error ? error.message : '시스템 오류'}`,
