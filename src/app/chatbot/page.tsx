@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout';
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@/components/ui';
-import { Send, Bot, User, Sparkles, Shield, Clock, Zap, Brain, Star, Users, CheckCircle2 } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Shield, Clock, Zap, Cpu, Star, Users, CheckCircle2, ArrowLeft, X } from 'lucide-react';
 import { getImagePath } from '@/lib/utils';
 
 interface Message {
@@ -14,6 +15,7 @@ interface Message {
 }
 
 export default function ChatbotPage() {
+  const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -23,7 +25,7 @@ export default function ChatbotPage() {
   useEffect(() => {
     const welcomeMessage: Message = {
       id: Date.now().toString(),
-      content: `🌟 안녕하세요! **기업의별 M-CENTER** 별-AI상담사입니다!
+      content: `🌟 안녕하세요! **기업의별 M-CENTER** AI상담사입니다!
 
 ✨ **GEMINI AI 기반 스마트 상담**으로 더욱 정확하고 개인화된 답변을 제공해드립니다!
 
@@ -150,6 +152,26 @@ export default function ChatbotPage() {
     <div className="min-h-screen gradient-bg-hero">
       <Header />
       
+      {/* 모바일 뒤로가기 버튼 */}
+      <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
+        <div className="container-custom py-3">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.back()}
+              className="flex items-center gap-2 hover:bg-gray-100 transition-colors duration-200 touch-target"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span className="font-medium">뒤로가기</span>
+            </Button>
+            <div className="text-sm text-gray-600">
+              AI 상담사와 채팅
+            </div>
+          </div>
+        </div>
+      </div>
+      
       {/* 헤더 섹션 - 토스 스타일 */}
       <section className="section-padding relative overflow-hidden">
         {/* 배경 패턴 */}
@@ -177,8 +199,8 @@ export default function ChatbotPage() {
             </div>
             
             <h1 className="text-hero text-gray-900 mb-6 animate-slide-in">
-              <Star className="inline-block w-16 h-16 mr-4 text-yellow-500" />
-              별-AI상담사
+              <Sparkles className="inline-block w-16 h-16 mr-4 text-yellow-500" />
+              AI상담사와 채팅
             </h1>
             
             <p className="text-body-lg text-gray-600 max-w-4xl mx-auto leading-relaxed animate-slide-in mb-8"
@@ -190,7 +212,7 @@ export default function ChatbotPage() {
             <div className="flex flex-wrap justify-center gap-4 mb-12 animate-slide-in"
                  style={{ animationDelay: '0.4s' }}>
               {[
-                { icon: Brain, text: 'GEMINI AI', color: 'bg-blue-100 text-blue-600' },
+                { icon: Cpu, text: 'GEMINI AI', color: 'bg-blue-100 text-blue-600' },
                 { icon: Shield, text: '24시간 상담', color: 'bg-green-100 text-green-600' },
                 { icon: Users, text: '전문가 지원', color: 'bg-purple-100 text-purple-600' },
                 { icon: Zap, text: '즉시 응답', color: 'bg-orange-100 text-orange-600' }
@@ -372,7 +394,7 @@ export default function ChatbotPage() {
             <Card className="result-card">
               <CardContent className="p-10">
                 <h3 className="text-h2 text-center text-gray-900 mb-8">
-                  <Brain className="inline-block w-8 h-8 mr-3 text-blue-600" />
+                  <Cpu className="inline-block w-8 h-8 mr-3 text-blue-600" />
                   AI 상담사의 전문 분야
                 </h3>
                 

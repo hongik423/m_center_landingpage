@@ -607,22 +607,42 @@
 
   /* 🎯 모바일 최적화 핵심 클래스들 */
   
-  /* 텍스트 오버플로우 완전 방지 */
+  /* 텍스트 오버플로우 완전 방지 - 개선된 버전 */
   .text-overflow-safe {
     word-wrap: break-word !important;
     overflow-wrap: break-word !important;
-    word-break: break-word !important;
+    word-break: keep-all !important;
     hyphens: auto !important;
     -webkit-hyphens: auto !important;
     -ms-hyphens: auto !important;
     max-width: 100% !important;
+    white-space: normal !important;
+    text-align: center !important;
   }
   
-  /* 모바일 친화적 텍스트 (문맥 맞는 줄바꿈) */
+  /* 모바일 친화적 텍스트 (자연스러운 줄바꿈) */
   .mobile-text {
     word-break: keep-all !important;
-    line-height: 1.6 !important;
-    letter-spacing: -0.01em !important;
+    line-height: 1.7 !important;
+    letter-spacing: -0.005em !important;
+    text-align: justify !important;
+    text-justify: inter-word !important;
+  }
+  
+  /* 버튼 텍스트 최적화 - 자연스러운 줄바꿈 방지 */
+  .btn-text-safe {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: inline-block !important;
+    max-width: 100% !important;
+  }
+  
+  /* 모바일 단어 단위 줄바꿈 */
+  .word-break-keep {
+    word-break: keep-all !important;
+    overflow-wrap: break-word !important;
+    line-break: auto !important;
   }
   
   /* 모바일 중앙정렬 시스템 */
@@ -690,13 +710,21 @@
     }
   }
   
-  /* 터치 최적화 버튼 */
+  /* 터치 최적화 버튼 - 개선된 버전 */
   .mobile-button {
     min-height: 48px !important;
-    min-width: 48px !important;
-    padding: 0.75rem 1.5rem !important;
+    min-width: 120px !important;
+    padding: 0.75rem 1rem !important;
     border-radius: 0.75rem !important;
     font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    line-height: 1.2 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    word-break: keep-all !important;
+    white-space: nowrap !important;
     transition: all 0.2s ease !important;
     touch-action: manipulation !important;
     -webkit-touch-callout: none !important;

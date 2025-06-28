@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const { testMessage = "안녕하세요, 별-AI상담사 연결 테스트입니다." } = await request.json().catch(() => ({}));
+    const { testMessage = "안녕하세요, AI상담사 연결 테스트입니다." } = await request.json().catch(() => ({}));
 
     // Gemini API 키 확인
     if (!process.env.GEMINI_API_KEY) {
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-      const prompt = `당신은 M-CENTER의 별-AI상담사입니다. 다음 메시지에 간단히 응답해주세요: "${testMessage}"`;
+      const prompt = `당신은 M-CENTER의 AI상담사입니다. 다음 메시지에 간단히 응답해주세요: "${testMessage}"`;
       
       const result = await model.generateContent(prompt);
       const response = await result.response;

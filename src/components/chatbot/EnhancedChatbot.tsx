@@ -12,7 +12,7 @@ import {
   Send, 
   User, 
   Zap, 
-  Brain, 
+  Cpu, 
   Clock, 
   Phone, 
   Mail,
@@ -71,7 +71,7 @@ const QUICK_RESPONSES = [
   },
   {
     text: "2025년 일터혁신 상생컨설팅 신청",
-    icon: <Brain className="w-4 h-4" />,
+    icon: <Cpu className="w-4 h-4" />,
     category: "service"
   },
   {
@@ -86,7 +86,7 @@ const QUICK_RESPONSES = [
   },
   {
     text: "AI 기반 생산성 향상 방법",
-    icon: <Brain className="w-4 h-4" />,
+    icon: <Zap className="w-4 h-4" />,
     category: "ai"
   },
   {
@@ -95,7 +95,7 @@ const QUICK_RESPONSES = [
     category: "tax"
   },
   {
-    text: "전문가 직접 상담 신청",
+            text: "상담신청",
     icon: <Phone className="w-4 h-4" />,
     category: "contact"
   },
@@ -117,7 +117,7 @@ const SERVICE_SUGGESTIONS = [
   {
     name: "2025년 일터혁신 상생컨설팅", 
     description: "20-99인 기업 100% 무료",
-    icon: <Brain className="w-5 h-5" />,
+    icon: <Cpu className="w-5 h-5" />,
     color: "bg-purple-500"
   },
   {
@@ -196,7 +196,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
   useEffect(() => {
     const welcomeMessage: Message = {
       id: generateMessageId(),
-      content: `안녕하세요! 🤖 M-CENTER 별-AI상담사입니다.
+      content: `안녕하세요! 🤖 M-CENTER AI상담사입니다.
 
 🏆 **대한민국 최고 수준의 경영컨설팅 전문기관**
 ✅ 25년 검증된 전문성 | ✅ 실제 기업 성과 검증 | ✅ 정부지원 전문기관
@@ -410,12 +410,12 @@ M-CENTER의 실제 검증된 전문성으로 **30일 내 가시적 결과**를 �
                 <div className="w-10 h-10 rounded-full flex items-center justify-center relative" style={{ backgroundColor: '#4285F4' }}>
                   <img 
                     src={getImagePath('/star-counselor-icon.svg')} 
-                    alt="별-AI상담사" 
+                    alt="AI상담사" 
                     className="w-10 h-10 rounded-full"
                   />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold">M-CENTER 별-AI상담사</h2>
+                  <h2 className="text-xl font-bold">M-CENTER AI상담사</h2>
                   <p className="text-sm text-gray-600">⭐ 25년 경험의 전문 경영컨설턴트</p>
                 </div>
               <div className="ml-auto flex items-center gap-2">
@@ -443,7 +443,7 @@ M-CENTER의 실제 검증된 전문성으로 **30일 내 가시적 결과**를 �
                   <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 relative" style={{ backgroundColor: '#4285F4' }}>
                     <img 
                       src={getImagePath('/star-counselor-icon.svg')} 
-                      alt="별-AI상담사" 
+                      alt="AI상담사" 
                       className="w-8 h-8 rounded-full"
                     />
                   </div>
@@ -530,7 +530,7 @@ M-CENTER의 실제 검증된 전문성으로 **30일 내 가시적 결과**를 �
                 <div className="w-8 h-8 rounded-full flex items-center justify-center relative" style={{ backgroundColor: '#4285F4' }}>
                   <img 
                     src={getImagePath('/star-counselor-icon.svg')} 
-                    alt="별-AI상담사" 
+                    alt="AI상담사" 
                     className="w-8 h-8 rounded-full"
                   />
                 </div>

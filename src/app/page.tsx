@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
-  Brain, 
+  Cpu, 
   Factory, 
   Rocket, 
   Award, 
@@ -34,7 +34,7 @@ const services = [
     title: '프리미엄 사업분석',
     subtitle: '신규사업 성공률 95%',
     description: '차세대 비즈니스 혁신 솔루션',
-    icon: Brain,
+    icon: Cpu,
     color: 'bg-gradient-to-br from-blue-500 to-purple-600 text-white',
     bgColor: 'from-blue-50 to-purple-50',
     href: '/services/business-analysis',
@@ -47,7 +47,7 @@ const services = [
     title: '혁신 AI 솔루션',
     subtitle: '업무 효율성 40% 향상',
     description: '20주 프로그램으로 디지털 혁신 완성',
-    icon: Brain,
+    icon: Zap,
     color: 'bg-purple-100 text-purple-600',
     bgColor: 'from-purple-50 to-pink-50',
     href: '/services/ai-productivity',
@@ -317,12 +317,12 @@ export default function Home() {
         <div className="mobile-container">
           <div className="text-center mb-16">
             <div className="badge-primary mb-6 animate-bounce-gentle">
-              <Brain className="w-5 h-5 mr-2 animate-pulse" />
+              <Cpu className="w-5 h-5 mr-2 animate-pulse" />
               <span className="font-semibold text-overflow-safe">차세대 지능형 상담 시스템</span>
             </div>
             
             <h2 className="text-h1 text-gray-900 mb-4 animate-slide-in mobile-centered">
-              <span className="text-4xl mr-3">🧠</span>
+              <span className="text-4xl mr-3">🤖</span>
               <span className="text-overflow-safe">AI 전문 상담사와 바로 대화하기</span>
             </h2>
             
@@ -341,7 +341,7 @@ export default function Home() {
                     <div className="flex flex-col sm:flex-row items-center sm:items-start mb-6 lg:mb-8">
                       <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-indigo-500 to-purple-600 
                                       rounded-3xl flex items-center justify-center mb-4 sm:mb-0 sm:mr-6 shadow-lg">
-                        <Brain className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                        <Cpu className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                       </div>
                       <div className="text-center sm:text-left">
                         <h3 className="text-h3 text-gray-900 mb-1 text-overflow-safe">M-CENTER 전문 AI 상담사</h3>
@@ -446,8 +446,8 @@ export default function Home() {
                           }
                         }}
                       >
-                        <Star className="w-5 h-5 mr-2 text-yellow-400" />
-                        <span className="text-overflow-safe">별-AI상담사와 채팅 시작하기</span>
+                        <Sparkles className="w-5 h-5 mr-2 text-yellow-400" />
+                        <span className="text-overflow-safe">AI상담사와 채팅</span>
                       </Button>
                       
                       <Link href="/consultation">
@@ -455,7 +455,7 @@ export default function Home() {
                           className="mobile-button w-full btn-secondary"
                         >
                           <Users className="w-5 h-5 mr-2" />
-                          <span className="text-overflow-safe">전문가 직접 상담 신청 (010-9251-9743)</span>
+                          <span className="text-overflow-safe">상담신청</span>
                         </Button>
                       </Link>
                     </div>
@@ -756,7 +756,7 @@ export default function Home() {
         <div className="container-custom">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full mb-6">
-              <Brain className="w-5 h-5" />
+              <Cpu className="w-5 h-5" />
               <span className="font-semibold">차세대 지능형 진단 시스템</span>
             </div>
             
@@ -810,7 +810,7 @@ export default function Home() {
                     <Button 
                       className="btn-hero bg-white text-blue-600 hover:bg-gray-50 shadow-xl"
                     >
-                      <Brain className="w-5 h-5 mr-2" />
+                      <Cpu className="w-5 h-5 mr-2" />
                       무료 전문가 진단 신청하기
                     </Button>
                   </Link>

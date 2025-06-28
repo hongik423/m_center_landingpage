@@ -35,7 +35,7 @@ export default function FloatingChatbot() {
     if (isOpen && messages.length === 0) {
       const welcomeMessage: Message = {
         id: Date.now().toString(),
-        content: `🌟 안녕하세요! **기업의별 M-CENTER** 별-AI상담사입니다!
+        content: `🌟 안녕하세요! **기업의별 M-CENTER** AI상담사입니다!
 
 ✨ **GEMINI AI 기반 스마트 상담**으로 더욱 정확하고 개인화된 답변을 제공해드립니다!
 
@@ -66,6 +66,22 @@ export default function FloatingChatbot() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // ESC 키로 챗봇 창 닫기
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+        // 모바일 진동 피드백
+        if (navigator.vibrate) {
+          navigator.vibrate(50);
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
 
   // 🔥 개선된 드래그 이벤트 핸들러들 - useCallback으로 메모이제이션
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -390,10 +406,10 @@ export default function FloatingChatbot() {
           }
         }}
       >
-        {/* 별-AI상담사 아이콘 */}
+        {/* AI상담사 아이콘 */}
         <img
           src={getImagePath('/star-counselor-icon.svg')}
-          alt="별-AI상담사"
+          alt="AI상담사"
           style={{
             width: isMobile ? '50px' : '60px',
             height: isMobile ? '50px' : '60px',
@@ -487,12 +503,14 @@ export default function FloatingChatbot() {
         <div
           style={{
             position: 'fixed',
-            bottom: `${position.y}px`,
-            right: `${position.x}px`,
-            width: '380px',
-            height: '500px',
+            bottom: isMobile ? '10px' : `${position.y}px`,
+            right: isMobile ? '10px' : `${position.x}px`,
+            left: isMobile ? '10px' : 'auto',
+            width: isMobile ? 'calc(100vw - 20px)' : '380px',
+            height: isMobile ? 'calc(100vh - 100px)' : '500px',
+            maxHeight: isMobile ? '600px' : '500px',
             backgroundColor: 'white',
-            borderRadius: '12px',
+            borderRadius: isMobile ? '16px' : '12px',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
             zIndex: 999998,
             display: 'flex',
@@ -505,17 +523,18 @@ export default function FloatingChatbot() {
             style={{
               background: 'linear-gradient(135deg, #4285F4 0%, #9C27B0 100%)',
               color: 'white',
-              padding: '16px',
-              borderRadius: '12px 12px 0 0',
+              padding: isMobile ? '20px 16px' : '16px',
+              borderRadius: isMobile ? '16px 16px 0 0' : '12px 12px 0 0',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between'
+              justifyContent: 'space-between',
+              minHeight: isMobile ? '70px' : '60px'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <img
                 src={getImagePath('/star-counselor-icon.svg')}
-                alt="별-AI상담사"
+                alt="AI상담사"
                 style={{
                   width: '35px',
                   height: '35px',
@@ -525,7 +544,7 @@ export default function FloatingChatbot() {
               />
               <div>
                 <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                  별-AI상담사
+                  AI상담사
                 </div>
                 <div style={{ fontSize: '12px', opacity: 0.9 }}>
                   GEMINI AI • 온라인
@@ -533,25 +552,46 @@ export default function FloatingChatbot() {
               </div>
             </div>
             
-            {/* X 버튼 */}
+            {/* 개선된 X 버튼 - 모바일 친화적 */}
             <button
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                setIsOpen(false);
+                // 모바일 진동 피드백
+                if (navigator.vibrate) {
+                  navigator.vibrate(50);
+                }
+              }}
               style={{
-                width: '30px',
-                height: '30px',
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                width: isMobile ? '36px' : '32px',
+                height: isMobile ? '36px' : '32px',
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
                 color: 'white',
-                border: 'none',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
                 borderRadius: '50%',
                 cursor: 'pointer',
-                fontSize: '18px',
+                fontSize: isMobile ? '20px' : '18px',
                 fontWeight: 'bold',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                transition: 'all 0.2s ease',
+                zIndex: 10
               }}
+              onMouseEnter={(e) => {
+                if (!isMobile) {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                  e.currentTarget.style.transform = 'scale(1.1)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isMobile) {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                  e.currentTarget.style.transform = 'scale(1)';
+                }
+              }}
+              title="채팅창 닫기"
             >
-              ×
+              ✕
             </button>
           </div>
 
@@ -650,25 +690,27 @@ export default function FloatingChatbot() {
           {/* 입력 영역 */}
           <div
             style={{
-              padding: '16px',
+              padding: isMobile ? '20px 16px' : '16px',
               borderTop: '1px solid #e2e8f0',
               backgroundColor: 'white',
-              borderRadius: '0 0 12px 12px'
+              borderRadius: isMobile ? '0 0 16px 16px' : '0 0 12px 12px',
+              minHeight: isMobile ? '80px' : '60px'
             }}
           >
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: isMobile ? '12px' : '8px' }}>
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="메시지를 입력하세요..."
+                placeholder={isMobile ? "메시지 입력..." : "메시지를 입력하세요..."}
                 style={{
                   flex: 1,
-                  padding: '12px',
+                  padding: isMobile ? '16px' : '12px',
                   border: '2px solid #e2e8f0',
                   borderRadius: '24px',
-                  fontSize: '14px',
-                  outline: 'none'
+                  fontSize: isMobile ? '16px' : '14px',
+                  outline: 'none',
+                  minHeight: isMobile ? '48px' : '40px'
                 }}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
@@ -694,8 +736,8 @@ export default function FloatingChatbot() {
                 }}
                 disabled={!inputValue.trim() || isTyping}
                 style={{
-                  width: '45px',
-                  height: '45px',
+                  width: isMobile ? '52px' : '45px',
+                  height: isMobile ? '52px' : '45px',
                   backgroundColor: inputValue.trim() && !isTyping ? '#4285F4' : '#ccc',
                   color: 'white',
                   border: 'none',
@@ -704,8 +746,10 @@ export default function FloatingChatbot() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '16px'
+                  fontSize: isMobile ? '18px' : '16px',
+                  transition: 'all 0.2s ease'
                 }}
+                title="메시지 전송"
               >
                 ➤
               </button>

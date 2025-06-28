@@ -27,6 +27,13 @@ import {
   ArrowRight
 } from 'lucide-react';
 
+// 전역 타입 정의
+declare global {
+  interface Window {
+    openBetaFeedbackForm?: (calculatorName?: string) => void;
+  }
+}
+
 interface BetaFeedbackFormProps {
   calculatorName: string;
   calculatorType: string;
@@ -86,6 +93,67 @@ export function BetaFeedbackForm({ calculatorName, calculatorType, className }: 
 
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+
+  // 전역 함수 등록 - 다른 컴포넌트에서 베타 피드백 폼을 열 수 있도록
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // 베타 피드백 폼 열기 함수를 전역에 등록
+      (window as any).openBetaFeedbackForm = (targetCalculatorName?: string) => {
+        console.log('🎯 전역 함수를 통한 베타 피드백 폼 열기:', targetCalculatorName);
+        setIsFormVisible(true);
+        
+        // 계산기명 업데이트 (전달받은 경우)
+        if (targetCalculatorName) {
+          setFormData(prev => ({
+            ...prev,
+            calculatorName: targetCalculatorName
+          }));
+        }
+        
+        // 폼이 열릴 때 스크롤하여 보이도록
+        setTimeout(() => {
+          const formElement = document.querySelector('[data-beta-feedback-form]');
+          if (formElement) {
+            formElement.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center' 
+            });
+          }
+        }, 100);
+      };
+
+      // 커스텀 이벤트 리스너 등록
+      const handleOpenFeedbackForm = (event: CustomEvent) => {
+        console.log('📡 커스텀 이벤트를 통한 베타 피드백 폼 열기:', event.detail);
+        setIsFormVisible(true);
+        
+        if (event.detail?.calculatorName) {
+          setFormData(prev => ({
+            ...prev,
+            calculatorName: event.detail.calculatorName
+          }));
+        }
+        
+        setTimeout(() => {
+          const formElement = document.querySelector('[data-beta-feedback-form]');
+          if (formElement) {
+            formElement.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center' 
+            });
+          }
+        }, 100);
+      };
+
+      window.addEventListener('openBetaFeedbackForm', handleOpenFeedbackForm as EventListener);
+      
+      // 컴포넌트 언마운트 시 정리
+      return () => {
+        delete (window as any).openBetaFeedbackForm;
+        window.removeEventListener('openBetaFeedbackForm', handleOpenFeedbackForm as EventListener);
+      };
+    }
+  }, []);
 
   // 실시간 유효성 검사
   useEffect(() => {
@@ -468,7 +536,7 @@ export function BetaFeedbackForm({ calculatorName, calculatorType, className }: 
   })();
 
   return (
-    <Card data-beta-feedback className={`border-orange-200 bg-gradient-to-br from-orange-50 to-yellow-50 shadow-lg ${className}`}>
+    <Card data-beta-feedback data-beta-feedback-form className={`border-orange-200 bg-gradient-to-br from-orange-50 to-yellow-50 shadow-lg ${className}`}>
       <CardHeader className="pb-4 bg-gradient-to-r from-orange-100 to-yellow-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

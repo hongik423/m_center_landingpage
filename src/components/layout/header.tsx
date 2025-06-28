@@ -258,7 +258,7 @@ export default function Header() {
                   {/* 하단 연락처 */}
                   <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-apple-lg border border-blue-200">
                     <h4 className="font-semibold text-gray-900 mb-3 text-center">
-                      <span className="text-overflow-safe">📞 전문가 직접 상담</span>
+                                                <span className="text-overflow-safe">📞 상담신청</span>
                     </h4>
                     <div className="space-y-3">
                       <div className="flex items-center justify-center gap-3">

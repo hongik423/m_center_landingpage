@@ -370,7 +370,7 @@ export async function POST(request: NextRequest) {
         const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-        const prompt = `당신은 M-CENTER의 별-AI상담사입니다. 실제 기업 성과를 검증받은 전문 경영컨설팅 기관입니다.
+        const prompt = `당신은 M-CENTER의 AI상담사입니다. 실제 기업 성과를 검증받은 전문 경영컨설팅 기관입니다.
 
 🚀 **2025년 핵심 서비스 - 실제 검증 완료**:
 1. **BM ZEN 5단계 프레임워크** - 생산성 42% 향상, ROI 290% 달성 (㈜한국정밀기계 실제 성과)
@@ -477,7 +477,7 @@ function generateEnhancedFallbackResponse(message: string): string {
   // 서비스별 맞춤 응답
   if (relevantServices.length > 0 && !relevantServices.includes('general')) {
     const serviceDetails = generateServiceDetails(relevantServices);
-    return `🤖 **M-CENTER 별-AI상담사**입니다! 
+    return `🤖 **M-CENTER AI상담사**입니다! 
 
 ${serviceDetails}
 
@@ -495,7 +495,7 @@ ${serviceDetails}
   }
   
   // 일반적인 향상된 응답 (2025년 업데이트)
-  return `🤖 **M-CENTER 별-AI상담사**가 도움드리겠습니다!
+  return `🤖 **M-CENTER AI상담사**가 도움드리겠습니다!
 
 🏆 **대한민국 최고 수준의 경영컨설팅**
 • 25년 검증된 전문성 | 실제 기업 성과 검증 | 정부지원 전문기관
