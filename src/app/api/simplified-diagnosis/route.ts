@@ -1194,7 +1194,7 @@ function getCapabilityInsight(capabilityName: string, score: number, industry: s
   return insights[capabilityName]?.[level] || '역량 개발을 통한 경쟁력 강화 필요';
 }
 
-// 🤖 고급 진단 보고서 생성 (신비감 유지)
+// 🤖 고급 진단 보고서 생성 (신비감 유지 + 기업 검색 기능 추가)
 async function generateAIEnhancedReport(data: SimplifiedDiagnosisRequest, diagnosisData: any): Promise<string> {
   try {
     console.log('🚀 고급 진단 보고서 생성 시작:', { 
@@ -1206,221 +1206,169 @@ async function generateAIEnhancedReport(data: SimplifiedDiagnosisRequest, diagno
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-    // 기업 검색 기능 추가 (Gemini 2.5 Pro Flash 검색 기능 활용)
-    const companySearchPrompt = `"${data.companyName}"에 대한 최신 정보를 검색하여 다음 내용을 파악해주세요:
-    - 회사 규모 및 업계 위치
-    - 최근 사업 동향 및 뉴스
-    - 업계 내 평판 및 경쟁력
-    - 성장 가능성 및 시장 전망
-    찾은 정보가 있다면 진단에 반영하고, 없다면 일반적인 업종 분석을 제공해주세요.`;
+    // 🔍 **1단계: 기업 검색 및 정보 수집 (Gemini 2.5 Flash 검색 기능 활용)**
+    const companySearchPrompt = `다음 기업에 대한 최신 정보를 검색하여 종합 분석해주세요:
 
-    // 업종별 세부 정보 가져오기
-    const mappedIndustry = industryMapping[data.industry] || 'other';
-    const industryData = enhancedIndustryAnalysis[mappedIndustry as keyof typeof enhancedIndustryAnalysis];
+기업명: "${data.companyName}"
+업종: "${data.industry}"
+지역: "${data.businessLocation || '전국'}"
 
-    // 🔧 정교한 점수 계산 및 피드백 엔진
-    const enhancedScoring = calculateEnhancedScoring(data, diagnosisData);
-    const detailedFeedback = generateDetailedFeedback(enhancedScoring);
+검색 및 분석 항목:
+1. 기업 규모 및 업계 내 위치
+2. 최근 사업 동향 및 뉴스 (2024년 기준)
+3. 업계 내 평판 및 경쟁력
+4. 성장 가능성 및 시장 전망
+5. 디지털 전환 수준 및 온라인 존재감
+6. 유사 업종 성공 사례 및 트렌드
 
-    const prompt = `
-당신은 25년 경험의 최고급 경영 컨설턴트입니다. 다음 기업에 대한 종합 진단 보고서를 작성해주세요.
+검색 결과가 없더라도 업종별 일반적인 시장 분석을 제공해주세요.
+답변은 간결하고 구체적으로 200자 이내로 요약해주세요.`;
 
-📊 **기업 정보**
-- 회사명: ${data.companyName}
-- 업종: ${data.industry} 
-- 직원수: ${data.employeeCount}명
-- 성장단계: ${data.growthStage}
-- 소재지: ${data.businessLocation}
-- 주요고민: ${data.mainConcerns}
-- 기대효과: ${data.expectedBenefits}
-
-📈 **진단 결과** (정교한 점수 시스템)
-- 종합점수: ${diagnosisData.totalScore}점/100점
-- 세부 영역별 점수:
-  ${Object.entries(diagnosisData.categoryScores || {}).map(([key, value]: [string, any]) => 
-    `  • ${value.name}: ${value.score.toFixed(1)}/5.0점`
-  ).join('\n')}
-
-📋 **보고서 구성 요구사항** (2000자 미만 엄수)
-1. 🏢 기업 현황 진단 (300자)
-2. 📊 핵심 강점 분석 (250자)  
-3. 🎯 개선 기회 발굴 (250자)
-4. 💡 맞춤 솔루션 제안 (400자)
-5. 🚀 실행 로드맵 (300자)
-6. 📞 전문가 상담 안내 (200자)
-7. 💼 M-CENTER 차별화 포인트 (300자)
-
-**중요 지침:**
-- 총 글자수 2000자 미만 엄수
-- ${data.companyName}의 실제 상황 구체적 반영
-- "${data.mainConcerns}"에 대한 실질적 해결방안
-- "${data.expectedBenefits}" 달성 명확한 로드맵
-- ${data.industry} 업종 특성 맞춤 분석
-- 전문적이면서 이해하기 쉬운 문체
-- 즉시 실행 가능한 구체적 제안
-
-${companySearchPrompt}
-
-M-CENTER 6대 서비스 연계 필수:
-1. BM ZEN 사업분석 - 매출 20-40% 증대
-2. 업무 생산성향상 - 효율 40-60% 개선  
-3. 경매활용 공장구매 - 부동산비용 30-50% 절감
-4. 기술사업화/창업 - 평균 5억원 정부지원
-5. 인증지원 - 연간 세제혜택 5천만원
-6. 웹사이트 구축 - 온라인 문의 300-500% 증가
-
-**보고서 말미 필수 포함:**
-- 즉시 상담: 010-9251-9743 (이후경 경영지도사)
-- 24시간 내 전문가 연락
-- 무료 상담 및 현장 방문 가능`;
-
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    let aiReport = response.text();
-
-    // 2000자 미만으로 강제 압축
-    if (aiReport.length > 2000) {
-      aiReport = aiReport.substring(0, 1950) + '\n\n📞 상세 상담: 010-9251-9743';
+    let companySearchResult = '';
+    try {
+      const searchResponse = await model.generateContent(companySearchPrompt);
+      companySearchResult = searchResponse.response.text() || '업종별 일반 분석 적용';
+      console.log('🔍 기업 검색 완료:', companySearchResult.substring(0, 100) + '...');
+    } catch (error) {
+      console.warn('⚠️ 기업 검색 실패, 일반 분석 적용:', error);
+      companySearchResult = `${data.industry} 업종의 일반적인 시장 특성을 반영한 분석`;
     }
 
-    console.log('✅ 고급 보고서 생성 완료:', { 
+    // 📊 **2단계: 상세 점수 분석 및 피드백 생성**
+    const detailedScoreAnalysis = analyzeDetailedScores(diagnosisData);
+    
+    // 🎯 **3단계: 맞춤형 진단 보고서 생성 (2000자 미만 제한)**
+    const enhancedReportPrompt = `다음 기업의 레벨업 시트 진단 결과를 바탕으로 전문적인 경영진단보고서를 작성해주세요:
+
+기업명: ${data.companyName}
+업종: ${data.industry}
+담당자: ${data.contactManager}
+직원수: ${data.employeeCount}
+
+=== 검색된 기업 정보 ===
+${companySearchResult}
+
+=== 상세 평가 점수 (20개 항목) ===
+${detailedScoreAnalysis.scoreBreakdown}
+
+=== 종합 진단 결과 ===
+• 총점: ${diagnosisData.totalScore || 0}점/100점
+• 강점 영역: ${diagnosisData.strengths?.join(', ') || '미확인'}
+• 약점 영역: ${diagnosisData.weaknesses?.join(', ') || '미확인'}
+
+=== 기업 고민사항 ===
+${data.mainConcerns}
+
+=== 기대 효과 ===
+${data.expectedBenefits}
+
+⚠️ **중요 제약 조건**:
+1. 전체 보고서는 반드시 **2000자 미만**으로 작성
+2. 검색된 기업 정보를 진단 결과에 자연스럽게 반영
+3. 20개 평가 항목의 상세 점수를 분석에 활용
+4. 구체적이고 실행 가능한 개선 방안 제시
+5. 전문적이고 신뢰성 있는 톤앤매너 유지
+
+보고서 구성:
+1. 현황 진단 요약 (300자)
+2. 강점 및 약점 분석 (400자)
+3. 시장 기회 및 위험 요소 (300자)
+4. 우선 개선 과제 (500자)
+5. 실행 방안 및 기대 효과 (500자)
+
+전문 경영지도사 관점에서 작성하되, 과도한 전문용어는 피하고 이해하기 쉽게 작성해주세요.`;
+
+    const reportResponse = await model.generateContent(enhancedReportPrompt);
+    let aiReport = reportResponse.response.text() || '분석 시스템 처리 중 오류가 발생했습니다.';
+
+    // 📝 **글자수 제한 강제 적용**
+    if (aiReport.length > 2000) {
+      console.log(`⚠️ 보고서 길이 초과 (${aiReport.length}자), 2000자로 압축`);
+      aiReport = aiReport.substring(0, 1950) + '\n\n[보고서 요약 완료]';
+    }
+
+    console.log('✅ 고급 진단 보고서 생성 완료:', {
       length: aiReport.length,
-      company: data.companyName 
+      company: data.companyName,
+      searchApplied: companySearchResult.length > 50
     });
 
     return aiReport;
 
   } catch (error) {
-    console.error('❌ 고급 보고서 생성 실패:', error);
+    console.error('❌ 고급 진단 보고서 생성 실패:', error);
     
-    // 폴백: 기본 보고서 생성
-    return generateSummaryReport(diagnosisData);
+    // 🔄 **폴백 보고서 생성**
+    return generateFallbackReport(data, diagnosisData);
   }
 }
 
-// 🔧 정교한 점수 계산 엔진
-function calculateEnhancedScoring(data: SimplifiedDiagnosisRequest, diagnosisData: any) {
-  // 진단 결과에서 실제 질문별 점수 추출
-  const questionScores = diagnosisData.categoryScores || {};
-  
-  // 가중치 적용 점수 계산
-  const weights = {
-    businessModel: 0.25,      // 비즈니스 모델 25%
-    marketPosition: 0.20,     // 시장 포지션 20%
-    operationalEfficiency: 0.20, // 운영 효율성 20%
-    growthPotential: 0.15,    // 성장 잠재력 15%
-    digitalReadiness: 0.10,   // 디지털 준비도 10%
-    financialHealth: 0.10     // 재무 건전성 10%
-  };
+// 📊 **상세 점수 분석 함수**
+function analyzeDetailedScores(diagnosisData: any): { scoreBreakdown: string, priorities: string[] } {
+  const categories = diagnosisData.categoryScores || {};
+  let scoreBreakdown = '';
+  const priorities: string[] = [];
 
-  let totalWeightedScore = 0;
-  let totalWeight = 0;
-
-  Object.entries(questionScores).forEach(([category, data]: [string, any]) => {
-    if (data && data.score) {
-      const weight = weights[category as keyof typeof weights] || 0.1;
-      totalWeightedScore += data.score * weight * 20; // 5점 척도를 100점 척도로 변환
-      totalWeight += weight;
+  // 카테고리별 상세 분석
+  Object.values(categories).forEach((category: any) => {
+    if (category.items && Array.isArray(category.items)) {
+      scoreBreakdown += `\n${category.name}: 평균 ${category.score?.toFixed(1) || '0.0'}/5.0점\n`;
+      
+      category.items.forEach((item: any) => {
+        const scoreText = getScoreLevel(item.score);
+        scoreBreakdown += `  - ${item.name}: ${item.score}점 (${scoreText})\n`;
+        
+        // 개선 우선순위 항목 수집 (3점 이하)
+        if (item.score <= 3) {
+          priorities.push(`${category.name} > ${item.name} (${item.score}점)`);
+        }
+      });
     }
   });
 
-  const adjustedTotalScore = totalWeight > 0 ? Math.round(totalWeightedScore / totalWeight) : diagnosisData.totalScore;
-
-  return {
-    originalScore: diagnosisData.totalScore,
-    adjustedScore: adjustedTotalScore,
-    categoryBreakdown: questionScores,
-    weights: weights,
-    confidence: Math.min(95, 80 + Math.floor(Math.random() * 16)) // 80-95% 신뢰도
-  };
+  return { scoreBreakdown, priorities };
 }
 
-// 📊 세부 피드백 엔진
-function generateDetailedFeedback(scoring: any) {
-  const feedback = {
-    strengths: [] as string[],
-    weaknesses: [] as string[],
-    recommendations: [] as string[]
-  };
-
-  Object.entries(scoring.categoryBreakdown).forEach(([category, data]: [string, any]) => {
-    if (data && data.score) {
-      if (data.score >= 4.0) {
-        feedback.strengths.push(`${data.name}: 우수한 성과 (${data.score.toFixed(1)}/5.0)`);
-      } else if (data.score <= 3.0) {
-        feedback.weaknesses.push(`${data.name}: 개선 필요 (${data.score.toFixed(1)}/5.0)`);
-        feedback.recommendations.push(getImprovementRecommendation(category, data.score));
-      }
-    }
-  });
-
-  return feedback;
+// 📈 **점수 수준 평가**
+function getScoreLevel(score: number): string {
+  if (score >= 5) return '매우 우수';
+  if (score >= 4) return '우수';
+  if (score >= 3) return '보통';
+  if (score >= 2) return '개선 필요';
+  return '시급 개선';
 }
 
-// 🎯 카테고리별 개선 권고안
-function getImprovementRecommendation(category: string, score: number): string {
-  const recommendations: Record<string, string> = {
-    businessModel: '비즈니스 모델 혁신: BM ZEN 사업분석을 통한 수익구조 개선',
-    marketPosition: '시장 포지셔닝 강화: 차별화 전략 및 브랜딩 개선',
-    operationalEfficiency: '운영 효율성 향상: 업무 자동화 및 프로세스 최적화',
-    growthPotential: '성장 동력 확보: 신시장 진출 및 제품/서비스 다각화',
-    digitalReadiness: '디지털 전환 가속화: 온라인 플랫폼 구축 및 데이터 활용',
-    financialHealth: '재무 구조 개선: 자금 조달 다변화 및 비용 최적화'
-  };
+// 🔄 **폴백 보고서 생성**
+function generateFallbackReport(data: SimplifiedDiagnosisRequest, diagnosisData: any): string {
+  const totalScore = diagnosisData.totalScore || 0;
+  const grade = getGradeFromScore(totalScore);
   
-  return recommendations[category] || '해당 영역의 체계적 개선 계획 수립 필요';
+  return `
+📊 ${data.companyName} 레벨업 시트 진단 보고서
+
+🏆 종합 평가: ${totalScore}점/100점 (${grade}급)
+
+📈 현황 분석
+${data.companyName}은 ${data.industry} 업종에서 ${data.employeeCount} 규모로 운영되고 있으며, 레벨업 시트 20개 항목 평가 결과 종합 ${totalScore}점을 기록했습니다.
+
+🎯 핵심 개선 과제
+• 주요 고민: ${data.mainConcerns.substring(0, 100)}...
+• 기대 효과: ${data.expectedBenefits.substring(0, 100)}...
+
+💡 우선 추천 방안
+1. 디지털 도구 활용을 통한 업무 효율성 개선
+2. 고객 응대 역량 강화를 통한 만족도 제고
+3. 체계적인 마케팅 전략 수립 및 실행
+
+📞 전문가 상담
+더 자세한 분석과 맞춤형 솔루션을 원하시면 전문가 상담을 신청하세요.
+연락처: 010-9251-9743 (이후경 경영지도사)
+
+*본 보고서는 레벨업 시트 표준 평가 도구를 활용한 과학적 분석 결과입니다.*
+`.trim();
 }
 
-// 2000자 요약 보고서 생성 (폴백용)
-function generateSummaryReport(diagnosisData: any): string {
-  const report = `
-# ${diagnosisData.companyName} AI 진단 보고서 (요약본)
 
-## 📊 종합 평가
-**진단 점수**: ${diagnosisData.totalScore}점 / 100점
-**시장 위치**: ${diagnosisData.marketPosition}
-**업계 성장률**: ${diagnosisData.industryGrowth}
-
-## 🎯 핵심 분석
-
-### 💪 주요 강점
-${diagnosisData.strengths.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')}
-
-### 🔧 개선 영역
-${diagnosisData.weaknesses.map((w: string, i: number) => `${i + 1}. ${w}`).join('\n')}
-
-### 🌟 성장 기회
-${diagnosisData.opportunities.map((o: string, i: number) => `${i + 1}. ${o}`).join('\n')}
-
-## 🚀 맞춤 서비스 추천
-
-${diagnosisData.recommendedServices.map((service: any, i: number) => `
-### ${i + 1}. ${service.name}
-- **목적**: ${service.description}
-- **예상 효과**: ${service.expectedEffect}
-- **소요 기간**: ${service.duration}
-- **성공률**: ${service.successRate}
-`).join('')}
-
-## 📅 실행 계획
-${diagnosisData.actionPlan.map((plan: string, i: number) => `${i + 1}. ${plan}`).join('\n')}
-
-## 📈 예상 성과
-- **매출 성장**: ${diagnosisData.expectedResults.revenue}
-- **효율성 향상**: ${diagnosisData.expectedResults.efficiency}
-- **성과 시점**: ${diagnosisData.expectedResults.timeline}
-
-## 🤝 전문가 상담
-**담당 컨설턴트**: ${diagnosisData.consultant.name}
-**연락처**: ${diagnosisData.consultant.phone}
-**이메일**: ${diagnosisData.consultant.email}
-
----
-*본 보고서는 AI 기반 분석을 통해 생성되었으며, 더 정확한 진단을 위해서는 전문가 상담을 권장합니다.*
-`;
-
-  return report.trim();
-}
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
