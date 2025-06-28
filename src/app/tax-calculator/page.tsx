@@ -135,6 +135,46 @@ const stockTransferCalculator = {
   features: ['상장/비상장 구분', '장기보유특별공제', '대주주 여부 반영', '절세 전략 제공']
 };
 
+// 전체 계산기 목록 (그리드 표시용)
+const taxCalculators = [
+  ...personalTaxCalculators.map(calc => ({
+    ...calc,
+    category: 'personal',
+    iconBg: 'bg-blue-50',
+    iconColor: 'text-blue-600',
+    badge: { bg: 'bg-blue-100', text: 'text-blue-700', label: '개인' },
+    buttonStyle: 'border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300',
+    target: '개인 납세자',
+  })),
+  ...corporateTaxCalculators.map(calc => ({
+    ...calc,
+    category: 'corporate',
+    iconBg: 'bg-green-50',
+    iconColor: 'text-green-600',
+    badge: { bg: 'bg-green-100', text: 'text-green-700', label: '법인' },
+    buttonStyle: 'border-green-200 text-green-700 hover:bg-green-50 hover:border-green-300',
+    target: '법인 사업자',
+  })),
+  {
+    ...businessInheritanceCalculator,
+    category: 'business-inheritance',
+    iconBg: 'bg-violet-50',
+    iconColor: 'text-violet-600',
+    badge: { bg: 'bg-violet-100', text: 'text-violet-700', label: '특수' },
+    buttonStyle: 'border-violet-200 text-violet-700 hover:bg-violet-50 hover:border-violet-300',
+    target: '중소·중견기업',
+  },
+  {
+    ...stockTransferCalculator,
+    category: 'stock-transfer',
+    iconBg: 'bg-pink-50',
+    iconColor: 'text-pink-600',
+    badge: { bg: 'bg-pink-100', text: 'text-pink-700', label: '주식' },
+    buttonStyle: 'border-pink-200 text-pink-700 hover:bg-pink-50 hover:border-pink-300',
+    target: '주식 투자자',
+  }
+];
+
 // 계산기 선택 컴포넌트
 interface CalculatorSelectorProps {
   calculators: any[];

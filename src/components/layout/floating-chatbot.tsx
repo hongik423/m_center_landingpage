@@ -25,6 +25,10 @@ export default function FloatingChatbot() {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isDragReady, setIsDragReady] = useState(false); // 드래그 준비 상태
   const [snapPosition, setSnapPosition] = useState<'left' | 'right'>('right'); // 스냅 위치
+  
+  // SSR 안전한 화면 크기 상태 관리
+  const [screenSize, setScreenSize] = useState({ width: 1024, height: 768 });
+  const [isMobile, setIsMobile] = useState(false);
 
   // 환영 메시지 추가
   useEffect(() => {
@@ -119,10 +123,10 @@ export default function FloatingChatbot() {
     const newY = dragOffset.y - deltaY; // 하단에서의 거리이므로 반대로 (아래로 드래그하면 bottom 값이 작아져야 함)
     
     // 화면 경계 제한 (전체 2D 드래그) - 모바일 최적화
-    const buttonSize = window.innerWidth < 768 ? 60 : 70; // 모바일에서 버튼 크기 조정
-    const maxX = window.innerWidth - buttonSize - 10;
+    const buttonSize = isMobile ? 60 : 70; // 모바일에서 버튼 크기 조정
+    const maxX = screenSize.width - buttonSize - 10;
     const minX = 10;
-    const maxY = window.innerHeight - buttonSize - 10;
+    const maxY = screenSize.height - buttonSize - 10;
     const minY = 60; // 상단 여유 공간
     
     // 🚨 오류신고 버튼과의 충돌 방지 (우하단 영역) - 개선된 충돌 감지
@@ -131,17 +135,17 @@ export default function FloatingChatbot() {
     
     // 오류신고 버튼 영역 (우하단 90x90 픽셀) 충돌 감지 - 모바일 고려
     const errorButtonArea = {
-      left: window.innerWidth - (window.innerWidth < 768 ? 100 : 120),
-      right: window.innerWidth - 10,
-      top: window.innerHeight - (window.innerWidth < 768 ? 100 : 120),
-      bottom: window.innerHeight - 10
+      left: screenSize.width - (isMobile ? 100 : 120),
+      right: screenSize.width - 10,
+      top: screenSize.height - (isMobile ? 100 : 120),
+      bottom: screenSize.height - 10
     };
     
     const chatbotArea = {
-      left: window.innerWidth - finalX - buttonSize,
-      right: window.innerWidth - finalX,
-      top: window.innerHeight - finalY - buttonSize,
-      bottom: window.innerHeight - finalY
+      left: screenSize.width - finalX - buttonSize,
+      right: screenSize.width - finalX,
+      top: screenSize.height - finalY - buttonSize,
+      bottom: screenSize.height - finalY
     };
     
     // 충돌 감지
@@ -154,9 +158,9 @@ export default function FloatingChatbot() {
     
     // 충돌 시 위치 조정 - 더 자연스러운 위치로
     if (isColliding) {
-      if (finalY > window.innerHeight / 2) {
+      if (finalY > screenSize.height / 2) {
         // 하단에 있으면 위로 이동
-        finalY = Math.min(finalY, window.innerHeight - (window.innerWidth < 768 ? 160 : 180));
+        finalY = Math.min(finalY, screenSize.height - (isMobile ? 160 : 180));
       } else {
         // 상단에 있으면 왼쪽으로 이동
         finalX = Math.max(finalX, 100);
@@ -164,7 +168,7 @@ export default function FloatingChatbot() {
     }
     
     // 좌우 스냅 위치 결정
-    if (finalX > window.innerWidth / 2) {
+    if (finalX > screenSize.width / 2) {
       setSnapPosition('right');
     } else {
       setSnapPosition('left');
@@ -174,7 +178,7 @@ export default function FloatingChatbot() {
       x: finalX,
       y: finalY
     });
-  }, [isDragging, dragStart.x, dragStart.y, dragOffset.x, dragOffset.y]);
+  }, [isDragging, dragStart.x, dragStart.y, dragOffset.x, dragOffset.y, isMobile, screenSize.width, screenSize.height]);
 
   const handleMouseUp = useCallback(() => {
     if (!isDragging) return;
@@ -187,7 +191,7 @@ export default function FloatingChatbot() {
     }
     
     // 스냅 기능 - 화면 좌우 가장자리로 자동 이동
-    const screenWidth = window.innerWidth;
+    const screenWidth = screenSize.width;
     const snapThreshold = screenWidth * 0.3; // 30% 지점
     
     setPosition(prev => {
@@ -204,10 +208,10 @@ export default function FloatingChatbot() {
       
       return {
         x: newX,
-        y: Math.max(60, Math.min(window.innerHeight - 100, prev.y)) // Y축 경계 재조정
+        y: Math.max(60, Math.min(screenSize.height - 100, prev.y)) // Y축 경계 재조정
       };
     });
-  }, [isDragging]);
+  }, [isDragging, screenSize.width, screenSize.height]);
 
   // 🔥 전역 마우스 및 터치 이벤트 리스너 - 의존성 배열 최적화
   useEffect(() => {
@@ -231,6 +235,26 @@ export default function FloatingChatbot() {
       document.body.style.touchAction = '';
     };
   }, [isDragging, handleMouseMove, handleMouseUp]);
+
+  // 화면 크기 감지 (SSR 안전)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const updateScreenSize = () => {
+        setScreenSize({
+          width: window.innerWidth,
+          height: window.innerHeight
+        });
+        setIsMobile(window.innerWidth < 768);
+      };
+
+      // 초기 설정
+      updateScreenSize();
+
+      // 리사이즈 이벤트 리스너
+      window.addEventListener('resize', updateScreenSize);
+      return () => window.removeEventListener('resize', updateScreenSize);
+    }
+  }, []);
 
   // AI 메시지 전송
   const handleSendMessage = async (message: string) => {
@@ -320,8 +344,8 @@ export default function FloatingChatbot() {
           bottom: `${position.y}px`,
           right: snapPosition === 'right' ? `${position.x}px` : 'auto',
           left: snapPosition === 'left' ? `${position.x}px` : 'auto',
-          width: window.innerWidth < 768 ? '60px' : '70px',
-          height: window.innerWidth < 768 ? '60px' : '70px',
+          width: isMobile ? '60px' : '70px',
+          height: isMobile ? '60px' : '70px',
           backgroundColor: isDragging ? '#9C27B0' : '#4285F4',
           borderRadius: '50%',
           cursor: isDragging ? 'grabbing' : 'grab',
@@ -354,13 +378,13 @@ export default function FloatingChatbot() {
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         onMouseEnter={(e) => {
-          if (!isDragging && !window.matchMedia('(max-width: 768px)').matches) {
+          if (!isDragging && !isMobile) {
             e.currentTarget.style.transform = 'scale(1.1)';
             e.currentTarget.style.backgroundColor = '#9C27B0';
           }
         }}
         onMouseLeave={(e) => {
-          if (!isDragging && !window.matchMedia('(max-width: 768px)').matches) {
+          if (!isDragging && !isMobile) {
             e.currentTarget.style.transform = 'scale(1)';
             e.currentTarget.style.backgroundColor = '#4285F4';
           }
@@ -371,8 +395,8 @@ export default function FloatingChatbot() {
           src={getImagePath('/star-counselor-icon.svg')}
           alt="별-AI상담사"
           style={{
-            width: window.innerWidth < 768 ? '50px' : '60px',
-            height: window.innerWidth < 768 ? '50px' : '60px',
+            width: isMobile ? '50px' : '60px',
+            height: isMobile ? '50px' : '60px',
             borderRadius: '50%',
             objectFit: 'cover',
             pointerEvents: 'none',
@@ -410,7 +434,7 @@ export default function FloatingChatbot() {
         )}
         
         {/* 모바일 터치 가이드 */}
-        {!isDragging && window.innerWidth < 768 && (
+        {!isDragging && isMobile && (
           <div
             style={{
               position: 'absolute',
@@ -434,7 +458,7 @@ export default function FloatingChatbot() {
         )}
         
         {/* 데스크탑 툴팁 */}
-        {!window.matchMedia('(max-width: 768px)').matches && (
+        {!isMobile && (
           <div
             style={{
               position: 'absolute',
