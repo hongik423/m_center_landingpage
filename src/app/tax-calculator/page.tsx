@@ -673,6 +673,26 @@ export default function TaxCalculatorPage() {
     }
   };
 
+  // 🔥 개선된 계산기 선택 핸들러 - 탭 자동 이동 기능
+  const handleCalculatorSelect = (calculatorId: string) => {
+    // 계산기 ID에 따라 적절한 탭으로 이동
+    const personalIds = personalTaxCalculators.map(c => c.id);
+    const corporateIds = corporateTaxCalculators.map(c => c.id);
+    
+    if (personalIds.includes(calculatorId)) {
+      setActiveTab('personal');
+    } else if (corporateIds.includes(calculatorId)) {
+      setActiveTab('corporate');
+    } else if (calculatorId === 'business-inheritance') {
+      setActiveTab('business-inheritance');
+    } else if (calculatorId === 'stock-transfer') {
+      setActiveTab('stock-transfer');
+    }
+    
+    // 계산기 선택
+    setSelectedCalculator(calculatorId);
+  };
+
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
       isDarkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 to-purple-50'
@@ -993,114 +1013,6 @@ export default function TaxCalculatorPage() {
             </div>
           </div>
 
-          {/* 계산기 목록 그리드 - 모바일 반응형 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8 mb-16 mobile-container">
-            {taxCalculators.map((calculator) => (
-              <div
-                key={calculator.id}
-                className={`service-card-mobile bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 
-                           border-l-4 ${calculator.color} p-6 cursor-pointer transform hover:-translate-y-2 group`}
-                onClick={() => setSelectedCalculator(calculator.id)}
-              >
-                {/* 계산기 아이콘 */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`w-12 h-12 rounded-xl ${calculator.iconBg} flex items-center justify-center 
-                                  group-hover:scale-110 transition-transform duration-300`}>
-                    <calculator.icon className={`w-6 h-6 ${calculator.iconColor}`} />
-                  </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${calculator.badge.bg} ${calculator.badge.text}`}>
-                    <span className="text-overflow-safe">{calculator.badge.label}</span>
-                  </span>
-                </div>
-                
-                {/* 계산기 제목 */}
-                <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                  <span className="text-overflow-safe">{calculator.title}</span>
-                </h3>
-                
-                {/* 계산기 설명 */}
-                <p className="text-sm text-gray-600 mb-4 mobile-text line-clamp-2">
-                  {calculator.description}
-                </p>
-                
-                {/* 대상 및 특징 */}
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-xs text-gray-500">
-                    <span className="font-semibold mr-1">대상:</span>
-                    <span className="text-overflow-safe">{calculator.target}</span>
-                  </div>
-                  <div className="flex items-center text-xs text-blue-600">
-                    <span className="font-semibold mr-1">특징:</span>
-                    <span className="text-overflow-safe">{calculator.features[0]}</span>
-                  </div>
-                </div>
-                
-                {/* 계산 시작 버튼 */}
-                <button className={`mobile-button w-full py-2.5 rounded-xl font-semibold text-sm 
-                                   transition-all duration-300 border-2 ${calculator.buttonStyle}`}>
-                  <span className="text-overflow-safe">계산하기</span>
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* 세금계산기 특징 카드들 - 모바일 최적화 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-12 md:mb-16 px-4 md:px-0">
-            <Card className="border-blue-200 bg-blue-50 hover:shadow-lg transition-shadow">
-              <CardHeader className="text-center pb-3">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-3">
-                  <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
-                </div>
-                <CardTitle className="text-base md:text-lg">단계별 안내</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center pt-0">
-                <p className="text-xs md:text-sm text-gray-600 leading-relaxed">
-                  복잡한 세금 계산을 <strong>3단계</strong>로 나누어 
-                  <strong>차근차근 안내</strong>해드립니다. 
-                  진행 상황을 한눈에 확인하세요.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-green-200 bg-green-50 hover:shadow-lg transition-shadow">
-              <CardHeader className="text-center pb-3">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-3">
-                  <AlertCircle className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
-                </div>
-                <CardTitle className="text-base md:text-lg">입력 도우미</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center pt-0">
-                <p className="text-xs md:text-sm text-gray-600 leading-relaxed">
-                  <strong>필수 입력값 표시</strong>, <strong>실시간 검증</strong>, 
-                  <strong>도움말 툴팁</strong>으로 
-                  입력 실수를 방지하고 정확한 계산을 도와줍니다.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-purple-200 bg-purple-50 hover:shadow-lg transition-shadow">
-              <CardHeader className="text-center pb-3">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-3">
-                  <FileText className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
-                </div>
-                <CardTitle className="text-base md:text-lg">상세 결과</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center pt-0">
-                <p className="text-xs md:text-sm text-gray-600 leading-relaxed">
-                  계산 결과를 <strong>시각적으로 표현</strong>하고 
-                  <strong>절세 팁</strong>과 <strong>주의사항</strong>을 
-                  함께 제공합니다.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* 법적 면책 조항 - 250자 요약본 */}
-          <div className="mb-12 md:mb-16">
-            <TaxCalculatorDisclaimer variant="summary" />
-          </div>
-
           {selectedCalculator ? (
             // 선택된 계산기 표시
             <div className="space-y-6">
@@ -1158,55 +1070,55 @@ export default function TaxCalculatorPage() {
                   <p className="text-gray-600">계산하고 싶은 세금 종류를 선택해주세요</p>
                 </div>
                 
-                              <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 bg-white border border-gray-200 rounded-lg p-3 md:p-4 shadow-sm gap-2 md:gap-3">
-                <TabsTrigger 
-                  value="personal" 
-                  className="flex flex-col items-center justify-center min-h-[120px] sm:min-h-[140px] py-4 sm:py-6 px-3 sm:px-4 rounded-lg text-gray-700 font-medium transition-all hover:bg-blue-50 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md overflow-hidden"
-                >
-                  <User className="w-6 h-6 sm:w-8 sm:h-8 mb-2 sm:mb-3 text-blue-600 data-[state=active]:text-white flex-shrink-0" />
-                  <span className="text-base sm:text-lg font-bold mb-1 text-center leading-tight">개인세금</span>
-                  <span className="text-xs sm:text-sm text-center leading-tight px-1">
-                    <span className="block">근로·종합소득세</span>
-                    <span className="block">양도·상속·증여세</span>
-                  </span>
-                </TabsTrigger>
-                
-                <TabsTrigger 
-                  value="corporate" 
-                  className="flex flex-col items-center justify-center min-h-[120px] sm:min-h-[140px] py-4 sm:py-6 px-3 sm:px-4 rounded-lg text-gray-700 font-medium transition-all hover:bg-green-50 data-[state=active]:bg-green-600 data-[state=active]:text-white data-[state=active]:shadow-md overflow-hidden"
-                >
-                  <Building2 className="w-6 h-6 sm:w-8 sm:h-8 mb-2 sm:mb-3 text-green-600 data-[state=active]:text-white flex-shrink-0" />
-                  <span className="text-base sm:text-lg font-bold mb-1 text-center leading-tight">법인세금</span>
-                  <span className="text-xs sm:text-sm text-center leading-tight px-1">
-                    <span className="block">법인세·부가가치세</span>
-                    <span className="block">원천징수세</span>
-                  </span>
-                </TabsTrigger>
-                
-                <TabsTrigger 
-                  value="business-inheritance" 
-                  className="flex flex-col items-center justify-center min-h-[120px] sm:min-h-[140px] py-4 sm:py-6 px-3 sm:px-4 rounded-lg text-gray-700 font-medium transition-all hover:bg-violet-50 data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-md overflow-hidden"
-                >
-                  <Crown className="w-6 h-6 sm:w-8 sm:h-8 mb-2 sm:mb-3 text-violet-600 data-[state=active]:text-white flex-shrink-0" />
-                  <span className="text-base sm:text-lg font-bold mb-1 text-center leading-tight">가업상속세</span>
-                  <span className="text-xs sm:text-sm text-center leading-tight px-1">
-                    <span className="block">중소기업 가업승계</span>
-                    <span className="block">최대 500억 공제</span>
-                  </span>
-                </TabsTrigger>
-                
-                <TabsTrigger 
-                  value="stock-transfer" 
-                  className="flex flex-col items-center justify-center min-h-[120px] sm:min-h-[140px] py-4 sm:py-6 px-3 sm:px-4 rounded-lg text-gray-700 font-medium transition-all hover:bg-pink-50 data-[state=active]:bg-pink-600 data-[state=active]:text-white data-[state=active]:shadow-md overflow-hidden"
-                >
-                  <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 mb-2 sm:mb-3 text-pink-600 data-[state=active]:text-white flex-shrink-0" />
-                  <span className="text-base sm:text-lg font-bold mb-1 text-center leading-tight">주식이동세</span>
-                  <span className="text-xs sm:text-sm text-center leading-tight px-1">
-                    <span className="block">주식 매매시</span>
-                    <span className="block">양도소득세 계산</span>
-                  </span>
-                </TabsTrigger>
-              </TabsList>
+                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 bg-white border border-gray-200 rounded-lg p-3 md:p-4 shadow-sm gap-2 md:gap-3">
+                  <TabsTrigger 
+                    value="personal" 
+                    className="flex flex-col items-center justify-center min-h-[120px] sm:min-h-[140px] py-4 sm:py-6 px-3 sm:px-4 rounded-lg text-gray-700 font-medium transition-all hover:bg-blue-50 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md overflow-hidden"
+                  >
+                    <User className="w-6 h-6 sm:w-8 sm:h-8 mb-2 sm:mb-3 text-blue-600 data-[state=active]:text-white flex-shrink-0" />
+                    <span className="text-base sm:text-lg font-bold mb-1 text-center leading-tight">개인세금</span>
+                    <span className="text-xs sm:text-sm text-center leading-tight px-1">
+                      <span className="block">근로·종합소득세</span>
+                      <span className="block">양도·상속·증여세</span>
+                    </span>
+                  </TabsTrigger>
+                  
+                  <TabsTrigger 
+                    value="corporate" 
+                    className="flex flex-col items-center justify-center min-h-[120px] sm:min-h-[140px] py-4 sm:py-6 px-3 sm:px-4 rounded-lg text-gray-700 font-medium transition-all hover:bg-green-50 data-[state=active]:bg-green-600 data-[state=active]:text-white data-[state=active]:shadow-md overflow-hidden"
+                  >
+                    <Building2 className="w-6 h-6 sm:w-8 sm:h-8 mb-2 sm:mb-3 text-green-600 data-[state=active]:text-white flex-shrink-0" />
+                    <span className="text-base sm:text-lg font-bold mb-1 text-center leading-tight">법인세금</span>
+                    <span className="text-xs sm:text-sm text-center leading-tight px-1">
+                      <span className="block">법인세·부가가치세</span>
+                      <span className="block">원천징수세</span>
+                    </span>
+                  </TabsTrigger>
+                  
+                  <TabsTrigger 
+                    value="business-inheritance" 
+                    className="flex flex-col items-center justify-center min-h-[120px] sm:min-h-[140px] py-4 sm:py-6 px-3 sm:px-4 rounded-lg text-gray-700 font-medium transition-all hover:bg-violet-50 data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-md overflow-hidden"
+                  >
+                    <Crown className="w-6 h-6 sm:w-8 sm:h-8 mb-2 sm:mb-3 text-violet-600 data-[state=active]:text-white flex-shrink-0" />
+                    <span className="text-base sm:text-lg font-bold mb-1 text-center leading-tight">가업상속세</span>
+                    <span className="text-xs sm:text-sm text-center leading-tight px-1">
+                      <span className="block">중소기업 가업승계</span>
+                      <span className="block">최대 500억 공제</span>
+                    </span>
+                  </TabsTrigger>
+                  
+                  <TabsTrigger 
+                    value="stock-transfer" 
+                    className="flex flex-col items-center justify-center min-h-[120px] sm:min-h-[140px] py-4 sm:py-6 px-3 sm:px-4 rounded-lg text-gray-700 font-medium transition-all hover:bg-pink-50 data-[state=active]:bg-pink-600 data-[state=active]:text-white data-[state=active]:shadow-md overflow-hidden"
+                  >
+                    <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 mb-2 sm:mb-3 text-pink-600 data-[state=active]:text-white flex-shrink-0" />
+                    <span className="text-base sm:text-lg font-bold mb-1 text-center leading-tight">주식이동세</span>
+                    <span className="text-xs sm:text-sm text-center leading-tight px-1">
+                      <span className="block">주식 매매시</span>
+                      <span className="block">양도소득세 계산</span>
+                    </span>
+                  </TabsTrigger>
+                </TabsList>
               </div>
 
               {/* 탭 컨텐츠 */}
@@ -1216,7 +1128,7 @@ export default function TaxCalculatorPage() {
                   <p className="text-gray-600 mb-6">개인 납세자를 위한 다양한 세금 계산기</p>
                   <CalculatorSelector 
                     calculators={personalTaxCalculators}
-                    onSelect={setSelectedCalculator}
+                    onSelect={handleCalculatorSelect}
                     selectedId={selectedCalculator}
                   />
                 </div>
@@ -1228,7 +1140,7 @@ export default function TaxCalculatorPage() {
                   <p className="text-gray-600 mb-6">법인 사업자를 위한 세금 계산기</p>
                   <CalculatorSelector 
                     calculators={corporateTaxCalculators}
-                    onSelect={setSelectedCalculator}
+                    onSelect={handleCalculatorSelect}
                     selectedId={selectedCalculator}
                   />
                 </div>
@@ -1245,7 +1157,7 @@ export default function TaxCalculatorPage() {
                   </p>
                   <SingleCalculatorDisplay 
                     calculator={businessInheritanceCalculator}
-                    onSelect={setSelectedCalculator}
+                    onSelect={handleCalculatorSelect}
                   />
                 </div>
               </TabsContent>
@@ -1261,11 +1173,71 @@ export default function TaxCalculatorPage() {
                   </p>
                   <SingleCalculatorDisplay 
                     calculator={stockTransferCalculator}
-                    onSelect={setSelectedCalculator}
+                    onSelect={handleCalculatorSelect}
                   />
                 </div>
               </TabsContent>
             </Tabs>
+          )}
+
+          {/* 세금계산기 특징 카드들 - 모바일 최적화 (계산기가 선택되지 않았을 때만 표시) */}
+          {!selectedCalculator && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-12 md:mb-16 px-4 md:px-0">
+              <Card className="border-blue-200 bg-blue-50 hover:shadow-lg transition-shadow">
+                <CardHeader className="text-center pb-3">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-3">
+                    <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
+                  </div>
+                  <CardTitle className="text-base md:text-lg">단계별 안내</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center pt-0">
+                  <p className="text-xs md:text-sm text-gray-600 leading-relaxed">
+                    복잡한 세금 계산을 <strong>3단계</strong>로 나누어 
+                    <strong>차근차근 안내</strong>해드립니다. 
+                    진행 상황을 한눈에 확인하세요.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-green-200 bg-green-50 hover:shadow-lg transition-shadow">
+                <CardHeader className="text-center pb-3">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-3">
+                    <AlertCircle className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
+                  </div>
+                  <CardTitle className="text-base md:text-lg">입력 도우미</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center pt-0">
+                  <p className="text-xs md:text-sm text-gray-600 leading-relaxed">
+                    <strong>필수 입력값 표시</strong>, <strong>실시간 검증</strong>, 
+                    <strong>도움말 툴팁</strong>으로 
+                    입력 실수를 방지하고 정확한 계산을 도와줍니다.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-purple-200 bg-purple-50 hover:shadow-lg transition-shadow">
+                <CardHeader className="text-center pb-3">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-3">
+                    <FileText className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
+                  </div>
+                  <CardTitle className="text-base md:text-lg">상세 결과</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center pt-0">
+                  <p className="text-xs md:text-sm text-gray-600 leading-relaxed">
+                    계산 결과를 <strong>시각적으로 표현</strong>하고 
+                    <strong>절세 팁</strong>과 <strong>주의사항</strong>을 
+                    함께 제공합니다.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* 법적 면책 조항 - 250자 요약본 (계산기가 선택되지 않았을 때만 표시) */}
+          {!selectedCalculator && (
+            <div className="mb-12 md:mb-16">
+              <TaxCalculatorDisclaimer variant="summary" />
+            </div>
           )}
         </div>
       </div>

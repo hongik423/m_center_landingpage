@@ -18,13 +18,11 @@ export default function FloatingChatbot() {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // 드래그 기능을 위한 상태 추가 - 오류신고 버튼과 겹치지 않게 위치 조정
-  const [position, setPosition] = useState({ x: 20, y: 120 }); // y를 120으로 변경하여 오류신고 버튼(bottom-6) 위에 위치
+  // 🔥 단순화된 드래그 시스템
+  const [position, setPosition] = useState({ x: 20, y: 120 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [isDragReady, setIsDragReady] = useState(false); // 드래그 준비 상태
-  const [snapPosition, setSnapPosition] = useState<'left' | 'right'>('right'); // 스냅 위치
+  const [initialPosition, setInitialPosition] = useState({ x: 20, y: 120 });
   
   // SSR 안전한 화면 크기 상태 관리
   const [screenSize, setScreenSize] = useState({ width: 1024, height: 768 });
@@ -83,7 +81,7 @@ export default function FloatingChatbot() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
-  // 🔥 개선된 드래그 이벤트 핸들러들 - useCallback으로 메모이제이션
+  // 🔥 개선된 드래그 이벤트 핸들러들
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -93,13 +91,9 @@ export default function FloatingChatbot() {
       navigator.vibrate(50);
     }
     
-    setIsDragReady(true);
     setIsDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
-    setDragOffset({ x: position.x, y: position.y });
-    
-    // 드래그 시작 애니메이션
-    setTimeout(() => setIsDragReady(false), 200);
+    setInitialPosition({ x: position.x, y: position.y });
   }, [position.x, position.y]);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -112,13 +106,9 @@ export default function FloatingChatbot() {
       navigator.vibrate(50);
     }
     
-    setIsDragReady(true);
     setIsDragging(true);
     setDragStart({ x: touch.clientX, y: touch.clientY });
-    setDragOffset({ x: position.x, y: position.y });
-    
-    // 드래그 시작 애니메이션
-    setTimeout(() => setIsDragReady(false), 200);
+    setInitialPosition({ x: position.x, y: position.y });
   }, [position.x, position.y]);
 
   const handleMouseMove = useCallback((e: MouseEvent | TouchEvent) => {
@@ -133,27 +123,30 @@ export default function FloatingChatbot() {
       clientY = e.touches[0].clientY;
     }
     
+    // 드래그 거리 계산
     const deltaX = clientX - dragStart.x;
     const deltaY = clientY - dragStart.y;
-    const newX = dragOffset.x - deltaX; // 오른쪽에서의 거리이므로 반대로
-    const newY = dragOffset.y - deltaY; // 하단에서의 거리이므로 반대로 (아래로 드래그하면 bottom 값이 작아져야 함)
     
-    // 화면 경계 제한 (전체 2D 드래그) - 모바일 최적화
-    const buttonSize = isMobile ? 60 : 70; // 모바일에서 버튼 크기 조정
-    const maxX = screenSize.width - buttonSize - 10;
+    // 새 위치 계산 (right 기준이므로 X는 반대로)
+    const newX = initialPosition.x - deltaX;
+    const newY = initialPosition.y - deltaY;
+    
+    // 화면 경계 제한
+    const buttonSize = isMobile ? 60 : 70;
     const minX = 10;
+    const maxX = screenSize.width - buttonSize - 10;
+    const minY = 10;
     const maxY = screenSize.height - buttonSize - 10;
-    const minY = 60; // 상단 여유 공간
     
-    // 🚨 오류신고 버튼과의 충돌 방지 (우하단 영역) - 개선된 충돌 감지
-    let finalX = Math.max(minX, Math.min(maxX, newX));
-    let finalY = Math.max(minY, Math.min(maxY, newY));
+    // 경계 내에서만 이동
+    const finalX = Math.max(minX, Math.min(maxX, newX));
+    const finalY = Math.max(minY, Math.min(maxY, newY));
     
-    // 오류신고 버튼 영역 (우하단 90x90 픽셀) 충돌 감지 - 모바일 고려
+    // 오류신고 버튼과의 충돌 방지 (우하단 100x100 영역)
     const errorButtonArea = {
-      left: screenSize.width - (isMobile ? 100 : 120),
+      left: screenSize.width - 110,
       right: screenSize.width - 10,
-      top: screenSize.height - (isMobile ? 100 : 120),
+      top: screenSize.height - 110,
       bottom: screenSize.height - 10
     };
     
@@ -164,7 +157,7 @@ export default function FloatingChatbot() {
       bottom: screenSize.height - finalY
     };
     
-    // 충돌 감지
+    // 충돌 감지 및 회피
     const isColliding = (
       chatbotArea.left < errorButtonArea.right &&
       chatbotArea.right > errorButtonArea.left &&
@@ -172,73 +165,54 @@ export default function FloatingChatbot() {
       chatbotArea.bottom > errorButtonArea.top
     );
     
-    // 충돌 시 위치 조정 - 더 자연스러운 위치로
+    let adjustedX = finalX;
+    let adjustedY = finalY;
+    
     if (isColliding) {
+      // 충돌 시 위쪽 또는 왼쪽으로 이동
       if (finalY > screenSize.height / 2) {
-        // 하단에 있으면 위로 이동
-        finalY = Math.min(finalY, screenSize.height - (isMobile ? 160 : 180));
+        adjustedY = Math.min(finalY, screenSize.height - 160);
       } else {
-        // 상단에 있으면 왼쪽으로 이동
-        finalX = Math.max(finalX, 100);
+        adjustedX = Math.max(finalX, 120);
       }
     }
     
-    // 좌우 스냅 위치 결정
-    if (finalX > screenSize.width / 2) {
-      setSnapPosition('right');
-    } else {
-      setSnapPosition('left');
-    }
-    
-    setPosition({
-      x: finalX,
-      y: finalY
-    });
-  }, [isDragging, dragStart.x, dragStart.y, dragOffset.x, dragOffset.y, isMobile, screenSize.width, screenSize.height]);
+    setPosition({ x: adjustedX, y: adjustedY });
+  }, [isDragging, dragStart, initialPosition, isMobile, screenSize]);
 
   const handleMouseUp = useCallback(() => {
     if (!isDragging) return;
     
     setIsDragging(false);
     
-    // 모바일 진동 피드백 (드래그 완료)
+    // 모바일 진동 피드백
     if (navigator.vibrate) {
       navigator.vibrate(30);
     }
     
-    // 스냅 기능 - 화면 좌우 가장자리로 자동 이동
-    const screenWidth = screenSize.width;
-    const snapThreshold = screenWidth * 0.3; // 30% 지점
+    // 경계 재조정
+    const buttonSize = isMobile ? 60 : 70;
+    const minX = 10;
+    const maxX = screenSize.width - buttonSize - 10;
+    const minY = 10;
+    const maxY = screenSize.height - buttonSize - 10;
     
-    setPosition(prev => {
-      let newX = prev.x;
-      
-      // 좌우 스냅
-      if (prev.x < snapThreshold) {
-        newX = 20; // 왼쪽으로 스냅
-        setSnapPosition('left');
-      } else if (prev.x > screenWidth - snapThreshold) {
-        newX = 20; // 오른쪽으로 스냅  
-        setSnapPosition('right');
-      }
-      
-      return {
-        x: newX,
-        y: Math.max(60, Math.min(screenSize.height - 100, prev.y)) // Y축 경계 재조정
-      };
-    });
-  }, [isDragging, screenSize.width, screenSize.height]);
+    setPosition(prev => ({
+      x: Math.max(minX, Math.min(maxX, prev.x)),
+      y: Math.max(minY, Math.min(maxY, prev.y))
+    }));
+  }, [isDragging, isMobile, screenSize]);
 
-  // 🔥 전역 마우스 및 터치 이벤트 리스너 - 의존성 배열 최적화
+  // 🔥 전역 마우스 및 터치 이벤트 리스너
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       document.addEventListener('touchmove', handleMouseMove, { passive: false });
       document.addEventListener('touchend', handleMouseUp);
-      document.body.style.userSelect = 'none'; // 드래그 중 텍스트 선택 방지
+      document.body.style.userSelect = 'none';
       document.body.style.cursor = 'grabbing';
-      document.body.style.touchAction = 'none'; // 터치 스크롤 방지
+      document.body.style.touchAction = 'none';
     }
 
     return () => {
@@ -354,12 +328,11 @@ export default function FloatingChatbot() {
       {/* 🔥 드래그 가능한 플로팅 챗봇 버튼 */}
       <div
         id="floating-chatbot-button"
-        className={`${isOpen ? 'hidden' : 'block'} draggable-mobile gpu-accelerated ${isDragReady ? 'scale-110' : ''}`}
+        className={`${isOpen ? 'hidden' : 'block'} ${isDragging ? 'scale-110' : ''}`}
         style={{
           position: 'fixed',
           bottom: `${position.y}px`,
-          right: snapPosition === 'right' ? `${position.x}px` : 'auto',
-          left: snapPosition === 'left' ? `${position.x}px` : 'auto',
+          right: `${position.x}px`,
           width: isMobile ? '60px' : '70px',
           height: isMobile ? '60px' : '70px',
           backgroundColor: isDragging ? '#9C27B0' : '#4285F4',
@@ -375,11 +348,7 @@ export default function FloatingChatbot() {
           border: '3px solid white',
           transition: isDragging ? 'none' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           userSelect: 'none',
-          transform: isDragging 
-            ? 'scale(1.1) rotate(5deg)' 
-            : isDragReady 
-              ? 'scale(1.05)' 
-              : 'scale(1)',
+          transform: isDragging ? 'scale(1.1) rotate(5deg)' : 'scale(1)',
           filter: isDragging ? 'brightness(1.1)' : 'brightness(1)',
         }}
         onClick={(e) => {
@@ -421,7 +390,7 @@ export default function FloatingChatbot() {
           }}
         />
         
-        {/* 드래그 인디케이터 (모바일) */}
+        {/* 드래그 인디케이터 */}
         {isDragging && (
           <div
             style={{
@@ -450,26 +419,24 @@ export default function FloatingChatbot() {
         )}
         
         {/* 모바일 터치 가이드 */}
-        {!isDragging && isMobile && (
+        {isDragging && isMobile && (
           <div
             style={{
               position: 'absolute',
-              bottom: '-30px',
+              bottom: '-40px',
               left: '50%',
               transform: 'translateX(-50%)',
               backgroundColor: 'rgba(0, 0, 0, 0.8)',
               color: 'white',
-              padding: '4px 8px',
+              padding: '6px 12px',
               borderRadius: '12px',
-              fontSize: '10px',
+              fontSize: '12px',
               whiteSpace: 'nowrap',
-              opacity: isDragReady ? 1 : 0,
-              transition: 'opacity 0.3s ease',
               pointerEvents: 'none',
               zIndex: 1000000
             }}
           >
-            🔄 드래그로 이동
+            🔄 드래그 중...
           </div>
         )}
         
@@ -479,8 +446,7 @@ export default function FloatingChatbot() {
             style={{
               position: 'absolute',
               bottom: '80px',
-              right: snapPosition === 'right' ? '0' : 'auto',
-              left: snapPosition === 'left' ? '0' : 'auto',
+              right: '0',
               backgroundColor: '#333',
               color: 'white',
               padding: '8px 12px',
@@ -493,7 +459,7 @@ export default function FloatingChatbot() {
             }}
             className="tooltip"
           >
-            {isDragging ? '🔄 드래그 중...' : '드래그로 자유롭게 이동 가능!'}
+            {isDragging ? '🔄 드래그 중...' : '🔄 드래그로 이동'}
           </div>
         )}
       </div>
@@ -503,8 +469,8 @@ export default function FloatingChatbot() {
         <div
           style={{
             position: 'fixed',
-            bottom: isMobile ? '10px' : `${position.y}px`,
-            right: isMobile ? '10px' : `${position.x}px`,
+            bottom: isMobile ? '10px' : `${Math.min(position.y, screenSize.height - 520)}px`,
+            right: isMobile ? '10px' : `${Math.min(position.x, screenSize.width - 400)}px`,
             left: isMobile ? '10px' : 'auto',
             width: isMobile ? 'calc(100vw - 20px)' : '380px',
             height: isMobile ? 'calc(100vh - 100px)' : '500px',
