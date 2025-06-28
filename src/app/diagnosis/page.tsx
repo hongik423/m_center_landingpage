@@ -54,6 +54,19 @@ export default function DiagnosisPage() {
         {/* 데스크톱 버전 */}
         <div className="hidden lg:flex items-center justify-center gap-2 py-4">
           <Button
+            variant={currentStep === 2 ? "default" : "outline"}
+            onClick={() => setCurrentStep(2)}
+            className={`btn-diagnosis-primary btn-diagnosis-shine px-8 py-4 text-lg ${
+              currentStep === 2 
+                ? 'scale-105 shadow-2xl' 
+                : ''
+            }`}
+          >
+            <Zap className="w-6 h-6 mr-3 animate-pulse" />
+            🚀 진단시작
+          </Button>
+          
+          <Button
             variant={currentStep === 1 ? "default" : "outline"}
             onClick={() => setCurrentStep(1)}
             className={`px-6 py-3 rounded-full font-medium transition-all duration-200 ${
@@ -64,19 +77,6 @@ export default function DiagnosisPage() {
           >
             <FileText className="w-5 h-5 mr-2" />
             시스템 소개
-          </Button>
-          
-          <Button
-            variant={currentStep === 2 ? "default" : "outline"}
-            onClick={() => setCurrentStep(2)}
-            className={`px-6 py-3 rounded-full font-medium transition-all duration-200 ${
-              currentStep === 2 
-                ? 'bg-green-600 text-white shadow-lg' 
-                : 'border-gray-300 text-gray-700 hover:border-green-600 hover:text-green-600'
-            }`}
-          >
-            <Zap className="w-5 h-5 mr-2" />
-            바로 시작
           </Button>
           
           {results && (
@@ -96,14 +96,28 @@ export default function DiagnosisPage() {
           
           <div className="w-px h-8 bg-gray-300 mx-2"></div>
           
-          <div className="text-sm text-gray-600 bg-gray-100 px-4 py-2 rounded-full">
-            <span className="font-medium">💡 팁:</span> 바로 시작하면 2-3분 만에 AI 진단 완료!
+          <div className="text-sm text-gray-600 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 px-4 py-2 rounded-full">
+            <span className="font-medium">🚀 팁:</span> <span className="font-bold text-green-700">진단시작</span>하면 2-3분 만에 AI 진단 완료!
           </div>
         </div>
 
         {/* 모바일 버전 */}
         <div className="lg:hidden flex flex-col gap-3 py-3">
           <div className="flex items-center justify-center gap-2">
+            <Button
+              variant={currentStep === 2 ? "default" : "outline"}
+              onClick={() => setCurrentStep(2)}
+              size="sm"
+              className={`btn-diagnosis-primary btn-diagnosis-shine flex-1 max-w-40 py-3 text-sm ${
+                currentStep === 2 
+                  ? 'scale-105 shadow-xl' 
+                  : ''
+              }`}
+            >
+              <Zap className="w-5 h-5 mr-1 animate-pulse" />
+              <span className="text-sm font-bold">🚀 진단시작</span>
+            </Button>
+            
             <Button
               variant={currentStep === 1 ? "default" : "outline"}
               onClick={() => setCurrentStep(1)}
@@ -116,20 +130,6 @@ export default function DiagnosisPage() {
             >
               <FileText className="w-4 h-4 mr-1" />
               <span className="text-xs">소개</span>
-            </Button>
-            
-            <Button
-              variant={currentStep === 2 ? "default" : "outline"}
-              onClick={() => setCurrentStep(2)}
-              size="sm"
-              className={`flex-1 max-w-32 py-2 rounded-full font-medium transition-all duration-200 ${
-                currentStep === 2 
-                  ? 'bg-green-600 text-white shadow-lg' 
-                  : 'border-gray-300 text-gray-700 hover:border-green-600 hover:text-green-600'
-              }`}
-            >
-              <Zap className="w-4 h-4 mr-1" />
-              <span className="text-xs">바로시작</span>
             </Button>
             
             {results && (
@@ -150,8 +150,8 @@ export default function DiagnosisPage() {
           </div>
           
           <div className="text-center">
-            <div className="text-xs text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full inline-block">
-              <span className="font-medium">💡</span> 바로 시작하면 2-3분 만에 완료!
+            <div className="text-xs text-gray-600 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 px-3 py-1.5 rounded-full inline-block">
+              <span className="font-medium">🚀</span> <span className="font-bold text-green-700">진단시작</span>하면 2-3분 만에 완료!
             </div>
           </div>
         </div>
