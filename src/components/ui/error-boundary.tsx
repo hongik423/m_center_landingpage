@@ -26,6 +26,18 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Error Boundary caught an error:', error, errorInfo);
+    
+    // ChunkLoadError 자동 복구 시도
+    if (error.name === 'ChunkLoadError' || error.message.includes('ChunkLoadError')) {
+      console.log('ChunkLoadError 감지됨. 페이지를 자동으로 새로고침합니다...');
+      setTimeout(() => {
+        if (typeof window !== 'undefined') {
+          window.location.reload();
+        }
+      }, 1000);
+      return;
+    }
+    
     this.setState({ error, errorInfo });
   }
 

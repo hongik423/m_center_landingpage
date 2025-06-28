@@ -1473,8 +1473,15 @@ export async function POST(request: NextRequest) {
         
         // 🔧 진단 결과 정보 추가 (구글시트 저장용)
         diagnosisScore: data.diagnosisResults?.totalScore || diagnosisResult.totalScore,
-        recommendedServices: data.diagnosisResults?.recommendedServices?.map(s => s.name || s.id).join(', ') || 
-                           diagnosisResult.recommendedServices.map(s => s.name).join(', '),
+        recommendedServices: (() => {
+          if (data.diagnosisResults?.recommendedServices && Array.isArray(data.diagnosisResults.recommendedServices)) {
+            return data.diagnosisResults.recommendedServices.map(s => s.name || s.id || s).join(', ');
+          }
+          if (diagnosisResult.recommendedServices && Array.isArray(diagnosisResult.recommendedServices)) {
+            return diagnosisResult.recommendedServices.map(s => s.name || s.id || s).join(', ');
+          }
+          return '추천서비스 정보 확인 중';
+        })(),
         reportType: data.diagnosisResults?.reportType || '간소화된_AI진단',
         diagnosisFormType: 'AI_무료진단_레벨업시트', // 폼 타입 명시
         
@@ -1493,8 +1500,7 @@ export async function POST(request: NextRequest) {
         // 🎯 **NEW: 종합 점수 및 메타 정보**
         종합점수: diagnosisResult.totalScore,
         totalScore: diagnosisResult.totalScore,
-        추천서비스: diagnosisResult.recommendedServices,
-        recommendedServices: diagnosisResult.recommendedServices,
+        추천서비스목록: diagnosisResult.recommendedServices,
         강점영역: diagnosisResult.strengths || [],
         약점영역: diagnosisResult.weaknesses || [],
         
@@ -1522,7 +1528,13 @@ export async function POST(request: NextRequest) {
         서비스: result.service,
         메시지: result.message,
         진단점수: diagnosisFormData.diagnosisScore,
-        추천서비스: diagnosisFormData.recommendedServices.substring(0, 50) + '...'
+        추천서비스: (() => {
+          const services = diagnosisFormData.recommendedServices;
+          if (typeof services === 'string') {
+            return services.substring(0, 50) + (services.length > 50 ? '...' : '');
+          }
+          return '추천서비스 정보 확인 중';
+        })()
       });
 
       // 일부 실패하더라도 경고로 처리 (진단은 성공)

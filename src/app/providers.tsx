@@ -49,7 +49,11 @@ function ThemeProviderWrapper({ children }: { children: React.ReactNode }) {
   }, []);
 
   if (!mounted) {
-    return <div suppressHydrationWarning>{children}</div>;
+    return (
+      <div suppressHydrationWarning className="min-h-screen bg-white">
+        {children}
+      </div>
+    );
   }
 
   return (
@@ -58,6 +62,7 @@ function ThemeProviderWrapper({ children }: { children: React.ReactNode }) {
       defaultTheme="light"
       enableSystem={false}
       disableTransitionOnChange
+      storageKey="m-center-theme"
     >
       {children}
     </ThemeProvider>

@@ -50,6 +50,66 @@ interface DiagnosisData {
   weaknesses: string[];
   opportunities: string[];
   currentSituationForecast: string;
+  
+  // 📊 **문항별 점수 및 카테고리별 점수 인터페이스 추가**
+  categoryScores?: {
+    productService?: {
+      name: string;
+      score: number;
+      maxScore: number;
+      weight: number;
+      items: Array<{
+        name: string;
+        score: number;
+        question: string;
+      }>;
+    };
+    customerService?: {
+      name: string;
+      score: number;
+      maxScore: number;
+      weight: number;
+      items: Array<{
+        name: string;
+        score: number;
+        question: string;
+      }>;
+    };
+    marketing?: {
+      name: string;
+      score: number;
+      maxScore: number;
+      weight: number;
+      items: Array<{
+        name: string;
+        score: number;
+        question: string;
+      }>;
+    };
+    procurement?: {
+      name: string;
+      score: number;
+      maxScore: number;
+      weight: number;
+      items: Array<{
+        name: string;
+        score: number;
+        question: string;
+      }>;
+    };
+    storeManagement?: {
+      name: string;
+      score: number;
+      maxScore: number;
+      weight: number;
+      items: Array<{
+        name: string;
+        score: number;
+        question: string;
+      }>;
+    };
+  };
+  
   recommendedServices: Array<{
     name: string;
     description: string;
@@ -1182,6 +1242,191 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
           </div>
         </CardContent>
       </Card>
+
+      {/* 📊 **5점 척도 평가표 결과 - 카테고리별 및 문항별 점수** */}
+      {diagnosis.categoryScores && (
+        <Card className="border-l-4 border-blue-500">
+          <CardHeader className="bg-blue-50">
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="w-6 h-6 text-blue-600" />
+              📊 레벨업 시트 평가 결과 (5점 척도)
+            </CardTitle>
+            <p className="text-sm text-gray-600">
+              20개 문항을 5개 카테고리로 분류하여 100점 만점으로 환산한 결과입니다.
+            </p>
+          </CardHeader>
+          <CardContent className="p-6">
+            {/* 카테고리별 점수 그리드 */}
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+              {Object.entries(diagnosis.categoryScores).map(([categoryKey, category]) => {
+                if (!category) return null;
+                
+                const score100 = Math.round((category.score / category.maxScore) * 100);
+                const getScoreColor = (score: number) => {
+                  if (score >= 80) return 'text-green-600 bg-green-50 border-green-200';
+                  if (score >= 60) return 'text-blue-600 bg-blue-50 border-blue-200';
+                  if (score >= 40) return 'text-orange-600 bg-orange-50 border-orange-200';
+                  return 'text-red-600 bg-red-50 border-red-200';
+                };
+                
+                const getScoreGrade = (score: number) => {
+                  if (score >= 80) return 'A급';
+                  if (score >= 60) return 'B급';
+                  if (score >= 40) return 'C급';
+                  return 'D급';
+                };
+
+                return (
+                  <div key={categoryKey} className={`border-2 rounded-lg p-4 text-center ${getScoreColor(score100)}`}>
+                    <div className="text-2xl font-bold mb-1">
+                      {score100}점
+                    </div>
+                    <div className="text-xs font-medium mb-2">
+                      {getScoreGrade(score100)} ({category.score.toFixed(1)}/5.0)
+                    </div>
+                    <div className="text-sm font-medium mb-1">
+                      {category.name}
+                    </div>
+                    <div className="text-xs opacity-75">
+                      가중치: {Math.round(category.weight * 100)}%
+                    </div>
+                    {/* 프로그레스 바 */}
+                    <div className="mt-3">
+                      <Progress 
+                        value={score100} 
+                        className="h-2"
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* 문항별 상세 점수 */}
+            <div className="space-y-6">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Star className="w-5 h-5 text-yellow-600" />
+                📝 문항별 상세 점수 (20개 항목)
+              </h4>
+              
+              {Object.entries(diagnosis.categoryScores).map(([categoryKey, category]) => {
+                if (!category || !category.items) return null;
+                
+                const categoryIcons: Record<string, string> = {
+                  'productService': '📦',
+                  'customerService': '👥', 
+                  'marketing': '📈',
+                  'procurement': '📊',
+                  'storeManagement': '🏪'
+                };
+
+                return (
+                  <div key={categoryKey} className="bg-gray-50 rounded-lg p-4">
+                    <h5 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                      <span className="text-lg">{categoryIcons[categoryKey] || '📋'}</span>
+                      {category.name} ({category.items.length}개 문항)
+                      <Badge variant="outline" className="ml-auto">
+                        평균 {category.score.toFixed(1)}점
+                      </Badge>
+                    </h5>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {category.items.map((item, index) => {
+                        const getItemScoreColor = (score: number) => {
+                          if (score >= 4) return 'text-green-600';
+                          if (score >= 3) return 'text-blue-600';
+                          if (score >= 2) return 'text-orange-600';
+                          return 'text-red-600';
+                        };
+                        
+                        const getItemScoreLabel = (score: number) => {
+                          if (score >= 5) return '매우 우수';
+                          if (score >= 4) return '우수';
+                          if (score >= 3) return '보통';
+                          if (score >= 2) return '부족';
+                          return '매우 부족';
+                        };
+
+                        return (
+                          <div key={index} className="bg-white border rounded-md p-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-medium text-sm text-gray-900">
+                                {item.name}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className={`font-bold ${getItemScoreColor(item.score)}`}>
+                                  {item.score}점
+                                </span>
+                                <Badge 
+                                  variant="outline" 
+                                  className={`text-xs ${getItemScoreColor(item.score)}`}
+                                >
+                                  {getItemScoreLabel(item.score)}
+                                </Badge>
+                              </div>
+                            </div>
+                            <div className="text-xs text-gray-600 mb-2">
+                              {item.question.length > 80 
+                                ? `${item.question.substring(0, 80)}...` 
+                                : item.question}
+                            </div>
+                            {/* 5점 척도 시각화 */}
+                            <div className="flex gap-1">
+                              {[1, 2, 3, 4, 5].map((point) => (
+                                <div
+                                  key={point}
+                                  className={`w-4 h-2 rounded-sm ${
+                                    point <= item.score 
+                                      ? getItemScoreColor(item.score).includes('green') 
+                                        ? 'bg-green-500' 
+                                        : getItemScoreColor(item.score).includes('blue')
+                                        ? 'bg-blue-500'
+                                        : getItemScoreColor(item.score).includes('orange')
+                                        ? 'bg-orange-500'
+                                        : 'bg-red-500'
+                                      : 'bg-gray-200'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* 점수 분석 요약 */}
+            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h5 className="font-medium text-blue-900 mb-2 flex items-center gap-2">
+                <Lightbulb className="w-4 h-4" />
+                💡 평가 결과 요약
+              </h5>
+              <div className="text-sm text-blue-800 leading-relaxed">
+                <p className="mb-2">
+                  <strong>종합 점수 {diagnosis.totalScore}점</strong>은 5점 척도 평가표 20개 문항을 가중치 적용하여 100점 만점으로 환산한 결과입니다.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                  <div>
+                    <span className="font-medium">🏆 우수 영역:</span>
+                    <span className="ml-2">
+                      {diagnosis.categoryScores && Object.values(diagnosis.categoryScores).filter(cat => cat && (cat.score / cat.maxScore) >= 0.8).map(cat => cat?.name).join(', ') || '균형적 발전'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium">⚠️ 개선 영역:</span>
+                    <span className="ml-2">
+                      {diagnosis.categoryScores && Object.values(diagnosis.categoryScores).filter(cat => cat && (cat.score / cat.maxScore) < 0.6).map(cat => cat?.name).join(', ') || '지속적 성장'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* 핵심 분석 */}
       <Card>

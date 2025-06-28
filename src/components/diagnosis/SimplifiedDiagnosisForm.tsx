@@ -1227,10 +1227,13 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
           privacyConsent: Boolean(data.privacyConsent),
           submitDate: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
           
-          // 진단 결과 정보
+          // 진단 결과 정보 (문항별 점수 포함)
           diagnosisResults: {
             totalScore: results.data.diagnosis.totalScore,
             categoryScores: results.data.diagnosis.categoryScores,
+            detailedScores: results.data.diagnosis.detailedScores || {},
+            문항별점수: results.data.diagnosis.detailedScores || {},
+            카테고리점수: results.data.diagnosis.categoryScores || {},
             recommendedServices: results.data.diagnosis.recommendedServices,
             strengths: results.data.diagnosis.strengths,
             weaknesses: results.data.diagnosis.weaknesses,
