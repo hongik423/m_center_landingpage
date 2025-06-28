@@ -23,6 +23,28 @@ interface SimplifiedDiagnosisRequest {
   privacyConsent: boolean;
   submitDate: string;
   
+  // 🔥 **5점 척도 평가표 문항별 점수 (20개 항목) - REQUIRED**
+  planning_level?: number;         // 기획수준 (1-5점)
+  differentiation_level?: number;  // 차별화정도 (1-5점)
+  pricing_level?: number;          // 가격설정 (1-5점)
+  expertise_level?: number;        // 전문성 (1-5점)
+  quality_level?: number;          // 품질 (1-5점)
+  customer_greeting?: number;      // 고객맞이 (1-5점)
+  customer_service?: number;       // 고객응대 (1-5점)
+  complaint_management?: number;   // 불만관리 (1-5점)
+  customer_retention?: number;     // 고객유지 (1-5점)
+  customer_understanding?: number; // 고객이해 (1-5점)
+  marketing_planning?: number;     // 마케팅계획 (1-5점)
+  offline_marketing?: number;      // 오프라인마케팅 (1-5점)
+  online_marketing?: number;       // 온라인마케팅 (1-5점)
+  sales_strategy?: number;         // 판매전략 (1-5점)
+  purchase_management?: number;    // 구매관리 (1-5점)
+  inventory_management?: number;   // 재고관리 (1-5점)
+  exterior_management?: number;    // 외관관리 (1-5점)
+  interior_management?: number;    // 인테리어관리 (1-5점)
+  cleanliness?: number;            // 청결도 (1-5점)
+  work_flow?: number;              // 작업동선 (1-5점)
+  
   // 진단 결과 정보 (프론트엔드에서 전송)
   diagnosisResults?: {
     totalScore: number;
@@ -1368,7 +1390,178 @@ ${data.companyName}은 ${data.industry} 업종에서 ${data.employeeCount} 규�
 `.trim();
 }
 
-
+// 📊 **5점 척도 평가표 → 카테고리별 점수 계산 함수 (신규)**
+function calculateLevelUpScores(data: SimplifiedDiagnosisRequest): {
+  totalScore: number;
+  categoryScores: any;
+  detailedScores: any;
+  reliability: number;
+} {
+  console.log('📊 5점 척도 평가표 점수 계산 시작');
+  
+  // 📊 **20개 문항별 점수 추출**
+  const scores = {
+    // 상품/서비스 관리 역량 (5개, 가중치 25%)
+    productService: {
+      planning_level: data.planning_level || 0,
+      differentiation_level: data.differentiation_level || 0,
+      pricing_level: data.pricing_level || 0,
+      expertise_level: data.expertise_level || 0,
+      quality_level: data.quality_level || 0
+    },
+    // 고객응대 역량 (4개, 가중치 20%)
+    customerService: {
+      customer_greeting: data.customer_greeting || 0,
+      customer_service: data.customer_service || 0,
+      complaint_management: data.complaint_management || 0,
+      customer_retention: data.customer_retention || 0
+    },
+    // 마케팅 역량 (5개, 가중치 25%)
+    marketing: {
+      customer_understanding: data.customer_understanding || 0,
+      marketing_planning: data.marketing_planning || 0,
+      offline_marketing: data.offline_marketing || 0,
+      online_marketing: data.online_marketing || 0,
+      sales_strategy: data.sales_strategy || 0
+    },
+    // 구매/재고관리 (2개, 가중치 15%)
+    procurement: {
+      purchase_management: data.purchase_management || 0,
+      inventory_management: data.inventory_management || 0
+    },
+    // 매장관리 역량 (4개, 가중치 15%)
+    storeManagement: {
+      exterior_management: data.exterior_management || 0,
+      interior_management: data.interior_management || 0,
+      cleanliness: data.cleanliness || 0,
+      work_flow: data.work_flow || 0
+    }
+  };
+  
+  // 📊 **카테고리별 평균 점수 계산**
+  const categoryAverages = {
+    productService: Object.values(scores.productService).reduce((a, b) => a + b, 0) / 5,
+    customerService: Object.values(scores.customerService).reduce((a, b) => a + b, 0) / 4,
+    marketing: Object.values(scores.marketing).reduce((a, b) => a + b, 0) / 5,
+    procurement: Object.values(scores.procurement).reduce((a, b) => a + b, 0) / 2,
+    storeManagement: Object.values(scores.storeManagement).reduce((a, b) => a + b, 0) / 4
+  };
+  
+  // 📊 **가중치 적용 100점 환산**
+  const weights = { productService: 0.25, customerService: 0.20, marketing: 0.25, procurement: 0.15, storeManagement: 0.15 };
+  const totalScore = Math.round(
+    (categoryAverages.productService * weights.productService +
+     categoryAverages.customerService * weights.customerService +
+     categoryAverages.marketing * weights.marketing +
+     categoryAverages.procurement * weights.procurement +
+     categoryAverages.storeManagement * weights.storeManagement) * 20
+  ); // 5점 만점을 100점 만점으로 환산
+  
+  // 📊 **카테고리별 상세 정보 생성**
+  const categoryScores = {
+    productService: {
+      name: '상품/서비스 관리 역량',
+      score: categoryAverages.productService,
+      maxScore: 5,
+      weight: 25,
+      items: [
+        { name: '기획수준', score: data.planning_level || 0, question: '상품/서비스 기획 수준이 어느 정도인가요?' },
+        { name: '차별화정도', score: data.differentiation_level || 0, question: '경쟁업체 대비 차별화 정도는?' },
+        { name: '가격설정', score: data.pricing_level || 0, question: '가격 설정의 합리성은?' },
+        { name: '전문성', score: data.expertise_level || 0, question: '업무 전문성 수준은?' },
+        { name: '품질', score: data.quality_level || 0, question: '상품/서비스 품질 수준은?' }
+      ]
+    },
+    customerService: {
+      name: '고객응대 역량',
+      score: categoryAverages.customerService,
+      maxScore: 5,
+      weight: 20,
+      items: [
+        { name: '고객맞이', score: data.customer_greeting || 0, question: '고객 맞이의 친절함은?' },
+        { name: '고객응대', score: data.customer_service || 0, question: '고객 응대 능력은?' },
+        { name: '불만관리', score: data.complaint_management || 0, question: '고객 불만 처리 능력은?' },
+        { name: '고객유지', score: data.customer_retention || 0, question: '고객 유지 관리 능력은?' }
+      ]
+    },
+    marketing: {
+      name: '마케팅 역량',
+      score: categoryAverages.marketing,
+      maxScore: 5,
+      weight: 25,
+      items: [
+        { name: '고객이해', score: data.customer_understanding || 0, question: '고객 특성 이해도는?' },
+        { name: '마케팅계획', score: data.marketing_planning || 0, question: '마케팅 계획 수립 능력은?' },
+        { name: '오프라인마케팅', score: data.offline_marketing || 0, question: '오프라인 마케팅 실행 능력은?' },
+        { name: '온라인마케팅', score: data.online_marketing || 0, question: '온라인 마케팅 활용 능력은?' },
+        { name: '판매전략', score: data.sales_strategy || 0, question: '판매 전략 수립 및 실행 능력은?' }
+      ]
+    },
+    procurement: {
+      name: '구매 및 재고관리',
+      score: categoryAverages.procurement,
+      maxScore: 5,
+      weight: 15,
+      items: [
+        { name: '구매관리', score: data.purchase_management || 0, question: '구매 관리의 체계성은?' },
+        { name: '재고관리', score: data.inventory_management || 0, question: '재고 관리의 효율성은?' }
+      ]
+    },
+    storeManagement: {
+      name: '매장관리 역량',
+      score: categoryAverages.storeManagement,
+      maxScore: 5,
+      weight: 15,
+      items: [
+        { name: '외관관리', score: data.exterior_management || 0, question: '매장 외관 관리 상태는?' },
+        { name: '인테리어관리', score: data.interior_management || 0, question: '내부 인테리어 관리 상태는?' },
+        { name: '청결도', score: data.cleanliness || 0, question: '매장 청결도는?' },
+        { name: '작업동선', score: data.work_flow || 0, question: '작업 동선의 효율성은?' }
+      ]
+    }
+  };
+  
+  // 📊 **상세 점수 데이터 (구글시트 저장용)**
+  const detailedScores = {
+    기획수준: data.planning_level || 0,
+    차별화정도: data.differentiation_level || 0,
+    가격설정: data.pricing_level || 0,
+    전문성: data.expertise_level || 0,
+    품질: data.quality_level || 0,
+    고객맞이: data.customer_greeting || 0,
+    고객응대: data.customer_service || 0,
+    불만관리: data.complaint_management || 0,
+    고객유지: data.customer_retention || 0,
+    고객이해: data.customer_understanding || 0,
+    마케팅계획: data.marketing_planning || 0,
+    오프라인마케팅: data.offline_marketing || 0,
+    온라인마케팅: data.online_marketing || 0,
+    판매전략: data.sales_strategy || 0,
+    구매관리: data.purchase_management || 0,
+    재고관리: data.inventory_management || 0,
+    외관관리: data.exterior_management || 0,
+    인테리어관리: data.interior_management || 0,
+    청결도: data.cleanliness || 0,
+    작업동선: data.work_flow || 0
+  };
+  
+  // 📊 **신뢰도 계산 (응답 완성도 기반)**
+  const totalQuestions = 20;
+  const answeredQuestions = Object.values(detailedScores).filter(score => score > 0).length;
+  const reliability = Math.round((answeredQuestions / totalQuestions) * 100);
+  
+  console.log('✅ 5점 척도 점수 계산 완료:', {
+    totalScore,
+    answeredQuestions,
+    reliability,
+    카테고리점수: Object.keys(categoryScores).map(key => {
+      const category = categoryScores[key as keyof typeof categoryScores];
+      return `${category.name}: ${category.score.toFixed(1)}/5.0`;
+    })
+  });
+  
+  return { totalScore, categoryScores, detailedScores, reliability };
+}
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
@@ -1394,9 +1587,19 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // 1단계: 정교한 진단 수행
+    // 1단계: 5점 척도 평가표 점수 계산
+    console.log('📊 5점 척도 평가표 점수 계산 중...');
+    const levelUpResults = calculateLevelUpScores(data);
+    
+    // 2단계: 기존 진단 로직과 통합
     console.log('📊 정교한 진단 분석 수행 중...');
     const diagnosisResult = generateSimplifiedDiagnosis(data);
+    
+    // 3단계: 5점 척도 결과로 기존 진단 결과 업데이트
+    (diagnosisResult as any).totalScore = levelUpResults.totalScore;
+    (diagnosisResult as any).categoryScores = levelUpResults.categoryScores;
+    (diagnosisResult as any).detailedScores = levelUpResults.detailedScores;
+    (diagnosisResult as any).reliabilityScore = levelUpResults.reliability.toString();
     
     // 2단계: 🔮 고급 진단 보고서 생성 (2000자 미만)
     console.log('🔮 고급 보고서 생성 중...');
@@ -1414,9 +1617,9 @@ export async function POST(request: NextRequest) {
     try {
       console.log('🔄 통합 데이터 처리 시작 (구글시트 + 이메일)...');
       
-      // 📊 **문항별 점수 데이터 추출 및 변환**
-      const detailedScores = {};
-      const categoryScores = diagnosisResult.categoryScores || {};
+              // 📊 **문항별 점수 데이터 추출 및 변환**
+        const detailedScores: any = {};
+        const categoryScores = (diagnosisResult as any).categoryScores || {};
       
       // 20개 평가 항목의 점수를 Google Apps Script 형식으로 변환
       Object.values(categoryScores).forEach((category: any) => {
