@@ -356,7 +356,15 @@ export default function Home() {
                       {[
                         {
                           title: '전문 분야별 맞춤 상담',
-                          desc: '사업분석, AI혁신, 공장구매, 기술창업, 인증, 웹사이트'
+                          desc: null, // 별도 처리
+                          links: [
+                            { name: '사업분석', href: '/services/business-analysis', color: 'text-blue-600 hover:text-blue-800' },
+                            { name: 'AI혁신', href: '/services/ai-productivity', color: 'text-purple-600 hover:text-purple-800' },
+                            { name: '공장구매', href: '/services/factory-auction', color: 'text-orange-600 hover:text-orange-800' },
+                            { name: '기술창업', href: '/services/tech-startup', color: 'text-green-600 hover:text-green-800' },
+                            { name: '인증', href: '/services/certification', color: 'text-cyan-600 hover:text-cyan-800' },
+                            { name: '웹사이트', href: '/services/website', color: 'text-indigo-600 hover:text-indigo-800' }
+                          ]
                         },
                         {
                           title: '즉시 응답 및 정확한 분석',
@@ -369,9 +377,28 @@ export default function Home() {
                       ].map((item, index) => (
                         <div key={index} className="flex items-start gap-4">
                           <CheckCircle2 className="w-6 h-6 text-green-500 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="font-semibold text-gray-900">{item.title}</p>
-                            <p className="text-sm text-gray-600">{item.desc}</p>
+                          <div className="flex-1">
+                            <p className="font-semibold text-gray-900 mb-2">{item.title}</p>
+                            {item.desc && (
+                              <p className="text-sm text-gray-600">{item.desc}</p>
+                            )}
+                            {item.links && (
+                              <div className="flex flex-wrap gap-1">
+                                {item.links.map((link, linkIndex) => (
+                                  <span key={linkIndex} className="text-sm">
+                                    <Link 
+                                      href={link.href} 
+                                      className={`${link.color} font-medium hover:underline transition-colors duration-200`}
+                                    >
+                                      {link.name}
+                                    </Link>
+                                    {linkIndex < item.links.length - 1 && (
+                                      <span className="text-gray-400 mx-1">•</span>
+                                    )}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -471,82 +498,83 @@ export default function Home() {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {services.map((service, index) => (
-              <Card 
-                key={service.id} 
-                className={`service-card group relative overflow-hidden
-                           ${service.featured ? 'ring-2 ring-blue-400 ring-opacity-50 scale-105' : ''} 
-                           bg-gradient-to-br ${service.bgColor}`}
-              >
-                {service.featured && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                    <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white 
-                                    px-4 py-1 rounded-full text-sm font-bold shadow-lg">
-                      {service.badge}
-                    </div>
-                  </div>
-                )}
-                
-                {/* 배경 아이콘 */}
-                <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <service.icon className="w-16 h-16" />
-                </div>
-                
-                <CardContent className="p-8 relative z-10">
-                  <div className={`w-20 h-20 ${service.color} rounded-3xl flex items-center justify-center 
-                                  mb-6 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                    <service.icon className="w-10 h-10" />
-                  </div>
-                  
-                  <div className="text-center mb-6">
-                    <span className="badge-primary mb-3 inline-block">{service.badge}</span>
-                    <h3 className={`text-h4 mb-3 ${service.featured ? 'text-blue-600' : 'text-gray-900'}`}>
-                      {service.title}
-                    </h3>
-                    <p className="text-gray-600 mb-4">
-                      {service.description}
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-3 mb-6">
-                    {service.benefits.map((benefit, idx) => (
-                      <div key={idx} className="flex items-center text-sm text-gray-700">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" />
-                        {benefit}
+              <Link href={service.href} key={service.id} className="block">
+                <Card 
+                  className={`service-card group relative overflow-hidden cursor-pointer
+                             ${service.featured ? 'ring-2 ring-blue-400 ring-opacity-50 scale-105' : ''} 
+                             bg-gradient-to-br ${service.bgColor} hover:shadow-xl hover:-translate-y-2 transition-all duration-300`}
+                >
+                  {service.featured && (
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white 
+                                      px-4 py-1 rounded-full text-sm font-bold shadow-lg">
+                        {service.badge}
                       </div>
-                    ))}
+                    </div>
+                  )}
+                  
+                  {/* 배경 아이콘 */}
+                  <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <service.icon className="w-16 h-16" />
                   </div>
                   
-                  <div className={`font-bold mb-6 text-center p-3 rounded-xl
-                                  ${service.featured ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-700'}`}>
-                    ✓ {service.subtitle}
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <Link href={service.href}>
-                      <Button 
-                        className={`w-full font-semibold py-3 transition-all duration-300 ${
-                          service.featured 
-                            ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg' 
-                            : 'bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white shadow-lg'
-                        }`}
-                      >
-                        지금 시작하기
-                        <ArrowRight className="ml-2 w-4 h-4" />
-                      </Button>
-                    </Link>
+                  <CardContent className="p-8 relative z-10">
+                    <div className={`w-20 h-20 ${service.color} rounded-3xl flex items-center justify-center 
+                                    mb-6 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                      <service.icon className="w-10 h-10" />
+                    </div>
                     
-                    <Link href={service.href}>
-                      <Button 
-                        variant="outline"
-                        className="w-full font-semibold py-3 bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300"
-                      >
-                        자세히 보기
-                        <FileText className="ml-2 w-4 h-4" />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
+                    <div className="text-center mb-6">
+                      <span className="badge-primary mb-3 inline-block">{service.badge}</span>
+                      <h3 className={`text-h4 mb-3 ${service.featured ? 'text-blue-600' : 'text-gray-900'}`}>
+                        {service.title}
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        {service.description}
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-3 mb-6">
+                      {service.benefits.map((benefit, idx) => (
+                        <div key={idx} className="flex items-center text-sm text-gray-700">
+                          <CheckCircle className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" />
+                          {benefit}
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className={`font-bold mb-6 text-center p-3 rounded-xl
+                                    ${service.featured ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-700'}`}>
+                      ✓ {service.subtitle}
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="w-full">
+                        <Button 
+                          className={`w-full font-semibold py-3 transition-all duration-300 pointer-events-none ${
+                            service.featured 
+                              ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg' 
+                              : 'bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white shadow-lg'
+                          }`}
+                        >
+                          지금 시작하기
+                          <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                      </div>
+                      
+                      <div className="w-full">
+                        <Button 
+                          variant="outline"
+                          className="w-full font-semibold py-3 bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300 pointer-events-none"
+                        >
+                          자세히 보기
+                          <FileText className="ml-2 w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>
