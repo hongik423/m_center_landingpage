@@ -428,23 +428,23 @@ export default function ConsultationPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 smooth-scroll">
       <Header />
       
-      <main className="container mx-auto px-4 py-12">
+      <main className="mobile-container py-12 safe-area-top safe-area-bottom">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            전문가 상담 신청
+          <h1 className="text-mobile-3xl lg:text-4xl font-bold text-gray-900 mb-4 mobile-centered">
+            <span className="text-overflow-safe">전문가 상담 신청</span>
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            기업의별 전문 컨설턴트가 귀하의 비즈니스 성장을 위한 
+          <p className="text-mobile-lg lg:text-xl text-gray-600 max-w-2xl mx-auto mobile-text">
+            기업의별 전문 컨설턴트가 귀하의 비즈니스 성장을 위한<br />
             맞춤형 솔루션을 제안해드립니다.
           </p>
           
           {!isOnline && (
-            <div className="mt-4 p-3 bg-orange-100 border border-orange-300 rounded-lg inline-flex items-center gap-2">
+            <div className="mt-4 p-3 bg-orange-100 border border-orange-300 rounded-lg inline-flex items-center gap-2 mobile-card">
               <WifiOff className="w-4 h-4 text-orange-600" />
-              <span className="text-orange-800 text-sm">
+              <span className="text-orange-800 text-mobile-sm text-overflow-safe">
                 오프라인 상태입니다. 인터넷 연결을 확인해 주세요.
               </span>
             </div>
@@ -452,40 +452,40 @@ export default function ConsultationPage() {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
             <div className="lg:col-span-2">
-              <Card>
+              <Card className="mobile-card">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-mobile-lg">
                     <MessageSquare className="w-6 h-6 text-blue-600" />
-                    상담 신청서
+                    <span className="text-overflow-safe">상담 신청서</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-mobile-sm font-medium text-gray-700 mb-2 text-overflow-safe">
                         상담 유형 <span className="text-red-500">*</span>
                       </label>
                       <OptimizedSelect 
                         value={formData.consultationType}
                         onValueChange={(value) => handleInputChange('consultationType', value)}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="mobile-input h-12">
                           <SelectValue placeholder="원하는 상담 방식을 선택해주세요" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="phone">전화 상담</SelectItem>
-                          <SelectItem value="online">온라인 상담 (화상)</SelectItem>
-                          <SelectItem value="visit">방문 상담</SelectItem>
-                          <SelectItem value="email">이메일 상담</SelectItem>
+                          <SelectItem value="phone">📞 전화 상담</SelectItem>
+                          <SelectItem value="online">💻 온라인 상담 (화상)</SelectItem>
+                          <SelectItem value="visit">🏢 방문 상담</SelectItem>
+                          <SelectItem value="email">📧 이메일 상담</SelectItem>
                         </SelectContent>
                       </OptimizedSelect>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-mobile-sm font-medium text-gray-700 mb-2 text-overflow-safe">
                           성명 <span className="text-red-500">*</span>
                         </label>
                         <OptimizedInput
@@ -493,11 +493,12 @@ export default function ConsultationPage() {
                           value={formData.name}
                           onChange={(e) => handleInputChange('name', e.target.value)}
                           placeholder="홍길동"
+                          className="mobile-input"
                           required
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-mobile-sm font-medium text-gray-700 mb-2 text-overflow-safe">
                           연락처 <span className="text-red-500">*</span>
                         </label>
                         <OptimizedInput
@@ -505,13 +506,14 @@ export default function ConsultationPage() {
                           value={formData.phone}
                           onChange={(e) => handleInputChange('phone', e.target.value)}
                           placeholder="010-1234-5678"
+                          className="mobile-input"
                           required
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-mobile-sm font-medium text-gray-700 mb-2 text-overflow-safe">
                         이메일 <span className="text-red-500">*</span>
                       </label>
                       <OptimizedInput
@@ -519,13 +521,14 @@ export default function ConsultationPage() {
                         value={formData.email}
                         onChange={(e) => handleInputChange('email', e.target.value)}
                         placeholder="example@company.com"
+                        className="mobile-input"
                         required
                       />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-mobile-sm font-medium text-gray-700 mb-2 text-overflow-safe">
                           회사명 <span className="text-red-500">*</span>
                         </label>
                         <OptimizedInput
@@ -533,261 +536,268 @@ export default function ConsultationPage() {
                           value={formData.company}
                           onChange={(e) => handleInputChange('company', e.target.value)}
                           placeholder="(주)기업의별"
+                          className="mobile-input"
                           required
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          직책
+                        <label className="block text-mobile-sm font-medium text-gray-700 mb-2 text-overflow-safe">
+                          직책/부서
                         </label>
                         <OptimizedInput
                           type="text"
                           value={formData.position}
                           onChange={(e) => handleInputChange('position', e.target.value)}
-                          placeholder="대표이사, 팀장 등"
+                          placeholder="예: 대표이사, 마케팅팀장, 기획실장 등"
+                          className="mobile-input"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-mobile-sm font-medium text-gray-700 mb-2 text-overflow-safe">
                         상담 분야
                       </label>
                       <OptimizedSelect 
                         value={formData.consultationArea}
                         onValueChange={(value) => handleInputChange('consultationArea', value)}
                       >
-                        <SelectTrigger>
-                          <SelectValue placeholder="상담받고 싶은 분야를 선택해주세요" />
+                        <SelectTrigger className="mobile-input h-12">
+                          <SelectValue placeholder="관심 있는 서비스를 선택해주세요" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="diagnosis">기업 진단 결과 상담</SelectItem>
-                          <SelectItem value="business-analysis">BM ZEN 사업분석</SelectItem>
-                          <SelectItem value="ai-productivity">AI 활용 생산성향상</SelectItem>
-                          <SelectItem value="factory-auction">경매활용 공장구매</SelectItem>
-                          <SelectItem value="tech-startup">기술사업화/기술창업</SelectItem>
-                          <SelectItem value="certification">인증지원</SelectItem>
-                          <SelectItem value="website">웹사이트 구축</SelectItem>
-                          <SelectItem value="comprehensive">종합 컨설팅</SelectItem>
-                          <SelectItem value="other">기타</SelectItem>
+                          <SelectItem value="business-analysis">📊 BM ZEN 사업분석</SelectItem>
+                          <SelectItem value="ai-productivity">🤖 AI실무활용 생산성향상</SelectItem>
+                          <SelectItem value="factory-auction">🏭 경매활용 공장구매</SelectItem>
+                          <SelectItem value="tech-startup">🚀 기술사업화/기술창업</SelectItem>
+                          <SelectItem value="certification">🏆 인증지원</SelectItem>
+                          <SelectItem value="website">🌐 웹사이트 구축</SelectItem>
+                          <SelectItem value="comprehensive">📋 종합 컨설팅</SelectItem>
+                          <SelectItem value="diagnosis">🔍 진단 결과 상담</SelectItem>
+                          <SelectItem value="other">💬 기타</SelectItem>
                         </SelectContent>
                       </OptimizedSelect>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        문의 내용
-                      </label>
-                      <OptimizedTextarea
-                        value={formData.inquiryContent}
-                        onChange={(e) => handleInputChange('inquiryContent', e.target.value)}
-                        placeholder="상담받고 싶은 내용을 자세히 적어주세요..."
-                        rows={4}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-mobile-sm font-medium text-gray-700 mb-2 text-overflow-safe">
                         희망 상담 시간
                       </label>
                       <OptimizedSelect 
                         value={formData.preferredTime}
                         onValueChange={(value) => handleInputChange('preferredTime', value)}
                       >
-                        <SelectTrigger>
-                          <SelectValue placeholder="상담 가능한 시간대를 선택해주세요" />
+                        <SelectTrigger className="mobile-input h-12">
+                          <SelectValue placeholder="편한 시간대를 선택해주세요" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="morning">오전 (09:00-12:00)</SelectItem>
-                          <SelectItem value="afternoon">오후 (13:00-17:00)</SelectItem>
-                          <SelectItem value="evening">저녁 (18:00-20:00)</SelectItem>
-                          <SelectItem value="flexible">시간 조정 가능</SelectItem>
+                          <SelectItem value="morning">🌅 오전 (09:00-12:00)</SelectItem>
+                          <SelectItem value="afternoon">☀️ 오후 (13:00-17:00)</SelectItem>
+                          <SelectItem value="evening">🌆 저녁 (18:00-20:00)</SelectItem>
+                          <SelectItem value="flexible">⏰ 시간 조정 가능</SelectItem>
                         </SelectContent>
                       </OptimizedSelect>
                     </div>
 
-                    <div className="flex items-start space-x-2 p-4 bg-gray-50 rounded-lg">
+                    <div>
+                      <label className="block text-mobile-sm font-medium text-gray-700 mb-2 text-overflow-safe">
+                        문의 내용
+                      </label>
+                      <OptimizedTextarea
+                        value={formData.inquiryContent}
+                        onChange={(e) => handleInputChange('inquiryContent', e.target.value)}
+                        placeholder="상담받고 싶은 내용을 자세히 적어주세요.&#10;예: 우리 회사 매출을 20% 늘리고 싶어요. 현재 직원 10명, 연매출 5억원 규모입니다."
+                        className="mobile-input min-h-[120px] resize-none"
+                        rows={5}
+                      />
+                    </div>
+
+                    <div className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
                       <Checkbox
                         id="privacy-consent"
                         checked={formData.privacyConsent}
                         onCheckedChange={(checked) => handleInputChange('privacyConsent', checked as boolean)}
+                        className="mt-1"
                         required
                       />
-                      <div className="text-sm text-gray-700">
-                        <label htmlFor="privacy-consent" className="font-medium cursor-pointer">
-                          개인정보 수집 및 이용에 동의합니다 <span className="text-red-500">*</span>
+                      <div className="flex-1">
+                        <label htmlFor="privacy-consent" className="text-mobile-sm text-gray-700 cursor-pointer mobile-text">
+                          <span className="text-red-500">*</span> 개인정보 수집 및 이용에 동의합니다. 
+                          수집된 정보는 상담 목적으로만 사용되며, 상담 완료 후 안전하게 삭제됩니다.
                         </label>
-                        <p className="text-xs text-gray-500 mt-1">
-                          상담 서비스 제공 및 마케팅 활용을 위한 개인정보 수집 및 이용에 동의합니다. 수집된 정보는 상담 진행, 맞춤형 서비스 제공, 마케팅 정보 안내 목적으로 사용되며, 개인정보보호법에 따라 3년간 보관됩니다.
-                        </p>
                       </div>
                     </div>
 
-                    <OptimizedButton 
-                      type="submit" 
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-                      disabled={isSubmitting || !isOnline || !isFormValid}
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          처리 중... 잠시만 기다려주세요
-                        </>
-                      ) : !isOnline ? (
-                        <>
-                          <WifiOff className="w-5 h-5 mr-2" />
-                          인터넷 연결 필요
-                        </>
-                      ) : !isFormValid ? (
-                        <>
-                          <AlertCircle className="w-5 h-5 mr-2" />
-                          필수 정보를 입력해주세요
-                        </>
-                      ) : (
-                        <>
-                          <Zap className="w-5 h-5 mr-2" />
-                          즉시 무료 상담 신청
-                        </>
-                      )}
-                    </OptimizedButton>
-
-                    {submitAttempts >= 2 && !isSubmitting && (
-                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <div className="flex items-center gap-2 text-yellow-800">
-                          <RefreshCw className="w-4 h-4" />
-                          <span className="font-medium">문제가 지속되시나요?</span>
-                        </div>
-                        <p className="text-sm text-yellow-700 mt-1">
-                          직접 연락해 주시면 즉시 도움을 드리겠습니다.
+                    <div className="pt-4">
+                      <OptimizedButton
+                        type="submit"
+                        disabled={!isFormValid || isSubmitting || !isOnline}
+                        className="mobile-button w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 text-mobile-lg touch-feedback disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                            <span className="text-overflow-safe">상담 신청 처리 중...</span>
+                          </>
+                        ) : (
+                          <>
+                            <MessageSquare className="w-5 h-5 mr-2" />
+                            <span className="text-overflow-safe">무료 상담 신청하기</span>
+                            <ArrowRight className="w-5 h-5 ml-2" />
+                          </>
+                        )}
+                      </OptimizedButton>
+                      
+                      {!isFormValid && (
+                        <p className="text-mobile-xs text-red-600 mt-2 text-center mobile-text">
+                          * 표시된 필수 항목을 모두 입력해주세요
                         </p>
-                        <div className="flex gap-2 mt-2">
-                          <a 
-                            href="tel:010-9251-9743" 
-                            className="text-sm text-yellow-800 hover:text-yellow-900 underline"
-                          >
-                            📞 010-9251-9743
-                          </a>
-                          <a 
-                            href="mailto:hongik423@gmail.com" 
-                            className="text-sm text-yellow-800 hover:text-yellow-900 underline"
-                          >
-                            📧 hongik423@gmail.com
-                          </a>
+                      )}
+                      
+                      {submitAttempts >= 2 && (
+                        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                          <p className="text-mobile-sm text-yellow-800 text-center mobile-text">
+                            📞 문제가 지속되면 직접 연락주세요: 010-9251-9743
+                          </p>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </form>
                 </CardContent>
               </Card>
             </div>
 
             <div className="space-y-6">
-              <Card>
+              <Card className="mobile-card">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-mobile-lg">
                     <CheckCircle className="w-5 h-5 text-green-600" />
-                    상담 프로세스
+                    <span className="text-overflow-safe">상담 프로세스</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-bold text-blue-600">1</span>
+                  {[
+                    { step: 1, title: '상담 신청', desc: '온라인 신청서 작성', icon: '📝' },
+                    { step: 2, title: '일정 조율', desc: '24시간 내 연락드림', icon: '📞' },
+                    { step: 3, title: '전문가 상담', desc: '맞춤형 솔루션 제안', icon: '💡' }
+                  ].map((process, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-mobile-xs font-bold text-white">{process.step}</span>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium text-gray-900 text-mobile-sm text-overflow-safe">
+                          {process.icon} {process.title}
+                        </h4>
+                        <p className="text-mobile-xs text-gray-600 mobile-text">{process.desc}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-medium text-gray-900">상담 신청</h4>
-                      <p className="text-sm text-gray-600">온라인 신청서 작성</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-bold text-blue-600">2</span>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-900">일정 조율</h4>
-                      <p className="text-sm text-gray-600">24시간 내 연락드림</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-bold text-blue-600">3</span>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-900">전문가 상담</h4>
-                      <p className="text-sm text-gray-600">맞춤형 솔루션 제안</p>
-                    </div>
-                  </div>
+                  ))}
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="mobile-card">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-mobile-lg">
                     <Phone className="w-5 h-5 text-blue-600" />
-                    직접 연락
+                    <span className="text-overflow-safe">직접 연락</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Phone className="w-4 h-4 text-gray-500" />
-                    <div>
-                      <p className="font-medium">이후경 책임컨설턴트</p>
-                      <a 
-                        href="tel:010-9251-9743" 
-                        className="text-blue-600 hover:text-blue-700"
-                      >
-                        010-9251-9743
-                      </a>
+                <CardContent className="space-y-4">
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Phone className="w-4 h-4 text-blue-600" />
+                      <div className="flex-1">
+                        <p className="font-medium text-mobile-sm text-gray-900 text-overflow-safe">
+                          이후경 책임컨설턴트
+                        </p>
+                        <p className="text-mobile-xs text-gray-600 mobile-text">경영지도센터 디지털혁신센터</p>
+                      </div>
                     </div>
+                    <a 
+                      href="tel:010-9251-9743" 
+                      className="mobile-button w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-2 rounded-lg transition-colors touch-feedback"
+                    >
+                      <span className="text-overflow-safe">📞 010-9251-9743 전화걸기</span>
+                    </a>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Mail className="w-4 h-4 text-gray-500" />
-                    <div>
-                      <p className="font-medium">이메일 문의</p>
-                      <a 
-                        href="mailto:hongik423@gmail.com" 
-                        className="text-blue-600 hover:text-blue-700"
-                      >
-                        hongik423@gmail.com
-                      </a>
+
+                  <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Mail className="w-4 h-4 text-green-600" />
+                      <div className="flex-1">
+                        <p className="font-medium text-mobile-sm text-gray-900 text-overflow-safe">
+                          이메일 문의
+                        </p>
+                        <p className="text-mobile-xs text-gray-600 mobile-text">24시간 접수 가능</p>
+                      </div>
                     </div>
+                    <a 
+                      href="mailto:hongik423@gmail.com" 
+                      className="mobile-button w-full bg-green-600 hover:bg-green-700 text-white text-center py-2 rounded-lg transition-colors touch-feedback"
+                    >
+                      <span className="text-overflow-safe">📧 hongik423@gmail.com</span>
+                    </a>
                   </div>
-                  <div className="flex items-center gap-3">
+
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                     <Clock className="w-4 h-4 text-gray-500" />
-                    <div>
-                      <p className="font-medium">상담 시간</p>
-                      <p className="text-sm text-gray-600">평일 09:00 - 18:00</p>
+                    <div className="flex-1">
+                      <p className="font-medium text-mobile-sm text-gray-900 text-overflow-safe">상담 시간</p>
+                      <p className="text-mobile-xs text-gray-600 mobile-text">평일 09:00 - 18:00</p>
+                      <p className="text-mobile-xs text-gray-500 mobile-text">주말·공휴일 이메일 접수</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="mobile-card">
                 <CardHeader>
-                  <CardTitle>주요 상담 분야</CardTitle>
+                  <CardTitle className="text-mobile-lg">
+                    <span className="text-overflow-safe">🎯 주요 상담 분야</span>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <ArrowRight className="w-3 h-3 text-blue-600" />
-                      <span>BM ZEN 사업분석</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <ArrowRight className="w-3 h-3 text-blue-600" />
-                      <span>AI 활용 생산성향상</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <ArrowRight className="w-3 h-3 text-blue-600" />
-                      <span>기술사업화/기술창업</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <ArrowRight className="w-3 h-3 text-blue-600" />
-                      <span>경매활용 공장구매</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <ArrowRight className="w-3 h-3 text-blue-600" />
-                      <span>인증지원 컨설팅</span>
-                    </div>
+                  <div className="space-y-3">
+                    {[
+                      { icon: '📊', name: 'BM ZEN 사업분석', desc: '매출 20-40% 증대' },
+                      { icon: '🤖', name: 'AI 활용 생산성향상', desc: '업무효율 60% 향상' },
+                      { icon: '🚀', name: '기술사업화/기술창업', desc: '평균 5억원 자금확보' },
+                      { icon: '🏭', name: '경매활용 공장구매', desc: '30-50% 비용절감' },
+                      { icon: '🏆', name: '인증지원 컨설팅', desc: '연 5천만원 세제혜택' }
+                    ].map((service, index) => (
+                      <div key={index} className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                        <span className="text-lg">{service.icon}</span>
+                        <div className="flex-1">
+                          <p className="font-medium text-mobile-sm text-gray-900 text-overflow-safe">{service.name}</p>
+                          <p className="text-mobile-xs text-blue-600 mobile-text">{service.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="mobile-card bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200">
+                <CardHeader>
+                  <CardTitle className="text-mobile-lg text-center">
+                    <span className="text-overflow-safe">🌟 신뢰할 수 있는 전문가</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4 text-center">
+                    {[
+                      { number: '25년', label: '전문 경험', icon: '🎓' },
+                      { number: '500+', label: '성공 프로젝트', icon: '🏆' },
+                      { number: '95%', label: '고객 만족도', icon: '⭐' },
+                      { number: '300%', label: '평균 성과', icon: '📈' }
+                    ].map((stat, index) => (
+                      <div key={index} className="text-center">
+                        <div className="text-lg mb-1">{stat.icon}</div>
+                        <div className="text-mobile-lg font-bold text-blue-600 text-overflow-safe">{stat.number}</div>
+                        <p className="text-mobile-xs text-gray-600 mobile-text">{stat.label}</p>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>

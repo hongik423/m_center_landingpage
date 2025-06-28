@@ -23,6 +23,8 @@ export default function FloatingChatbot() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isDragReady, setIsDragReady] = useState(false); // 드래그 준비 상태
+  const [snapPosition, setSnapPosition] = useState<'left' | 'right'>('right'); // 스냅 위치
 
   // 환영 메시지 추가
   useEffect(() => {
@@ -65,18 +67,38 @@ export default function FloatingChatbot() {
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    // 모바일 진동 피드백
+    if (navigator.vibrate) {
+      navigator.vibrate(50);
+    }
+    
+    setIsDragReady(true);
     setIsDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
     setDragOffset({ x: position.x, y: position.y });
+    
+    // 드래그 시작 애니메이션
+    setTimeout(() => setIsDragReady(false), 200);
   }, [position.x, position.y]);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const touch = e.touches[0];
+    
+    // 모바일 진동 피드백
+    if (navigator.vibrate) {
+      navigator.vibrate(50);
+    }
+    
+    setIsDragReady(true);
     setIsDragging(true);
     setDragStart({ x: touch.clientX, y: touch.clientY });
     setDragOffset({ x: position.x, y: position.y });
+    
+    // 드래그 시작 애니메이션
+    setTimeout(() => setIsDragReady(false), 200);
   }, [position.x, position.y]);
 
   const handleMouseMove = useCallback((e: MouseEvent | TouchEvent) => {
@@ -96,28 +118,29 @@ export default function FloatingChatbot() {
     const newX = dragOffset.x - deltaX; // 오른쪽에서의 거리이므로 반대로
     const newY = dragOffset.y - deltaY; // 하단에서의 거리이므로 반대로 (아래로 드래그하면 bottom 값이 작아져야 함)
     
-    // 화면 경계 제한 (전체 2D 드래그)
-    const maxX = window.innerWidth - 90; // 버튼 크기 고려
-    const minX = 20;
-    const maxY = window.innerHeight - 90;
-    const minY = 20;
+    // 화면 경계 제한 (전체 2D 드래그) - 모바일 최적화
+    const buttonSize = window.innerWidth < 768 ? 60 : 70; // 모바일에서 버튼 크기 조정
+    const maxX = window.innerWidth - buttonSize - 10;
+    const minX = 10;
+    const maxY = window.innerHeight - buttonSize - 10;
+    const minY = 60; // 상단 여유 공간
     
-    // 🚨 오류신고 버튼과의 충돌 방지 (우하단 영역)
+    // 🚨 오류신고 버튼과의 충돌 방지 (우하단 영역) - 개선된 충돌 감지
     let finalX = Math.max(minX, Math.min(maxX, newX));
     let finalY = Math.max(minY, Math.min(maxY, newY));
     
-    // 오류신고 버튼 영역 (우하단 90x90 픽셀) 충돌 감지
+    // 오류신고 버튼 영역 (우하단 90x90 픽셀) 충돌 감지 - 모바일 고려
     const errorButtonArea = {
-      left: window.innerWidth - 110, // right-6 (24px) + button width (70px) + margin
-      right: window.innerWidth - 20,
-      top: window.innerHeight - 110, // bottom-6 (24px) + button height (70px) + margin
-      bottom: window.innerHeight - 20
+      left: window.innerWidth - (window.innerWidth < 768 ? 100 : 120),
+      right: window.innerWidth - 10,
+      top: window.innerHeight - (window.innerWidth < 768 ? 100 : 120),
+      bottom: window.innerHeight - 10
     };
     
     const chatbotArea = {
-      left: window.innerWidth - finalX - 70, // AI 챗봇의 실제 화면 위치
+      left: window.innerWidth - finalX - buttonSize,
       right: window.innerWidth - finalX,
-      top: window.innerHeight - finalY - 70,
+      top: window.innerHeight - finalY - buttonSize,
       bottom: window.innerHeight - finalY
     };
     
@@ -129,10 +152,22 @@ export default function FloatingChatbot() {
       chatbotArea.bottom > errorButtonArea.top
     );
     
-    // 충돌 시 위치 조정
+    // 충돌 시 위치 조정 - 더 자연스러운 위치로
     if (isColliding) {
-      // 오류신고 버튼 위로 이동
-      finalY = Math.min(finalY, window.innerHeight - 150); // 오류신고 버튼 위 30px 여유 공간
+      if (finalY > window.innerHeight / 2) {
+        // 하단에 있으면 위로 이동
+        finalY = Math.min(finalY, window.innerHeight - (window.innerWidth < 768 ? 160 : 180));
+      } else {
+        // 상단에 있으면 왼쪽으로 이동
+        finalX = Math.max(finalX, 100);
+      }
+    }
+    
+    // 좌우 스냅 위치 결정
+    if (finalX > window.innerWidth / 2) {
+      setSnapPosition('right');
+    } else {
+      setSnapPosition('left');
     }
     
     setPosition({
@@ -142,8 +177,37 @@ export default function FloatingChatbot() {
   }, [isDragging, dragStart.x, dragStart.y, dragOffset.x, dragOffset.y]);
 
   const handleMouseUp = useCallback(() => {
+    if (!isDragging) return;
+    
     setIsDragging(false);
-  }, []);
+    
+    // 모바일 진동 피드백 (드래그 완료)
+    if (navigator.vibrate) {
+      navigator.vibrate(30);
+    }
+    
+    // 스냅 기능 - 화면 좌우 가장자리로 자동 이동
+    const screenWidth = window.innerWidth;
+    const snapThreshold = screenWidth * 0.3; // 30% 지점
+    
+    setPosition(prev => {
+      let newX = prev.x;
+      
+      // 좌우 스냅
+      if (prev.x < snapThreshold) {
+        newX = 20; // 왼쪽으로 스냅
+        setSnapPosition('left');
+      } else if (prev.x > screenWidth - snapThreshold) {
+        newX = 20; // 오른쪽으로 스냅  
+        setSnapPosition('right');
+      }
+      
+      return {
+        x: newX,
+        y: Math.max(60, Math.min(window.innerHeight - 100, prev.y)) // Y축 경계 재조정
+      };
+    });
+  }, [isDragging]);
 
   // 🔥 전역 마우스 및 터치 이벤트 리스너 - 의존성 배열 최적화
   useEffect(() => {
@@ -250,40 +314,53 @@ export default function FloatingChatbot() {
       {/* 🔥 드래그 가능한 플로팅 챗봇 버튼 */}
       <div
         id="floating-chatbot-button"
-        className={`${isOpen ? 'hidden' : 'block'}`}
+        className={`${isOpen ? 'hidden' : 'block'} draggable-mobile gpu-accelerated ${isDragReady ? 'scale-110' : ''}`}
         style={{
           position: 'fixed',
           bottom: `${position.y}px`,
-          right: `${position.x}px`,
-          width: '70px',
-          height: '70px',
-          backgroundColor: '#4285F4',
+          right: snapPosition === 'right' ? `${position.x}px` : 'auto',
+          left: snapPosition === 'left' ? `${position.x}px` : 'auto',
+          width: window.innerWidth < 768 ? '60px' : '70px',
+          height: window.innerWidth < 768 ? '60px' : '70px',
+          backgroundColor: isDragging ? '#9C27B0' : '#4285F4',
           borderRadius: '50%',
           cursor: isDragging ? 'grabbing' : 'grab',
           zIndex: 999999,
           display: isOpen ? 'none' : 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 4px 20px rgba(66, 133, 244, 0.4)',
+          boxShadow: isDragging 
+            ? '0 8px 32px rgba(156, 39, 176, 0.6), 0 0 0 4px rgba(156, 39, 176, 0.2)' 
+            : '0 4px 20px rgba(66, 133, 244, 0.4)',
           border: '3px solid white',
-          transition: isDragging ? 'none' : 'all 0.3s ease',
-          userSelect: 'none'
+          transition: isDragging ? 'none' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          userSelect: 'none',
+          transform: isDragging 
+            ? 'scale(1.1) rotate(5deg)' 
+            : isDragReady 
+              ? 'scale(1.05)' 
+              : 'scale(1)',
+          filter: isDragging ? 'brightness(1.1)' : 'brightness(1)',
         }}
         onClick={(e) => {
           if (!isDragging) {
             setIsOpen(true);
+            // 모바일 진동 피드백
+            if (navigator.vibrate) {
+              navigator.vibrate(100);
+            }
           }
         }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         onMouseEnter={(e) => {
-          if (!isDragging) {
+          if (!isDragging && !window.matchMedia('(max-width: 768px)').matches) {
             e.currentTarget.style.transform = 'scale(1.1)';
             e.currentTarget.style.backgroundColor = '#9C27B0';
           }
         }}
         onMouseLeave={(e) => {
-          if (!isDragging) {
+          if (!isDragging && !window.matchMedia('(max-width: 768px)').matches) {
             e.currentTarget.style.transform = 'scale(1)';
             e.currentTarget.style.backgroundColor = '#4285F4';
           }
@@ -294,34 +371,91 @@ export default function FloatingChatbot() {
           src={getImagePath('/star-counselor-icon.svg')}
           alt="별-AI상담사"
           style={{
-            width: '60px',
-            height: '60px',
+            width: window.innerWidth < 768 ? '50px' : '60px',
+            height: window.innerWidth < 768 ? '50px' : '60px',
             borderRadius: '50%',
             objectFit: 'cover',
-            pointerEvents: 'none'
+            pointerEvents: 'none',
+            transition: 'all 0.3s ease',
+            filter: isDragging ? 'brightness(1.2)' : 'brightness(1)'
           }}
         />
         
-        {/* 툴팁 */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '80px',
-            right: '0',
-            backgroundColor: '#333',
-            color: 'white',
-            padding: '8px 12px',
-            borderRadius: '8px',
-            fontSize: '12px',
-            whiteSpace: 'nowrap',
-            opacity: 0,
-            transition: 'opacity 0.3s ease',
-            pointerEvents: 'none'
-          }}
-          className="tooltip"
-        >
-          드래그로 자유롭게 이동 가능!
-        </div>
+        {/* 드래그 인디케이터 (모바일) */}
+        {isDragging && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: '-6px',
+              borderRadius: '50%',
+              border: '2px dashed rgba(255, 255, 255, 0.8)',
+              animation: 'spin 2s linear infinite',
+              pointerEvents: 'none'
+            }}
+          />
+        )}
+        
+        {/* 펄스 애니메이션 */}
+        {!isDragging && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: '-8px',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(66, 133, 244, 0.3) 0%, transparent 70%)',
+              animation: 'pulse 3s infinite',
+              pointerEvents: 'none'
+            }}
+          />
+        )}
+        
+        {/* 모바일 터치 가이드 */}
+        {!isDragging && window.innerWidth < 768 && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '-30px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              color: 'white',
+              padding: '4px 8px',
+              borderRadius: '12px',
+              fontSize: '10px',
+              whiteSpace: 'nowrap',
+              opacity: isDragReady ? 1 : 0,
+              transition: 'opacity 0.3s ease',
+              pointerEvents: 'none',
+              zIndex: 1000000
+            }}
+          >
+            🔄 드래그로 이동
+          </div>
+        )}
+        
+        {/* 데스크탑 툴팁 */}
+        {!window.matchMedia('(max-width: 768px)').matches && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '80px',
+              right: snapPosition === 'right' ? '0' : 'auto',
+              left: snapPosition === 'left' ? '0' : 'auto',
+              backgroundColor: '#333',
+              color: 'white',
+              padding: '8px 12px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              whiteSpace: 'nowrap',
+              opacity: 0,
+              transition: 'opacity 0.3s ease',
+              pointerEvents: 'none'
+            }}
+            className="tooltip"
+          >
+            {isDragging ? '🔄 드래그 중...' : '드래그로 자유롭게 이동 가능!'}
+          </div>
+        )}
       </div>
 
       {/* 채팅창 */}
@@ -561,6 +695,17 @@ export default function FloatingChatbot() {
         @keyframes bounce {
           0%, 80%, 100% { transform: translateY(0); }
           40% { transform: translateY(-10px); }
+        }
+        
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+          0% { opacity: 0.3; }
+          50% { opacity: 1; }
+          100% { opacity: 0.3; }
         }
         
         #floating-chatbot-button:hover .tooltip {
