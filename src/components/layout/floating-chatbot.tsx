@@ -328,13 +328,13 @@ export default function FloatingChatbot() {
       {/* 🔥 드래그 가능한 플로팅 챗봇 버튼 */}
       <div
         id="floating-chatbot-button"
-        className={`${isOpen ? 'hidden' : 'block'} ${isDragging ? 'scale-110' : ''}`}
+        className={`${isOpen ? 'hidden' : 'block'} ${isDragging ? 'scale-110' : ''} touch-target mobile-optimized`}
         style={{
           position: 'fixed',
           bottom: `${position.y}px`,
           right: `${position.x}px`,
-          width: isMobile ? '60px' : '70px',
-          height: isMobile ? '60px' : '70px',
+          width: isMobile ? '64px' : '70px',
+          height: isMobile ? '64px' : '70px',
           backgroundColor: isDragging ? '#9C27B0' : '#4285F4',
           borderRadius: '50%',
           cursor: isDragging ? 'grabbing' : 'grab',
@@ -350,6 +350,9 @@ export default function FloatingChatbot() {
           userSelect: 'none',
           transform: isDragging ? 'scale(1.1) rotate(5deg)' : 'scale(1)',
           filter: isDragging ? 'brightness(1.1)' : 'brightness(1)',
+          minWidth: '44px',
+          minHeight: '44px',
+          touchAction: 'manipulation',
         }}
         onClick={(e) => {
           if (!isDragging) {
@@ -374,6 +377,7 @@ export default function FloatingChatbot() {
             e.currentTarget.style.backgroundColor = '#4285F4';
           }
         }}
+        data-floating-chatbot="true"
       >
         {/* AI상담사 아이콘 */}
         <img

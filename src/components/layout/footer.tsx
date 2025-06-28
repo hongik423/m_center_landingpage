@@ -152,27 +152,30 @@ export default function Footer() {
             <div>
               <h5 className="font-medium text-sm mb-3 text-gray-300">팔로우하기</h5>
               <div className="flex space-x-3">
-                <a 
-                  href="#" 
-                  className="w-9 h-9 bg-gray-800 hover:bg-blue-600 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
-                  aria-label="Facebook"
+                <Link 
+                  href="/support/contact" 
+                  className="w-10 h-10 bg-gray-800 hover:bg-blue-600 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 touch-target"
+                  aria-label="연락처"
+                  title="연락처 페이지"
                 >
-                  <Facebook className="w-4 h-4" />
-                </a>
-                <a 
-                  href="#" 
-                  className="w-9 h-9 bg-gray-800 hover:bg-red-600 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
-                  aria-label="YouTube"
+                  <Facebook className="w-5 h-5" />
+                </Link>
+                <Link 
+                  href="/cases" 
+                  className="w-10 h-10 bg-gray-800 hover:bg-red-600 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 touch-target"
+                  aria-label="성공사례"
+                  title="성공사례 영상"
                 >
-                  <Youtube className="w-4 h-4" />
-                </a>
-                <a 
-                  href="#" 
-                  className="w-9 h-9 bg-gray-800 hover:bg-pink-600 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
-                  aria-label="Instagram"
+                  <Youtube className="w-5 h-5" />
+                </Link>
+                <Link 
+                  href="/center-leader" 
+                  className="w-10 h-10 bg-gray-800 hover:bg-pink-600 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 touch-target"
+                  aria-label="센터장프로필"
+                  title="센터장 프로필"
                 >
-                  <Instagram className="w-4 h-4" />
-                </a>
+                  <Instagram className="w-5 h-5" />
+                </Link>
               </div>
             </div>
           </div>

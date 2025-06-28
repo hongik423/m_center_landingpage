@@ -437,13 +437,20 @@ export default function Home() {
                       {/* 🔥 개선된 AI상담사와 채팅 버튼 */}
                       <Button 
                         className="mobile-button w-full btn-hero bg-gradient-to-r from-indigo-500 to-purple-600 
-                                  hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl relative overflow-hidden group"
+                                  hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl relative overflow-hidden group touch-target"
                         onClick={() => {
-                          const chatbot = document.querySelector('[data-floating-chatbot]') as HTMLElement;
-                          if (chatbot) {
-                            chatbot.click();
-                          } else {
-                            router.push('/chatbot');
+                          if (typeof window !== 'undefined') {
+                            const chatbot = document.querySelector('[data-floating-chatbot]') as HTMLElement;
+                            if (chatbot) {
+                              chatbot.click();
+                            } else {
+                              // 플로팅 챗봇이 없으면 챗봇 페이지로 이동
+                              router.push('/chatbot');
+                            }
+                            // 모바일 진동 피드백
+                            if (navigator.vibrate) {
+                              navigator.vibrate(100);
+                            }
                           }
                         }}
                       >
@@ -559,24 +566,28 @@ export default function Home() {
                     
                     {/* 버튼 그룹 */}
                     <div className="space-y-3">
-                      <Button 
-                        className={`mobile-button w-full font-semibold py-3 transition-all duration-300 pointer-events-none ${ 
-                          service.featured 
-                            ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg' 
-                            : 'bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white shadow-lg'
-                        }`}
-                      >
-                        <span className="text-overflow-safe">지금 시작하기</span>
-                        <ArrowRight className="ml-2 w-4 h-4" />
-                      </Button>
+                      <Link href={service.href}>
+                        <Button 
+                          className={`mobile-button w-full font-semibold py-3 transition-all duration-300 ${ 
+                            service.featured 
+                              ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]' 
+                              : 'bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]'
+                          }`}
+                        >
+                          <span className="text-overflow-safe">지금 시작하기</span>
+                          <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                      </Link>
                       
-                      <Button 
-                        variant="outline" 
-                        className="mobile-button w-full border-2 border-gray-200 hover:border-blue-600 hover:bg-blue-50 hover:text-blue-600 transition-all duration-300 pointer-events-none"
-                      >
-                        <span className="text-overflow-safe">자세히 보기</span>
-                        <FileText className="ml-2 w-4 h-4" />
-                      </Button>
+                      <Link href={service.href}>
+                        <Button 
+                          variant="outline" 
+                          className="mobile-button w-full border-2 border-gray-200 hover:border-blue-600 hover:bg-blue-50 hover:text-blue-600 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
+                        >
+                          <span className="text-overflow-safe">자세히 보기</span>
+                          <FileText className="ml-2 w-4 h-4" />
+                        </Button>
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>

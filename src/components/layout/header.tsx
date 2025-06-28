@@ -304,19 +304,20 @@ export default function Header() {
                         { href: '/services', label: '서비스', icon: '🛠️' },
                         { href: '/center-leader', label: '센터장프로필', icon: '👨‍💼' },
                         { href: '/cases', label: '성공사례', icon: '🏆' },
-                        { href: '/diagnosis', label: 'AI진단', icon: '🔍' }
+                        { href: '/diagnosis', label: 'AI진단', icon: '🔍' },
+                        { href: '/consultation', label: '전문가상담', icon: '💬' }
                       ].map((item) => (
                         <Link
                           key={item.href}
                           href={item.href}
-                          className="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-all duration-200 border border-gray-200 hover:border-blue-600 group transform hover:scale-[1.05] active:scale-[0.95] relative overflow-hidden"
+                          className="flex flex-col items-center p-4 rounded-xl hover:bg-gray-50 transition-all duration-200 border border-gray-200 hover:border-blue-600 group transform hover:scale-[1.05] active:scale-[0.95] relative overflow-hidden touch-target"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           <span className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
-                          <div className="w-8 h-8 bg-gray-100 group-hover:bg-blue-600 group-hover:text-white rounded-lg flex items-center justify-center mb-2 transition-all duration-200 relative z-10 group-hover:scale-110">
-                            <span className="text-lg">{item.icon}</span>
+                          <div className="w-10 h-10 bg-gray-100 group-hover:bg-blue-600 group-hover:text-white rounded-xl flex items-center justify-center mb-2 transition-all duration-200 relative z-10 group-hover:scale-110">
+                            <span className="text-xl">{item.icon}</span>
                           </div>
-                          <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600 text-center text-overflow-safe relative z-10">{item.label}</span>
+                          <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 text-center text-overflow-safe relative z-10">{item.label}</span>
                         </Link>
                       ))}
                     </div>
