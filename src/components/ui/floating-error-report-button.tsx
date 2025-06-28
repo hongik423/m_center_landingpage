@@ -59,9 +59,110 @@ export function FloatingErrorReportButton({
   if (!isVisible) return null;
 
   const handleButtonClick = () => {
-    onReportClick();
-    // 클릭 시 확장 상태 해제
+    console.log('🔥 플로팅 오류신고 버튼 클릭됨');
+    
+    // 즉시 확장 상태 해제
     setIsExpanded(false);
+    
+    try {
+      // 베타 피드백 폼이 있는 위치로 스크롤
+      const feedbackSection = document.querySelector('[data-beta-feedback]');
+      console.log('📍 베타 피드백 섹션 찾기:', feedbackSection);
+      
+      if (feedbackSection) {
+        // 먼저 스크롤
+        feedbackSection.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+        console.log('📜 베타 피드백 섹션으로 스크롤 완료');
+        
+        // 베타 피드백 폼 자동 열기 (여러 방법으로 시도)
+        setTimeout(() => {
+          console.log('🔍 베타 피드백 버튼 찾기 시작...');
+          
+                     // 첫 번째 시도: 바로 텍스트 매칭으로 시작 (CSS :contains()는 표준이 아니므로 제외)
+           let feedbackButton: HTMLButtonElement | null = null;
+          
+          // 두 번째 시도: 더 정확한 텍스트 매칭
+          if (!feedbackButton) {
+            const buttons = feedbackSection.querySelectorAll('button');
+            console.log(`🔍 총 ${buttons.length}개 버튼 발견, 검색 중...`);
+            
+            buttons.forEach((button, index) => {
+              const buttonText = button.textContent || '';
+              console.log(`버튼 ${index + 1}: "${buttonText}"`);
+              
+              if (buttonText.includes('오류 신고') || 
+                  buttonText.includes('신고하기') || 
+                  buttonText.includes('🚨') ||
+                  buttonText.includes('Bug') ||
+                  button.innerHTML.includes('Bug')) {
+                feedbackButton = button as HTMLButtonElement;
+                console.log(`✅ 매칭된 버튼 발견: "${buttonText}"`);
+              }
+            });
+          }
+          
+          // 세 번째 시도: Bug 아이콘이 있는 버튼 찾기
+          if (!feedbackButton) {
+            const bugButtons = feedbackSection.querySelectorAll('button svg[class*="lucide-bug"], button svg[data-testid="bug"]');
+            if (bugButtons.length > 0) {
+              feedbackButton = bugButtons[0].closest('button') as HTMLButtonElement;
+              console.log('🐛 Bug 아이콘으로 버튼 발견');
+            }
+          }
+          
+          // 네 번째 시도: 클래스명으로 찾기
+          if (!feedbackButton) {
+            feedbackButton = feedbackSection.querySelector('button[class*="red"], button[class*="error"], button[class*="report"]') as HTMLButtonElement;
+            console.log('🎨 클래스명으로 버튼 찾기 시도');
+          }
+          
+          // 버튼 클릭
+          if (feedbackButton) {
+            console.log('🎯 베타 피드백 버튼 클릭 시도');
+            feedbackButton.click();
+            console.log('✅ 베타 피드백 폼 자동 열기 성공!');
+          } else {
+            console.warn('⚠️ 베타 피드백 버튼을 찾을 수 없음 - 모든 selector 실패');
+            
+            // 최후의 수단: 사용자에게 수동 클릭 안내
+            alert('🚨 오류신고를 위해 페이지 하단의 "오류 신고하기" 버튼을 클릭해주세요!');
+          }
+        }, 800); // 스크롤 완료 후 약간 더 기다림
+      } else {
+        console.warn('⚠️ 베타 피드백 섹션을 찾을 수 없음');
+        
+        // 대안 1: onReportClick 함수 실행
+        if (onReportClick) {
+          console.log('🔄 onReportClick 함수 실행');
+          onReportClick();
+        }
+        
+        // 대안 2: 페이지 하단으로 스크롤
+        setTimeout(() => {
+          console.log('📜 페이지 하단으로 스크롤');
+          window.scrollTo({
+            top: document.body.scrollHeight - window.innerHeight,
+            behavior: 'smooth'
+          });
+          
+          // 3초 후 사용자에게 안내
+          setTimeout(() => {
+            alert('🚨 오류신고를 위해 화면 하단의 "오류 신고하기" 버튼을 찾아 클릭해주세요!');
+          }, 3000);
+        }, 500);
+      }
+    } catch (error) {
+      console.error('❌ 플로팅 버튼 클릭 중 오류:', error);
+      
+      // 오류 발생 시 onReportClick 함수 실행
+      if (onReportClick) {
+        console.log('🔄 오류 발생으로 onReportClick 함수 실행');
+        onReportClick();
+      }
+    }
   };
 
   const toggleExpanded = (e: React.MouseEvent) => {
