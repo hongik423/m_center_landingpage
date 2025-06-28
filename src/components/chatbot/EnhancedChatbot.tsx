@@ -62,64 +62,75 @@ interface ChatbotProps {
   embedded?: boolean;
 }
 
-// 🎯 빠른 응답 버튼
+// 🎯 빠른 응답 버튼 (2025년 업데이트)
 const QUICK_RESPONSES = [
   {
-    text: "M-CENTER는 어떤 회사인가요?",
-    icon: <Building2 className="w-4 h-4" />,
-    category: "company"
-  },
-  {
-    text: "무료 진단을 받고 싶어요",
-    icon: <CheckCircle className="w-4 h-4" />,
-    category: "service"
-  },
-  {
-    text: "BM ZEN이 뭔가요?",
+    text: "BM ZEN 5단계 프레임워크가 뭔가요?",
     icon: <Target className="w-4 h-4" />,
     category: "service"
   },
   {
-    text: "AI 도입 효과는?",
+    text: "2025년 일터혁신 상생컨설팅 신청",
     icon: <Brain className="w-4 h-4" />,
     category: "service"
   },
   {
-    text: "세금계산기 사용법은?",
+    text: "20-99인 기업 100% 무료 지원",
+    icon: <CheckCircle className="w-4 h-4" />,
+    category: "service"
+  },
+  {
+    text: "실제 기업 사례가 궁금해요",
+    icon: <TrendingUp className="w-4 h-4" />,
+    category: "case"
+  },
+  {
+    text: "AI 기반 생산성 향상 방법",
+    icon: <Brain className="w-4 h-4" />,
+    category: "ai"
+  },
+  {
+    text: "세금계산기 11개 종류",
     icon: <Badge className="w-4 h-4" />,
     category: "tax"
   },
   {
-    text: "비용이 궁금해요",
-    icon: <Badge className="w-4 h-4" />,
-    category: "cost"
-  },
-  {
-    text: "전문가 상담 신청",
+    text: "전문가 직접 상담 신청",
     icon: <Phone className="w-4 h-4" />,
     category: "contact"
+  },
+  {
+    text: "정부지원 프로그램 안내",
+    icon: <Award className="w-4 h-4" />,
+    category: "government"
   }
 ];
 
-// 🚀 서비스 제안 버튼
+// 🚀 서비스 제안 버튼 (2025년 업데이트)
 const SERVICE_SUGGESTIONS = [
   {
-    name: "BM ZEN 사업분석",
-    description: "매출 20-40% 증대",
+    name: "BM ZEN 5단계 프레임워크",
+    description: "생산성 42% 향상 실제 검증",
     icon: <TrendingUp className="w-5 h-5" />,
     color: "bg-blue-500"
   },
   {
-    name: "AI 생산성향상", 
-    description: "업무효율 40-60% 향상",
+    name: "2025년 일터혁신 상생컨설팅", 
+    description: "20-99인 기업 100% 무료",
     icon: <Brain className="w-5 h-5" />,
     color: "bg-purple-500"
   },
   {
-    name: "경매활용 공장구매",
-    description: "부동산비용 30-50% 절감", 
-    icon: <Target className="w-5 h-5" />,
+    name: "AI 기반 스마트 생산시스템",
+    description: "품질 불량률 78% 감소", 
+    icon: <Zap className="w-5 h-5" />,
     color: "bg-green-500"
+  },
+  {
+    name: "전문 세금계산기 11종",
+    description: "2024년 최신 세법 반영",
+    icon: <Badge className="w-5 h-5" />,
+    color: "bg-orange-500"
   }
 ];
 
@@ -185,18 +196,23 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
   useEffect(() => {
     const welcomeMessage: Message = {
       id: generateMessageId(),
-      content: `안녕하세요! 🤖 M-CENTER AI 상담사입니다.
+      content: `안녕하세요! 🤖 M-CENTER 별-AI상담사입니다.
 
 🏆 **대한민국 최고 수준의 경영컨설팅 전문기관**
-✅ 25년 검증된 전문성 | ✅ 95% 이상 성공률 | ✅ 정부지원 전문기관
+✅ 25년 검증된 전문성 | ✅ 실제 기업 성과 검증 | ✅ 정부지원 전문기관
 
-🎯 **M-CENTER 독보적 우수성**
-• **BM ZEN 사업분석** - 국내 유일 프레임워크, 매출 20-40% 증대
-• **AI 활용 생산성향상** - 국내 TOP 3 전문성, 업무효율 40-60% 향상
-• **경매활용 공장구매** - 25년 전문 노하우, 부동산비용 30-50% 절감
-• **전문 세금계산기** - 11개 계산기 완비, 2024년 최신 세법 반영
+🚀 **2025년 핵심 서비스 - 실제 검증 완료**
+• **BM ZEN 5단계 프레임워크** - 생산성 42% 향상, ROI 290% 달성
+• **2025년 일터혁신 상생컨설팅** - 20-99인 기업 100% 무료 (고용노동부)
+• **AI 기반 스마트 생산시스템** - 품질 불량률 78% 감소, 정확도 96.8%
+• **전문 세금계산기 11종** - 2024년 최신 세법 완벽 반영
 
-💡 **확실한 성과를 보장**하는 차별화된 전문성으로 도움드리겠습니다!
+🏭 **실제 기업 적용 사례 (㈜한국정밀기계)**
+• 생산성 42% 향상 (100개 → 142개/일)
+• 품질 불량률 78% 감소 (3.2% → 0.7%)
+• 6개월 ROI 290% 달성
+
+💡 **30일 내 가시적 결과**를 보장하는 차별화된 전문성으로 도움드리겠습니다!
 궁금한 점이나 상담이 필요하시면 언제든 말씀해 주세요! 😊`,
       sender: 'bot',
       timestamp: new Date(),
@@ -347,8 +363,12 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
         id: generateMessageId(),
         content: `새로운 상담을 시작합니다! 🚀
 
-어떤 도움이 필요하신지 말씀해주세요.
-M-CENTER의 25년 전문 노하우로 최고의 솔루션을 제공해드리겠습니다! ✨`,
+🏭 **실제 검증된 성과로 증명**
+• ㈜한국정밀기계: 생산성 42% 향상, ROI 290% 달성
+• 품질 불량률 78% 감소 (3.2% → 0.7%)
+
+🎯 어떤 도움이 필요하신지 말씀해주세요.
+M-CENTER의 실제 검증된 전문성으로 **30일 내 가시적 결과**를 제공해드리겠습니다! ✨`,
         sender: 'bot',
         timestamp: new Date(),
         type: 'text'

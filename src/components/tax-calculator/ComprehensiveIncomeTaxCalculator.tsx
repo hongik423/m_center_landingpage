@@ -28,6 +28,7 @@ import { ComprehensiveIncomeTaxCalculator, ComprehensiveTaxInputValidator } from
 import { formatCurrency, formatNumber, formatNumberInput, parseFormattedNumber, handleNumberInputChange } from '@/lib/utils';
 import { COMPREHENSIVE_TAX_LIMITS_2024 } from '@/constants/tax-rates-2024';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
+import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
 import { PDFGenerator } from '@/lib/utils/pdfGenerator';
 
 interface NumberInputProps {
@@ -45,6 +46,8 @@ interface NumberInputProps {
   incomeType?: string;
   relatedIncome?: number; // 관련 소득 (비교용)
   allInputs?: ComprehensiveIncomeTaxInput; // 전체 입력값 (동적 계산용)
+  required?: boolean; // 필수 필드 여부
+  requiredMessage?: string; // 필수 필드 메시지
 }
 
 function NumberInput({ 
@@ -61,11 +64,17 @@ function NumberInput({
   warningMessage,
   incomeType,
   relatedIncome,
-  allInputs
+  allInputs,
+  required = false,
+  requiredMessage = ''
 }: NumberInputProps) {
   const [displayValue, setDisplayValue] = useState(value && value > 0 ? formatNumberInput(value) : '');
   const [isOverLimit, setIsOverLimit] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+
+  // 🔴 필수 필드 상태 계산
+  const isCompleted = required ? value > 0 : true;
+  const isRequiredAndEmpty = required && (!value || value === 0);
 
   useEffect(() => {
     if (!isFocused) {
@@ -139,15 +148,26 @@ function NumberInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // 🔥 키보드 단축키 허용 (Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+Z 등)
+    if (e.ctrlKey || e.metaKey) {
+      return; // 모든 Ctrl/Cmd 조합키 허용
+    }
+
     // 음수 허용하지 않는 경우 '-' 키 차단
     if (min !== undefined && min >= 0 && e.key === '-') {
       e.preventDefault();
+      return;
     }
     
-    // 숫자, 백스페이스, 삭제, 탭, 화살표만 허용
-    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+    // 기본 허용 키들
+    const allowedKeys = [
+      'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
+      'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+      'Home', 'End', 'PageUp', 'PageDown'
+    ];
     const isNumber = /^[0-9]$/.test(e.key);
     
+    // 허용되지 않는 키 차단
     if (!allowedKeys.includes(e.key) && !isNumber) {
       e.preventDefault();
     }
@@ -234,14 +254,38 @@ function NumberInput({
 
   return (
     <div className={className}>
-      <Label htmlFor={label} className="text-sm font-medium text-gray-700 mb-2 block">
-        {label}
+      {/* 🔴 개선된 라벨 (필수 필드 강조) */}
+      <Label htmlFor={label} className={`
+        flex items-center gap-2 text-sm font-medium mb-2
+        ${isRequiredAndEmpty ? 'text-red-700 font-semibold' : 
+          isCompleted && required ? 'text-green-700 font-semibold' : 'text-gray-700'}
+      `}>
+        <span>{label}</span>
+        
+        {/* 🔴 필수 표시 강화 */}
+        {required && (
+          <div className="flex items-center gap-1">
+            <span className="text-red-500 text-lg font-bold">*</span>
+            <Badge variant="outline" className="text-xs bg-red-100 text-red-700 border-red-300 px-1 py-0">
+              필수
+            </Badge>
+          </div>
+        )}
+        
+        {/* ✅ 완료 표시 */}
+        {required && isCompleted && (
+          <Badge variant="outline" className="text-xs bg-green-100 text-green-700 border-green-300">
+            ✅ 완료
+          </Badge>
+        )}
+
         {limitInfo && (
           <span className="ml-2 text-xs text-blue-600">
             (한도: {limitInfo})
           </span>
         )}
       </Label>
+      {/* 🔴 개선된 입력 필드 */}
       <div className="relative">
         <Input
           id={label}
@@ -252,13 +296,39 @@ function NumberInput({
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          placeholder={placeholder || "숫자를 입력하세요"}
+          placeholder={required ? `${placeholder || "숫자를 입력하세요"} (필수)` : placeholder || "숫자를 입력하세요"}
           disabled={disabled}
           autoComplete="off"
           title={label}
           aria-label={label}
-          className={`pr-8 text-right font-mono ${isOverLimit ? 'border-orange-400 bg-orange-50' : ''}`}
+          className={`
+            ${isRequiredAndEmpty ? 
+              'border-red-400 border-2 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-200' :
+              required && isCompleted ? 
+              'border-green-500 bg-green-50 focus:border-green-500' :
+              isOverLimit ? 'border-orange-400 bg-orange-50' : ''}
+            pr-16 text-right font-mono transition-all duration-200
+          `}
         />
+        
+        {/* 🔴 필수 필드 시각적 표시 */}
+        {isRequiredAndEmpty && (
+          <div className="absolute -right-2 -top-2">
+            <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
+              !
+            </span>
+          </div>
+        )}
+        
+        {/* ✅ 완료 표시 */}
+        {required && isCompleted && (
+          <div className="absolute -right-2 -top-2">
+            <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-green-500 rounded-full">
+              ✓
+            </span>
+          </div>
+        )}
+
         {suffix && (
           <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">
             {suffix}
@@ -282,6 +352,26 @@ function NumberInput({
         </p>
       )}
       
+      {/* 🔴 필수 필드 오류 메시지 */}
+      {isRequiredAndEmpty && (
+        <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200 mt-1">
+          <div className="flex items-start gap-2">
+            <span className="text-red-500 font-bold">⚠️</span>
+            <span>{requiredMessage || `${label}은(는) 필수 입력 항목입니다.`}</span>
+            <Badge variant="destructive" className="text-xs ml-2">
+              REQUIRED
+            </Badge>
+          </div>
+        </div>
+      )}
+      
+      {/* 🔴 필수 필드 완료 안내 */}
+      {required && isCompleted && (
+        <div className="text-sm text-green-600 bg-green-50 p-2 rounded border border-green-200 mt-1">
+          ✅ 필수 입력이 완료되었습니다: {formatCurrency(value)}
+        </div>
+      )}
+
       {/* 한도 초과 경고 */}
       {isOverLimit && warningMessage && (
         <p className="text-xs text-orange-600 mt-1">
@@ -290,7 +380,7 @@ function NumberInput({
       )}
       
       {/* 고정 한도 정보 */}
-      {!isFocused && !dynamicMessage && limitInfo && (
+      {!isFocused && !dynamicMessage && !isRequiredAndEmpty && !isCompleted && limitInfo && (
         <p className="text-xs text-gray-500 mt-1">
           📋 {limitInfo}
         </p>
@@ -697,6 +787,13 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
         </CardHeader>
       </Card>
 
+      {/* 🧪 베타테스트 피드백 시스템 (면책조항 상단) */}
+      <BetaFeedbackForm 
+        calculatorName="종합소득세 계산기"
+        calculatorType="comprehensive-income-tax"
+        className="mb-6"
+      />
+
       {/* 간단한 면책 조항 */}
       <TaxCalculatorDisclaimer variant="summary" />
 
@@ -752,12 +849,14 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
                     allInputs={inputs}
                   />
                   <NumberInput
-                    label="근로소득 (연간)"
+                    label="💼 근로소득 (연간)"
                     value={inputs.earnedIncome}
                     onChange={(value) => updateInput('earnedIncome', value)}
-                    placeholder="급여, 상여 등"
+                    placeholder="급여, 상여 등 (필수)"
                     suffix="원/년"
                     max={50000000000}
+                    required={true}
+                    requiredMessage="종합소득세 계산을 위해 근로소득 입력이 필수입니다"
                     allInputs={inputs}
                   />
                   <NumberInput

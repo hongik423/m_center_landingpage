@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>베타 피드백 이메일 테스트 - 직접 테스트</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #2563eb; text-align: center; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #374151; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
+        textarea { height: 120px; resize: vertical; }
+        button { background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; margin: 10px 5px; }
+        button:hover { background: #1d4ed8; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 6px; white-space: pre-wrap; }
+        .success { background: #dcfce7; border: 1px solid #16a34a; color: #166534; }
+        .error { background: #fee2e2; border: 1px solid #dc2626; color: #991b1b; }
+        .info { background: #dbeafe; border: 1px solid #2563eb; color: #1e40af; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 베타 피드백 이메일 발송 직접 테스트</h1>
+        
+        <div class="test-section">
+            <h3>📊 시스템 상태 확인</h3>
+            <button onclick="checkSystemStatus()">시스템 상태 확인</button>
+            <div id="systemStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📧 베타 피드백 이메일 테스트</h3>
+            <form id="betaFeedbackForm">
+                <div class="form-group">
+                    <label for="calculator">계산기명:</label>
+                    <select id="calculator" required>
+                        <option value="상속세 계산기">상속세 계산기</option>
+                        <option value="증여세 계산기">증여세 계산기</option>
+                        <option value="법인세 계산기">법인세 계산기</option>
+                        <option value="종합소득세 계산기">종합소득세 계산기</option>
+                        <option value="부가가치세 계산기">부가가치세 계산기</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="feedbackType">피드백 유형:</label>
+                    <select id="feedbackType" required>
+                        <option value="🐛 버그 신고">🐛 버그 신고</option>
+                        <option value="💡 개선 제안">💡 개선 제안</option>
+                        <option value="✨ 기능 요청">✨ 기능 요청</option>
+                        <option value="💬 기타 의견">💬 기타 의견</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="userEmail">사용자 이메일 (실제 이메일 주소 입력):</label>
+                    <input type="email" id="userEmail" required placeholder="실제로 이메일을 받을 주소를 입력하세요">
+                </div>
+
+                <div class="form-group">
+                    <label for="problem">문제 설명:</label>
+                    <textarea id="problem" required placeholder="발생한 문제를 상세히 설명해주세요"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="expected">기대한 동작:</label>
+                    <textarea id="expected" placeholder="어떻게 동작해야 한다고 생각하시나요?"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="actual">실제 동작:</label>
+                    <textarea id="actual" placeholder="실제로는 어떻게 동작했나요?"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="steps">재현 단계:</label>
+                    <textarea id="steps" placeholder="문제를 재현하는 단계를 번호로 나열해주세요"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="severity">심각도:</label>
+                    <select id="severity">
+                        <option value="낮음">낮음</option>
+                        <option value="보통">보통</option>
+                        <option value="높음">높음</option>
+                        <option value="긴급">긴급</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="additional">추가 의견:</label>
+                    <textarea id="additional" placeholder="기타 의견이나 제안사항"></textarea>
+                </div>
+
+                <button type="submit">🧪 베타 피드백 제출 (이메일 발송 테스트)</button>
+                <button type="button" onclick="testGoogleScript()">🔗 Google Script 직접 테스트</button>
+            </form>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzE4eVxGetKDK4bLGsF5r3KlkJHJOEgWg-fFYpCi8MzXqKQfojCw4_hSl8gSe5xJcMg/exec';
+
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${type}`;
+            resultDiv.textContent = message;
+        }
+
+        async function checkSystemStatus() {
+            try {
+                showResult('시스템 상태 확인 중...', 'info');
+                
+                const response = await fetch(`${API_BASE}/api/beta-feedback`);
+                const data = await response.json();
+                
+                document.getElementById('systemStatus').innerHTML = `
+                    <div class="result success">
+                        ✅ 시스템 상태: ${data.data.status}
+                        
+                        📊 구글시트 연동: ${data.data.googleSheets.configured ? '✅ 설정됨' : '❌ 미설정'}
+                        🔗 스크립트 URL: ${data.data.googleSheets.scriptUrl}
+                        
+                        🛠️ 지원 기능:
+                        ${data.data.features.join('\n')}
+                    </div>
+                `;
+                
+            } catch (error) {
+                document.getElementById('systemStatus').innerHTML = `
+                    <div class="result error">❌ 시스템 상태 확인 실패: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function testGoogleScript() {
+            try {
+                showResult('Google Apps Script 직접 테스트 중...', 'info');
+                
+                const testData = {
+                    action: 'saveBetaFeedback',
+                    폼타입: '베타테스트_피드백',
+                    계산기명: '테스트 계산기',
+                    피드백유형: '🐛 버그 신고',
+                    사용자이메일: document.getElementById('userEmail').value || 'test@example.com',
+                    문제설명: '이메일 발송 테스트입니다',
+                    브라우저정보: navigator.userAgent,
+                    제출경로: window.location.href
+                };
+
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                showResult(`✅ Google Script 직접 테스트 성공!\n\n응답: ${JSON.stringify(result, null, 2)}`, 'success');
+                
+            } catch (error) {
+                showResult(`❌ Google Script 직접 테스트 실패: ${error.message}`, 'error');
+            }
+        }
+
+        document.getElementById('betaFeedbackForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            try {
+                showResult('베타 피드백 제출 중...', 'info');
+                
+                const formData = {
+                    action: 'saveBetaFeedback',
+                    계산기명: document.getElementById('calculator').value,
+                    피드백유형: document.getElementById('feedbackType').value,
+                    사용자이메일: document.getElementById('userEmail').value,
+                    문제설명: document.getElementById('problem').value,
+                    기대동작: document.getElementById('expected').value,
+                    실제동작: document.getElementById('actual').value,
+                    재현단계: document.getElementById('steps').value,
+                    심각도: document.getElementById('severity').value,
+                    추가의견: document.getElementById('additional').value,
+                    브라우저정보: navigator.userAgent,
+                    제출경로: window.location.href,
+                    폼타입: '베타테스트_피드백',
+                    제출일시: new Date().toISOString(),
+                    타임스탬프: Date.now(),
+                    dataSource: 'direct-test'
+                };
+
+                console.log('📝 제출할 데이터:', formData);
+
+                const response = await fetch(`${API_BASE}/api/beta-feedback`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showResult(`✅ 베타 피드백 제출 성공!\n\n${result.message}\n\n📧 이메일 발송 상태:\n- 관리자 알림: ${result.data.emails?.adminNotified || '확인 중'}\n- 접수 확인: ${result.data.emails?.userConfirmed || '확인 중'}\n\n응답 데이터:\n${JSON.stringify(result, null, 2)}`, 'success');
+                } else {
+                    showResult(`❌ 베타 피드백 제출 실패:\n${result.error}\n\n세부사항:\n${result.details || '없음'}`, 'error');
+                }
+                
+            } catch (error) {
+                showResult(`❌ 베타 피드백 제출 중 오류 발생: ${error.message}`, 'error');
+            }
+        });
+
+        // 페이지 로드 시 시스템 상태 자동 확인
+        window.addEventListener('load', checkSystemStatus);
+    </script>
+</body>
+</html> 

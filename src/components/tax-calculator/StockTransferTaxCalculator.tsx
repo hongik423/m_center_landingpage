@@ -39,6 +39,7 @@ import { StockTransferInput, StockTransferResult } from '@/types/tax-calculator.
 import { StockTransferTaxCalculator as StockTransferCalc } from '@/lib/utils/stock-transfer-calculations';
 import { formatNumber, formatWon, formatNumberInput, parseFormattedNumber, handleNumberInputChange } from '@/lib/utils';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
+import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
 
 interface FormData extends Partial<StockTransferInput> {
   stockType: 'listed' | 'unlisted' | 'kosdaq' | 'konex';
@@ -722,121 +723,189 @@ export default function StockTransferTaxCalculator() {
 
   // 임시 계산 함수 (fallback)
   const calculateStockTransferTax = (input: any): StockTransferResult => {
-    // transferType이 inheritance인 경우 gift로 처리
-    const effectiveTransferType = input.transferType === 'inheritance' ? 'gift' : input.transferType;
-    
-    let calculatedTax = 0;
-    let localIncomeTax = 0;
-    let totalTax = 0;
-    let taxableAmount = 0;
-    let taxRate = 0; // 변수를 함수 상단에서 선언
-    let capitalGain = 0; // 변수를 함수 상단에서 선언
-
-    if (effectiveTransferType === 'gift' || input.transferType === 'inheritance') {
-      // 증여세/상속세 계산
-      const giftValue = input.totalValue || (input.stockQuantity * input.pricePerShare);
-      const giftDeduction = input.relationship === 'spouse' ? 600000000 : 
-                           input.relationship === 'lineal_descendant' ? 50000000 : 10000000;
+    try {
+      // 🔥 1. 대주주 여부 판정 (정확한 로직)
+      const isLargeShareholder = determineLargeShareholderStatus(input);
       
-      taxableAmount = Math.max(0, giftValue - giftDeduction);
+      // transferType이 inheritance인 경우 gift로 처리
+      const effectiveTransferType = input.transferType === 'inheritance' ? 'gift' : input.transferType;
       
-      // 증여세 누진세율 적용 (간단 버전)
-      if (taxableAmount <= 100000000) {
-        calculatedTax = taxableAmount * 0.10;
-        taxRate = 0.10;
-      } else if (taxableAmount <= 500000000) {
-        calculatedTax = taxableAmount * 0.20 - 10000000;
-        taxRate = 0.20;
-      } else if (taxableAmount <= 1000000000) {
-        calculatedTax = taxableAmount * 0.30 - 60000000;
-        taxRate = 0.30;
-      } else {
-        calculatedTax = taxableAmount * 0.50 - 260000000;
-        taxRate = 0.50;
-      }
-      
-      localIncomeTax = calculatedTax * 0.1;
-      totalTax = calculatedTax + localIncomeTax;
-    } else {
-      // 양도소득세 계산 (기존 로직)
-      capitalGain = (input.transferPrice || 0) - input.acquisitionPrice - (input.transferExpenses || 0);
-      taxableAmount = Math.max(0, capitalGain);
-      
-      // 간단한 세율 적용
-      if (input.stockType === 'listed') {
-        taxRate = isLargeShareholder ? 0.20 : 0; // 상장주식 대주주 20%, 소액주주 비과세
-      } else {
-        taxRate = isLargeShareholder ? 0.25 : 0.20; // 비상장주식 대주주 25%, 소액주주 20%
-      }
+      let calculatedTax = 0;
+      let localIncomeTax = 0;
+      let totalTax = 0;
+      let taxableAmount = 0;
+      let taxRate = 0;
+      let capitalGain = 0;
 
-      // 세제혜택 적용
-      if (input.isStartupStock && input.holdingYears >= 2) {
-        taxRate *= 0.5; // 벤처기업주식 50% 감면
-      } else if (input.isSmallMediumStock && input.holdingYears >= 1) {
-        taxRate *= 0.9; // 중소기업주식 10% 감면
-      }
-
-      calculatedTax = taxableAmount * taxRate;
-      localIncomeTax = calculatedTax * 0.1;
-      totalTax = calculatedTax + localIncomeTax;
-    }
-
-    return {
-      transferType: input.transferType || 'sale',
-      taxableAmount: Math.max(0, capitalGain),
-      calculatedTax,
-      localIncomeTax,
-      totalTax,
-      capitalGain,
-      isLargeShareholder,
-      shareholderStatus: {
-        personalRatio: input.personalShareholdingRatio,
-        familyRatio: input.familyShareholdingRatio,
-        valueTest: totalValue >= 10000000000,
-        ratioTest: shareholdingRatio >= (input.stockType === 'listed' ? 1 : 4),
-        finalStatus: isLargeShareholder ? 'large' as const : 'small' as const
-      },
-      appliedTaxRate: taxRate,
-      marginalRate: taxRate,
-      effectiveRate: capitalGain > 0 ? (totalTax / capitalGain) * 100 : 0,
-      netProceeds: (input.transferPrice || 0) - totalTax,
-      taxSavingOpportunities: [],
-      calculationDetails: {
-        shareholderDetermination: {
-          tests: [],
-          finalResult: isLargeShareholder,
-          explanation: `${isLargeShareholder ? '대주주' : '소액주주'} 판정`
-        },
-        taxCalculationSteps: [
-          { label: '양도가액', amount: input.transferPrice || 0 },
-          { label: '취득가액', amount: input.acquisitionPrice },
-          { label: '양도비용', amount: input.transferExpenses || 0 },
-          { label: '양도차익', amount: capitalGain },
-          { label: '적용세율', amount: taxRate * 100 },
-          { label: '양도소득세', amount: totalTax }
-        ],
-        applicableIncentives: [],
-        riskFactors: []
-      },
-      breakdown: {
-        steps: [
-          { label: '양도가액', amount: input.transferPrice || 0 },
-          { label: '취득가액', amount: input.acquisitionPrice },
-          { label: '양도차익', amount: capitalGain },
-          { label: '세액', amount: totalTax }
-        ],
-        summary: {
-          totalIncome: input.transferPrice || 0,
-          totalDeductions: input.acquisitionPrice + (input.transferExpenses || 0),
-          taxableIncome: capitalGain,
-          taxBeforeCredits: calculatedTax,
-          taxCredits: 0,
-          finalTax: totalTax
+      if (effectiveTransferType === 'gift' || input.transferType === 'inheritance') {
+        // 🔥 증여세/상속세 계산 (정확한 로직)
+        const giftValue = input.totalValue || (input.stockQuantity * input.pricePerShare);
+        
+        // 🔥 정확한 증여공제 적용
+        let giftDeduction = 0;
+        if (input.relationship === 'spouse') {
+          giftDeduction = 600000000; // 배우자 6억원
+        } else if (input.relationship === 'lineal_descendant') {
+          giftDeduction = input.transfereeAge < 19 ? 20000000 : 50000000; // 미성년 2천만원, 성인 5천만원
+        } else if (input.relationship === 'lineal_ascendant') {
+          giftDeduction = 50000000; // 직계존속 5천만원
+        } else {
+          giftDeduction = 10000000; // 기타 1천만원
         }
-      },
-      appliedRates: [{ range: `${(taxRate * 100).toFixed(1)}%`, rate: taxRate, amount: calculatedTax }],
-      deductions: []
-    };
+        
+        taxableAmount = Math.max(0, giftValue - giftDeduction);
+        
+        // 🔥 증여세 누진세율 정확히 적용
+        if (taxableAmount <= 100000000) {
+          calculatedTax = taxableAmount * 0.10;
+          taxRate = 0.10;
+        } else if (taxableAmount <= 500000000) {
+          calculatedTax = taxableAmount * 0.20 - 10000000;
+          taxRate = 0.20;
+        } else if (taxableAmount <= 1000000000) {
+          calculatedTax = taxableAmount * 0.30 - 60000000;
+          taxRate = 0.30;
+        } else if (taxableAmount <= 3000000000) {
+          calculatedTax = taxableAmount * 0.40 - 160000000;
+          taxRate = 0.40;
+        } else {
+          calculatedTax = taxableAmount * 0.50 - 460000000;
+          taxRate = 0.50;
+        }
+        
+        localIncomeTax = calculatedTax * 0.1;
+        totalTax = calculatedTax + localIncomeTax;
+      } else {
+        // 🔥 주식양도소득세 계산 (정확한 로직)
+        capitalGain = (input.transferPrice || 0) - input.acquisitionPrice - (input.transferExpenses || 0);
+        
+        // 🔥 기본공제 250만원 적용
+        const basicDeduction = 2500000;
+        const afterBasicDeduction = Math.max(0, capitalGain - basicDeduction);
+        taxableAmount = afterBasicDeduction;
+        
+        // 🔥 정확한 세율 적용 (보유기간별)
+        if (input.stockType === 'listed' || input.stockType === 'kosdaq') {
+          if (isLargeShareholder) {
+            // 상장주식 대주주: 보유기간별 세율
+            if (input.holdingYears < 1) {
+              taxRate = 0.30; // 1년 미만 30%
+            } else if (input.holdingYears < 2) {
+              taxRate = 0.25; // 2년 미만 25%
+            } else {
+              taxRate = 0.20; // 2년 이상 20%
+            }
+          } else {
+            // 상장주식 소액주주: 비과세
+            taxRate = 0;
+          }
+        } else {
+          // 비상장주식
+          if (isLargeShareholder) {
+            taxRate = input.holdingYears < 1 ? 0.35 : 0.25; // 대주주: 1년미만 35%, 1년이상 25%
+          } else {
+            taxRate = input.holdingYears < 1 ? 0.30 : 0.20; // 소액주주: 1년미만 30%, 1년이상 20%
+          }
+        }
+
+        // 🔥 세제혜택 적용 (정확한 조건)
+        if (input.isStartupStock && input.holdingYears >= 2) {
+          taxRate *= 0.5; // 벤처기업주식 50% 감면
+        } else if (input.isSmallMediumStock && input.holdingYears >= 1) {
+          taxRate *= 0.9; // 중소기업주식 10% 감면
+        }
+
+        calculatedTax = taxableAmount * taxRate;
+        localIncomeTax = calculatedTax * 0.1;
+        totalTax = calculatedTax + localIncomeTax;
+      }
+
+      return {
+        transferType: input.transferType || 'sale',
+        taxableAmount: Math.max(0, capitalGain),
+        calculatedTax,
+        localIncomeTax,
+        totalTax,
+        capitalGain,
+        isLargeShareholder,
+        shareholderStatus: {
+          personalRatio: input.personalShareholdingRatio,
+          familyRatio: input.familyShareholdingRatio,
+          valueTest: totalValue >= 10000000000,
+          ratioTest: shareholdingRatio >= (input.stockType === 'listed' ? 1 : 4),
+          finalStatus: isLargeShareholder ? 'large' as const : 'small' as const
+        },
+        appliedTaxRate: taxRate,
+        marginalRate: taxRate,
+        effectiveRate: capitalGain > 0 ? (totalTax / capitalGain) * 100 : 0,
+        netProceeds: (input.transferPrice || 0) - totalTax,
+        taxSavingOpportunities: [],
+        calculationDetails: {
+          shareholderDetermination: {
+            tests: [],
+            finalResult: isLargeShareholder,
+            explanation: `${isLargeShareholder ? '대주주' : '소액주주'} 판정`
+          },
+          taxCalculationSteps: [
+            { label: '양도가액', amount: input.transferPrice || 0 },
+            { label: '취득가액', amount: input.acquisitionPrice },
+            { label: '양도비용', amount: input.transferExpenses || 0 },
+            { label: '양도차익', amount: capitalGain },
+            { label: '기본공제', amount: -basicDeduction },
+            { label: '과세표준', amount: taxableAmount },
+            { label: '적용세율', amount: taxRate * 100 },
+            { label: '양도소득세', amount: totalTax }
+          ],
+          applicableIncentives: [],
+          riskFactors: []
+        },
+        breakdown: {
+          steps: [
+            { label: '양도가액', amount: input.transferPrice || 0 },
+            { label: '취득가액', amount: input.acquisitionPrice },
+            { label: '양도차익', amount: capitalGain },
+            { label: '기본공제', amount: effectiveTransferType === 'sale' ? -basicDeduction : 0 },
+            { label: '과세표준', amount: taxableAmount },
+            { label: '세액', amount: totalTax }
+          ],
+          summary: {
+            totalIncome: input.transferPrice || 0,
+            totalDeductions: input.acquisitionPrice + (input.transferExpenses || 0) + (effectiveTransferType === 'sale' ? basicDeduction : 0),
+            taxableIncome: taxableAmount,
+            taxBeforeCredits: calculatedTax,
+            taxCredits: 0,
+            finalTax: totalTax
+          }
+        },
+        appliedRates: [{ range: `${(taxRate * 100).toFixed(1)}%`, rate: taxRate, amount: calculatedTax }],
+        deductions: effectiveTransferType === 'sale' ? [{ type: 'basic', label: '기본공제', amount: basicDeduction }] : []
+      };
+    } catch (error) {
+      console.error('주식양도소득세 계산 오류:', error);
+      throw new Error('주식양도소득세 계산 중 오류가 발생했습니다.');
+    }
+  };
+
+  // 🔥 대주주 판정 함수 추가
+  const determineLargeShareholderStatus = (input: any): boolean => {
+    const stockType = input.stockType;
+    const personalRatio = input.personalShareholdingRatio || (input.stockQuantity / input.totalSharesOutstanding * 100) || 0;
+    const familyRatio = input.familyShareholdingRatio || 0;
+    const totalRatio = personalRatio + familyRatio;
+    const stockValue = input.totalValue || (input.stockQuantity * input.pricePerShare) || 0;
+
+    // 상장주식 대주주 판정 기준
+    if (stockType === 'listed' || stockType === 'kosdaq') {
+      return personalRatio >= 1 || // 본인 지분율 1% 이상
+             totalRatio >= 1 ||    // 특수관계인 포함 1% 이상  
+             stockValue >= 10000000000; // 보유가액 100억원 이상
+    } 
+    // 비상장주식 대주주 판정 기준
+    else {
+      return personalRatio >= 4 || // 본인 지분율 4% 이상
+             totalRatio >= 4 ||    // 특수관계인 포함 4% 이상
+             stockValue >= 10000000000; // 보유가액 100억원 이상
+    }
   };
 
   const handleCalculate = async () => {
@@ -987,7 +1056,7 @@ export default function StockTransferTaxCalculator() {
     }
   };
 
-  // 🎯 개선된 스마트 입력 필드 컴포넌트
+  // 🔴 필수 필드 강화된 스마트 입력 필드 컴포넌트
   const SmartNumberInput = ({ 
     label, 
     field, 
@@ -1019,6 +1088,10 @@ export default function StockTransferTaxCalculator() {
   }) => {
     const hasError = validationErrors[field];
     const isAutoCalculated = autoCalculations[field];
+    
+    // 🔴 필수 필드 상태 계산
+    const isCompleted = value > 0 && !hasError;
+    const isRequiredAndEmpty = required && value === 0;
     
     // 로컬 입력 상태 관리 (천단위 구분기호 포함)
     const [localValue, setLocalValue] = useState<string>(
@@ -1075,15 +1148,26 @@ export default function StockTransferTaxCalculator() {
     };
     
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      // 🔥 키보드 단축키 허용 (Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+Z 등)
+      if (e.ctrlKey || e.metaKey) {
+        return; // 모든 Ctrl/Cmd 조합키 허용
+      }
+
       // 음수 허용하지 않는 경우 '-' 키 차단
       if (min !== undefined && min >= 0 && e.key === '-') {
         e.preventDefault();
+        return;
       }
       
-      // 숫자, 백스페이스, 삭제, 탭, 화살표만 허용 (쉼표, 소수점 제외)
-      const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+      // 기본 허용 키들
+      const allowedKeys = [
+        'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
+        'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+        'Home', 'End', 'PageUp', 'PageDown'
+      ];
       const isNumber = /^[0-9]$/.test(e.key);
       
+      // 허용되지 않는 키 차단
       if (!allowedKeys.includes(e.key) && !isNumber) {
         e.preventDefault();
       }
@@ -1096,20 +1180,49 @@ export default function StockTransferTaxCalculator() {
     
     return (
       <div className="space-y-2">
+        {/* 🔴 개선된 라벨 (필수 필드 강조) */}
         <div className="flex items-center justify-between">
-          <Label className="flex items-center gap-2">
-            {label}
+          <Label className={`
+            flex items-center gap-2 text-sm font-medium
+            ${required && !isCompleted ? 'text-red-700 font-semibold' : 
+              required && isCompleted ? 'text-green-700 font-semibold' : 
+              'text-gray-700'}
+          `}>
+            <span>{label}</span>
+            
+            {/* 🔴 필수 표시 강화 */}
+            {required && (
+              <div className="flex items-center gap-1">
+                <span className="text-red-500 text-lg font-bold">*</span>
+                <Badge variant="outline" className="text-xs bg-red-100 text-red-700 border-red-300 px-1 py-0">
+                  필수
+                </Badge>
+              </div>
+            )}
+            
+            {/* ✅ 완료 표시 */}
+            {required && isCompleted && (
+              <Badge variant="outline" className="text-xs bg-green-100 text-green-700 border-green-300">
+                ✅ 완료
+              </Badge>
+            )}
+            
+            {/* 자동계산 표시 */}
             {isAutoCalculated && (
               <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
                 ⚡ 자동계산
               </Badge>
             )}
+            
+            {/* 오류 표시 */}
             {hasError && (
               <Badge variant="destructive" className="text-xs">
                 ⚠️ 오류
               </Badge>
             )}
           </Label>
+          
+          {/* 수식 표시 */}
           {formula && (
             <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
               {formula}
@@ -1117,6 +1230,7 @@ export default function StockTransferTaxCalculator() {
           )}
         </div>
         
+        {/* 🔴 개선된 입력 필드 */}
         <div className="relative">
           <Input
             type="text"
@@ -1126,19 +1240,46 @@ export default function StockTransferTaxCalculator() {
             onFocus={handleFocus}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
-            placeholder={placeholder || "숫자를 입력하세요"}
+            placeholder={required ? `${placeholder || "숫자를 입력하세요"} (필수)` : placeholder || "숫자를 입력하세요"}
             disabled={disabled}
             autoComplete="off"
             title={label}
             aria-label={label}
-            className={`${hasError ? 'border-red-500 bg-red-50' : ''} ${
-              isAutoCalculated ? 'border-green-500 bg-green-50' : ''
-            } ${suffix ? 'pr-12' : ''} text-right`}
+            aria-required={required}
+            aria-invalid={!!hasError}
+            className={`
+              ${hasError ? 'border-red-500 bg-red-50 focus:border-red-500' :
+                isRequiredAndEmpty ? 'border-red-400 border-2 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-200' :
+                required && isCompleted ? 'border-green-500 bg-green-50 focus:border-green-500' :
+                isAutoCalculated ? 'border-green-500 bg-green-50' :
+                isCompleted ? 'border-blue-300 bg-blue-50' : 'border-gray-300'}
+              ${suffix ? 'pr-12' : ''} 
+              text-right font-mono transition-all duration-200
+            `}
           />
+          
           {suffix && (
             <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
               {suffix}
             </span>
+          )}
+          
+          {/* 🔴 필수 필드 시각적 표시 */}
+          {required && !isCompleted && (
+            <div className="absolute -right-2 -top-2">
+              <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
+                !
+              </span>
+            </div>
+          )}
+          
+          {/* ✅ 완료 표시 */}
+          {required && isCompleted && (
+            <div className="absolute -right-2 -top-2">
+              <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-green-500 rounded-full">
+                ✓
+              </span>
+            </div>
           )}
         </div>
         
@@ -1158,22 +1299,32 @@ export default function StockTransferTaxCalculator() {
           </div>
         )}
         
+        {/* 🔴 개선된 오류 메시지 (필수 필드 강조) */}
         {hasError && (
           <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
-            {hasError}
+            <div className="flex items-start gap-2">
+              <span className="text-red-500 font-bold">⚠️</span>
+              <span>{hasError}</span>
+              {required && hasError.includes('필수') && (
+                <Badge variant="destructive" className="text-xs ml-2">
+                  REQUIRED
+                </Badge>
+              )}
+            </div>
           </div>
         )}
         
-        {isAutoCalculated && formula && (
+        {/* 🔴 필수 필드 완료 안내 */}
+        {required && isCompleted && (
+          <div className="text-sm text-green-600 bg-green-50 p-2 rounded border border-green-200">
+            ✅ 필수 입력이 완료되었습니다: {formatNumber(value)}
+          </div>
+        )}
+        
+        {/* 자동 계산 표시 */}
+        {isAutoCalculated && formula && !hasError && (
           <div className="text-sm text-green-600 bg-green-50 p-2 rounded border border-green-200">
             ✅ 자동 계산됨: {formula}
-          </div>
-        )}
-        
-        {/* 입력 도움말 */}
-        {isFocused && (
-          <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded border">
-            💡 팁: 숫자만 입력하세요. 천 단위 쉼표는 자동으로 표시됩니다.
           </div>
         )}
       </div>
@@ -1703,14 +1854,14 @@ export default function StockTransferTaxCalculator() {
                         </TabsList>
 
                         <TabsContent value="basic" className="space-y-3">
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                             <Button 
                               variant="outline" 
                               size="sm" 
                               onClick={() => loadSampleCase('listedLargeShareholder')}
-                              className="h-auto p-3 text-left flex-col items-start"
+                              className="h-auto p-3 text-left flex-col items-start w-full touch-manipulation"
                             >
-                              <div className="font-medium text-xs">🏢 상장주식 대주주</div>
+                              <div className="font-medium text-xs lg:text-sm">🏢 상장주식 대주주</div>
                               <div className="text-xs text-gray-600 mt-1">삼성전자 2% 보유</div>
                             </Button>
                             
@@ -3764,6 +3915,16 @@ export default function StockTransferTaxCalculator() {
           </div>
         </div>
       )}
+
+      {/* 🧪 베타테스트 피드백 시스템 */}
+      <BetaFeedbackForm 
+        calculatorName="주식이동세금 계산기"
+        calculatorType="stock-transfer-tax"
+        className="mt-8"
+      />
+
+      {/* 하단 면책 조항 */}
+      <TaxCalculatorDisclaimer variant="full" className="mt-6" />
     </div>
   );
 } 

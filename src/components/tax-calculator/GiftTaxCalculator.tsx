@@ -1,288 +1,29 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
+import { AlertTriangle, Calculator, TrendingUp, Users, DollarSign, Info, CheckCircle, Clock, PieChart, BarChart3, Target, Lightbulb, Gift, Heart, GraduationCap, Calendar, FileText, PiggyBank, TrendingDown } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
-  Calculator, 
-  Gift, 
-  Users, 
-  Building, 
-  PiggyBank,
-  FileText,
-  TrendingUp,
-  TrendingDown,
-  Calendar,
-  Info,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Heart,
-  GraduationCap
-} from 'lucide-react';
-
-import { GiftTaxCalculator, GiftTaxInputValidator } from '@/lib/utils/gift-tax-calculations';
+  GiftTaxCalculator, 
+  GiftTaxInputValidator
+} from '@/lib/utils/gift-tax-calculations';
 import { GiftTaxInput, GiftTaxResult } from '@/types/tax-calculator.types';
 import { GIFT_TAX_LIMITS_2024 } from '@/constants/tax-rates-2024';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
-import { formatNumber, formatWon, formatNumberInput, parseFormattedNumber, handleNumberInputChange } from '@/lib/utils';
-
-interface NumberInputProps {
-  label: string;
-  value: number;
-  onChange: (value: number) => void;
-  placeholder?: string;
-  disabled?: boolean;
-  info?: string;
-  limit?: number;
-  unit?: string;
-  helpMessage?: string;
-  dependentValue?: number;
-  dynamicInfo?: (value: number, dependentValue?: number) => string;
-  warningThreshold?: number;
-  criticalThreshold?: number;
-  relationship?: string;
-  isSpecialDeduction?: boolean;
-  requirements?: string[];
-}
-
-const NumberInput: React.FC<NumberInputProps> = ({ 
-  label, 
-  value, 
-  onChange, 
-  placeholder, 
-  disabled = false,
-  info,
-  limit,
-  unit = '원',
-  helpMessage,
-  dependentValue,
-  dynamicInfo,
-  warningThreshold,
-  criticalThreshold,
-  relationship,
-  isSpecialDeduction = false,
-  requirements = []
-}) => {
-  const [displayValue, setDisplayValue] = useState(formatNumber(value));
-  const [hasWarning, setHasWarning] = useState(false);
-  const [hasCritical, setHasCritical] = useState(false);
-  const [dynamicMessage, setDynamicMessage] = useState('');
-  const [statusMessage, setStatusMessage] = useState('');
-
-  const getThresholdStatus = (numericValue: number) => {
-    if (criticalThreshold && numericValue >= criticalThreshold) {
-      return 'critical';
-    } else if (warningThreshold && numericValue >= warningThreshold) {
-      return 'warning';
-    } else if (limit && numericValue >= limit * 0.8) {
-      return 'caution';
-    }
-    return 'normal';
-  };
-
-  const getRelationshipLimit = (relationship: string) => {
-    const limits = GIFT_TAX_LIMITS_2024.relationshipLimits;
-    switch (relationship) {
-      case 'spouse':
-        return limits.spouse.annual;
-      case 'parent':
-      case 'grandparent':
-        return limits.linealAscendant.annual;
-      case 'child':
-      case 'grandchild':
-        return limits.linealDescendant.annual;
-      default:
-        return limits.other.annual;
-    }
-  };
-
-  const generateStatusMessage = (numericValue: number, status: string) => {
-    if (isSpecialDeduction) {
-      if (status === 'critical') {
-        return `특별공제 한도를 초과했습니다. 요건을 확인하세요: ${requirements.join(', ')}`;
-      } else       if (status === 'warning') {
-        return `특별공제 한도에 근접했습니다. 남은 한도: ${formatWon((limit || 0) - numericValue)}`;
-      }
-    } else if (relationship) {
-      const relationLimit = getRelationshipLimit(relationship);
-      const remainingLimit = relationLimit - numericValue;
-      
-      if (numericValue > relationLimit) {
-        return `관계별 연간 공제 한도(${formatWon(relationLimit)})를 초과했습니다.`;
-      } else if (remainingLimit < relationLimit * 0.2) {
-        return `연간 한도의 80%를 사용했습니다. 남은 한도: ${formatWon(remainingLimit)}`;
-      } else if (remainingLimit < relationLimit * 0.5) {
-        return `연간 한도의 50%를 사용했습니다. 남은 한도: ${formatWon(remainingLimit)}`;
-      }
-    }
-    return '';
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value.replace(/[^\d]/g, '');
-    const numericValue = Math.round(parseInt(inputValue) || 0);
-    
-    setDisplayValue(formatNumber(numericValue));
-    
-    // 한도 체크
-    let finalValue = numericValue;
-    let warning = false;
-    let critical = false;
-    
-    if (limit && numericValue > limit) {
-      finalValue = limit;
-      warning = true;
-      setDisplayValue(formatNumber(limit));
-    }
-    
-    // 임계값 체크
-    const status = getThresholdStatus(finalValue);
-    if (status === 'critical') {
-      critical = true;
-    } else if (status === 'warning' || status === 'caution') {
-      warning = true;
-    }
-    
-    setHasWarning(warning);
-    setHasCritical(critical);
-    
-    // 상태 메시지 생성
-    const statusMsg = generateStatusMessage(finalValue, status);
-    setStatusMessage(statusMsg);
-    
-    // 동적 정보 업데이트
-    if (dynamicInfo) {
-      setDynamicMessage(dynamicInfo(finalValue, dependentValue));
-    }
-    
-    onChange(finalValue);
-  };
-
-  // 초기 설정
-  React.useEffect(() => {
-    if (dynamicInfo) {
-      setDynamicMessage(dynamicInfo(value, dependentValue));
-    }
-    const status = getThresholdStatus(value);
-    const statusMsg = generateStatusMessage(value, status);
-    setStatusMessage(statusMsg);
-    setHasWarning(status === 'warning' || status === 'caution');
-    setHasCritical(status === 'critical');
-  }, [dynamicInfo, value, dependentValue, relationship, limit]);
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2 flex-wrap">
-        <Label htmlFor={label.replace(/\s/g, '')}>{label}</Label>
-        {limit && (
-          <Badge variant="outline" className="text-xs">
-            한도: {formatNumber(limit)}{unit}
-          </Badge>
-        )}
-        {relationship && (
-          <Badge variant="secondary" className="text-xs">
-            {relationship === 'spouse' ? '배우자' : 
-             relationship === 'parent' ? '부모' :
-             relationship === 'child' ? '자녀' : '기타'} 관계
-          </Badge>
-        )}
-        {isSpecialDeduction && (
-          <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700">
-            특별공제
-          </Badge>
-        )}
-        {requirements.length > 0 && (
-          <Badge variant="secondary" className="text-xs">
-            ⚠️ 요건확인
-          </Badge>
-        )}
-      </div>
-      
-      <Input
-        id={label.replace(/\s/g, '')}
-        value={displayValue}
-        onChange={handleChange}
-        placeholder={placeholder}
-        disabled={disabled}
-        className={
-          hasCritical ? 'border-red-300 bg-red-50' : 
-          hasWarning ? 'border-orange-300 bg-orange-50' : ''
-        }
-      />
-      
-      {/* 한도 초과 경고 */}
-      {hasWarning && limit && value >= limit && (
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-2">
-          <p className="text-sm text-orange-600">
-            ⚠️ 한도 초과로 {formatNumber(limit)}{unit}로 자동 조정되었습니다.
-          </p>
-        </div>
-      )}
-      
-      {/* 임계 상태 경고 */}
-      {hasCritical && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-2">
-          <p className="text-sm text-red-600">
-            🚨 {statusMessage}
-          </p>
-        </div>
-      )}
-      
-      {/* 경고 상태 안내 */}
-      {hasWarning && !hasCritical && statusMessage && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2">
-          <p className="text-sm text-yellow-700">
-            ⚠️ {statusMessage}
-          </p>
-        </div>
-      )}
-      
-      {/* 요건 안내 */}
-      {requirements.length > 0 && (
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-2">
-          <p className="text-sm text-purple-700 font-medium mb-1">📋 적용 요건:</p>
-          <ul className="text-xs text-purple-600 list-disc list-inside space-y-1">
-            {requirements.map((req, index) => (
-              <li key={index}>{req}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-      
-      {/* 동적 정보 */}
-      {dynamicMessage && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
-          <p className="text-sm text-blue-700">
-            💡 {dynamicMessage}
-          </p>
-        </div>
-      )}
-      
-      {/* 기본 도움말 */}
-      {helpMessage && !dynamicMessage && !statusMessage && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-2">
-          <p className="text-sm text-green-700">
-            ℹ️ {helpMessage}
-          </p>
-        </div>
-      )}
-      
-      {/* 기본 정보 */}
-      {info && !dynamicMessage && !helpMessage && !statusMessage && (
-        <p className="text-sm text-gray-500">{info}</p>
-      )}
-    </div>
-  );
-};
+import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
+import { formatNumber, formatWon } from '@/lib/utils';
+import { NumberInput } from '@/components/ui/number-input';
 
 export default function GiftTaxCalculatorComponent() {
   const [input, setInput] = useState<GiftTaxInput>({
@@ -987,10 +728,11 @@ export default function GiftTaxCalculatorComponent() {
                       onChange={(value) => handleInputChange('giftAmount', value)}
                       placeholder="증여하는 총 재산가액"
                       limit={GIFT_TAX_LIMITS_2024.maxGiftAmount}
-                      warningThreshold={100000000}  // 1억원
-                      criticalThreshold={500000000} // 5억원
-                      relationship={input.donorRelation}
+                      // 기존 계산기 호환성 유지
+
                       helpMessage={GIFT_TAX_LIMITS_2024.messages.relationshipDeduction}
+                      required={true}
+                      requiredMessage="증여세 계산을 위해 총 증여재산 입력이 필수입니다"
                       dynamicInfo={(value) => {
                         if (value === 0) return '';
                         
@@ -1087,10 +829,8 @@ export default function GiftTaxCalculatorComponent() {
                         value={input.giftConditionValue}
                         onChange={(value) => handleInputChange('giftConditionValue', value)}
                         placeholder="수증자가 부담하는 채무 등"
-                        limit={input.giftAmount * GIFT_TAX_LIMITS_2024.conditionalGiftLimits.maxBurdenRatio}
-                        warningThreshold={input.giftAmount * 0.5}
-                        criticalThreshold={input.giftAmount * 0.8}
-                        requirements={GIFT_TAX_LIMITS_2024.conditionalGiftLimits.requirements}
+                        limit={input.giftAmount * 2}
+
                         helpMessage={GIFT_TAX_LIMITS_2024.conditionalGiftLimits.description}
                         dynamicInfo={(value) => {
                           if (value === 0) return '';
@@ -1125,7 +865,6 @@ export default function GiftTaxCalculatorComponent() {
                         placeholder="증여자 만 나이"
                         unit="세"
                         limit={GIFT_TAX_LIMITS_2024.ageRestrictions.maxAge}
-                        warningThreshold={GIFT_TAX_LIMITS_2024.ageRestrictions.seniorAge}
                         helpMessage="증여하는 사람의 만 나이"
                         dynamicInfo={(value) => {
                           if (value === 0) return '';
@@ -1143,8 +882,7 @@ export default function GiftTaxCalculatorComponent() {
                         placeholder="수증자 만 나이"
                         unit="세"
                         limit={GIFT_TAX_LIMITS_2024.ageRestrictions.maxAge}
-                        warningThreshold={GIFT_TAX_LIMITS_2024.ageRestrictions.educationMaxAge}
-                        criticalThreshold={GIFT_TAX_LIMITS_2024.ageRestrictions.startupMaxAge}
+                        // 나이 제한 적용
                         helpMessage="증여받는 사람의 만 나이 (특별공제 조건에 영향)"
                         dynamicInfo={(value) => {
                           if (value === 0) return '';
@@ -1288,13 +1026,8 @@ export default function GiftTaxCalculatorComponent() {
                             ? GIFT_TAX_LIMITS_2024.specialDeductionLimits.marriage.child
                             : GIFT_TAX_LIMITS_2024.specialDeductionLimits.marriage.otherLineal
                         }
-                        warningThreshold={50000000}
-                        criticalThreshold={80000000}
-                        isSpecialDeduction={true}
-                        requirements={[
-                          GIFT_TAX_LIMITS_2024.specialDeductionLimits.marriage.requirements,
-                          GIFT_TAX_LIMITS_2024.specialDeductionLimits.marriage.period
-                        ]}
+                        // 혼인 증여 특별 공제
+
                         helpMessage={GIFT_TAX_LIMITS_2024.specialDeductionLimits.marriage.description}
                         dynamicInfo={(value) => {
                           if (value === 0) return '';
@@ -1338,14 +1071,8 @@ export default function GiftTaxCalculatorComponent() {
                         onChange={(value) => handleInputChange('educationGiftAmount', value)}
                         placeholder="교육비로 증여받은 금액"
                         limit={GIFT_TAX_LIMITS_2024.specialDeductionLimits.education.foreign} // 해외 기준 최대
-                        warningThreshold={GIFT_TAX_LIMITS_2024.specialDeductionLimits.education.domestic}
-                        criticalThreshold={GIFT_TAX_LIMITS_2024.specialDeductionLimits.education.foreign}
-                        isSpecialDeduction={true}
-                        requirements={[
-                          GIFT_TAX_LIMITS_2024.specialDeductionLimits.education.requirements,
-                          `수증자 나이 ${GIFT_TAX_LIMITS_2024.specialDeductionLimits.education.ageLimit}세 이하`,
-                          GIFT_TAX_LIMITS_2024.specialDeductionLimits.education.period
-                        ]}
+                        // 교육비 특별 공제
+
                         helpMessage={GIFT_TAX_LIMITS_2024.specialDeductionLimits.education.description}
                         dynamicInfo={(value) => {
                           if (value === 0) return '';
@@ -1877,6 +1604,13 @@ export default function GiftTaxCalculatorComponent() {
           </Alert>
         </CardContent>
       </Card>
+
+      {/* 🧪 베타테스트 피드백 시스템 (면책조항 상단) */}
+      <BetaFeedbackForm 
+        calculatorName="증여세 계산기"
+        calculatorType="gift-tax"
+        className="mb-6"
+      />
 
       {/* 하단 면책 조항 */}
       <TaxCalculatorDisclaimer variant="full" className="mt-8" />

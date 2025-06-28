@@ -83,7 +83,7 @@ export default function TestGovernmentSupportPage() {
         companyName: 'AI솔루션',
         industry: 'IT',
         mainConcerns: '기술사업화를 위한 R&D 지원과 정부지원이 필요합니다',
-        expectedBenefits: '창업지원과 벤처인증을 통해 투자유치를 하고 싶습니다'
+        expectedBenefits: '창업지원과 벤처확인을 통해 투자유치를 하고 싶습니다'
       }
     },
     {

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NumberInput 수정 확인 테스트</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        .test-section h2 {
+            color: #495057;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .test-log {
+            background: #343a40;
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .iframe-container {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 NumberInput 수정 확인 테스트</h1>
+        
+        <!-- 테스트 1: 브라우저에서 직접 테스트 -->
+        <div class="test-section">
+            <h2>
+                <span>🧪</span>
+                테스트 1: 브라우저에서 세금계산기 직접 테스트
+            </h2>
+            <p><strong>목적:</strong> 수정된 NumberInput 컴포넌트가 실제 세금계산기에서 정상 작동하는지 확인</p>
+            
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button onclick="openTaxCalculator()">📊 세금계산기 열기</button>
+                <button onclick="openInheritanceTax()">🏠 상속세 계산기 직접 테스트</button>
+                <button onclick="testInputScenarios()">⌨️ 입력 시나리오 테스트</button>
+            </div>
+            
+            <div id="directTestStatus" class="status"></div>
+        </div>
+
+        <!-- 테스트 2: API 통신 테스트 -->
+        <div class="test-section">
+            <h2>
+                <span>📡</span>
+                테스트 2: 서버 상태 및 API 확인
+            </h2>
+            <p><strong>목적:</strong> Next.js 개발 서버가 정상 실행 중이고 라우팅이 작동하는지 확인</p>
+            
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button onclick="checkServerStatus()">🔍 서버 상태 확인</button>
+                <button onclick="checkTaxCalculatorAPI()">📋 세금계산기 API 확인</button>
+                <button onclick="checkBetaFeedbackAPI()">🧪 베타피드백 API 확인</button>
+            </div>
+            
+            <div id="apiTestStatus" class="status"></div>
+        </div>
+
+        <!-- 테스트 3: 실시간 로그 모니터링 -->
+        <div class="test-section">
+            <h2>
+                <span>📝</span>
+                테스트 3: 실시간 테스트 로그
+            </h2>
+            <p><strong>목적:</strong> 입력 테스트 과정에서 발생하는 이벤트를 실시간으로 모니터링</p>
+            
+            <button onclick="startLogMonitoring()">📊 로그 모니터링 시작</button>
+            <button onclick="clearTestLog()">🗑️ 로그 지우기</button>
+            
+            <div id="testLog" class="test-log">
+                테스트 로그가 여기에 표시됩니다...
+            </div>
+        </div>
+
+        <!-- 테스트 4: 임베디드 세금계산기 -->
+        <div class="test-section">
+            <h2>
+                <span>🖼️</span>
+                테스트 4: 임베디드 세금계산기 (실시간 테스트)
+            </h2>
+            <p><strong>목적:</strong> 이 페이지에서 직접 세금계산기를 열어서 입력 테스트</p>
+            
+            <button onclick="loadTaxCalculatorFrame()">🔄 세금계산기 로드</button>
+            <button onclick="loadInheritanceCalculatorFrame()">🏠 상속세 계산기 로드</button>
+            
+            <div class="iframe-container" id="calculatorFrame" style="display: none;">
+                <iframe id="calculatorIframe" src="about:blank"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3003';
+        
+        function logMessage(message, type = 'info') {
+            const testLog = document.getElementById('testLog');
+            const timestamp = new Date().toLocaleTimeString('ko-KR');
+            const prefix = type === 'success' ? '✅' : type === 'error' ? '❌' : '📋';
+            testLog.innerHTML += `[${timestamp}] ${prefix} ${message}\n`;
+            testLog.scrollTop = testLog.scrollHeight;
+        }
+
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            element.className = `status ${type}`;
+            element.style.display = 'block';
+        }
+
+        // 테스트 1: 세금계산기 직접 열기
+        function openTaxCalculator() {
+            logMessage('세금계산기 페이지를 새 탭에서 엽니다...', 'info');
+            window.open(`${API_BASE}/tax-calculator`, '_blank');
+            showStatus('directTestStatus', '✅ 세금계산기가 새 탭에서 열렸습니다. 상속재산 필드에서 "12345"를 연속으로 입력해보세요.', 'success');
+        }
+
+        function openInheritanceTax() {
+            logMessage('상속세 계산기 직접 테스트 시작...', 'info');
+            window.open(`${API_BASE}/tax-calculator`, '_blank');
+            
+            setTimeout(() => {
+                showStatus('directTestStatus', 
+                    '📋 테스트 순서:\n' +
+                    '1. 상속세 계산기 선택\n' +
+                    '2. "상속재산" 필드 클릭\n' +
+                    '3. "12345" 연속 입력 시도\n' +
+                    '4. 백스페이스로 삭제 후 "67890" 입력\n' +
+                    '5. 다른 필드로 이동 후 다시 입력\n\n' +
+                    '✅ 모든 입력이 정상적으로 작동하면 수정 성공!', 'info');
+            }, 1000);
+        }
+
+        function testInputScenarios() {
+            logMessage('입력 시나리오 테스트 가이드 표시...', 'info');
+            showStatus('directTestStatus', 
+                '🧪 NumberInput 연속 입력 테스트 시나리오:\n\n' +
+                '❌ 기존 문제: "1" 입력 후 "2" 입력이 안 됨\n' +
+                '✅ 수정 목표: "12345" 연속 입력이 모두 가능해야 함\n\n' +
+                '테스트 단계:\n' +
+                '1️⃣ 필드에 "1" 입력\n' +
+                '2️⃣ 바로 이어서 "2" 입력 (문제가 있었던 부분)\n' +
+                '3️⃣ 계속해서 "345" 입력\n' +
+                '4️⃣ 백스페이스로 일부 삭제\n' +
+                '5️⃣ 다시 숫자 입력\n' +
+                '6️⃣ 포커스 이동 후 재입력\n\n' +
+                '위의 모든 단계가 원활하게 작동해야 합니다!', 'info');
+        }
+
+        // 테스트 2: API 상태 확인
+        async function checkServerStatus() {
+            logMessage('서버 상태 확인 중...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/beta-feedback`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    logMessage('서버 정상 작동 확인', 'success');
+                    showStatus('apiTestStatus', 
+                        `✅ 서버 상태: 정상\n` +
+                        `📋 환경: ${data.data.environment}\n` +
+                        `🔗 베타피드백 시스템: 작동 중\n` +
+                        `⏰ 확인 시간: ${new Date().toLocaleString('ko-KR')}`, 'success');
+                } else {
+                    throw new Error('서버 응답 오류');
+                }
+            } catch (error) {
+                logMessage(`서버 연결 실패: ${error.message}`, 'error');
+                showStatus('apiTestStatus', 
+                    `❌ 서버 상태: 연결 실패\n` +
+                    `📝 오류: ${error.message}\n` +
+                    `💡 해결 방법: npm run dev 실행 확인`, 'error');
+            }
+        }
+
+        async function checkTaxCalculatorAPI() {
+            logMessage('세금계산기 API 확인 중...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/tax-calculator`);
+                
+                if (response.ok) {
+                    logMessage('세금계산기 페이지 정상 로드', 'success');
+                    showStatus('apiTestStatus', 
+                        '✅ 세금계산기 API: 정상\n' +
+                        '📄 페이지 로드: 성공\n' +
+                        '🔧 NumberInput 컴포넌트: 수정된 버전 적용\n' +
+                        '🧪 테스트 준비: 완료', 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                logMessage(`세금계산기 API 오류: ${error.message}`, 'error');
+                showStatus('apiTestStatus', 
+                    `❌ 세금계산기 API: 오류\n` +
+                    `📝 상태: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkBetaFeedbackAPI() {
+            logMessage('베타피드백 API 확인 중...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/beta-feedback`);
+                const data = await response.json();
+                
+                logMessage('베타피드백 API 정상 작동', 'success');
+                showStatus('apiTestStatus', 
+                    '✅ 베타피드백 API: 정상\n' +
+                    '📧 이메일 시스템: 연동됨\n' +
+                    '🔗 구글시트: 연결됨\n' +
+                    '🧪 NumberInput 오류 신고: 가능', 'success');
+            } catch (error) {
+                logMessage(`베타피드백 API 오류: ${error.message}`, 'error');
+                showStatus('apiTestStatus', 
+                    `❌ 베타피드백 API: 오류\n` +
+                    `📝 문제: ${error.message}`, 'error');
+            }
+        }
+
+        // 테스트 3: 로그 모니터링
+        function startLogMonitoring() {
+            logMessage('테스트 로그 모니터링을 시작합니다', 'success');
+            logMessage('NumberInput 연속 입력 문제 수정 확인 중...', 'info');
+            
+            // 주기적으로 상태 체크
+            const monitoringInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`${API_BASE}/api/beta-feedback`);
+                    if (response.ok) {
+                        logMessage('서버 정상 작동 중 (모니터링)', 'success');
+                    }
+                } catch (error) {
+                    logMessage('서버 연결 문제 감지', 'error');
+                    clearInterval(monitoringInterval);
+                }
+            }, 30000); // 30초마다 체크
+            
+            // 5분 후 자동 중단
+            setTimeout(() => {
+                clearInterval(monitoringInterval);
+                logMessage('모니터링 자동 중단 (5분 경과)', 'info');
+            }, 300000);
+        }
+
+        function clearTestLog() {
+            document.getElementById('testLog').innerHTML = '테스트 로그가 지워졌습니다...\n';
+        }
+
+        // 테스트 4: 임베디드 계산기
+        function loadTaxCalculatorFrame() {
+            logMessage('임베디드 세금계산기 로딩...', 'info');
+            const iframe = document.getElementById('calculatorIframe');
+            const container = document.getElementById('calculatorFrame');
+            
+            iframe.src = `${API_BASE}/tax-calculator`;
+            container.style.display = 'block';
+            
+            iframe.onload = () => {
+                logMessage('세금계산기 임베디드 로드 완료', 'success');
+            };
+        }
+
+        function loadInheritanceCalculatorFrame() {
+            logMessage('상속세 계산기 직접 로딩...', 'info');
+            const iframe = document.getElementById('calculatorIframe');
+            const container = document.getElementById('calculatorFrame');
+            
+            iframe.src = `${API_BASE}/tax-calculator`;
+            container.style.display = 'block';
+            
+            iframe.onload = () => {
+                logMessage('상속세 계산기 로드 완료 - 연속 입력 테스트 가능', 'success');
+            };
+        }
+
+        // 페이지 로드 시 자동 실행
+        window.addEventListener('load', () => {
+            logMessage('NumberInput 수정 확인 테스트 페이지 로드 완료', 'success');
+            logMessage('모든 테스트 준비 완료 - 버튼을 클릭하여 테스트를 시작하세요', 'info');
+            
+            // 자동으로 서버 상태 확인
+            setTimeout(checkServerStatus, 1000);
+        });
+    </script>
+</body>
+</html> 

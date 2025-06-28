@@ -51,7 +51,7 @@ const certificationServices = [
       '투자유치 전략',
       '벤처캐피털 IR 지원'
     ],
-    image: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80'
   },
   {
     id: 'research-institute',
@@ -68,7 +68,7 @@ const certificationServices = [
       '연구인력 채용 전략',
       '연구과제 관리 시스템'
     ],
-    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1532619187608-e5375cab36aa?auto=format&fit=crop&w=800&q=80'
   },
   {
     id: 'innobiz',
@@ -85,7 +85,7 @@ const certificationServices = [
       '품질경영시스템',
       '생산성 향상 프로그램'
     ],
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=800&q=80'
   },
   {
     id: 'iso',
@@ -102,7 +102,7 @@ const certificationServices = [
       'ISO 45001 안전보건',
       'ISO 27001 정보보안'
     ],
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80'
   },
   {
     id: 'esg',
@@ -119,7 +119,7 @@ const certificationServices = [
       '투명경영 시스템',
       'ESG 성과 공개'
     ],
-    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80'
   }
 ];
 
@@ -129,17 +129,17 @@ const growthStages = [
     stage: 'Step 1',
     period: '1-3년',
     title: '신뢰받는 기업의 첫 걸음',
-    certifications: ['벤처인증', '연구소설립'],
+          certifications: ['벤처확인', '연구소설립'],
     effect: '세제혜택 확보 + 정부지원 기반',
-    image: 'https://images.unsplash.com/photo-1556075798-4825dfaaf498?auto=format&fit=crop&w=600&q=80'
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80'
   },
   {
     stage: 'Step 2',
     period: '3-7년',
     title: '경쟁력 강화 종합 체계',
-    certifications: ['이노비즈/메인비즈', 'ISO 9001'],
-    effect: '시장 신뢰도 + 대기업 납품 자격',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80'
+          certifications: ['이노비즈/메인비즈', 'ISO 9001'],
+      effect: '시장 신뢰도 + 대기업 납품 자격',
+      image: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=600&q=80'
   },
   {
     stage: 'Step 3',
@@ -147,15 +147,15 @@ const growthStages = [
     title: '글로벌 진출 국제 인증',
     certifications: ['ISO 전영역', 'ESG 인증'],
     effect: '해외 진출 + 대기업 파트너십',
-    image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=600&q=80'
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80'
   },
   {
     stage: 'Step 4',
     period: '10년+',
     title: '산업 리더 사회적 책임',
-    certifications: ['ESG 경영 고도화', 'R&D 허브'],
-    effect: '지속가능경영 + 생태계 주도권',
-    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&q=80'
+          certifications: ['ESG 경영 고도화', 'R&D 허브'],
+      effect: '지속가능경영 + 생태계 주도권',
+      image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=600&q=80'
   }
 ];
 
@@ -170,7 +170,7 @@ const roiData = [
     highlight: true
   },
   {
-    type: '벤처인증',
+    type: '벤처확인',
     cost: '300만원',
     effect: '2,000만원 (금융+세제)',
     roi: '667%',
@@ -213,7 +213,7 @@ export default function CertificationPage() {
         {/* 배경 이미지 */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=2000&q=80"
+            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=2000&q=80"
             alt="Business Excellence"
             className="w-full h-full object-cover opacity-5"
           />
@@ -223,7 +223,7 @@ export default function CertificationPage() {
           <div className="mb-8">
             <div className="inline-flex items-center px-6 py-3 bg-gray-100 rounded-full text-sm font-medium text-gray-700 mb-8">
               <Award className="w-4 h-4 mr-2" />
-              ISO/ESG인증·연구소설립·벤처인증 통합 컨설팅
+              ISO/ESG인증·연구소설립·벤처확인 통합 컨설팅
             </div>
             
             <h1 className="text-6xl lg:text-7xl font-black text-gray-900 mb-6 leading-tight tracking-tight">
@@ -371,12 +371,8 @@ export default function CertificationPage() {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-6 mb-8">
-                    <div className="bg-gray-50 p-4 rounded-2xl">
-                      <div className="text-sm text-gray-600 mb-1">투자비용</div>
-                      <div className="text-2xl font-bold text-gray-900">{service.price}</div>
-                    </div>
-                    <div className="bg-gray-50 p-4 rounded-2xl">
+                  <div className="mb-8">
+                    <div className="bg-gray-50 p-4 rounded-2xl inline-block">
                       <div className="text-sm text-gray-600 mb-1">소요기간</div>
                       <div className="text-2xl font-bold text-gray-900">{service.duration}</div>
                     </div>
@@ -425,7 +421,6 @@ export default function CertificationPage() {
                 <thead>
                   <tr className="border-b border-gray-200">
                     <th className="text-left py-6 px-4 text-lg font-bold text-gray-900">인증 유형</th>
-                    <th className="text-center py-6 px-4 text-lg font-bold text-gray-900">투자 비용</th>
                     <th className="text-center py-6 px-4 text-lg font-bold text-gray-900">연간 효과</th>
                     <th className="text-center py-6 px-4 text-lg font-bold text-gray-900">ROI</th>
                     <th className="text-center py-6 px-4 text-lg font-bold text-gray-900">회수 기간</th>
@@ -440,7 +435,6 @@ export default function CertificationPage() {
                           <span className="font-semibold text-gray-900">{item.type}</span>
                         </div>
                       </td>
-                      <td className="text-center py-6 px-4 font-medium text-gray-700">{item.cost}</td>
                       <td className="text-center py-6 px-4 font-medium text-gray-700">{item.effect}</td>
                       <td className="text-center py-6 px-4">
                         <span className="font-bold text-blue-600 text-lg">{item.roi}</span>

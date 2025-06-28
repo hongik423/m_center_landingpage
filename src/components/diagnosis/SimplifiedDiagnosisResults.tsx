@@ -262,78 +262,98 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
   const diagnosis = normalizedData.data.diagnosis;
   const primaryService = diagnosis.recommendedServices?.[0];
 
-  // 🎨 1500자 이상 고급 보고서 생성 및 다운로드
+  // 🎨 완전한 AI 기반 종합 경영진단 결과 보고서 생성 및 다운로드
   const handleDownload = async () => {
     try {
-      console.log('📄 AI 기반 고급 진단 보고서 생성 시작');
+      console.log('📄 완전한 AI 기반 종합 경영진단 결과 보고서 생성 시작');
       setIsLoading(true);
       
-      // 📊 향상된 진단 데이터 생성
-      const enhancedDiagnosisInput = {
-        companyName: normalizedData.data.diagnosis.companyName || '기업명',
-        industry: normalizedData.data.diagnosis.industry || '업종 미상',
-        employeeCount: normalizedData.data.diagnosis.employeeCount || '10',
-        growthStage: normalizedData.data.diagnosis.growthStage || '운영 중',
-        businessLocation: '경기도', // 기본값 사용
-        mainConcerns: '경영 효율성 개선', // 기본값 사용
-        expectedBenefits: '수익성 향상', // 기본값 사용
-        contactManager: '이후경', // 기본값 추가
-                  email: 'hongik423@gmail.com', // 기본값 추가
-        detailedAnalysis: true
-      };
-
-      // 🤖 Gemini AI 기반 종합 분석 실행
-      const { executeEnhancedAIDiagnosis, generateComprehensiveReport } = await import('@/lib/utils/enhancedDiagnosisEngine');
-      
-      const aiAnalysisResult = await executeEnhancedAIDiagnosis(enhancedDiagnosisInput);
-      
-      // 📝 1500자 이상 종합 보고서 생성
-      const comprehensiveReport = await generateComprehensiveReport(enhancedDiagnosisInput, aiAnalysisResult);
-      
-      // PremiumReportData 형식으로 변환 (AI 분석 결과 반영)
-      const premiumData: PremiumReportData = {
-        companyName: enhancedDiagnosisInput.companyName,
-        industry: enhancedDiagnosisInput.industry,
-        employeeCount: enhancedDiagnosisInput.employeeCount + '명',
-        establishmentStage: enhancedDiagnosisInput.growthStage,
-        businessConcerns: [enhancedDiagnosisInput.mainConcerns, '시장 경쟁력 강화'],
-        expectedBenefits: [enhancedDiagnosisInput.expectedBenefits, '지속 성장 기반 구축'],
-        totalScore: diagnosis.totalScore,
-        analysis: {
-          strengths: aiAnalysisResult.swotAnalysis.strengths,
-          weaknesses: aiAnalysisResult.swotAnalysis.weaknesses,
-          opportunities: aiAnalysisResult.swotAnalysis.opportunities,
-          threats: aiAnalysisResult.swotAnalysis.threats,
-          // 📊 AI 분석 기반 정확한 세부 지표
-          businessModel: aiAnalysisResult.detailedMetrics.businessModel,
-          marketPosition: aiAnalysisResult.detailedMetrics.marketPosition,
-          operationalEfficiency: aiAnalysisResult.detailedMetrics.operationalEfficiency,
-          growthPotential: aiAnalysisResult.detailedMetrics.growthPotential,
-          digitalReadiness: aiAnalysisResult.detailedMetrics.digitalReadiness,
-          financialHealth: aiAnalysisResult.detailedMetrics.financialHealth
+      // 📊 완전한 진단 결과 데이터 구성
+      const completeDiagnosisData = {
+        // 기본 정보
+        companyInfo: {
+          name: diagnosis.companyName || '기업명',
+          industry: diagnosis.industry || '업종 미상',
+          employeeCount: diagnosis.employeeCount || '미상',
+          growthStage: diagnosis.growthStage || '운영 중',
+          processingTime: data.data.processingTime || '2.5초',
+          reportLength: data.data.reportLength || 2000,
+          reportType: data.data.reportType || 'AI 기반 종합 진단'
         },
-        recommendations: aiAnalysisResult.serviceRecommendations.map((service: any, index: number) => ({
-          service: service.name,
-          priority: index === 0 ? 'high' : index === 1 ? 'medium' : 'low',
-          description: service.description,
-          expectedROI: service.expectedROI || '200-400%',
-          timeline: service.timeline || '3-6개월'
-        })),
-        processingTime: aiAnalysisResult.processingTime,
-        reliabilityScore: aiAnalysisResult.reliabilityScore
+        
+        // 종합 점수 및 핵심 지표
+        summary: {
+          totalScore: diagnosis.totalScore || 75,
+          marketPosition: diagnosis.marketPosition || '양호',
+          industryGrowth: diagnosis.industryGrowth || '성장 중',
+          reliabilityScore: diagnosis.reliabilityScore || '85%',
+          confidenceLevel: diagnosis.confidenceLevel || 85
+        },
+        
+        // 핵심 분석 결과
+        analysis: {
+          strengths: diagnosis.strengths || ['기업 성장 의지', '시장 적응력'],
+          weaknesses: diagnosis.weaknesses || ['디지털 전환 필요', '마케팅 강화'],
+          opportunities: diagnosis.opportunities || ['정부 지원 활용', '신사업 기회'],
+          currentSituationForecast: diagnosis.currentSituationForecast || '지속적인 성장이 예상되며, 디지털 전환을 통한 경쟁력 강화가 필요합니다.'
+        },
+        
+        // 서비스 추천
+        recommendations: diagnosis.recommendedServices || [
+          {
+            name: 'BM ZEN 사업분석',
+            description: '비즈니스 모델 최적화 및 수익성 개선',
+            expectedEffect: '매출 20-40% 증대',
+            duration: '2-3개월',
+            successRate: '95%',
+            priority: 'high'
+          }
+        ],
+        
+        // 실행 계획
+        actionPlan: diagnosis.actionPlan || [
+          '7일 내: 무료 상담 신청 및 현황 진단',
+          '30일 내: 우선순위 서비스 선택 및 착수',
+          '90일 내: 첫 번째 성과 측정 및 전략 조정'
+        ],
+        
+        // 예상 성과
+        expectedResults: {
+          revenue: diagnosis.expectedResults?.revenue || '매출 20-30% 증대',
+          efficiency: diagnosis.expectedResults?.efficiency || '업무효율 40-50% 향상',
+          timeline: diagnosis.expectedResults?.timeline || '6개월 내 가시적 성과',
+          quantitative: diagnosis.expectedResults?.quantitative || [
+            '매출 20-30% 증대',
+            '업무효율 40-50% 향상',
+            '비용 15-25% 절감'
+          ],
+          qualitative: diagnosis.expectedResults?.qualitative || [
+            '조직 역량 강화',
+            '시장 경쟁력 향상',
+            '지속가능한 성장 기반 구축'
+          ]
+        },
+        
+        // 상세 보고서 내용
+        detailedReport: data.data.summaryReport || '상세 분석 결과를 포함한 종합적인 진단 내용입니다.',
+        
+        // 전문가 정보
+        consultant: diagnosis.consultant || {
+          name: '이후경 경영지도사',
+          phone: '010-9251-9743',
+          email: 'hongik423@gmail.com',
+          title: '책임컨설턴트',
+          experience: '25년 경영컨설팅 전문가'
+        }
       };
 
-      // 🎨 고급 HTML 보고서 생성
-      const htmlContent = PremiumReportGenerator.generatePremiumReport(premiumData);
-      
-      // 🔍 보고서 길이 검증
-      const reportLength = comprehensiveReport.length;
-      console.log(`📊 생성된 보고서 길이: ${reportLength}자 (목표: 1500자 이상)`);
+      // 🎨 완전한 HTML 보고서 생성
+      const htmlContent = generateCompleteHTMLReport(completeDiagnosisData);
       
       // 📥 HTML 파일로 다운로드
-      const companyName = enhancedDiagnosisInput.companyName.replace(/[^\w가-힣]/g, '_');
+      const companyName = completeDiagnosisData.companyInfo.name.replace(/[^\w가-힣]/g, '_');
       const currentDate = new Date().toISOString().slice(0, 10);
-      const fileName = `M-CENTER_${companyName}_진단결과보고서_${currentDate}.html`;
+      const fileName = `M-CENTER_${companyName}_AI기반종합경영진단결과_${currentDate}.html`;
       
       // UTF-8 BOM 추가로 한글 인코딩 보장
       const BOM = '\uFEFF';
@@ -351,91 +371,575 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
       URL.revokeObjectURL(url);
       
       toast({
-        title: "🚀 AI 고급 보고서 다운로드 완료!",
-        description: `${reportLength}자 상세 분석 보고서를 HTML 파일로 다운로드했습니다. (신뢰도: ${aiAnalysisResult.reliabilityScore}%)`,
+        title: "📄 AI 기반 종합 경영진단 결과 다운로드 완료!",
+        description: `완전한 진단 결과 보고서를 HTML 파일로 다운로드했습니다. (${completeDiagnosisData.companyInfo.reportLength}자)`,
         duration: 5000,
       });
       
-      console.log('✅ AI 기반 고급 진단 보고서 생성 완료:', {
-        reportLength,
-        processingTime: aiAnalysisResult.processingTime,
-        reliabilityScore: aiAnalysisResult.reliabilityScore
-      });
+      console.log('✅ 완전한 AI 기반 종합 경영진단 결과 보고서 생성 완료');
       
     } catch (error) {
-      console.error('❌ 고급 보고서 생성 실패:', error);
+      console.error('❌ 완전한 보고서 생성 실패:', error);
       
-      // 폴백: 기본 보고서 생성
-      try {
-        const basicPremiumData: PremiumReportData = {
-          companyName: normalizedData.data.diagnosis.companyName || '기업명',
-          industry: normalizedData.data.diagnosis.industry || '업종 미상',
-          employeeCount: normalizedData.data.diagnosis.employeeCount || '미상',
-          establishmentStage: normalizedData.data.diagnosis.growthStage || '운영 중',
-          businessConcerns: ['경영 개선', '매출 증대'],
-          expectedBenefits: ['수익성 향상', '경쟁력 강화'],
-          totalScore: diagnosis.totalScore,
-          analysis: {
-            strengths: diagnosis.strengths || ['기업 성장 의지', '시장 진입 타이밍'],
-            weaknesses: diagnosis.weaknesses || ['디지털 전환 필요', '마케팅 강화'],
-            opportunities: diagnosis.opportunities || ['정부 지원 활용', '신사업 기회'],
-            threats: ['시장 경쟁 심화', '외부 환경 변화'],
-            businessModel: Math.min(diagnosis.totalScore + 3, 95),
-            marketPosition: Math.min(diagnosis.totalScore + 1, 92),
-            operationalEfficiency: Math.max(diagnosis.totalScore - 2, 45),
-            growthPotential: Math.min(diagnosis.totalScore + 5, 95),
-            digitalReadiness: Math.max(diagnosis.totalScore - 8, 35),
-            financialHealth: Math.max(diagnosis.totalScore - 5, 40)
-          },
-          recommendations: [
-            {
-              service: 'BM ZEN 사업분석',
-              priority: 'high' as const,
-              description: '비즈니스 모델 최적화 및 수익성 개선',
-              expectedROI: '300-500%',
-              timeline: '2-3개월'
-            }
-          ],
-          processingTime: normalizedData.data.processingTime || '2.5초',
-          reliabilityScore: parseInt(diagnosis.reliabilityScore) || 85
-        };
-
-        const fallbackHtml = PremiumReportGenerator.generatePremiumReport(basicPremiumData);
-        
-        // 📥 폴백 HTML 파일 다운로드
-        const companyName = (normalizedData.data.diagnosis.companyName || '기업').replace(/[^\w가-힣]/g, '_');
-        const currentDate = new Date().toISOString().slice(0, 10);
-        const fileName = `M-CENTER_${companyName}_기본진단결과_${currentDate}.html`;
-        
-        const BOM = '\uFEFF';
-        const finalFallbackContent = BOM + fallbackHtml;
-        
-        const blob = new Blob([finalFallbackContent], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        toast({
-          title: "📄 기본 보고서 다운로드 완료",
-          description: "네트워크 문제로 기본 보고서를 HTML 파일로 다운로드했습니다.",
-          variant: "default"
-        });
-        
-      } catch (fallbackError) {
-        toast({
-          title: "보고서 생성 실패",
-          description: "잠시 후 다시 시도해주세요.",
-          variant: "destructive"
-        });
-      }
+      toast({
+        title: "보고서 생성 실패",
+        description: "잠시 후 다시 시도해주세요.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // 🎨 완전한 HTML 보고서 생성 함수
+  const generateCompleteHTMLReport = (data: any): string => {
+    const currentDate = new Date().toLocaleDateString('ko-KR');
+    const currentTime = new Date().toLocaleTimeString('ko-KR');
+    
+    return `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M-CENTER AI 기반 종합 경영진단 결과 - ${data.companyInfo.name}</title>
+    <style>
+        body { 
+            font-family: 'Malgun Gothic', 'Arial Unicode MS', '맑은 고딕', sans-serif; 
+            line-height: 1.8; 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 30px;
+            background: #f8fafc;
+            color: #1a202c;
+        }
+        .report-container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+        }
+        .company-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .report-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        .meta-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .meta-item {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border-left: 6px solid #3b82f6;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            color: #1e40af;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .score-section {
+            text-align: center;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            border: 2px solid #0ea5e9;
+        }
+        .score-number {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #0ea5e9;
+            margin-bottom: 10px;
+        }
+        .score-description {
+            font-size: 1.2rem;
+            color: #0369a1;
+            margin-bottom: 20px;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .metric-item {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3b82f6;
+            margin-bottom: 5px;
+        }
+        .metric-label {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .analysis-card {
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .analysis-card.strengths {
+            border-left: 6px solid #16a34a;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+        .analysis-card.opportunities {
+            border-left: 6px solid #3b82f6;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        }
+        .analysis-card.forecast {
+            border-left: 6px solid #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        }
+        .analysis-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .analysis-list {
+            list-style: none;
+            padding: 0;
+        }
+        .analysis-list li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        .analysis-list li::before {
+            content: "▶";
+            position: absolute;
+            left: 0;
+            color: #3b82f6;
+        }
+        .recommendation-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .recommendation-card.priority-high {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        }
+        .recommendation-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+        .recommendation-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .meta-detail {
+            text-align: center;
+        }
+        .meta-detail-value {
+            font-weight: bold;
+            color: #16a34a;
+            font-size: 1.1rem;
+        }
+        .meta-detail-label {
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+        .action-timeline {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+        }
+        .action-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+        .action-number {
+            background: #3b82f6;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        .results-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .results-section.quantitative {
+            border-left: 6px solid #16a34a;
+        }
+        .results-section.qualitative {
+            border-left: 6px solid #3b82f6;
+        }
+        .detailed-report {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            line-height: 1.8;
+        }
+        .consultant-section {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .consultant-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .consultant-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .consultant-detail {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 30px;
+            background: #1e293b;
+            color: white;
+            border-radius: 12px;
+        }
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .print-page-break {
+            page-break-before: always;
+        }
+        @media print {
+            body { background: white; }
+            .report-container { box-shadow: none; }
+            .print-page-break { break-before: page; }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <!-- 보고서 헤더 -->
+        <div class="header">
+            <div class="company-title">${data.companyInfo.name}</div>
+            <div class="report-subtitle">🤖 AI 기반 종합 경영진단 결과</div>
+            <div class="meta-info">
+                <div class="meta-item">📅 ${currentDate}</div>
+                <div class="meta-item">⏰ ${currentTime}</div>
+                <div class="meta-item">📊 ${data.companyInfo.reportType}</div>
+                <div class="meta-item">📝 ${data.companyInfo.reportLength}자</div>
+                <div class="meta-item">⚡ ${data.companyInfo.processingTime}</div>
+            </div>
+        </div>
+
+        <!-- 기업 기본 정보 -->
+        <div class="section">
+            <div class="section-title">🏢 기업 기본 정보</div>
+            <div class="metrics-grid">
+                <div class="metric-item">
+                    <div class="metric-value">${data.companyInfo.name}</div>
+                    <div class="metric-label">회사명</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">${data.companyInfo.industry}</div>
+                    <div class="metric-label">업종</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">${data.companyInfo.employeeCount}</div>
+                    <div class="metric-label">직원 규모</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">${data.companyInfo.growthStage}</div>
+                    <div class="metric-label">성장 단계</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 종합 진단 점수 -->
+        <div class="score-section">
+            <div class="score-number">${data.summary.totalScore}<span style="font-size: 2rem;">/100</span></div>
+            <div class="score-description">AI 기반 종합 경영진단 점수</div>
+            <div class="metrics-grid">
+                <div class="metric-item">
+                    <div class="metric-value">${data.summary.marketPosition}</div>
+                    <div class="metric-label">시장 위치</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">${data.summary.industryGrowth}</div>
+                    <div class="metric-label">업계 성장률</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">${data.summary.reliabilityScore}</div>
+                    <div class="metric-label">신뢰도</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">${data.summary.confidenceLevel}%</div>
+                    <div class="metric-label">신뢰성 분석</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 핵심 분석 결과 -->
+        <div class="section">
+            <div class="section-title">🎯 핵심 분석 결과</div>
+            <div class="analysis-grid">
+                <div class="analysis-card strengths">
+                    <div class="analysis-title">💪 주요 강점</div>
+                    <ul class="analysis-list">
+                        ${data.analysis.strengths.map((item: string) => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="analysis-card opportunities">
+                    <div class="analysis-title">🌟 성장 기회</div>
+                    <ul class="analysis-list">
+                        ${data.analysis.opportunities.map((item: string) => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="analysis-card forecast">
+                    <div class="analysis-title">📊 현안 상황 예측</div>
+                    <div style="padding: 15px; background: rgba(255,255,255,0.8); border-radius: 8px; margin-top: 10px;">
+                        ${data.analysis.currentSituationForecast}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 페이지 브레이크 -->
+        <div class="print-page-break"></div>
+
+        <!-- 맞춤 서비스 추천 -->
+        <div class="section">
+            <div class="section-title">🚀 맞춤 서비스 추천</div>
+            ${data.recommendations.map((rec: any, index: number) => `
+                <div class="recommendation-card ${index === 0 ? 'priority-high' : ''}">
+                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 15px;">
+                        <div class="recommendation-title">${index + 1}순위: ${rec.name}</div>
+                        ${index === 0 ? '<span style="background: #f59e0b; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">🥇 추천 1순위</span>' : ''}
+                    </div>
+                    <div style="color: #4b5563; margin-bottom: 15px; line-height: 1.6;">
+                        ${rec.description}
+                    </div>
+                    <div class="recommendation-meta">
+                        <div class="meta-detail">
+                            <div class="meta-detail-value">${rec.expectedEffect || '분석 중'}</div>
+                            <div class="meta-detail-label">예상 효과</div>
+                        </div>
+                        <div class="meta-detail">
+                            <div class="meta-detail-value">${rec.duration || '협의 후 결정'}</div>
+                            <div class="meta-detail-label">소요 기간</div>
+                        </div>
+                        <div class="meta-detail">
+                            <div class="meta-detail-value">${rec.successRate || '분석 중'}</div>
+                            <div class="meta-detail-label">성공률</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+
+        <!-- 실행 계획 -->
+        <div class="section">
+            <div class="section-title">⚡ 실행 계획</div>
+            <div class="action-timeline">
+                ${data.actionPlan.map((plan: string, index: number) => `
+                    <div class="action-item">
+                        <div class="action-number">${index + 1}</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; color: #1e40af; margin-bottom: 5px;">
+                                ${index + 1}단계
+                            </div>
+                            <div style="color: #4b5563;">
+                                ${plan}
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+
+        <!-- 예상 성과 -->
+        <div class="section">
+            <div class="section-title">📈 예상 성과</div>
+            <div class="results-grid">
+                <div class="results-section quantitative">
+                    <div style="font-size: 1.2rem; font-weight: bold; color: #16a34a; margin-bottom: 15px;">
+                        💰 정량적 효과
+                    </div>
+                    <ul class="analysis-list">
+                        ${data.expectedResults.quantitative.map((item: string) => `<li>${item}</li>`).join('')}
+                    </ul>
+                    <div style="margin-top: 20px; padding: 15px; background: #f0fdf4; border-radius: 8px;">
+                        <div style="font-weight: bold; color: #15803d;">핵심 지표</div>
+                        <div style="margin-top: 8px; color: #166534;">
+                            • 매출: ${data.expectedResults.revenue}<br>
+                            • 효율성: ${data.expectedResults.efficiency}<br>
+                            • 달성 시점: ${data.expectedResults.timeline}
+                        </div>
+                    </div>
+                </div>
+                <div class="results-section qualitative">
+                    <div style="font-size: 1.2rem; font-weight: bold; color: #3b82f6; margin-bottom: 15px;">
+                        💡 정성적 효과
+                    </div>
+                    <ul class="analysis-list">
+                        ${data.expectedResults.qualitative.map((item: string) => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 페이지 브레이크 -->
+        <div class="print-page-break"></div>
+
+        <!-- 상세 분석 보고서 -->
+        <div class="section">
+            <div class="section-title">📋 상세 분석 보고서</div>
+            <div class="detailed-report">
+                <div style="white-space: pre-line; line-height: 1.8; color: #374151; font-size: 14px;">
+                    ${data.detailedReport}
+                </div>
+            </div>
+        </div>
+
+        <!-- 전문가 상담 정보 -->
+        <div class="consultant-section">
+            <div class="consultant-title">📞 전담 전문가 상담</div>
+            <div style="font-size: 1.1rem; margin-bottom: 20px; opacity: 0.9;">
+                더 정확한 분석과 맞춤형 컨설팅을 원하시면 전문가와 상담하세요
+            </div>
+            <div class="consultant-info">
+                <div class="consultant-detail">
+                    <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 5px;">
+                        👨‍💼 ${data.consultant.name}
+                    </div>
+                    <div style="opacity: 0.8;">
+                        ${data.consultant.title || '책임컨설턴트'}
+                    </div>
+                </div>
+                <div class="consultant-detail">
+                    <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 5px;">
+                        📱 ${data.consultant.phone}
+                    </div>
+                    <div style="opacity: 0.8;">
+                        직통 전화
+                    </div>
+                </div>
+                <div class="consultant-detail">
+                    <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 5px;">
+                        📧 ${data.consultant.email}
+                    </div>
+                    <div style="opacity: 0.8;">
+                        이메일 상담
+                    </div>
+                </div>
+                <div class="consultant-detail">
+                    <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 5px;">
+                        🎓 ${data.consultant.experience || '25년 경력'}
+                    </div>
+                    <div style="opacity: 0.8;">
+                        전문 경력
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 25px; padding: 20px; background: rgba(255,255,255,0.2); border-radius: 12px;">
+                <div style="font-weight: bold; margin-bottom: 10px;">🆓 무료 서비스</div>
+                <div style="opacity: 0.9; line-height: 1.6;">
+                    • 첫 상담 (30분) - 완전 무료<br>
+                    • 현황 진단 및 우선순위 도출<br>
+                    • 정부 지원 프로그램 안내<br>
+                    • 맞춤형 실행 계획 제안
+                </div>
+            </div>
+        </div>
+
+        <!-- 보고서 하단 정보 -->
+        <div class="footer">
+            <div class="footer-logo">🏢 M-CENTER (기업의별)</div>
+            <div style="margin: 15px 0; opacity: 0.8;">
+                🤖 AI 기반 종합 경영진단 시스템 | 📅 생성일: ${currentDate} ${currentTime}
+            </div>
+            <div style="font-size: 0.9rem; opacity: 0.7; line-height: 1.6;">
+                📧 hongik423@gmail.com | 📞 010-9251-9743 | 🌐 https://m-center.co.kr<br>
+                "중소기업의 성장 파트너, M-CENTER와 함께 성공하세요!"
+            </div>
+            <div style="margin-top: 20px; font-size: 0.8rem; opacity: 0.6;">
+                ⚠️ 본 보고서는 AI 기반 분석 결과이며, 전문가 상담을 통해 더욱 정확한 진단을 받으실 수 있습니다.
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
   };
 
   // 📄 강화된 PDF 다운로드 기능
@@ -1036,7 +1540,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
             <div className="inline-flex items-center justify-center w-16 h-16 bg-white bg-opacity-20 rounded-full mb-4">
               <FileText className="w-8 h-8" />
             </div>
-            <h1 className="text-3xl font-bold mb-2">AI 기반 중합 경영진단 결과</h1>
+            <h1 className="text-3xl font-bold mb-2">AI 기반 종합 경영진단 결과</h1>
             <div className="text-lg opacity-90 mb-4">
               ⏱️ {data.data.processingTime} • 📊 신뢰도 {data.data.diagnosis.reliabilityScore || '75%'} • 🏢 {data.data.diagnosis.marketPosition} 분야
             </div>
@@ -1285,10 +1789,10 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
               <div>
                 <h4 className="font-semibold mb-3 text-green-700">📈 정량적 효과</h4>
                 <ul className="space-y-2">
-                  {(data.data.diagnosis.expectedResults?.quantitative || []).map((result: any, index: number) => (
+                  {(data.data.diagnosis.expectedResults?.quantitative || []).map((item: any, index: number) => (
                     <li key={index} className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-green-600" />
-                      <span className="text-sm">{typeof result === 'string' ? result : result?.category || result?.reason || JSON.stringify(result)}</span>
+                      <span className="text-sm">{typeof item === 'string' ? item : item?.category || item?.reason || JSON.stringify(item)}</span>
                     </li>
                   ))}
                 </ul>
@@ -1296,10 +1800,10 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
               <div>
                 <h4 className="font-semibold mb-3 text-blue-700">💡 정성적 효과</h4>
                 <ul className="space-y-2">
-                  {(data.data.diagnosis.expectedResults?.qualitative || []).map((result: any, index: number) => (
+                  {(data.data.diagnosis.expectedResults?.qualitative || []).map((item: any, index: number) => (
                     <li key={index} className="flex items-center gap-2">
                       <Star className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm">{typeof result === 'string' ? result : result?.category || result?.reason || JSON.stringify(result)}</span>
+                      <span className="text-sm">{typeof item === 'string' ? item : item?.category || item?.reason || JSON.stringify(item)}</span>
                     </li>
                   ))}
                 </ul>

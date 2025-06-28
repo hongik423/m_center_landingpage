@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +25,7 @@ import {
 import { VATInput, VATResult } from '@/types/tax-calculator.types';
 import { calculateVAT, determineBusinessType, getVATRateByBusiness, VAT_RATES, SIMPLIFIED_THRESHOLD, EXEMPT_THRESHOLD } from '@/lib/utils/vat-calculations';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
+import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
 
 // 업종 선택 옵션
 const BUSINESS_CATEGORIES = [
@@ -60,6 +61,90 @@ export default function VATCalculator() {
   const [result, setResult] = useState<VATResult | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isCalculating, setIsCalculating] = useState(false);
+
+  // 🔥 고도화된 자동 연계 계산 로직
+  
+  // 1. 납부할 부가가치세 자동 계산
+  const payableVAT = useMemo(() => {
+    return Math.max(0, inputs.outputVAT - inputs.inputVAT);
+  }, [inputs.outputVAT, inputs.inputVAT]);
+
+  // 2. 환급받을 부가가치세 자동 계산
+  const refundableVAT = useMemo(() => {
+    return Math.max(0, inputs.inputVAT - inputs.outputVAT);
+  }, [inputs.inputVAT, inputs.outputVAT]);
+
+  // 3. 매출액 추정 (부가세 역산)
+  const estimatedSales = useMemo(() => {
+    return inputs.outputVAT / 0.1; // 10% 부가세 기준
+  }, [inputs.outputVAT]);
+
+  // 4. 매입액 추정 (부가세 역산)
+  const estimatedPurchases = useMemo(() => {
+    return inputs.inputVAT / 0.1; // 10% 부가세 기준
+  }, [inputs.inputVAT]);
+
+  // 5. 사업자 유형별 기준 자동 판정
+  const businessTypeAnalysis = useMemo(() => {
+    const annualSales = additionalInfo.annualSales || estimatedSales * 6; // 반기 기준 추정
+    
+    if (annualSales <= 48000000) { // 4800만원 이하
+      return {
+        type: 'simplified',
+        description: '간이과세자',
+        vatRate: 0.015, // 1.5%
+        benefits: ['간편한 신고', '낮은 세율 적용', '세금계산서 발급 의무 면제']
+      };
+    } else if (annualSales <= 300000000) { // 3억원 이하
+      return {
+        type: 'general_small',
+        description: '일반과세자 (소규모)',
+        vatRate: 0.1, // 10%
+        benefits: ['정규 세금계산서 발급', '매입세액공제 완전 적용']
+      };
+    } else {
+      return {
+        type: 'general_large',
+        description: '일반과세자 (대규모)',
+        vatRate: 0.1, // 10%
+        benefits: ['완전한 매입세액공제', '수출 시 영세율 적용']
+      };
+    }
+  }, [additionalInfo.annualSales, estimatedSales]);
+
+  // 6. 절세 방안 자동 제안
+  const taxSavingTips = useMemo(() => {
+    const tips = [];
+    
+    if (refundableVAT > 0) {
+      tips.push({
+        type: 'refund',
+        title: '환급 신청 가능',
+        description: `${refundableVAT.toLocaleString('ko-KR')}원 환급 신청이 가능합니다.`,
+        action: '빠른 환급 신청으로 현금흐름 개선'
+      });
+    }
+    
+    if (businessTypeAnalysis.type === 'general_small' && additionalInfo.annualSales <= 48000000) {
+      tips.push({
+        type: 'type_change',
+        title: '간이과세자 전환 검토',
+        description: '간이과세자로 전환 시 세율이 10%에서 1.5%로 감소',
+        action: '세무서에 간이과세자 신청서 제출'
+      });
+    }
+    
+    if (inputs.inputVAT / inputs.outputVAT < 0.7) {
+      tips.push({
+        type: 'input_vat',
+        title: '매입세액공제 확대',
+        description: '사업용 매입에 대한 세금계산서 수취 확대 필요',
+        action: '매입처에 세금계산서 발급 요청'
+      });
+    }
+    
+    return tips;
+  }, [refundableVAT, businessTypeAnalysis, additionalInfo.annualSales, inputs.inputVAT, inputs.outputVAT]);
 
   // 입력값 변경 핸들러
   const handleInputChange = (field: keyof VATInput, value: string | number) => {
@@ -223,6 +308,138 @@ export default function VATCalculator() {
       {/* 250자 요약 면책 조항 */}
       <TaxCalculatorDisclaimer variant="summary" />
 
+      {/* 🔥 스마트 자동 계산 대시보드 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Calculator className="h-5 w-5 text-cyan-600" />
+            <span>⚡ 스마트 부가세 자동 계산 대시보드</span>
+          </CardTitle>
+          <CardDescription>
+            입력하는 즉시 납부세액, 환급세액이 자동 계산되고 절세 방안이 제시됩니다
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {/* 납부할 부가가치세 */}
+            <div className="bg-gradient-to-br from-red-50 to-rose-50 p-4 rounded-lg border border-red-200">
+              <div className="text-xs text-red-600 font-medium mb-1">💳 납부할 부가세 (자동계산)</div>
+              <div className="text-xl font-bold text-red-800">
+                {payableVAT.toLocaleString('ko-KR')}원
+              </div>
+              <div className="text-xs text-gray-500 mt-1">매출세액 - 매입세액</div>
+              {payableVAT === 0 && refundableVAT === 0 && (
+                <div className="text-xs text-blue-500 mt-1">✅ 납부세액 없음</div>
+              )}
+            </div>
+
+            {/* 환급받을 부가가치세 */}
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+              <div className="text-xs text-green-600 font-medium mb-1">💰 환급받을 부가세 (자동계산)</div>
+              <div className="text-xl font-bold text-green-800">
+                {refundableVAT.toLocaleString('ko-KR')}원
+              </div>
+              <div className="text-xs text-gray-500 mt-1">매입세액 - 매출세액</div>
+              {refundableVAT > 0 && (
+                <div className="text-xs text-blue-500 mt-1">📋 환급 신청 가능</div>
+              )}
+            </div>
+
+            {/* 사업자 유형 */}
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-4 rounded-lg border border-blue-200">
+              <div className="text-xs text-blue-600 font-medium mb-1">🏢 사업자 유형 (자동판정)</div>
+              <div className="text-lg font-bold text-blue-800">
+                {businessTypeAnalysis.description}
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                추정 연매출: {(additionalInfo.annualSales || estimatedSales * 6).toLocaleString('ko-KR')}원
+              </div>
+              <div className="text-xs text-purple-500 mt-1">
+                적용세율: {(businessTypeAnalysis.vatRate * 100).toFixed(1)}%
+              </div>
+            </div>
+
+            {/* 매출액 추정 */}
+            <div className="bg-gradient-to-br from-purple-50 to-violet-50 p-4 rounded-lg border border-purple-200">
+              <div className="text-xs text-purple-600 font-medium mb-1">📊 매출액 추정 (역산)</div>
+              <div className="text-lg font-bold text-purple-800">
+                {estimatedSales.toLocaleString('ko-KR')}원
+              </div>
+              <div className="text-xs text-gray-500 mt-1">매출세액 ÷ 10%</div>
+              <div className="text-xs text-orange-500 mt-1">
+                반기 추정치
+              </div>
+            </div>
+          </div>
+
+          {/* 절세 방안 자동 제안 */}
+          {taxSavingTips.length > 0 && (
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold text-indigo-800 mb-3">💡 자동 절세 방안 제안</h4>
+              {taxSavingTips.map((tip, index) => (
+                <div key={index} className="p-3 rounded-lg border border-indigo-200 bg-indigo-50">
+                  <div className="flex items-start space-x-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                      tip.type === 'refund' ? 'bg-green-100 text-green-700' :
+                      tip.type === 'type_change' ? 'bg-blue-100 text-blue-700' :
+                      'bg-orange-100 text-orange-700'
+                    }`}>
+                      {tip.type === 'refund' ? '💰' : 
+                       tip.type === 'type_change' ? '🔄' : '📋'}
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="font-medium text-gray-900">{tip.title}</h5>
+                      <p className="text-sm text-gray-600 mt-1">{tip.description}</p>
+                      <p className="text-sm text-indigo-600 mt-1 font-medium">💡 {tip.action}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* 실시간 계산 요약 */}
+          {(inputs.outputVAT > 0 || inputs.inputVAT > 0) && (
+            <div className="mt-6 p-4 bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg border border-teal-200">
+              <h4 className="text-sm font-semibold text-teal-800 mb-3">📊 실시간 계산 요약</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-600">매입세액 비율:</span>
+                  <span className="ml-2 font-medium">
+                    {inputs.outputVAT > 0 ? ((inputs.inputVAT / inputs.outputVAT) * 100).toFixed(1) : '0.0'}%
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-600">추정 매입액:</span>
+                  <span className="ml-2 font-medium">
+                    {estimatedPurchases.toLocaleString('ko-KR')}원
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-600">세부담률:</span>
+                  <span className="ml-2 font-medium text-blue-600">
+                    {estimatedSales > 0 ? ((payableVAT / estimatedSales) * 100).toFixed(2) : '0.00'}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 사업자 유형별 혜택 안내 */}
+          <div className="mt-6 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-lg border border-amber-200">
+            <h4 className="text-sm font-semibold text-amber-800 mb-3">🎯 {businessTypeAnalysis.description} 혜택</h4>
+            <div className="space-y-2">
+              {businessTypeAnalysis.benefits.map((benefit, index) => (
+                <div key={index} className="flex items-center space-x-2 text-sm text-amber-700">
+                  <span className="w-2 h-2 bg-amber-400 rounded-full"></span>
+                  <span>{benefit}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 입력 폼 */}
         <div className="space-y-6">
@@ -240,14 +457,16 @@ export default function VATCalculator() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <NumberInput
-                    label="연매출액 💰"
-                    value={additionalInfo.annualSales || 0}
-                    onChange={(value) => handleAdditionalInfoChange('annualSales', value)}
-                    placeholder="50,000,000"
-                    suffix="원/년"
-                    min={0}
-                  />
+                                      <NumberInput
+                      label="연매출액 💰"
+                      value={additionalInfo.annualSales || 0}
+                      onChange={(value) => handleAdditionalInfoChange('annualSales', value)}
+                      placeholder="50,000,000"
+                      suffix="원/년"
+                      min={0}
+                      required={true}
+                      error={!additionalInfo.annualSales || additionalInfo.annualSales === 0 ? '사업자 유형 판정을 위해 연매출액 입력이 필수입니다' : undefined}
+                    />
                   <p className="text-sm text-gray-500 mt-1">
                     사업자 유형 자동 판정에 사용됩니다
                   </p>
@@ -364,7 +583,8 @@ export default function VATCalculator() {
                       placeholder="30,000,000"
                       suffix="원"
                       min={0}
-                      error={errors.periodSales}
+                      required={true}
+                      error={errors.periodSales || (!additionalInfo.periodSales || additionalInfo.periodSales === 0 ? '간이과세 계산을 위해 과세기간 매출액 입력이 필수입니다' : undefined)}
                     />
                     <div className="text-sm text-blue-600 mt-1">
                       <p>• {inputs.taxPeriod === 'first' ? '1~6월' : '7~12월'} 매출액을 입력하세요</p>
@@ -386,7 +606,8 @@ export default function VATCalculator() {
                       placeholder="5,000,000"
                       suffix="원"
                       min={0}
-                      error={errors.outputVAT}
+                      required={true}
+                      error={errors.outputVAT || (!inputs.outputVAT && inputs.outputVAT !== 0 ? '일반과세자 세액 계산을 위해 매출세액 입력이 필수입니다' : undefined)}
                     />
                     <p className="text-sm text-gray-500 mt-1">
                       매출액 × 10% = 매출세액
@@ -404,6 +625,7 @@ export default function VATCalculator() {
                     min={0}
                     error={errors.inputVAT}
                     disabled={inputs.businessType === 'exempt'}
+                    helpText={inputs.businessType !== 'exempt' ? '매입세액이 있으면 입력하세요 (없으면 0 입력)' : '면세사업자는 매입세액공제 불가'}
                   />
                   {inputs.businessType !== 'exempt' && (
                     <p className="text-sm text-gray-500 mt-1">
@@ -919,6 +1141,16 @@ export default function VATCalculator() {
           )}
         </div>
       </div>
+
+      {/* 🧪 베타테스트 피드백 시스템 */}
+      <BetaFeedbackForm 
+        calculatorName="부가가치세 계산기"
+        calculatorType="vat"
+        className="mt-8"
+      />
+
+      {/* 하단 면책 조항 */}
+      <TaxCalculatorDisclaimer variant="full" className="mt-6" />
     </div>
   );
 } 

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 숫자 입력 기능 테스트</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: monospace;
+            text-align: right;
+            margin: 8px 0;
+        }
+        .test-input:focus {
+            border-color: #3b82f6;
+            outline: none;
+        }
+        .btn {
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 6px;
+            background: #3b82f6;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn:hover { background: #2563eb; }
+        .log {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success { color: #059669; }
+        .error { color: #dc2626; }
+        .info { color: #0284c7; }
+    </style>
+</head>
+<body>
+    <h1>🧪 세금계산기 숫자 입력 기능 테스트</h1>
+    
+    <div class="test-section">
+        <h2>⌨️ 키보드 단축키 테스트</h2>
+        <p>다음 입력란에서 아래 단축키들을 테스트해보세요:</p>
+        <ul>
+            <li><strong>Ctrl+C</strong>: 복사</li>
+            <li><strong>Ctrl+V</strong>: 붙여넣기</li>
+            <li><strong>Ctrl+A</strong>: 전체선택</li>
+            <li><strong>Ctrl+Z</strong>: 실행취소</li>
+            <li><strong>방향키</strong>: 커서 이동</li>
+        </ul>
+        <input type="text" class="test-input" id="shortcut-test" placeholder="여기서 단축키를 테스트해보세요" inputmode="numeric">
+        
+        <div>
+            <button class="btn" onclick="copyTestData()">📋 테스트 데이터 복사</button>
+            <button class="btn" onclick="selectAll()">🔤 전체 선택</button>
+            <button class="btn" onclick="clearInput()">🧹 입력란 지우기</button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔢 숫자 입력 테스트</h2>
+        <p>다양한 크기의 숫자를 입력해보세요:</p>
+        
+        <label>매입주식수량 (주):</label>
+        <input type="text" class="test-input" id="stock-qty" placeholder="예: 1000" inputmode="numeric">
+        
+        <label>주당가격 (원):</label>
+        <input type="text" class="test-input" id="stock-price" placeholder="예: 75000" inputmode="numeric">
+        
+        <label>상속재산 (원):</label>
+        <input type="text" class="test-input" id="inheritance-value" placeholder="예: 2000000000" inputmode="numeric">
+        
+        <label>증여재산 (원):</label>
+        <input type="text" class="test-input" id="gift-value" placeholder="예: 500000000" inputmode="numeric">
+        
+        <div>
+            <button class="btn" onclick="fillSampleData()">📊 샘플 데이터 입력</button>
+            <button class="btn" onclick="clearAllInputs()">🧹 모든 입력란 지우기</button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📋 테스트 결과 로그</h2>
+        <div class="log" id="test-log">
+            <div class="info">[시작] 테스트 준비 완료!</div>
+        </div>
+        <button class="btn" onclick="clearLog()">🧹 로그 지우기</button>
+    </div>
+
+    <div class="test-section">
+        <h2>🔗 실제 계산기 테스트</h2>
+        <p>아래 링크를 클릭하여 실제 세금계산기에서 테스트해보세요:</p>
+        <div>
+            <a href="/tax-calculator" class="btn" target="_blank">📊 통합 세금계산기</a>
+            <a href="/diagnosis/test-government-support" class="btn" target="_blank">🏛️ 정부지원 진단</a>
+            <a href="/chatbot" class="btn" target="_blank">🤖 AI 챗봇</a>
+        </div>
+    </div>
+
+    <script>
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function logMessage(message, type = 'info') {
+            const log = document.getElementById('test-log');
+            const time = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = `[${time}] ${message}`;
+            log.appendChild(div);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function setupInput(input) {
+            input.addEventListener('input', function(e) {
+                const value = e.target.value.replace(/[^\d]/g, '');
+                if (value) {
+                    const numValue = parseInt(value);
+                    e.target.value = formatNumber(numValue);
+                    logMessage(`입력 처리됨: ${formatNumber(numValue)}`, 'success');
+                }
+            });
+
+            input.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    if (e.key === 'c') logMessage('Ctrl+C (복사) 감지됨', 'success');
+                    else if (e.key === 'v') logMessage('Ctrl+V (붙여넣기) 감지됨', 'success');
+                    else if (e.key === 'a') logMessage('Ctrl+A (전체선택) 감지됨', 'success');
+                    else if (e.key === 'z') logMessage('Ctrl+Z (실행취소) 감지됨', 'success');
+                    return;
+                }
+
+                const allowedKeys = [
+                    'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
+                    'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+                    'Home', 'End'
+                ];
+                const isNumber = /^[0-9]$/.test(e.key);
+                
+                if (!allowedKeys.includes(e.key) && !isNumber) {
+                    e.preventDefault();
+                    logMessage(`차단된 키: "${e.key}"`, 'error');
+                } else if (allowedKeys.includes(e.key)) {
+                    logMessage(`허용된 키: "${e.key}"`, 'info');
+                }
+            });
+
+            input.addEventListener('paste', function(e) {
+                logMessage('붙여넣기 이벤트 감지됨', 'success');
+            });
+        }
+
+        function copyTestData() {
+            const testData = "1000\n75000\n2000000000\n500000000";
+            navigator.clipboard.writeText(testData).then(() => {
+                logMessage('테스트 데이터가 클립보드에 복사됨', 'success');
+                logMessage('이제 입력란에서 Ctrl+V로 붙여넣기 해보세요', 'info');
+            }).catch(err => {
+                logMessage('클립보드 복사 실패: ' + err.message, 'error');
+            });
+        }
+
+        function selectAll() {
+            const input = document.getElementById('shortcut-test');
+            input.select();
+            logMessage('텍스트 전체 선택됨', 'success');
+        }
+
+        function clearInput() {
+            document.getElementById('shortcut-test').value = '';
+            logMessage('입력란이 지워짐', 'info');
+        }
+
+        function fillSampleData() {
+            const data = {
+                'stock-qty': '1000',
+                'stock-price': '75000', 
+                'inheritance-value': '2000000000',
+                'gift-value': '500000000'
+            };
+
+            Object.entries(data).forEach(([id, value]) => {
+                const input = document.getElementById(id);
+                input.value = value;
+                input.dispatchEvent(new Event('input'));
+            });
+            
+            logMessage('샘플 데이터 입력 완료', 'success');
+        }
+
+        function clearAllInputs() {
+            const inputs = document.querySelectorAll('.test-input');
+            inputs.forEach(input => input.value = '');
+            logMessage('모든 입력란이 지워짐', 'info');
+        }
+
+        function clearLog() {
+            document.getElementById('test-log').innerHTML = '<div class="info">[시작] 로그가 초기화됨</div>';
+        }
+
+        // 페이지 로드 시 모든 입력 필드 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('.test-input');
+            inputs.forEach(setupInput);
+            logMessage('테스트 시스템 준비 완료!', 'success');
+        });
+    </script>
+</body>
+</html> 

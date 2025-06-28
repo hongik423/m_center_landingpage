@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +31,7 @@ import { BusinessInheritanceInput, BusinessInheritanceResult, PracticalChecklist
 import { BusinessInheritanceCalculator } from '@/lib/utils/business-inheritance-calculations';
 import BusinessInheritanceManagementSystem from './BusinessInheritanceManagementSystem';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
+import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
 
 const BusinessInheritanceCalculatorComponent: React.FC = () => {
   const [inputs, setInputs] = useState<BusinessInheritanceInput>({
@@ -68,6 +69,140 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
   const [isCalculating, setIsCalculating] = useState(false);
   const [checklist, setChecklist] = useState<PracticalChecklist | null>(null);
   const [showDetailedAnalysis, setShowDetailedAnalysis] = useState(false);
+
+  // 🔥 고도화된 자동 연계 계산 로직
+  
+  // 1. 순 상속재산 자동 계산
+  const netInheritanceValue = useMemo(() => {
+    return Math.max(0, inputs.totalInheritanceValue - inputs.debtsAndExpenses);
+  }, [inputs.totalInheritanceValue, inputs.debtsAndExpenses]);
+
+  // 2. 가업승계 대상 자산 비율 자동 계산
+  const businessAssetRatio = useMemo(() => {
+    if (inputs.totalInheritanceValue === 0) return 0;
+    return (inputs.businessAssetValue / inputs.totalInheritanceValue) * 100;
+  }, [inputs.businessAssetValue, inputs.totalInheritanceValue]);
+
+  // 3. 가업승계 요건 자동 판정
+  const successionRequirements = useMemo(() => {
+    const requirements = {
+      businessPeriodCheck: inputs.businessPeriod >= 10, // 10년 이상 영위
+      businessAssetRatioCheck: businessAssetRatio >= 50, // 가업용 자산 50% 이상
+      employeeCountCheck: inputs.employeeCount >= 10, // 직원 10명 이상
+      revenueCheck: inputs.annualRevenue >= 300000000, // 연매출 3억원 이상
+      successionPlanCheck: inputs.continuousManagement && inputs.employmentMaintenance, // 사후관리 계획
+    };
+
+    const passedCount = Object.values(requirements).filter(Boolean).length;
+    const totalCount = Object.keys(requirements).length;
+
+    return {
+      ...requirements,
+      overallScore: (passedCount / totalCount) * 100,
+      isQualified: passedCount >= 4 // 5개 중 4개 이상 충족
+    };
+  }, [inputs, businessAssetRatio]);
+
+  // 4. 상속세 공제한도 자동 계산
+  const inheritanceDeductions = useMemo(() => {
+    const basicDeduction = 200000000; // 기초공제 2억원
+    let personalDeduction = 0;
+
+    // 인적공제 계산
+    if (inputs.spouseExists) personalDeduction += 500000000; // 배우자 5억원
+    personalDeduction += inputs.directDescendants * 50000000; // 직계비속 1인당 5천만원
+    
+    // 추가 공제
+    let additionalDeduction = 0;
+    if (inputs.hasDisabledPerson) additionalDeduction += 10000000; // 장애인 1천만원
+    if (inputs.hasElderlyPerson) additionalDeduction += 50000000; // 경로우대 5천만원
+    if (inputs.hasMinorChildren) additionalDeduction += 50000000; // 미성년자 5천만원
+
+    const totalDeduction = basicDeduction + personalDeduction + additionalDeduction;
+
+    return {
+      basicDeduction,
+      personalDeduction,
+      additionalDeduction,
+      totalDeduction
+    };
+  }, [inputs]);
+
+  // 5. 가업승계 공제 자동 계산 (2024년 기준)
+  const businessSuccessionDeduction = useMemo(() => {
+    if (!successionRequirements.isQualified) return 0;
+
+    let maxDeduction = 0;
+    
+    // 중소기업 vs 중견기업 기준
+    const isSmallBusiness = inputs.annualRevenue <= 12000000000 && inputs.employeeCount <= 300;
+    
+    if (isSmallBusiness) {
+      // 중소기업: 최대 300억원 (100% 공제)
+      maxDeduction = Math.min(inputs.businessAssetValue, 30000000000);
+    } else {
+      // 중견기업: 최대 200억원 (80% 공제)
+      maxDeduction = Math.min(inputs.businessAssetValue * 0.8, 20000000000);
+    }
+
+    return maxDeduction;
+  }, [inputs, successionRequirements.isQualified]);
+
+  // 6. 예상 상속세 자동 계산
+  const estimatedInheritanceTax = useMemo(() => {
+    const taxableAmount = Math.max(0, netInheritanceValue - inheritanceDeductions.totalDeduction - businessSuccessionDeduction);
+    
+    if (taxableAmount === 0) return 0;
+
+    // 2024년 상속세율 구간별 계산
+    let tax = 0;
+    if (taxableAmount <= 100000000) { // 1억원 이하
+      tax = taxableAmount * 0.1;
+    } else if (taxableAmount <= 500000000) { // 5억원 이하
+      tax = 10000000 + (taxableAmount - 100000000) * 0.2;
+    } else if (taxableAmount <= 1000000000) { // 10억원 이하
+      tax = 90000000 + (taxableAmount - 500000000) * 0.3;
+    } else if (taxableAmount <= 3000000000) { // 30억원 이하
+      tax = 240000000 + (taxableAmount - 1000000000) * 0.4;
+    } else { // 30억원 초과
+      tax = 1040000000 + (taxableAmount - 3000000000) * 0.5;
+    }
+
+    return Math.round(tax);
+  }, [netInheritanceValue, inheritanceDeductions.totalDeduction, businessSuccessionDeduction]);
+
+  // 7. 세금 절약 효과 자동 계산
+  const taxSavingEffect = useMemo(() => {
+    // 가업승계 공제 없을 때의 세금
+    const taxWithoutSuccession = (() => {
+      const taxableAmount = Math.max(0, netInheritanceValue - inheritanceDeductions.totalDeduction);
+      if (taxableAmount === 0) return 0;
+      
+      let tax = 0;
+      if (taxableAmount <= 100000000) {
+        tax = taxableAmount * 0.1;
+      } else if (taxableAmount <= 500000000) {
+        tax = 10000000 + (taxableAmount - 100000000) * 0.2;
+      } else if (taxableAmount <= 1000000000) {
+        tax = 90000000 + (taxableAmount - 500000000) * 0.3;
+      } else if (taxableAmount <= 3000000000) {
+        tax = 240000000 + (taxableAmount - 1000000000) * 0.4;
+      } else {
+        tax = 1040000000 + (taxableAmount - 3000000000) * 0.5;
+      }
+      return Math.round(tax);
+    })();
+
+    const savingAmount = taxWithoutSuccession - estimatedInheritanceTax;
+    const savingRate = taxWithoutSuccession > 0 ? (savingAmount / taxWithoutSuccession) * 100 : 0;
+
+    return {
+      originalTax: taxWithoutSuccession,
+      reducedTax: estimatedInheritanceTax,
+      savingAmount,
+      savingRate
+    };
+  }, [netInheritanceValue, inheritanceDeductions.totalDeduction, estimatedInheritanceTax]);
 
   const updateInput = useCallback((field: keyof BusinessInheritanceInput, value: any) => {
     setInputs(prev => ({
@@ -218,6 +353,192 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
 
       {/* 250자 요약 면책 조항 */}
       <TaxCalculatorDisclaimer variant="summary" />
+
+      {/* 🔥 스마트 자동 계산 대시보드 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Building2 className="h-5 w-5 text-purple-600" />
+            <span>⚡ 스마트 가업승계 자동 계산 대시보드</span>
+          </CardTitle>
+          <CardDescription>
+            입력하는 즉시 가업승계 요건, 공제액, 절세효과가 자동으로 분석됩니다
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {/* 순 상속재산 */}
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-4 rounded-lg border border-blue-200">
+              <div className="text-xs text-blue-600 font-medium mb-1">💰 순 상속재산 (자동계산)</div>
+              <div className="text-xl font-bold text-blue-800">
+                {formatCurrency(netInheritanceValue)}원
+              </div>
+              <div className="text-xs text-gray-500 mt-1">총재산 - 채무</div>
+              {netInheritanceValue === 0 && (
+                <div className="text-xs text-orange-500 mt-1">⚠️ 상속재산 없음</div>
+              )}
+            </div>
+
+            {/* 가업자산 비율 */}
+            <div className="bg-gradient-to-br from-purple-50 to-violet-50 p-4 rounded-lg border border-purple-200">
+              <div className="text-xs text-purple-600 font-medium mb-1">📊 가업자산 비율 (자동계산)</div>
+              <div className="text-xl font-bold text-purple-800">
+                {businessAssetRatio.toFixed(1)}%
+              </div>
+              <div className="text-xs text-gray-500 mt-1">가업자산 ÷ 총재산</div>
+              <div className={`text-xs mt-1 ${businessAssetRatio >= 50 ? 'text-green-500' : 'text-red-500'}`}>
+                {businessAssetRatio >= 50 ? '✅ 요건 충족' : '❌ 50% 미달'}
+              </div>
+            </div>
+
+            {/* 가업승계 공제액 */}
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+              <div className="text-xs text-green-600 font-medium mb-1">🎯 가업승계 공제 (자동계산)</div>
+              <div className="text-xl font-bold text-green-800">
+                {formatCurrency(businessSuccessionDeduction)}원
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                최대 {inputs.businessType === 'small' ? '300억' : '500억'}원
+              </div>
+              {!successionRequirements.isQualified && (
+                <div className="text-xs text-red-500 mt-1">❌ 요건 미충족</div>
+              )}
+            </div>
+
+            {/* 예상 상속세 */}
+            <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-lg border border-orange-200">
+              <div className="text-xs text-orange-600 font-medium mb-1">💳 예상 상속세 (자동계산)</div>
+              <div className="text-xl font-bold text-orange-800">
+                {formatCurrency(estimatedInheritanceTax)}원
+              </div>
+              <div className="text-xs text-gray-500 mt-1">가업승계 적용</div>
+              {estimatedInheritanceTax === 0 && (
+                <div className="text-xs text-green-500 mt-1">✅ 납부세액 없음</div>
+              )}
+            </div>
+          </div>
+
+          {/* 가업승계 요건 체크 */}
+          <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200">
+            <h4 className="text-sm font-semibold text-indigo-800 mb-3 flex items-center gap-2">
+              📋 가업승계 요건 자동 체크 
+              <Badge variant={successionRequirements.isQualified ? "secondary" : "destructive"} className="text-xs">
+                {successionRequirements.overallScore.toFixed(0)}점 / 100점
+              </Badge>
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className={`flex items-center space-x-2 text-sm ${successionRequirements.businessPeriodCheck ? 'text-green-700' : 'text-red-700'}`}>
+                {successionRequirements.businessPeriodCheck ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                <span>업력 10년 이상: {inputs.businessPeriod}년</span>
+              </div>
+              <div className={`flex items-center space-x-2 text-sm ${successionRequirements.businessAssetRatioCheck ? 'text-green-700' : 'text-red-700'}`}>
+                {successionRequirements.businessAssetRatioCheck ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                <span>가업자산 50% 이상: {businessAssetRatio.toFixed(1)}%</span>
+              </div>
+              <div className={`flex items-center space-x-2 text-sm ${successionRequirements.employeeCountCheck ? 'text-green-700' : 'text-red-700'}`}>
+                {successionRequirements.employeeCountCheck ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                <span>직원 10명 이상: {inputs.employeeCount}명</span>
+              </div>
+              <div className={`flex items-center space-x-2 text-sm ${successionRequirements.revenueCheck ? 'text-green-700' : 'text-red-700'}`}>
+                {successionRequirements.revenueCheck ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                <span>연매출 3억 이상: {formatCurrency(inputs.annualRevenue)}원</span>
+              </div>
+              <div className={`flex items-center space-x-2 text-sm ${successionRequirements.successionPlanCheck ? 'text-green-700' : 'text-red-700'}`}>
+                {successionRequirements.successionPlanCheck ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                <span>사후관리 계획: {inputs.continuousManagement && inputs.employmentMaintenance ? '완료' : '미완료'}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 세금 절약 효과 */}
+          {taxSavingEffect.savingAmount > 0 && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+              <h4 className="text-sm font-semibold text-green-800 mb-3">💰 세금 절약 효과 (자동 계산)</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-600">일반 상속세:</span>
+                  <div className="text-lg font-bold text-red-600">
+                    {formatCurrency(taxSavingEffect.originalTax)}원
+                  </div>
+                </div>
+                <div>
+                  <span className="text-gray-600">가업승계 적용세:</span>
+                  <div className="text-lg font-bold text-blue-600">
+                    {formatCurrency(taxSavingEffect.reducedTax)}원
+                  </div>
+                </div>
+                <div>
+                  <span className="text-gray-600">절약 효과:</span>
+                  <div className="text-lg font-bold text-green-600">
+                    {formatCurrency(taxSavingEffect.savingAmount)}원
+                  </div>
+                  <div className="text-xs text-green-700">
+                    ({taxSavingEffect.savingRate.toFixed(1)}% 절약)
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 상속세 공제 내역 */}
+          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
+            <h4 className="text-sm font-semibold text-blue-800 mb-3">📋 상속세 공제 내역 (자동 계산)</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div>
+                <span className="text-gray-600">기초공제:</span>
+                <div className="font-medium text-blue-700">
+                  {formatCurrency(inheritanceDeductions.basicDeduction)}원
+                </div>
+              </div>
+              <div>
+                <span className="text-gray-600">인적공제:</span>
+                <div className="font-medium text-blue-700">
+                  {formatCurrency(inheritanceDeductions.personalDeduction)}원
+                </div>
+              </div>
+              <div>
+                <span className="text-gray-600">추가공제:</span>
+                <div className="font-medium text-blue-700">
+                  {formatCurrency(inheritanceDeductions.additionalDeduction)}원
+                </div>
+              </div>
+              <div>
+                <span className="text-gray-600">총 공제:</span>
+                <div className="font-medium text-blue-700">
+                  {formatCurrency(inheritanceDeductions.totalDeduction)}원
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 실시간 분석 요약 */}
+          {(inputs.totalInheritanceValue > 0 || inputs.businessAssetValue > 0) && (
+            <div className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200">
+              <h4 className="text-sm font-semibold text-yellow-800 mb-3">📊 실시간 분석 요약</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-600">기업 분류:</span>
+                  <span className="ml-2 font-medium">
+                    {inputs.businessType === 'small' ? '중소기업' : '중견기업'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-600">요건 충족률:</span>
+                  <span className="ml-2 font-medium text-purple-600">
+                    {successionRequirements.overallScore.toFixed(0)}%
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-600">예상 절세율:</span>
+                  <span className="ml-2 font-medium text-green-600">
+                    {taxSavingEffect.savingRate.toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* 주요 특징 강화 */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -391,44 +712,268 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="totalInheritanceValue">총 상속재산 가액 (원)</Label>
-                  <Input
-                    id="totalInheritanceValue"
-                    type="number"
-                    value={inputs.totalInheritanceValue || ''}
-                                          onChange={(e) => updateInput('totalInheritanceValue', Math.round(Number(e.target.value)))}
-                    placeholder="예: 5000000000"
-                  />
+                <div className="space-y-2">
+                  {/* 🔴 개선된 라벨 (필수 필드 강조) */}
+                  <Label htmlFor="totalInheritanceValue" className={`
+                    flex items-center gap-2 text-sm font-medium
+                    ${!inputs.totalInheritanceValue || inputs.totalInheritanceValue === 0 ? 'text-red-700 font-semibold' : 'text-green-700 font-semibold'}
+                  `}>
+                    <span>💰 총 상속재산 가액 (원)</span>
+                    
+                    {/* 🔴 필수 표시 강화 */}
+                    <div className="flex items-center gap-1">
+                      <span className="text-red-500 text-lg font-bold">*</span>
+                      <Badge variant="outline" className="text-xs bg-red-100 text-red-700 border-red-300 px-1 py-0">
+                        필수
+                      </Badge>
+                    </div>
+                    
+                    {/* ✅ 완료 표시 */}
+                    {inputs.totalInheritanceValue > 0 && (
+                      <Badge variant="outline" className="text-xs bg-green-100 text-green-700 border-green-300">
+                        ✅ 완료
+                      </Badge>
+                    )}
+                  </Label>
+                  
+                  {/* 🔴 개선된 입력 필드 */}
+                  <div className="relative">
+                    <Input
+                      id="totalInheritanceValue"
+                      type="text"
+                      inputMode="numeric"
+                      value={inputs.totalInheritanceValue || ''}
+                      onChange={(e) => updateInput('totalInheritanceValue', Math.round(Number(e.target.value)))}
+                      onKeyDown={(e) => {
+                        // 🔥 키보드 단축키 허용 (Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+Z 등)
+                        if (e.ctrlKey || e.metaKey) {
+                          return; // 모든 Ctrl/Cmd 조합키 허용
+                        }
+
+                        // 기본 허용 키들
+                        const allowedKeys = [
+                          'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
+                          'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+                          'Home', 'End', 'PageUp', 'PageDown'
+                        ];
+                        const isNumber = /^[0-9]$/.test(e.key);
+                        
+                        // 허용되지 않는 키 차단
+                        if (!allowedKeys.includes(e.key) && !isNumber) {
+                          e.preventDefault();
+                        }
+                      }}
+                      placeholder="예: 5000000000 (필수)"
+                      autoComplete="off"
+                      className={`
+                        ${!inputs.totalInheritanceValue || inputs.totalInheritanceValue === 0 ? 
+                          'border-red-400 border-2 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-200' :
+                          'border-green-500 bg-green-50 focus:border-green-500'}
+                        text-right font-mono transition-all duration-200
+                      `}
+                    />
+                    
+                    {/* 🔴 필수 필드 시각적 표시 */}
+                    {(!inputs.totalInheritanceValue || inputs.totalInheritanceValue === 0) && (
+                      <div className="absolute -right-2 -top-2">
+                        <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
+                          !
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* ✅ 완료 표시 */}
+                    {inputs.totalInheritanceValue > 0 && (
+                      <div className="absolute -right-2 -top-2">
+                        <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-green-500 rounded-full">
+                          ✓
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* 🔴 필수 필드 오류 메시지 */}
+                  {(!inputs.totalInheritanceValue || inputs.totalInheritanceValue === 0) && (
+                    <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+                      <div className="flex items-start gap-2">
+                        <span className="text-red-500 font-bold">⚠️</span>
+                        <span>총 상속재산 가액은 필수 입력 항목입니다.</span>
+                        <Badge variant="destructive" className="text-xs ml-2">
+                          REQUIRED
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* 🔴 필수 필드 완료 안내 */}
+                  {inputs.totalInheritanceValue > 0 && (
+                    <div className="text-sm text-green-600 bg-green-50 p-2 rounded border border-green-200">
+                      ✅ 필수 입력이 완료되었습니다: {formatCurrency(inputs.totalInheritanceValue)}원
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <Label htmlFor="businessAssetValue">가업용 자산 가액 (원)</Label>
-                  <Input
-                    id="businessAssetValue"
-                    type="number"
-                    value={inputs.businessAssetValue || ''}
-                                          onChange={(e) => updateInput('businessAssetValue', Math.round(Number(e.target.value)))}
-                    placeholder="예: 4000000000"
-                  />
+                <div className="space-y-2">
+                  {/* 🔴 개선된 라벨 (필수 필드 강조) */}
+                  <Label htmlFor="businessAssetValue" className={`
+                    flex items-center gap-2 text-sm font-medium
+                    ${!inputs.businessAssetValue || inputs.businessAssetValue === 0 ? 'text-red-700 font-semibold' : 'text-green-700 font-semibold'}
+                  `}>
+                    <span>🏢 가업용 자산 가액 (원)</span>
+                    
+                    {/* 🔴 필수 표시 강화 */}
+                    <div className="flex items-center gap-1">
+                      <span className="text-red-500 text-lg font-bold">*</span>
+                      <Badge variant="outline" className="text-xs bg-red-100 text-red-700 border-red-300 px-1 py-0">
+                        필수
+                      </Badge>
+                    </div>
+                    
+                    {/* ✅ 완료 표시 */}
+                    {inputs.businessAssetValue > 0 && (
+                      <Badge variant="outline" className="text-xs bg-green-100 text-green-700 border-green-300">
+                        ✅ 완료
+                      </Badge>
+                    )}
+                  </Label>
+                  
+                  {/* 🔴 개선된 입력 필드 */}
+                  <div className="relative">
+                    <Input
+                      id="businessAssetValue"
+                      type="text"
+                      inputMode="numeric"
+                      value={inputs.businessAssetValue || ''}
+                      onChange={(e) => updateInput('businessAssetValue', Math.round(Number(e.target.value)))}
+                      onKeyDown={(e) => {
+                        // 🔥 키보드 단축키 허용 (Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+Z 등)
+                        if (e.ctrlKey || e.metaKey) {
+                          return; // 모든 Ctrl/Cmd 조합키 허용
+                        }
+
+                        // 기본 허용 키들
+                        const allowedKeys = [
+                          'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
+                          'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+                          'Home', 'End', 'PageUp', 'PageDown'
+                        ];
+                        const isNumber = /^[0-9]$/.test(e.key);
+                        
+                        // 허용되지 않는 키 차단
+                        if (!allowedKeys.includes(e.key) && !isNumber) {
+                          e.preventDefault();
+                        }
+                      }}
+                      placeholder="예: 4000000000 (필수)"
+                      autoComplete="off"
+                      className={`
+                        ${!inputs.businessAssetValue || inputs.businessAssetValue === 0 ? 
+                          'border-red-400 border-2 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-200' :
+                          'border-green-500 bg-green-50 focus:border-green-500'}
+                        text-right font-mono transition-all duration-200
+                      `}
+                    />
+                    
+                    {/* 🔴 필수 필드 시각적 표시 */}
+                    {(!inputs.businessAssetValue || inputs.businessAssetValue === 0) && (
+                      <div className="absolute -right-2 -top-2">
+                        <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
+                          !
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* ✅ 완료 표시 */}
+                    {inputs.businessAssetValue > 0 && (
+                      <div className="absolute -right-2 -top-2">
+                        <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-green-500 rounded-full">
+                          ✓
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* 🔴 필수 필드 오류 메시지 */}
+                  {(!inputs.businessAssetValue || inputs.businessAssetValue === 0) && (
+                    <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+                      <div className="flex items-start gap-2">
+                        <span className="text-red-500 font-bold">⚠️</span>
+                        <span>가업용 자산 가액은 필수 입력 항목입니다.</span>
+                        <Badge variant="destructive" className="text-xs ml-2">
+                          REQUIRED
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* 🔴 필수 필드 완료 안내 */}
+                  {inputs.businessAssetValue > 0 && (
+                    <div className="text-sm text-green-600 bg-green-50 p-2 rounded border border-green-200">
+                      ✅ 필수 입력이 완료되었습니다: {formatCurrency(inputs.businessAssetValue)}원
+                    </div>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="personalAssetValue">개인 자산 가액 (원)</Label>
                   <Input
                     id="personalAssetValue"
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     value={inputs.personalAssetValue || ''}
-                                          onChange={(e) => updateInput('personalAssetValue', Math.round(Number(e.target.value)))}
+                    onChange={(e) => updateInput('personalAssetValue', Math.round(Number(e.target.value)))}
+                    onKeyDown={(e) => {
+                      // 🔥 키보드 단축키 허용 (Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+Z 등)
+                      if (e.ctrlKey || e.metaKey) {
+                        return; // 모든 Ctrl/Cmd 조합키 허용
+                      }
+
+                      // 기본 허용 키들
+                      const allowedKeys = [
+                        'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
+                        'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+                        'Home', 'End', 'PageUp', 'PageDown'
+                      ];
+                      const isNumber = /^[0-9]$/.test(e.key);
+                      
+                      // 허용되지 않는 키 차단
+                      if (!allowedKeys.includes(e.key) && !isNumber) {
+                        e.preventDefault();
+                      }
+                    }}
                     placeholder="예: 1000000000"
+                    autoComplete="off"
+                    className="text-right font-mono"
                   />
                 </div>
                 <div>
                   <Label htmlFor="debtsAndExpenses">채무 및 공과금 (원)</Label>
                   <Input
                     id="debtsAndExpenses"
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     value={inputs.debtsAndExpenses || ''}
-                                          onChange={(e) => updateInput('debtsAndExpenses', Math.round(Number(e.target.value)))}
+                    onChange={(e) => updateInput('debtsAndExpenses', Math.round(Number(e.target.value)))}
+                    onKeyDown={(e) => {
+                      // 🔥 키보드 단축키 허용 (Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+Z 등)
+                      if (e.ctrlKey || e.metaKey) {
+                        return; // 모든 Ctrl/Cmd 조합키 허용
+                      }
+
+                      // 기본 허용 키들
+                      const allowedKeys = [
+                        'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
+                        'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+                        'Home', 'End', 'PageUp', 'PageDown'
+                      ];
+                      const isNumber = /^[0-9]$/.test(e.key);
+                      
+                      // 허용되지 않는 키 차단
+                      if (!allowedKeys.includes(e.key) && !isNumber) {
+                        e.preventDefault();
+                      }
+                    }}
                     placeholder="예: 200000000"
+                    autoComplete="off"
+                    className="text-right font-mono"
                   />
                 </div>
               </div>
@@ -459,34 +1004,129 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label htmlFor="businessPeriod">업력 (년)</Label>
-                  <Input
-                    id="businessPeriod"
-                    type="number"
-                    value={inputs.businessPeriod || ''}
-                                          onChange={(e) => updateInput('businessPeriod', Math.round(Number(e.target.value)))}
-                    placeholder="예: 10"
-                  />
+                <div className="space-y-2">
+                  {/* 🔴 개선된 라벨 (필수 필드 강조) */}
+                  <Label htmlFor="businessPeriod" className={`
+                    flex items-center gap-2 text-sm font-medium
+                    ${inputs.businessPeriod < 10 ? 'text-red-700 font-semibold' : 'text-green-700 font-semibold'}
+                  `}>
+                    <span>📅 업력 (년)</span>
+                    
+                    {/* 🔴 필수 표시 강화 */}
+                    <div className="flex items-center gap-1">
+                      <span className="text-red-500 text-lg font-bold">*</span>
+                      <Badge variant="outline" className="text-xs bg-red-100 text-red-700 border-red-300 px-1 py-0">
+                        10년 이상 필수
+                      </Badge>
+                    </div>
+                    
+                    {/* ✅ 완료 표시 */}
+                    {inputs.businessPeriod >= 10 && (
+                      <Badge variant="outline" className="text-xs bg-green-100 text-green-700 border-green-300">
+                        ✅ 요건 충족
+                      </Badge>
+                    )}
+                  </Label>
+                  
+                  {/* 🔴 개선된 입력 필드 */}
+                  <div className="relative">
+                    <Input
+                      id="businessPeriod"
+                      type="text"
+                      inputMode="numeric"
+                      value={inputs.businessPeriod || ''}
+                      onChange={(e) => updateInput('businessPeriod', Math.round(Number(e.target.value)))}
+                      onKeyDown={(e) => {
+                        if (e.ctrlKey || e.metaKey) return;
+                        const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'];
+                        const isNumber = /^[0-9]$/.test(e.key);
+                        if (!allowedKeys.includes(e.key) && !isNumber) e.preventDefault();
+                      }}
+                      placeholder="예: 10 (10년 이상 필수)"
+                      autoComplete="off"
+                      className={`
+                        ${inputs.businessPeriod < 10 ? 
+                          'border-red-400 border-2 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-200' :
+                          'border-green-500 bg-green-50 focus:border-green-500'}
+                        text-right font-mono transition-all duration-200
+                      `}
+                    />
+                    
+                    {/* 🔴 필수 필드 시각적 표시 */}
+                    {inputs.businessPeriod < 10 && (
+                      <div className="absolute -right-2 -top-2">
+                        <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
+                          !
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* ✅ 완료 표시 */}
+                    {inputs.businessPeriod >= 10 && (
+                      <div className="absolute -right-2 -top-2">
+                        <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-green-500 rounded-full">
+                          ✓
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* 🔴 필수 필드 오류 메시지 */}
+                  {inputs.businessPeriod < 10 && (
+                    <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+                      <div className="flex items-start gap-2">
+                        <span className="text-red-500 font-bold">⚠️</span>
+                        <span>가업승계공제를 위해 업력 10년 이상이 필요합니다.</span>
+                        <Badge variant="destructive" className="text-xs ml-2">
+                          REQUIRED
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* 🔴 필수 필드 완료 안내 */}
+                  {inputs.businessPeriod >= 10 && (
+                    <div className="text-sm text-green-600 bg-green-50 p-2 rounded border border-green-200">
+                      ✅ 가업승계 업력 요건을 충족합니다: {inputs.businessPeriod}년
+                    </div>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="employeeCount">종업원 수 (명)</Label>
                   <Input
                     id="employeeCount"
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     value={inputs.employeeCount || ''}
-                                          onChange={(e) => updateInput('employeeCount', Math.round(Number(e.target.value)))}
+                    onChange={(e) => updateInput('employeeCount', Math.round(Number(e.target.value)))}
+                    onKeyDown={(e) => {
+                      if (e.ctrlKey || e.metaKey) return;
+                      const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'];
+                      const isNumber = /^[0-9]$/.test(e.key);
+                      if (!allowedKeys.includes(e.key) && !isNumber) e.preventDefault();
+                    }}
                     placeholder="예: 50"
+                    autoComplete="off"
+                    className="text-right font-mono"
                   />
                 </div>
                 <div>
                   <Label htmlFor="annualRevenue">연간 매출액 (원)</Label>
                   <Input
                     id="annualRevenue"
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     value={inputs.annualRevenue || ''}
-                                          onChange={(e) => updateInput('annualRevenue', Math.round(Number(e.target.value)))}
+                    onChange={(e) => updateInput('annualRevenue', Math.round(Number(e.target.value)))}
+                    onKeyDown={(e) => {
+                      if (e.ctrlKey || e.metaKey) return;
+                      const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'];
+                      const isNumber = /^[0-9]$/.test(e.key);
+                      if (!allowedKeys.includes(e.key) && !isNumber) e.preventDefault();
+                    }}
                     placeholder="예: 10000000000"
+                    autoComplete="off"
+                    className="text-right font-mono"
                   />
                 </div>
               </div>
@@ -509,20 +1149,38 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                   <Label htmlFor="inheritorsCount">상속인 수 (명)</Label>
                   <Input
                     id="inheritorsCount"
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     value={inputs.inheritorsCount || ''}
                     onChange={(e) => updateInput('inheritorsCount', Number(e.target.value))}
+                    onKeyDown={(e) => {
+                      if (e.ctrlKey || e.metaKey) return;
+                      const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'];
+                      const isNumber = /^[0-9]$/.test(e.key);
+                      if (!allowedKeys.includes(e.key) && !isNumber) e.preventDefault();
+                    }}
                     placeholder="예: 3"
+                    autoComplete="off"
+                    className="text-right font-mono"
                   />
                 </div>
                 <div>
                   <Label htmlFor="directDescendants">직계비속 수 (명)</Label>
                   <Input
                     id="directDescendants"
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     value={inputs.directDescendants || ''}
                     onChange={(e) => updateInput('directDescendants', Number(e.target.value))}
+                    onKeyDown={(e) => {
+                      if (e.ctrlKey || e.metaKey) return;
+                      const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'];
+                      const isNumber = /^[0-9]$/.test(e.key);
+                      if (!allowedKeys.includes(e.key) && !isNumber) e.preventDefault();
+                    }}
                     placeholder="예: 2"
+                    autoComplete="off"
+                    className="text-right font-mono"
                   />
                 </div>
                 <div>
@@ -1151,6 +1809,16 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
           </Card>
         </div>
       )}
+
+      {/* 🧪 베타테스트 피드백 시스템 */}
+      <BetaFeedbackForm 
+        calculatorName="사업승계세 계산기"
+        calculatorType="business-inheritance-tax"
+        className="mt-8"
+      />
+
+      {/* 하단 면책 조항 */}
+      <TaxCalculatorDisclaimer variant="full" className="mt-6" />
     </div>
   );
 };

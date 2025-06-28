@@ -19,7 +19,15 @@
     "ai:generate-report": "node scripts/ai-report-generator.js",
     "ai:train-chatbot": "node scripts/ai-chatbot-trainer.js",
     "test:chatbot": "echo 'AI 챗봇 성능 테스트 실행 중...' && node -e \"console.log('✅ 챗봇 테스트 완료')\"",
-    "setup:ai": "npm install @google/generative-ai && echo '🤖 AI 스크립트 설정 완료'"
+    "setup:ai": "npm install @google/generative-ai && echo '🤖 AI 스크립트 설정 완료'",
+    "vercel:env": "node scripts/setup-vercel-env-production.js",
+    "vercel:deploy": "vercel --prod",
+    "vercel:setup": "npm run vercel:env && npm run vercel:deploy",
+    "setup:env": "cp env.local.production .env.local && echo '✅ 환경변수 파일 복사 완료'",
+    "update:google-script": "node scripts/update-google-script-url.js",
+    "test:beta-feedback": "node scripts/test-beta-feedback-system.js",
+    "test:google-script": "npm run test:beta-feedback",
+    "deploy:complete": "npm run build && npm run vercel:deploy && npm run test:beta-feedback"
   },
   "dependencies": {
     "@google/generative-ai": "^0.20.0",

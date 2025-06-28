@@ -94,7 +94,7 @@ export default function FloatingChatbot() {
     const deltaX = clientX - dragStart.x;
     const deltaY = clientY - dragStart.y;
     const newX = dragOffset.x - deltaX; // 오른쪽에서의 거리이므로 반대로
-    const newY = dragOffset.y + deltaY;
+    const newY = dragOffset.y - deltaY; // 하단에서의 거리이므로 반대로 (아래로 드래그하면 bottom 값이 작아져야 함)
     
     // 화면 경계 제한 (전체 2D 드래그)
     const maxX = window.innerWidth - 90; // 버튼 크기 고려

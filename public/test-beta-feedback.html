@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M-CENTER 베타피드백 테스트</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .test-buttons button {
+            flex: 1;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 M-CENTER 베타피드백 시스템 테스트</h1>
+        
+        <div class="test-buttons">
+            <button onclick="testApiStatus()" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                📊 API 상태 확인
+            </button>
+            <button onclick="fillTestData()" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);">
+                📝 테스트 데이터 입력
+            </button>
+        </div>
+
+        <form id="betaFeedbackForm">
+            <div class="form-group">
+                <label for="calculator">계산기명</label>
+                <select id="calculator" name="계산기명" required>
+                    <option value="">선택하세요</option>
+                    <option value="상속세 계산기">상속세 계산기</option>
+                    <option value="증여세 계산기">증여세 계산기</option>
+                    <option value="종합소득세 계산기">종합소득세 계산기</option>
+                    <option value="법인세 계산기">법인세 계산기</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="feedbackType">피드백 유형</label>
+                <select id="feedbackType" name="피드백유형" required>
+                    <option value="">선택하세요</option>
+                    <option value="🐛 버그 신고">🐛 버그 신고</option>
+                    <option value="💡 개선 제안">💡 개선 제안</option>
+                    <option value="✨ 기능 요청">✨ 기능 요청</option>
+                    <option value="💬 기타 의견">💬 기타 의견</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="email">이메일 주소</label>
+                <input type="email" id="email" name="사용자이메일" required 
+                       placeholder="your@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="problem">문제 설명</label>
+                <textarea id="problem" name="문제설명" required 
+                          placeholder="발생한 문제나 개선사항을 상세히 설명해주세요..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="expected">기대 동작 (선택사항)</label>
+                <textarea id="expected" name="기대동작" 
+                          placeholder="어떻게 동작하기를 기대하셨나요?"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="actual">실제 동작 (선택사항)</label>
+                <textarea id="actual" name="실제동작" 
+                          placeholder="실제로는 어떻게 동작했나요?"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="steps">재현 단계 (선택사항)</label>
+                <textarea id="steps" name="재현단계" 
+                          placeholder="문제를 재현하는 단계를 설명해주세요..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="severity">심각도</label>
+                <select id="severity" name="심각도">
+                    <option value="">선택하세요</option>
+                    <option value="낮음">낮음</option>
+                    <option value="보통">보통</option>
+                    <option value="높음">높음</option>
+                    <option value="긴급">긴급</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="additional">추가 의견</label>
+                <textarea id="additional" name="추가의견" 
+                          placeholder="기타 의견이나 제안사항이 있으시면 적어주세요..."></textarea>
+            </div>
+
+            <button type="submit">🚀 베타 피드백 제출</button>
+        </form>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('betaFeedbackForm');
+        const status = document.getElementById('status');
+
+        // API 상태 확인
+        async function testApiStatus() {
+            showStatus('📊 API 상태 확인 중...', 'loading');
+            
+            try {
+                const response = await fetch('/api/beta-feedback', {
+                    method: 'GET'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus(`✅ API 정상 작동<br>
+                        📋 환경: ${result.data.environment}<br>
+                        🔗 구글시트 연동: ${result.data.googleSheets.configured ? '✅ 설정 완료' : '❌ 미설정'}<br>
+                        📧 지원 기능: ${result.data.features.length}개`, 'success');
+                } else {
+                    showStatus(`❌ API 오류: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ API 연결 실패: ${error.message}`, 'error');
+            }
+        }
+
+        // 테스트 데이터 자동 입력
+        function fillTestData() {
+            document.getElementById('calculator').value = '상속세 계산기';
+            document.getElementById('feedbackType').value = '🐛 버그 신고';
+            document.getElementById('email').value = 'test@example.com';
+            document.getElementById('problem').value = 'HTML 테스트를 통한 베타피드백 시스템 검증';
+            document.getElementById('expected').value = '정상적인 계산 결과 출력';
+            document.getElementById('actual').value = '테스트 진행 중';
+            document.getElementById('steps').value = '1. 웹 테스트 페이지 접속\n2. 테스트 데이터 입력\n3. 제출 버튼 클릭';
+            document.getElementById('severity').value = '낮음';
+            document.getElementById('additional').value = 'HTML 인터페이스를 통한 베타피드백 시스템 자동 테스트입니다.';
+            
+            showStatus('📝 테스트 데이터가 자동 입력되었습니다. 이제 제출 버튼을 클릭하세요!', 'success');
+        }
+
+        // 상태 메시지 표시
+        function showStatus(message, type) {
+            status.innerHTML = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+        }
+
+        // 폼 제출 처리
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            showStatus('🚀 베타 피드백 제출 중... (구글시트 저장 + 이메일 발송)', 'loading');
+            
+            try {
+                const formData = new FormData(form);
+                const data = {
+                    action: 'saveBetaFeedback',
+                    제출일시: new Date().toISOString(),
+                    폼타입: '베타테스트_피드백',
+                    브라우저정보: navigator.userAgent,
+                    제출경로: window.location.href,
+                    타임스탬프: Date.now(),
+                    dataSource: 'html-test-form'
+                };
+                
+                // FormData를 객체로 변환
+                for (let [key, value] of formData.entries()) {
+                    data[key] = value;
+                }
+                
+                console.log('제출 데이터:', data);
+                
+                const response = await fetch('/api/beta-feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                console.log('응답 결과:', result);
+                
+                if (result.success) {
+                    showStatus(`✅ 베타 피드백이 성공적으로 처리되었습니다!<br>
+                        📊 데이터: 구글시트에 저장 완료<br>
+                        📧 이메일: 관리자 알림 + 접수 확인 메일 발송<br>
+                        🎯 계산기: ${data.계산기명}<br>
+                        📝 유형: ${data.피드백유형}<br>
+                        ⏰ 처리 시간: ${new Date().toLocaleString('ko-KR')}`, 'success');
+                    
+                    // 폼 리셋
+                    form.reset();
+                } else {
+                    showStatus(`❌ 처리 실패: ${result.error}<br>
+                        📝 세부사항: ${result.details || '알 수 없는 오류'}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('제출 오류:', error);
+                showStatus(`❌ 제출 중 오류 발생: ${error.message}`, 'error');
+            }
+        });
+
+        // 페이지 로드 시 자동으로 API 상태 확인
+        window.addEventListener('load', () => {
+            setTimeout(testApiStatus, 1000);
+        });
+    </script>
+</body>
+</html> 

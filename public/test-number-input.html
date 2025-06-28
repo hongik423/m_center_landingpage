@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>숫자 입력 테스트</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            text-align: right;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+        .test-status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #e7f3ff;
+            color: #0c5460;
+            border: 1px solid #b8daff;
+        }
+        .test-instructions {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .test-results {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔢 숫자 입력 테스트</h1>
+        <div class="test-instructions">
+            <h3>📋 테스트 방법</h3>
+            <ul>
+                <li><strong>기본 입력:</strong> 숫자를 입력하면 천단위 쉼표가 자동으로 추가됩니다</li>
+                <li><strong>복사/붙여넣기:</strong> Ctrl+C, Ctrl+V 사용해보세요</li>
+                <li><strong>전체선택:</strong> Ctrl+A로 전체 선택해보세요</li>
+                <li><strong>실행취소:</strong> Ctrl+Z로 실행취소해보세요</li>
+                <li><strong>방향키:</strong> 화살표키로 커서 이동해보세요</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <div class="input-group">
+            <label for="stock-quantity">📈 매입주식수량 (주)</label>
+            <input type="text" id="stock-quantity" inputmode="numeric" placeholder="예: 1000">
+            <div id="stock-quantity-status" class="test-status info">
+                숫자를 입력해보세요
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="stock-price">💰 주당 매입가격 (원)</label>
+            <input type="text" id="stock-price" inputmode="numeric" placeholder="예: 50000">
+            <div id="stock-price-status" class="test-status info">
+                숫자를 입력해보세요
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="total-value">📊 총 매입가액 (원)</label>
+            <input type="text" id="total-value" inputmode="numeric" placeholder="자동 계산됩니다" readonly>
+            <div id="total-value-status" class="test-status info">
+                위 두 값을 곱한 결과가 자동으로 표시됩니다
+            </div>
+        </div>
+
+        <button onclick="testCopyPaste()">📋 복사/붙여넣기 테스트</button>
+        <button onclick="testShortcuts()">⌨️ 단축키 테스트</button>
+        <button onclick="resetTest()">🔄 초기화</button>
+    </div>
+
+    <div class="test-results">
+        <h3>🧪 테스트 결과</h3>
+        <div id="test-log">
+            <p>테스트를 시작하세요...</p>
+        </div>
+    </div>
+
+    <script>
+        // 숫자 포맷팅 함수
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // 숫자 파싱 함수
+        function parseNumber(str) {
+            return parseInt(str.replace(/,/g, '')) || 0;
+        }
+
+        // 로그 추가 함수
+        function addLog(message, type = 'info') {
+            const logDiv = document.getElementById('test-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `test-status ${type}`;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        // 입력 처리 함수
+        function handleNumberInput(input, statusElement) {
+            input.addEventListener('input', function(e) {
+                const value = e.target.value;
+                const numValue = parseNumber(value);
+                
+                if (value === '' || numValue === 0) {
+                    statusElement.textContent = '숫자를 입력해보세요';
+                    statusElement.className = 'test-status info';
+                } else {
+                    e.target.value = formatNumber(numValue);
+                    statusElement.textContent = `✅ 입력값: ${formatNumber(numValue)}`;
+                    statusElement.className = 'test-status success';
+                }
+                
+                // 자동 계산
+                calculateTotal();
+            });
+
+            // 키보드 이벤트 처리
+            input.addEventListener('keydown', function(e) {
+                // Ctrl/Cmd 키 조합 허용
+                if (e.ctrlKey || e.metaKey) {
+                    addLog(`키보드 단축키 사용: ${e.key}`, 'success');
+                    return;
+                }
+
+                // 허용된 키들
+                const allowedKeys = [
+                    'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
+                    'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+                    'Home', 'End', 'PageUp', 'PageDown'
+                ];
+                
+                const isNumber = /^[0-9]$/.test(e.key);
+                
+                if (!allowedKeys.includes(e.key) && !isNumber) {
+                    e.preventDefault();
+                    addLog(`차단된 키: ${e.key}`, 'error');
+                } else if (isNumber || allowedKeys.includes(e.key)) {
+                    addLog(`허용된 키: ${e.key}`, 'success');
+                }
+            });
+
+            // 포커스 이벤트
+            input.addEventListener('focus', function() {
+                addLog(`${input.labels[0].textContent} 필드에 포커스`, 'info');
+            });
+
+            input.addEventListener('blur', function() {
+                addLog(`${input.labels[0].textContent} 필드에서 포커스 해제`, 'info');
+            });
+        }
+
+        // 자동 계산 함수
+        function calculateTotal() {
+            const quantity = parseNumber(document.getElementById('stock-quantity').value || '0');
+            const price = parseNumber(document.getElementById('stock-price').value || '0');
+            const total = quantity * price;
+            
+            const totalInput = document.getElementById('total-value');
+            const totalStatus = document.getElementById('total-value-status');
+            
+            if (total > 0) {
+                totalInput.value = formatNumber(total);
+                totalStatus.textContent = `✅ 자동 계산됨: ${formatNumber(quantity)} × ${formatNumber(price)} = ${formatNumber(total)}원`;
+                totalStatus.className = 'test-status success';
+            } else {
+                totalInput.value = '';
+                totalStatus.textContent = '위 두 값을 곱한 결과가 자동으로 표시됩니다';
+                totalStatus.className = 'test-status info';
+            }
+        }
+
+        // 복사/붙여넣기 테스트
+        function testCopyPaste() {
+            const testValue = '1000000';
+            const stockQuantity = document.getElementById('stock-quantity');
+            
+            // 클립보드에 값 복사 시뮬레이션
+            navigator.clipboard.writeText(testValue).then(() => {
+                addLog('클립보드에 "1000000" 복사됨', 'success');
+                addLog('이제 입력 필드에 Ctrl+V로 붙여넣기 해보세요', 'info');
+                stockQuantity.focus();
+            }).catch(() => {
+                addLog('클립보드 접근 실패 - 직접 복사/붙여넣기 해보세요', 'error');
+            });
+        }
+
+        // 단축키 테스트
+        function testShortcuts() {
+            addLog('단축키 테스트를 시작합니다', 'info');
+            addLog('입력 필드에서 다음 단축키들을 사용해보세요:', 'info');
+            addLog('• Ctrl+A: 전체 선택', 'info');
+            addLog('• Ctrl+C: 복사', 'info');
+            addLog('• Ctrl+V: 붙여넣기', 'info');
+            addLog('• Ctrl+Z: 실행취소', 'info');
+            addLog('• 방향키: 커서 이동', 'info');
+        }
+
+        // 테스트 초기화
+        function resetTest() {
+            document.getElementById('stock-quantity').value = '';
+            document.getElementById('stock-price').value = '';
+            document.getElementById('total-value').value = '';
+            
+            const statusElements = document.querySelectorAll('.test-status');
+            statusElements.forEach(status => {
+                if (status.id.includes('status')) {
+                    status.textContent = '숫자를 입력해보세요';
+                    status.className = 'test-status info';
+                }
+            });
+            
+            document.getElementById('test-log').innerHTML = '<p>테스트를 시작하세요...</p>';
+            addLog('테스트가 초기화되었습니다', 'success');
+        }
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            // 각 입력 필드에 이벤트 리스너 추가
+            handleNumberInput(
+                document.getElementById('stock-quantity'),
+                document.getElementById('stock-quantity-status')
+            );
+            
+            handleNumberInput(
+                document.getElementById('stock-price'),
+                document.getElementById('stock-price-status')
+            );
+            
+            addLog('테스트 페이지가 로드되었습니다', 'success');
+            addLog('숫자 입력 테스트를 시작하세요!', 'info');
+        });
+    </script>
+</body>
+</html> 

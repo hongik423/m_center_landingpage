@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useCallback, useMemo } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -37,6 +37,7 @@ import { CorporateTaxInput, CorporateTaxResult, CorporateTaxValidation } from '@
 import { CorporateTaxCalculator, CorporateTaxInputValidator } from '@/lib/utils/corporate-tax-calculations';
 import { CORPORATE_TAX_LIMITS_2024, CORPORATE_TAX_2024 } from '@/constants/tax-rates-2024';
 import { TaxCalculatorDisclaimer } from './TaxCalculatorDisclaimer';
+import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
 import { formatNumber, formatWon } from '@/lib/utils';
 
 // NumberInput 컴포넌트 (실시간 검증 및 한도 표시)
@@ -73,6 +74,11 @@ function NumberInput({
 }: NumberInputProps) {
   const [displayValue, setDisplayValue] = useState(value ? formatNumber(value) : '');
   const [isFocused, setIsFocused] = useState(false);
+
+  // 🔴 필수 필드 상태 계산
+  const hasError = false; // 기존 에러 로직 유지
+  const isCompleted = value > 0 && !hasError;
+  const isRequiredAndEmpty = isRequired && value === 0;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value.replace(/[^0-9.]/g, '');
@@ -130,40 +136,89 @@ function NumberInput({
     return Math.min((value / maxValue) * 100, 100);
   };
 
-  return (
-    <div className={`space-y-2 ${className}`}>
-      <div className="flex items-center justify-between">
-        <Label htmlFor={id} className="flex items-center space-x-1">
-          <span>{label}</span>
-          {isRequired && <span className="text-red-500">*</span>}
-          {helpText && (
-            <div className="group relative">
-              <HelpCircle className="h-4 w-4 text-gray-400 cursor-help" />
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                {helpText}
+      return (
+      <div className={`space-y-2 ${className}`}>
+        <div className="flex items-center justify-between">
+          <Label 
+            htmlFor={id} 
+            className={`
+              text-sm font-medium flex items-center gap-2
+              ${isRequired && !isCompleted ? 'text-red-700 font-semibold' : 
+                isRequired && isCompleted ? 'text-green-700 font-semibold' : 
+                'text-gray-700'}
+            `}
+          >
+            <span>{label}</span>
+            
+            {/* 🔴 필수 표시 강화 */}
+            {isRequired && (
+              <div className="flex items-center gap-1">
+                <span className="text-red-500 text-lg font-bold">*</span>
+                <Badge variant="outline" className="text-xs bg-red-100 text-red-700 border-red-300 px-1 py-0">
+                  필수
+                </Badge>
               </div>
-            </div>
-          )}
-        </Label>
-        <div className="flex items-center space-x-2">
-          {getStatusIcon()}
-          {maxValue && (
-            <span className="text-xs text-gray-500">
-              한도: {formatNumber(maxValue)}{suffix}
-            </span>
-          )}
+            )}
+            
+            {/* ✅ 완료 표시 */}
+            {isRequired && isCompleted && (
+              <Badge variant="outline" className="text-xs bg-green-100 text-green-700 border-green-300">
+                ✅ 완료
+              </Badge>
+            )}
+            
+            {helpText && (
+              <div className="group relative">
+                <HelpCircle className="h-4 w-4 text-gray-400 cursor-help" />
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                  {helpText}
+                </div>
+              </div>
+            )}
+          </Label>
+          <div className="flex items-center space-x-2">
+            {getStatusIcon()}
+            {maxValue && (
+              <span className="text-xs text-gray-500">
+                한도: {formatNumber(maxValue)}{suffix}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
       
       <div className="relative">
         <Input
           id={id}
+          type="text"
+          inputMode="numeric"
           value={isFocused ? displayValue.replace(/,/g, '') : displayValue}
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          onKeyDown={(e) => {
+            // 🔥 키보드 단축키 허용 (Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+Z 등)
+            if (e.ctrlKey || e.metaKey) {
+              return; // 모든 Ctrl/Cmd 조합키 허용
+            }
+
+            // 기본 허용 키들
+            const allowedKeys = [
+              'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
+              'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+              'Home', 'End', 'PageUp', 'PageDown'
+            ];
+            const isNumber = /^[0-9]$/.test(e.key);
+            
+            // 허용되지 않는 키 차단
+            if (!allowedKeys.includes(e.key) && !isNumber) {
+              e.preventDefault();
+            }
+          }}
           placeholder={placeholder}
-          className={`${getStatusColor()} ${className}`}
+          autoComplete="off"
+          title={label}
+          aria-label={label}
+          className={`${getStatusColor()} ${className} text-right font-mono`}
         />
         {suffix && (
           <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
@@ -209,6 +264,26 @@ function NumberInput({
             한도의 80%에 근접했습니다. 추가 입력 시 제한될 수 있습니다.
           </AlertDescription>
         </Alert>
+      )}
+
+      {/* 🔴 필수 필드 오류 메시지 */}
+      {isRequired && isRequiredAndEmpty && (
+        <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+          <div className="flex items-start gap-2">
+            <span className="text-red-500 font-bold">⚠️</span>
+            <span>{label}은(는) 필수 입력 항목입니다.</span>
+            <Badge variant="destructive" className="text-xs ml-2">
+              REQUIRED
+            </Badge>
+          </div>
+        </div>
+      )}
+
+      {/* 🔴 필수 필드 완료 안내 */}
+      {isRequired && isCompleted && (
+        <div className="text-sm text-green-600 bg-green-50 p-2 rounded border border-green-200">
+          ✅ 필수 입력이 완료되었습니다: {formatNumber(value)}{suffix}
+        </div>
       )}
     </div>
   );
@@ -940,6 +1015,68 @@ const CorporateTaxCalculatorComponent: React.FC = () => {
   });
   const [activeGuideTab, setActiveGuideTab] = useState('checklist');
 
+  // 🔥 고도화된 자동 연계 계산 로직
+  
+  // 1. 영업소득 자동 계산
+  const operatingIncome = useMemo(() => {
+    return Math.max(0, input.revenue - input.operatingExpenses);
+  }, [input.revenue, input.operatingExpenses]);
+
+  // 2. 순소득 자동 계산
+  const netIncome = useMemo(() => {
+    return operatingIncome + input.nonOperatingIncome - input.nonOperatingExpenses + input.specialIncome - input.specialExpenses;
+  }, [operatingIncome, input.nonOperatingIncome, input.nonOperatingExpenses, input.specialIncome, input.specialExpenses]);
+
+  // 3. 과세표준 자동 계산
+  const taxableIncome = useMemo(() => {
+    return Math.max(0, netIncome - input.carryForwardLoss);
+  }, [netIncome, input.carryForwardLoss]);
+
+  // 4. 중소기업 판정 자동 계산
+  const isSmallMediumBusiness = useMemo(() => {
+    // 중소기업 기준: 매출액 120억 이하 또는 자산 50억 이하
+    return input.revenue <= 12000000000 || input.totalAssets <= 5000000000;
+  }, [input.revenue, input.totalAssets]);
+
+  // 5. 벤처기업 혜택 자동 계산
+  const ventureDiscount = useMemo(() => {
+    if (input.isStartup && input.startupYears <= 3 && isSmallMediumBusiness) {
+      return Math.min(taxableIncome * 0.5, 200000000); // 최대 2억원
+    }
+    return 0;
+  }, [input.isStartup, input.startupYears, isSmallMediumBusiness, taxableIncome]);
+
+  // 6. 고용증대 세액공제 자동 계산
+  const employmentTaxCredit = useMemo(() => {
+    let credit = 0;
+    credit += input.employmentIncrease * 7700000; // 일반근로자 770만원/명
+    credit += input.youngEmployees * 11000000; // 청년근로자 1,100만원/명
+    credit += input.disabledEmployees * 15400000; // 장애인근로자 1,540만원/명
+    return Math.min(credit, taxableIncome * 0.1); // 산출세액의 10% 한도
+  }, [input.employmentIncrease, input.youngEmployees, input.disabledEmployees, taxableIncome]);
+
+  // 7. R&D 세액공제 자동 계산
+  const rdTaxCredit = useMemo(() => {
+    if (input.rdExpenses > 0) {
+      const creditRate = isSmallMediumBusiness ? 0.3 : 0.25; // 중소기업 30%, 대기업 25%
+      return Math.min(input.rdExpenses * creditRate, taxableIncome * 0.25);
+    }
+    return 0;
+  }, [input.rdExpenses, isSmallMediumBusiness, taxableIncome]);
+
+  // 8. 설비투자 세액공제 자동 계산
+  const equipmentTaxCredit = useMemo(() => {
+    if (input.equipmentInvestment > 0) {
+      let creditRate = 0.03; // 기본 3%
+      if (input.equipmentType === 'smart') creditRate = 0.1; // 스마트팩토리 10%
+      else if (input.equipmentType === 'safety') creditRate = 0.1; // 안전설비 10%
+      else if (input.equipmentType === 'environment') creditRate = 0.1; // 환경보전설비 10%
+      
+      return Math.min(input.equipmentInvestment * creditRate, taxableIncome * 0.1);
+    }
+    return 0;
+  }, [input.equipmentInvestment, input.equipmentType, taxableIncome]);
+
   // 입력값 변경 처리
   const handleInputChange = useCallback((field: keyof CorporateTaxInput, value: any) => {
     setInput(prev => {
@@ -1081,6 +1218,160 @@ const CorporateTaxCalculatorComponent: React.FC = () => {
         {/* 면책 조항 */}
         <TaxCalculatorDisclaimer variant="summary" />
       </div>
+
+      {/* 🔥 스마트 자동 계산 대시보드 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Calculator className="h-5 w-5 text-green-600" />
+            <span>⚡ 스마트 자동 계산 대시보드</span>
+          </CardTitle>
+          <CardDescription>
+            입력하는 즉시 관련 값들이 자동으로 연계 계산되고 세무 혜택이 분석됩니다
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {/* 영업소득 */}
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+              <div className="text-xs text-green-600 font-medium mb-1">📊 영업소득 (자동계산)</div>
+              <div className="text-xl font-bold text-green-800">
+                {operatingIncome.toLocaleString('ko-KR')}원
+              </div>
+              <div className="text-xs text-gray-500 mt-1">매출 - 영업비용</div>
+              {operatingIncome < 0 && (
+                <div className="text-xs text-red-500 mt-1">⚠️ 영업손실 발생</div>
+              )}
+            </div>
+
+            {/* 순소득 */}
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-4 rounded-lg border border-blue-200">
+              <div className="text-xs text-blue-600 font-medium mb-1">💰 순소득 (자동계산)</div>
+              <div className="text-xl font-bold text-blue-800">
+                {netIncome.toLocaleString('ko-KR')}원
+              </div>
+              <div className="text-xs text-gray-500 mt-1">영업 + 영업외 + 특별</div>
+              {netIncome < 0 && (
+                <div className="text-xs text-red-500 mt-1">⚠️ 순손실 발생</div>
+              )}
+            </div>
+
+            {/* 과세표준 */}
+            <div className="bg-gradient-to-br from-purple-50 to-violet-50 p-4 rounded-lg border border-purple-200">
+              <div className="text-xs text-purple-600 font-medium mb-1">📋 과세표준 (자동계산)</div>
+              <div className="text-xl font-bold text-purple-800">
+                {taxableIncome.toLocaleString('ko-KR')}원
+              </div>
+              <div className="text-xs text-gray-500 mt-1">순소득 - 이월결손금</div>
+              {taxableIncome === 0 && (
+                <div className="text-xs text-orange-500 mt-1">⚠️ 과세표준 없음</div>
+              )}
+            </div>
+
+            {/* 기업 분류 */}
+            <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-lg border border-orange-200">
+              <div className="text-xs text-orange-600 font-medium mb-1">🏢 기업 분류 (자동판정)</div>
+              <div className="text-xl font-bold text-orange-800">
+                {isSmallMediumBusiness ? '중소기업' : '대기업'}
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {isSmallMediumBusiness ? '중소기업 혜택 적용' : '일반세율 적용'}
+              </div>
+              <div className="text-xs text-blue-500 mt-1">
+                세율: {isSmallMediumBusiness ? '10~22%' : '22~25%'}
+              </div>
+            </div>
+          </div>
+
+          {/* 세액공제 혜택 요약 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* 고용증대 세액공제 */}
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 p-4 rounded-lg border border-emerald-200">
+              <div className="text-xs text-emerald-600 font-medium mb-1">👥 고용증대 공제</div>
+              <div className="text-lg font-bold text-emerald-800">
+                {employmentTaxCredit.toLocaleString('ko-KR')}원
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                증가인원: {input.employmentIncrease + input.youngEmployees + input.disabledEmployees}명
+              </div>
+              <div className="text-xs text-blue-500 mt-1">
+                일반 {input.employmentIncrease}명 · 청년 {input.youngEmployees}명 · 장애인 {input.disabledEmployees}명
+              </div>
+            </div>
+
+            {/* R&D 세액공제 */}
+            <div className="bg-gradient-to-br from-violet-50 to-purple-50 p-4 rounded-lg border border-violet-200">
+              <div className="text-xs text-violet-600 font-medium mb-1">🔬 R&D 공제</div>
+              <div className="text-lg font-bold text-violet-800">
+                {rdTaxCredit.toLocaleString('ko-KR')}원
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                연구개발비: {input.rdExpenses.toLocaleString('ko-KR')}원
+              </div>
+              <div className="text-xs text-blue-500 mt-1">
+                공제율: {isSmallMediumBusiness ? '30%' : '25%'}
+              </div>
+            </div>
+
+            {/* 설비투자 세액공제 */}
+            <div className="bg-gradient-to-br from-cyan-50 to-sky-50 p-4 rounded-lg border border-cyan-200">
+              <div className="text-xs text-cyan-600 font-medium mb-1">🏭 설비투자 공제</div>
+              <div className="text-lg font-bold text-cyan-800">
+                {equipmentTaxCredit.toLocaleString('ko-KR')}원
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                투자금액: {input.equipmentInvestment.toLocaleString('ko-KR')}원
+              </div>
+              <div className="text-xs text-blue-500 mt-1">
+                {input.equipmentType === 'smart' ? '스마트팩토리 10%' : 
+                 input.equipmentType === 'safety' ? '안전설비 10%' :
+                 input.equipmentType === 'environment' ? '환경보전 10%' : '일반 3%'}
+              </div>
+            </div>
+
+            {/* 벤처기업 혜택 */}
+            <div className="bg-gradient-to-br from-rose-50 to-pink-50 p-4 rounded-lg border border-rose-200">
+              <div className="text-xs text-rose-600 font-medium mb-1">🚀 벤처기업 혜택</div>
+              <div className="text-lg font-bold text-rose-800">
+                {ventureDiscount.toLocaleString('ko-KR')}원
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                창업 {input.startupYears}년차
+              </div>
+              <div className="text-xs text-blue-500 mt-1">
+                {input.isStartup && input.startupYears <= 3 && isSmallMediumBusiness ? '50% 감면 적용' : '해당없음'}
+              </div>
+            </div>
+          </div>
+
+          {/* 실시간 계산 요약 */}
+          {(input.revenue > 0 || input.operatingExpenses > 0) && (
+            <div className="mt-6 p-4 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg border border-indigo-200">
+              <h4 className="text-sm font-semibold text-indigo-800 mb-3">📊 실시간 계산 요약</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-600">영업이익률:</span>
+                  <span className="ml-2 font-medium">
+                    {input.revenue > 0 ? ((operatingIncome / input.revenue) * 100).toFixed(1) : '0.0'}%
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-600">순이익률:</span>
+                  <span className="ml-2 font-medium">
+                    {input.revenue > 0 ? ((netIncome / input.revenue) * 100).toFixed(1) : '0.0'}%
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-600">총 세액공제:</span>
+                  <span className="ml-2 font-medium text-green-600">
+                    {(employmentTaxCredit + rdTaxCredit + equipmentTaxCredit + ventureDiscount).toLocaleString('ko-KR')}원
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* 안내 시스템 탭 */}
       <Card>
@@ -1700,6 +1991,13 @@ const CorporateTaxCalculatorComponent: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* 🧪 베타테스트 피드백 시스템 */}
+      <BetaFeedbackForm 
+        calculatorName="법인세 계산기"
+        calculatorType="corporate-tax"
+        className="mb-6"
+      />
 
       {/* 하단 면책 조항 */}
       <TaxCalculatorDisclaimer variant="full" />

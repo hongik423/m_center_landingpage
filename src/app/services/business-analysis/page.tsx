@@ -300,7 +300,7 @@ export default function BusinessAnalysisPage() {
                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4"
                     onClick={() => router.push('/consultation')}
                   >
-                    지금 상담 신청
+                    맞춤형 상담 신청 (차별성 확인)
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                   <Button 
@@ -335,8 +335,8 @@ export default function BusinessAnalysisPage() {
                       <span className="font-semibold text-purple-600">40-60%</span>
                     </div>
                     <div className="flex items-center justify-between py-2">
-                      <span className="text-gray-600">투자 규모</span>
-                      <span className="font-semibold">6천만원~</span>
+                      <span className="text-gray-600">차별화 요소</span>
+                      <span className="font-semibold text-blue-600">5단계 독자 프레임워크</span>
                     </div>
                   </div>
                   

@@ -15,193 +15,9 @@ import { InheritanceTaxCalculator, InheritanceTaxInputValidator } from '@/lib/ut
 import { InheritanceTaxInput, InheritanceTaxResult } from '@/types/tax-calculator.types';
 import { INHERITANCE_TAX_LIMITS_2024 } from '@/constants/tax-rates-2024';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
+import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
 import { formatNumber, formatWon, formatNumberInput, parseFormattedNumber, handleNumberInputChange } from '@/lib/utils';
-
-interface NumberInputProps {
-  label: string;
-  value: number;
-  onChange: (value: number) => void;
-  placeholder?: string;
-  disabled?: boolean;
-  info?: string;
-  limit?: number;
-  unit?: string;
-  helpMessage?: string;
-  dependentValue?: number;
-  dynamicInfo?: (value: number, dependentValue?: number) => string;
-}
-
-const NumberInput: React.FC<NumberInputProps> = ({ 
-  label, 
-  value, 
-  onChange, 
-  placeholder, 
-  disabled = false,
-  info,
-  limit,
-  unit = '원',
-  helpMessage,
-  dependentValue,
-  dynamicInfo
-}) => {
-  const [displayValue, setDisplayValue] = useState(value && value > 0 ? formatNumberInput(value) : '');
-  const [hasWarning, setHasWarning] = useState(false);
-  const [dynamicMessage, setDynamicMessage] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
-
-  useEffect(() => {
-    if (!isFocused) {
-      setDisplayValue(value && value > 0 ? formatNumberInput(value) : '');
-    }
-  }, [value, isFocused]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-    
-    // 천단위 구분기호와 함께 숫자 입력 처리
-    const formattedValue = handleNumberInputChange(
-      inputValue,
-      (num) => {
-        // 한도 체크
-        let finalValue = num;
-        let warning = false;
-        
-        if (limit && num > limit) {
-          finalValue = limit;
-          warning = true;
-        }
-        
-        setHasWarning(warning);
-        
-        // 동적 정보 업데이트
-        if (dynamicInfo) {
-          setDynamicMessage(dynamicInfo(finalValue, dependentValue));
-        }
-        
-        onChange(finalValue);
-      },
-      { min: 0, max: limit, allowEmpty: true }
-    );
-    
-    setDisplayValue(formattedValue);
-  };
-
-  const handleFocus = () => {
-    setIsFocused(true);
-    // 포커스 시 원본 숫자만 표시 (편집하기 쉽게)
-    const rawNumber = parseFormattedNumber(displayValue);
-    if (rawNumber > 0) {
-      setDisplayValue(rawNumber.toString());
-    }
-  };
-
-  const handleBlur = () => {
-    setIsFocused(false);
-    // 포커스 해제 시 천단위 구분기호 적용
-    const rawNumber = parseFormattedNumber(displayValue || '0');
-    
-    if (rawNumber === 0) {
-      setDisplayValue('');
-    } else {
-      // 범위 체크 후 정규화
-      let finalValue = rawNumber;
-      if (limit !== undefined && rawNumber > limit) finalValue = limit;
-      
-      setDisplayValue(formatNumberInput(finalValue));
-      if (finalValue !== rawNumber) {
-        onChange(finalValue);
-      }
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // 숫자, 백스페이스, 삭제, 탭, 화살표만 허용
-    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
-    const isNumber = /^[0-9]$/.test(e.key);
-    
-    if (!allowedKeys.includes(e.key) && !isNumber) {
-      e.preventDefault();
-    }
-    
-    // 엔터 키 처리
-    if (e.key === 'Enter') {
-      (e.target as HTMLInputElement).blur();
-    }
-  };
-
-  // 초기 동적 메시지 설정
-  React.useEffect(() => {
-    if (dynamicInfo) {
-      setDynamicMessage(dynamicInfo(value, dependentValue));
-    }
-  }, [dynamicInfo, value, dependentValue]);
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <Label htmlFor={label.replace(/\s/g, '')}>{label}</Label>
-        {limit && (
-          <Badge variant="outline" className="text-xs">
-            한도: {formatNumber(limit)}{unit}
-          </Badge>
-        )}
-        {helpMessage && (
-          <Badge variant="secondary" className="text-xs">
-            💡 도움말
-          </Badge>
-        )}
-      </div>
-      <Input
-        id={label.replace(/\s/g, '')}
-        type="text"
-        inputMode="numeric"
-        value={displayValue}
-        onChange={handleChange}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        disabled={disabled}
-        autoComplete="off"
-        title={label}
-        aria-label={label}
-        className={`${hasWarning ? 'border-orange-300 bg-orange-50' : ''} text-right font-mono`}
-      />
-      
-      {/* 포커스 시 사용법 안내 */}
-      {isFocused && (
-        <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded border">
-          💡 숫자만 입력하세요. 천단위 쉼표는 자동으로 표시됩니다.
-          {limit !== undefined && ` (최대: ${formatNumber(limit)}${unit})`}
-        </div>
-      )}
-      {hasWarning && (
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-2">
-          <p className="text-sm text-orange-600">
-            ⚠️ 한도 초과로 {limit ? formatNumber(limit) : 0}{unit}로 자동 조정되었습니다.
-          </p>
-        </div>
-      )}
-      {dynamicMessage && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
-          <p className="text-sm text-blue-700">
-            💡 {dynamicMessage}
-          </p>
-        </div>
-      )}
-      {helpMessage && !dynamicMessage && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-2">
-          <p className="text-sm text-green-700">
-            ℹ️ {helpMessage}
-          </p>
-        </div>
-      )}
-      {info && !dynamicMessage && !helpMessage && (
-        <p className="text-sm text-gray-500">{info}</p>
-      )}
-    </div>
-  );
-};
+import { NumberInput } from '@/components/ui/number-input';
 
 export const InheritanceTaxCalculatorComponent: React.FC = () => {
   const [input, setInput] = useState<InheritanceTaxInput>({
@@ -750,6 +566,8 @@ export const InheritanceTaxCalculatorComponent: React.FC = () => {
                       placeholder="상속받은 총 재산 입력"
                       limit={INHERITANCE_TAX_LIMITS_2024.maxInheritanceAmount}
                       helpMessage={INHERITANCE_TAX_LIMITS_2024.messages.basicDeduction}
+                      required={true}
+                      requiredMessage="상속세 계산을 위해 총 상속재산 입력이 필수입니다"
                       dynamicInfo={(value) => {
                         if (value === 0) return '';
                         if (value <= 200000000) return '기초공제 2억원이 적용되어 상속세가 발생하지 않을 수 있습니다.';
@@ -827,6 +645,8 @@ export const InheritanceTaxCalculatorComponent: React.FC = () => {
                       unit="명"
                       limit={INHERITANCE_TAX_LIMITS_2024.maxChildren}
                       helpMessage={INHERITANCE_TAX_LIMITS_2024.messages.childrenDeduction}
+                      required={true}
+                      requiredMessage="공제 계산을 위해 자녀 수 입력이 필요합니다 (없으면 0 입력)"
                       dynamicInfo={(value) => {
                         if (value === 0) return '';
                         const deduction = value * 50000000;
@@ -896,6 +716,8 @@ export const InheritanceTaxCalculatorComponent: React.FC = () => {
                       unit="%"
                       limit={100}
                       helpMessage="본인이 상속받는 비율을 입력하세요 (0~100%)"
+                      required={true}
+                      requiredMessage="개인별 상속세 계산을 위해 상속비율 입력이 필수입니다"
                       dynamicInfo={(value, totalInheritance) => {
                         if (value === 0) return '';
                         const ratio = value / 100;
@@ -1358,6 +1180,13 @@ export const InheritanceTaxCalculatorComponent: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* 🧪 베타테스트 피드백 시스템 (면책조항 상단) */}
+      <BetaFeedbackForm 
+        calculatorName="상속세 계산기"
+        calculatorType="inheritance-tax"
+        className="mb-6"
+      />
 
       {/* 하단 면책 조항 */}
       <TaxCalculatorDisclaimer variant="full" />

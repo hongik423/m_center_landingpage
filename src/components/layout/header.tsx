@@ -98,7 +98,7 @@ export default function Header() {
               
               <Link href="/services/certification" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 flex items-center whitespace-nowrap">
                 <Award className="w-3.5 h-3.5 mr-1 text-red-500" />
-                인증지원
+                ISO/벤처
               </Link>
               
               <Link href="/services/website" className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-200 flex items-center whitespace-nowrap">
@@ -241,7 +241,7 @@ export default function Header() {
                             <Award className="w-5 h-5 text-white" />
                           </div>
                           <div className="flex-1 text-left">
-                            <div className="font-semibold text-white">인증지원</div>
+                            <div className="font-semibold text-white">ISO/벤처</div>
                             <div className="text-sm text-orange-100">연간 5천만원 세제혜택</div>
                           </div>
                         </div>

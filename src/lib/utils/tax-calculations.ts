@@ -10,6 +10,20 @@ import {
   AppliedRate,
   Deduction
 } from '@/types/tax-calculator.types';
+
+// Re-export types for use in components
+export type {
+  EarnedIncomeTaxInput,
+  EarnedIncomeTaxResult,
+  ComprehensiveIncomeTaxInput,
+  ComprehensiveIncomeTaxResult,
+  CapitalGainsTaxInput,
+  CapitalGainsTaxResult,
+  TaxRate,
+  CalculationBreakdown,
+  AppliedRate,
+  Deduction
+};
 import {
   INCOME_TAX_RATES_2024,
   DEDUCTION_AMOUNTS_2024,
@@ -550,17 +564,38 @@ export class CapitalGainsTaxCalculator {
       };
     }
     
-    // 기본세액 계산
-    const basicTax = this.calculateProgressiveTax(taxableGain, CAPITAL_GAINS_TAX_2024.taxRates.basic);
-    let appliedRate = this.getEffectiveRate(taxableGain, CAPITAL_GAINS_TAX_2024.taxRates.basic);
+    // 🔥 보유기간 계산
+    const holdingInfo = this.calculateHoldingPeriod(input.acquisitionDate, input.saleDate);
     
-    // 중과세 여부 확인
-    const heavyTaxInfo = this.checkHeavyTax(input);
-    let heavyTax = 0;
-    
-    if (heavyTaxInfo.isApplied) {
-      heavyTax = Math.floor(taxableGain * heavyTaxInfo.additionalRate);
-      appliedRate += heavyTaxInfo.additionalRate;
+    // 🔥 단기양도 세율 적용 체크 (1년 미만: 70%, 2년 미만: 60%)
+    if (holdingInfo.years < 1) {
+      // 1년 미만 보유: 70% 일괄 적용
+      const shortTermTax = Math.floor(taxableGain * CAPITAL_GAINS_TAX_2024.taxRates.shortTermHolding.under1Year);
+      return {
+        basicTax: shortTermTax,
+        heavyTax: 0,
+        totalTax: shortTermTax,
+        appliedRate: CAPITAL_GAINS_TAX_2024.taxRates.shortTermHolding.under1Year,
+        heavyTaxInfo: { 
+          isApplied: true, 
+          reason: `단기양도 중과세 (보유기간 ${holdingInfo.years}년 ${holdingInfo.months}개월)`,
+          additionalRate: 0 
+        }
+      };
+    } else if (holdingInfo.years < 2) {
+      // 2년 미만 보유: 60% 일괄 적용
+      const shortTermTax = Math.floor(taxableGain * CAPITAL_GAINS_TAX_2024.taxRates.shortTermHolding.under2Years);
+      return {
+        basicTax: shortTermTax,
+        heavyTax: 0,
+        totalTax: shortTermTax,
+        appliedRate: CAPITAL_GAINS_TAX_2024.taxRates.shortTermHolding.under2Years,
+        heavyTaxInfo: { 
+          isApplied: true, 
+          reason: `단기양도 중과세 (보유기간 ${holdingInfo.years}년 ${holdingInfo.months}개월)`,
+          additionalRate: 0 
+        }
+      };
     }
     
     // 비거주자 특별세율
@@ -573,6 +608,19 @@ export class CapitalGainsTaxCalculator {
         appliedRate: 0.30,
         heavyTaxInfo: { isApplied: false, reason: '비거주자 일괄세율 30% 적용', additionalRate: 0 }
       };
+    }
+    
+    // 🔥 2년 이상 보유: 일반 누진세율 적용
+    const basicTax = this.calculateProgressiveTax(taxableGain, CAPITAL_GAINS_TAX_2024.taxRates.basic);
+    let appliedRate = this.getEffectiveRate(taxableGain, CAPITAL_GAINS_TAX_2024.taxRates.basic);
+    
+    // 중과세 여부 확인
+    const heavyTaxInfo = this.checkHeavyTax(input);
+    let heavyTax = 0;
+    
+    if (heavyTaxInfo.isApplied) {
+      heavyTax = Math.floor(taxableGain * heavyTaxInfo.additionalRate);
+      appliedRate += heavyTaxInfo.additionalRate;
     }
     
     const totalTax = basicTax + heavyTax;

@@ -1,36 +1,43 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
+import { 
+  TrendingUp, 
+  Home, 
+  Calendar, 
+  CheckCircle, 
+  AlertTriangle, 
   Calculator,
-  TrendingUp,
-  Home,
-  Calendar,
-  DollarSign,
   FileText,
-  Eye,
-  EyeOff,
   Download,
-  RefreshCw,
-  Percent,
-  Info,
-  AlertTriangle,
-  CheckCircle
+  RotateCcw,
+  Lightbulb,
+  Users,
+  Clock,
+  Eye,
+  EyeOff
 } from 'lucide-react';
-import { CapitalGainsTaxInput, CapitalGainsTaxResult } from '@/types/tax-calculator.types';
-import { CapitalGainsTaxCalculator } from '@/lib/utils/tax-calculations';
-import { formatCurrency, formatNumber } from '@/lib/utils';
-import { CAPITAL_GAINS_TAX_2024 } from '@/constants/tax-rates-2024';
-import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
+import { TaxCalculatorDisclaimer } from './TaxCalculatorDisclaimer';
+import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
+import { EnhancedSmartInput } from '@/components/ui/enhanced-smart-input';
+import { useSmartCalculation } from '@/lib/utils/smartCalculationEngine';
+import { 
+  CapitalGainsTaxInput, 
+  CapitalGainsTaxResult, 
+  CapitalGainsTaxCalculator as TaxCalculator,
+  formatNumber
+} from '@/lib/utils/tax-calculations';
+import { formatCurrency } from '@/lib/utils/smartCalculationEngine';
 
 interface NumberInputProps {
   label: string;
@@ -107,10 +114,34 @@ function NumberInput({
       <div className="relative">
         <Input
           id={label}
+          type="text"
+          inputMode="numeric"
           value={displayValue}
           onChange={handleChange}
+          onKeyDown={(e) => {
+            // 🔥 키보드 단축키 허용 (Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+Z 등)
+            if (e.ctrlKey || e.metaKey) {
+              return; // 모든 Ctrl/Cmd 조합키 허용
+            }
+
+            // 기본 허용 키들
+            const allowedKeys = [
+              'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
+              'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+              'Home', 'End', 'PageUp', 'PageDown'
+            ];
+            const isNumber = /^[0-9]$/.test(e.key);
+            
+            // 허용되지 않는 키 차단
+            if (!allowedKeys.includes(e.key) && !isNumber) {
+              e.preventDefault();
+            }
+          }}
           placeholder={placeholder}
           disabled={disabled}
+          autoComplete="off"
+          title={label}
+          aria-label={label}
           className={`pr-8 text-right font-mono ${isOverLimit ? 'border-orange-400 bg-orange-50' : ''}`}
         />
         {suffix && (
@@ -142,6 +173,15 @@ function NumberInput({
 }
 
 export default function CapitalGainsTaxCalculatorComponent() {
+      // 🔥 스마트 계산 훅 적용
+  const {
+    calculate: smartCalculate,
+    getCalculatedValue,
+    isAutoCalculated,
+    hasErrors,
+    errors
+  } = useSmartCalculation({ calculatorType: 'capital' });
+
   const [inputs, setInputs] = useState<CapitalGainsTaxInput>({
     propertyType: 'apartment' as const,
     salePrice: 0,
@@ -296,7 +336,7 @@ export default function CapitalGainsTaxCalculatorComponent() {
       }
       
       console.log('양도소득세 계산 시작:', inputs);
-      const result = CapitalGainsTaxCalculator.calculate(inputs);
+      const result = TaxCalculator.calculate(inputs);
       console.log('계산 완료:', result);
       setResults(result);
     } catch (error) {
@@ -404,27 +444,189 @@ export default function CapitalGainsTaxCalculatorComponent() {
     }, 100);
   };
 
+  // 🔥 고도화된 자동 연계 계산 로직
+  
+  // 1. 양도차익 자동 계산  
+  const capitalGain = useMemo(() => {
+    return Math.max(0, inputs.salePrice - inputs.acquisitionPrice - inputs.acquisitionCosts - inputs.improvementCosts - inputs.transferCosts);
+  }, [inputs.salePrice, inputs.acquisitionPrice, inputs.acquisitionCosts, inputs.improvementCosts, inputs.transferCosts]);
+
+  // 2. 실시간 보유기간 계산
+  const realTimeHoldingPeriod = useMemo(() => {
+    if (!inputs.acquisitionDate || !inputs.saleDate) return { years: 0, months: 0, days: 0 };
+    
+    const acquisitionDate = new Date(inputs.acquisitionDate);
+    const saleDate = new Date(inputs.saleDate);
+    const diffTime = saleDate.getTime() - acquisitionDate.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    const years = Math.floor(diffDays / 365);
+    const remainingDays = diffDays % 365;
+    const months = Math.floor(remainingDays / 30);
+    const days = remainingDays % 30;
+    
+    return { years, months, days };
+  }, [inputs.acquisitionDate, inputs.saleDate]);
+
+  // 3. 자동 세율 구간 계산
+  const expectedTaxBracket = useMemo(() => {
+    if (capitalGain <= 0) return { rate: 0, description: '양도차익 없음' };
+    
+    // 🔥 1세대1주택 비과세 우선 체크
+    if (inputs.isOneHouseOneFamily && 
+        inputs.totalHousesOwned === 1 && 
+        inputs.residenceYears >= 2 && 
+        realTimeHoldingPeriod.years >= 2) {
+      return { rate: 0, description: '1세대1주택 비과세' };
+    }
+    
+    // 🔥 단기양도 중과세 (보유기간별)
+    if (realTimeHoldingPeriod.years < 1) {
+      return { rate: 70, description: '1년 미만 보유 (단기양도 중과세 70%)' };
+    } else if (realTimeHoldingPeriod.years < 2) {
+      return { rate: 60, description: '2년 미만 보유 (단기양도 중과세 60%)' };
+    } else {
+      // 🔥 2년 이상 보유: 일반 누진세율 적용
+      if (capitalGain <= 14000000) {
+        return { rate: 6, description: '6% 구간 (1,400만원 이하)' };
+      } else if (capitalGain <= 50000000) {
+        return { rate: 15, description: '15% 구간 (5,000만원 이하)' };
+      } else if (capitalGain <= 88000000) {
+        return { rate: 24, description: '24% 구간 (8,800만원 이하)' };
+      } else if (capitalGain <= 150000000) {
+        return { rate: 35, description: '35% 구간 (1억 5천만원 이하)' };
+      } else if (capitalGain <= 300000000) {
+        return { rate: 38, description: '38% 구간 (3억원 이하)' };
+      } else if (capitalGain <= 500000000) {
+        return { rate: 40, description: '40% 구간 (5억원 이하)' };
+      } else if (capitalGain <= 1000000000) {
+        return { rate: 42, description: '42% 구간 (10억원 이하)' };
+      } else {
+        return { rate: 45, description: '45% 구간 (10억원 초과)' };
+      }
+    }
+  }, [capitalGain, realTimeHoldingPeriod.years, inputs.isOneHouseOneFamily, inputs.totalHousesOwned, inputs.residenceYears]);
+
+  // 4. 1세대1주택 자동 판정
+  const oneHouseExemption = useMemo(() => {
+    const isQualified = inputs.totalHousesOwned === 1 && 
+                       inputs.residenceYears >= 2 && 
+                       realTimeHoldingPeriod.years >= 2;
+    
+    const exemptionAmount = isQualified ? 
+      (inputs.salePrice <= 900000000 ? inputs.salePrice : 
+       inputs.salePrice <= 1200000000 ? 900000000 : 0) : 0;
+    
+    return {
+      isQualified,
+      exemptionAmount,
+      requirements: [
+        { name: '1세대 1주택', met: inputs.totalHousesOwned === 1 },
+        { name: '2년 이상 거주', met: inputs.residenceYears >= 2 },
+        { name: '2년 이상 보유', met: realTimeHoldingPeriod.years >= 2 },
+      ]
+    };
+  }, [inputs.totalHousesOwned, inputs.residenceYears, realTimeHoldingPeriod.years, inputs.salePrice]);
+
+  // 5. 장기보유특별공제 자동 계산
+  const longTermDiscount = useMemo(() => {
+    if (realTimeHoldingPeriod.years < 3) return 0;
+    
+    // 3년 이상부터 연 8%씩 공제 (최대 30%)
+    const discountRate = Math.min((realTimeHoldingPeriod.years - 2) * 8, 30);
+    return Math.floor(capitalGain * discountRate / 100);
+  }, [realTimeHoldingPeriod.years, capitalGain]);
+
+  // 6. 논리적 오류 체크
+  const logicalErrors = useMemo(() => {
+    const errors: string[] = [];
+    
+    // 양도가액이 취득가액보다 낮은 경우
+    if (inputs.salePrice > 0 && inputs.acquisitionPrice > 0 && inputs.salePrice < inputs.acquisitionPrice) {
+      errors.push('양도가액이 취득가액보다 낮습니다. (양도손실)');
+    }
+    
+    // 취득일이 양도일보다 나중인 경우
+    if (inputs.acquisitionDate && inputs.saleDate && inputs.acquisitionDate > inputs.saleDate) {
+      errors.push('취득일이 양도일보다 나중일 수 없습니다.');
+    }
+    
+    // 거주기간이 보유기간보다 긴 경우
+    if (inputs.residenceYears > realTimeHoldingPeriod.years && realTimeHoldingPeriod.years > 0) {
+      errors.push('거주기간이 보유기간을 초과할 수 없습니다.');
+    }
+    
+    // 부대비용이 과도한 경우
+    const totalCosts = inputs.acquisitionCosts + inputs.improvementCosts + inputs.transferCosts;
+    if (totalCosts > inputs.salePrice * 0.5 && inputs.salePrice > 0) {
+      errors.push('부대비용이 양도가액의 50%를 초과합니다.');
+    }
+    
+    // 1세대1주택인데 주택수가 2채 이상인 경우
+    if (inputs.isOneHouseOneFamily && inputs.totalHousesOwned > 1) {
+      errors.push('1세대1주택 특례 적용 시 보유주택은 1채여야 합니다.');
+    }
+    
+    return errors;
+  }, [inputs, realTimeHoldingPeriod.years]);
+
+  // 7. 절세 추천 로직
+  const taxSavingRecommendations = useMemo(() => {
+    const recommendations: string[] = [];
+    
+    // 1세대1주택 추천
+    if (!inputs.isOneHouseOneFamily && inputs.totalHousesOwned === 1 && inputs.residenceYears >= 2) {
+      if (realTimeHoldingPeriod.years >= 2) {
+        recommendations.push('1세대1주택 비과세 특례 적용 가능! 체크박스를 확인하세요.');  
+      } else {
+        const remainingDays = (2 * 365) - (realTimeHoldingPeriod.years * 365 + realTimeHoldingPeriod.months * 30 + realTimeHoldingPeriod.days);
+        recommendations.push(`${Math.ceil(remainingDays / 30)}개월 더 보유하면 1세대1주택 비과세 적용 가능`);
+      }
+    }
+    
+    // 장기보유특별공제 추천
+    if (realTimeHoldingPeriod.years >= 3) {
+      recommendations.push(`장기보유특별공제 ${Math.min((realTimeHoldingPeriod.years - 2) * 8, 30)}% 적용 가능`);
+    }
+    
+    // 취득세 증빙 추천
+    if (inputs.acquisitionCosts === 0 && inputs.acquisitionPrice > 0) {
+      const estimatedCosts = Math.floor(inputs.acquisitionPrice * 0.05); // 약 5% 추정
+      recommendations.push(`취득비용 증빙 보완 시 약 ${estimatedCosts.toLocaleString()}원 절세 효과`);
+    }
+    
+    // 개량비 증빙 추천
+    if (inputs.improvementCosts === 0 && realTimeHoldingPeriod.years >= 5) {
+      recommendations.push('개량비(리모델링 등) 영수증 보관 시 필요경비 인정 가능');
+    }
+    
+    // 다주택자 양도순서 추천
+    if (inputs.totalHousesOwned > 1 && !inputs.isOneHouseOneFamily) {
+      recommendations.push('다주택자는 양도순서 계획으로 세부담 최적화 가능');
+    }
+    
+    return recommendations;
+  }, [inputs, realTimeHoldingPeriod, capitalGain, longTermDiscount]);
+
   // 🔄 실시간 자동 계산 시스템
   useEffect(() => {
-    // 1. 보유기간 자동 계산
+    // 보유기간 자동 업데이트
     if (inputs.acquisitionDate && inputs.saleDate) {
-      const holdingPeriod = calculateHoldingPeriod(inputs.acquisitionDate, inputs.saleDate);
-      
       setCalculatedValues(prev => ({
         ...prev,
-        holdingPeriodYears: holdingPeriod.years,
-        holdingPeriodMonths: holdingPeriod.months,
-        holdingPeriodDays: holdingPeriod.days,
-        isLongTermHolding: holdingPeriod.years >= 2
+        holdingPeriodYears: realTimeHoldingPeriod.years,
+        holdingPeriodMonths: realTimeHoldingPeriod.months,
+        holdingPeriodDays: realTimeHoldingPeriod.days,
+        isLongTermHolding: realTimeHoldingPeriod.years >= 2
       }));
 
       // inputs에도 보유기간 업데이트
       setInputs(prev => ({
         ...prev,
-        holdingPeriodYears: holdingPeriod.years
+        holdingPeriodYears: realTimeHoldingPeriod.years
       }));
     }
-  }, [inputs.acquisitionDate, inputs.saleDate, calculateHoldingPeriod]);
+  }, [inputs.acquisitionDate, inputs.saleDate, realTimeHoldingPeriod]);
 
   // 🏠 자동 중과세 판정 시스템
   useEffect(() => {
@@ -471,18 +673,18 @@ export default function CapitalGainsTaxCalculatorComponent() {
     }
   }, [inputs.totalHousesOwned, inputs.residenceYears, inputs.salePrice, inputs.age, checkOneHouseExemption, inputs.isOneHouseOneFamily]);
 
-  // 💰 메인 세금 계산 (기존 로직 개선)
+  // 💰 디바운스된 자동 계산 (고도화)
   useEffect(() => {
-    if (inputs.salePrice > 0 && inputs.acquisitionPrice > 0 && inputs.saleDate && inputs.acquisitionDate) {
+    if (capitalGain > 0 && inputs.saleDate && inputs.acquisitionDate) {
       const timer = setTimeout(() => {
         calculate();
-      }, 300);
+      }, 300); // 300ms 디바운스
       
       return () => clearTimeout(timer);
     } else {
       setResults(null);
     }
-  }, [inputs, calculate]);
+  }, [inputs, capitalGain, calculate]);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -523,6 +725,13 @@ export default function CapitalGainsTaxCalculatorComponent() {
         </CardHeader>
       </Card>
 
+      {/* 🧪 베타테스트 피드백 시스템 (면책조항 상단) */}
+      <BetaFeedbackForm 
+        calculatorName="양도소득세 계산기"
+        calculatorType="capital-gains-tax"
+        className="mb-6"
+      />
+
       {/* 간단한 면책 조항 */}
       <TaxCalculatorDisclaimer variant="summary" />
 
@@ -560,13 +769,29 @@ export default function CapitalGainsTaxCalculatorComponent() {
                     </Select>
                   </div>
                   
-                  <NumberInput
+                  <EnhancedSmartInput
                     label="보유주택 수"
                     value={inputs.totalHousesOwned}
                     onChange={(value) => updateInput('totalHousesOwned', value)}
-                    suffix="채"
-                    max={20}
-                    helpText="본인 및 세대원 전체 보유주택 수"
+                    placeholder="1"
+                    calculationRule="capital-gains-house-count"
+                    connectedInputs={[
+                      { label: '1세대1주택 여부', value: oneHouseExemption.isQualified ? 1 : 0, isCalculated: true }
+                    ]}
+                    quickActions={[
+                      { label: '1채 (1세대1주택)', value: 1 },
+                      { label: '2채', value: 2 },
+                      { label: '3채', value: 3 }
+                    ]}
+                    recommendations={inputs.totalHousesOwned === 1 ? 
+                      ['1세대1주택 비과세 혜택 가능성 검토'] : 
+                      inputs.totalHousesOwned > 1 ? 
+                      ['다주택자 중과세 적용 가능성'] : []
+                    }
+                    validationRules={[
+                      { type: 'min', value: 1, message: '최소 1채 이상이어야 합니다' },
+                      { type: 'max', value: 20, message: '20채를 초과할 수 없습니다' }
+                    ]}
                   />
                 </div>
               </div>
@@ -733,52 +958,373 @@ export default function CapitalGainsTaxCalculatorComponent() {
 
               <Separator />
 
+              {/* 🔥 스마트 자동 계산 대시보드 */}
+              <Card className="border-purple-200 bg-purple-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-purple-700 text-lg">
+                    <Calculator className="w-5 h-5" />
+                    ⚡ 스마트 양도소득세 자동 계산 대시보드
+                  </CardTitle>
+                  <CardDescription className="text-purple-600">
+                    AI가 실시간으로 보유기간, 세율, 특례 적용을 자동 판정하고 최적의 절세 방안을 제시합니다
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* 양도차익 */}
+                    <div className="bg-white p-3 rounded border border-purple-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-700">양도차익</span>
+                        <Badge className="text-xs bg-green-100 text-green-700 border-green-300">자동</Badge>
+                      </div>
+                      <div className="text-lg font-bold text-purple-700">
+                        {capitalGain.toLocaleString('ko-KR')}원
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        양도가액 - 취득가액 - 비용
+                      </div>
+                    </div>
+
+                    {/* 보유기간 */}
+                    <div className="bg-white p-3 rounded border border-purple-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-700">보유기간</span>
+                        <Badge className="text-xs bg-green-100 text-green-700 border-green-300">자동</Badge>
+                      </div>
+                      <div className="text-lg font-bold text-purple-700">
+                        {realTimeHoldingPeriod.years}년 {realTimeHoldingPeriod.months}개월
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {realTimeHoldingPeriod.years >= 2 ? '✅ 장기보유' : '⚠️ 단기보유'}
+                      </div>
+                    </div>
+
+                    {/* 🔥 기본공제 자동적용 안내 */}
+                    <div className="bg-white p-3 rounded border border-green-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-700">기본공제</span>
+                        <Badge className="text-xs bg-green-100 text-green-700 border-green-300">✅ 법정</Badge>
+                      </div>
+                      <div className="text-lg font-bold text-green-700">
+                        250만원
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        자동 적용 (법정공제)
+                      </div>
+                    </div>
+
+                    {/* 예상 세율 */}
+                    <div className="bg-white p-3 rounded border border-purple-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-700">예상 세율</span>
+                        <Badge className={`text-xs ${expectedTaxBracket.rate === 0 ? 'bg-green-100 text-green-700' : 
+                          expectedTaxBracket.rate <= 15 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                          {expectedTaxBracket.rate}%
+                        </Badge>
+                      </div>
+                      <div className={`text-lg font-bold ${expectedTaxBracket.rate === 0 ? 'text-green-700' : 
+                        expectedTaxBracket.rate <= 15 ? 'text-yellow-700' : 'text-red-700'}`}>
+                        {expectedTaxBracket.rate}% 구간
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {expectedTaxBracket.description}
+                      </div>
+                    </div>
+
+                    {/* 1세대1주택 판정 */}
+                    <div className="bg-white p-3 rounded border border-purple-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-700">1세대1주택</span>
+                        <Badge className={`text-xs ${oneHouseExemption.isQualified ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                          {oneHouseExemption.isQualified ? '적용' : '미적용'}
+                        </Badge>
+                      </div>
+                      <div className={`text-lg font-bold ${oneHouseExemption.isQualified ? 'text-green-700' : 'text-gray-700'}`}>
+                        {oneHouseExemption.isQualified ? '비과세' : '일반과세'}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        자동 요건 판정
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 1세대1주택 요건 체크 */}
+                  {oneHouseExemption.requirements.length > 0 && (
+                    <div className="mt-4 p-3 bg-white rounded border border-purple-200">
+                      <div className="text-sm font-medium text-gray-700 mb-3">🏠 1세대1주택 요건 자동 체크</div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                        {oneHouseExemption.requirements.map((req, index) => (
+                          <div key={index} className={`p-2 rounded text-xs ${req.met ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700'}`}>
+                            <div className="font-medium flex items-center gap-1">
+                              {req.met ? '✅' : '❌'} {req.name}
+                            </div>
+                            <div className="mt-1 opacity-75">
+                              {req.met ? '조건 충족' : '조건 미충족'}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 장기보유특별공제 */}
+                  {longTermDiscount > 0 && (
+                    <div className="mt-4 p-3 bg-white rounded border border-purple-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-700">🎯 장기보유특별공제</span>
+                        <Badge className="text-xs bg-green-100 text-green-700 border-green-300">자동</Badge>
+                      </div>
+                      <div className="text-lg font-bold text-purple-700">
+                        {longTermDiscount.toLocaleString('ko-KR')}원
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {realTimeHoldingPeriod.years}년 보유 × {Math.min((realTimeHoldingPeriod.years - 2) * 8, 30)}% 공제
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 논리적 오류 실시간 체크 */}
+                  {logicalErrors.length > 0 && (
+                    <div className="mt-4 p-3 bg-red-50 rounded border border-red-200">
+                      <div className="text-sm font-medium text-red-700 mb-2">🚨 논리적 오류 감지</div>
+                      <div className="space-y-1">
+                        {logicalErrors.map((error, index) => (
+                          <div key={index} className="text-xs text-red-600 flex items-start gap-2">
+                            <AlertTriangle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                            <span>{error}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 절세 추천 */}
+                  {taxSavingRecommendations.length > 0 && (
+                    <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
+                      <div className="text-sm font-medium text-green-700 mb-2">💡 AI 절세 추천</div>
+                      <div className="space-y-1">
+                        {taxSavingRecommendations.map((recommendation, index) => (
+                          <div key={index} className="text-xs text-green-600 flex items-start gap-2">
+                            <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                            <span>{recommendation}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 계산 준비 상태 */}
+                  {logicalErrors.length === 0 && capitalGain > 0 && (
+                    <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
+                      <div className="text-sm font-medium text-green-700 mb-2">✅ AI 자동 계산 완료</div>
+                      <div className="text-xs text-green-600">
+                        모든 조건이 완벽하게 분석되었습니다. 실시간으로 최적의 양도소득세가 계산되고 있습니다.
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Separator />
+
               {/* 양도 및 취득 정보 */}
               <div className="space-y-4">
                 <h4 className="font-medium text-gray-900 border-b pb-2">💰 양도 및 취득 정보</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <NumberInput
-                    label="양도가액"
+                  <EnhancedSmartInput
+                    label="💰 양도가액"
                     value={inputs.salePrice}
                     onChange={(value) => updateInput('salePrice', value)}
-                    placeholder="매매계약서상 금액"
-                    max={100000000000}
-                    helpText="매매계약서에 기재된 실제 거래가격"
+                    placeholder="매매계약서상 금액 (필수)"
+                    calculationRule="capital-gains-sale-price"
+                    required={true}
+                    connectedInputs={[
+                      { label: '취득가액', value: inputs.acquisitionPrice },
+                      { label: '양도차익', value: capitalGain, isCalculated: true }
+                    ]}
+                    recommendations={capitalGain > 0 ? [`양도차익: ${capitalGain.toLocaleString()}원`] : []}
+                    validationRules={[
+                      { type: 'min', value: 0, message: '양도가액은 0원 이상이어야 합니다' },
+                      { type: 'max', value: 100000000000, message: '양도가액이 너무 큽니다' },
+                      { type: 'required', message: '양도소득세 계산을 위해 양도가액 입력이 필수입니다' }
+                    ]}
                   />
                   
-                  <div>
-                    <Label htmlFor="saleDate" className="text-sm font-medium text-gray-700 mb-2 block">
-                      양도일 📅
+                  <div className="space-y-2">
+                    {/* 🔴 개선된 라벨 (필수 필드 강조) */}
+                    <Label htmlFor="saleDate" className={`
+                      flex items-center gap-2 text-sm font-medium
+                      ${!inputs.saleDate ? 'text-red-700 font-semibold' : 'text-green-700 font-semibold'}
+                    `}>
+                      <span>📅 양도일</span>
+                      
+                      {/* 🔴 필수 표시 강화 */}
+                      <div className="flex items-center gap-1">
+                        <span className="text-red-500 text-lg font-bold">*</span>
+                        <Badge variant="outline" className="text-xs bg-red-100 text-red-700 border-red-300 px-1 py-0">
+                          필수
+                        </Badge>
+                      </div>
+                      
+                      {/* ✅ 완료 표시 */}
+                      {inputs.saleDate && (
+                        <Badge variant="outline" className="text-xs bg-green-100 text-green-700 border-green-300">
+                          ✅ 완료
+                        </Badge>
+                      )}
                     </Label>
-                    <Input
-                      id="saleDate"
-                      type="date"
-                      value={inputs.saleDate}
-                      onChange={(e) => updateInput('saleDate', e.target.value)}
-                      className="text-right font-mono"
-                    />
+                    
+                    {/* 🔴 개선된 입력 필드 */}
+                    <div className="relative">
+                      <Input
+                        id="saleDate"
+                        type="date"
+                        value={inputs.saleDate}
+                        onChange={(e) => updateInput('saleDate', e.target.value)}
+                        className={`
+                          ${!inputs.saleDate ? 
+                            'border-red-400 border-2 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-200' :
+                            'border-green-500 bg-green-50 focus:border-green-500'}
+                          text-right font-mono transition-all duration-200
+                        `}
+                      />
+                      
+                      {/* 🔴 필수 필드 시각적 표시 */}
+                      {!inputs.saleDate && (
+                        <div className="absolute -right-2 -top-2">
+                          <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
+                            !
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* ✅ 완료 표시 */}
+                      {inputs.saleDate && (
+                        <div className="absolute -right-2 -top-2">
+                          <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-green-500 rounded-full">
+                            ✓
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* 🔴 필수 필드 오류 메시지 */}
+                    {!inputs.saleDate && (
+                      <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+                        <div className="flex items-start gap-2">
+                          <span className="text-red-500 font-bold">⚠️</span>
+                          <span>양도일은 필수 입력 항목입니다.</span>
+                          <Badge variant="destructive" className="text-xs ml-2">
+                            REQUIRED
+                          </Badge>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* 🔴 필수 필드 완료 안내 */}
+                    {inputs.saleDate && (
+                      <div className="text-sm text-green-600 bg-green-50 p-2 rounded border border-green-200">
+                        ✅ 필수 입력이 완료되었습니다: {inputs.saleDate}
+                      </div>
+                    )}
                   </div>
 
-                  <NumberInput
-                    label="취득가액"
+                  <EnhancedSmartInput
+                    label="🏷️ 취득가액"
                     value={inputs.acquisitionPrice}
                     onChange={(value) => updateInput('acquisitionPrice', value)}
-                    placeholder="원시취득가액"
-                    max={100000000000}
-                    helpText="처음 매입한 가격 (등기부상 금액)"
+                    placeholder="원시취득가액 (필수)"
+                    calculationRule="capital-gains-acquisition-price"
+                    required={true}
+                    connectedInputs={[
+                      { label: '양도가액', value: inputs.salePrice },
+                      { label: '양도차익', value: capitalGain, isCalculated: true }
+                    ]}
+                    recommendations={inputs.acquisitionCosts === 0 ? ['취득비용 입력을 권장합니다'] : []}
+                    validationRules={[
+                      { type: 'min', value: 0, message: '취득가액은 0원 이상이어야 합니다' },
+                      { type: 'max', value: 100000000000, message: '취득가액이 너무 큽니다' },
+                      { type: 'required', message: '양도소득세 계산을 위해 취득가액 입력이 필수입니다' }
+                    ]}
                   />
                   
-                  <div>
-                    <Label htmlFor="acquisitionDate" className="text-sm font-medium text-gray-700 mb-2 block">
-                      취득일 📅
+                  <div className="space-y-2">
+                    {/* 🔴 개선된 라벨 (필수 필드 강조) */}
+                    <Label htmlFor="acquisitionDate" className={`
+                      flex items-center gap-2 text-sm font-medium
+                      ${!inputs.acquisitionDate ? 'text-red-700 font-semibold' : 'text-green-700 font-semibold'}
+                    `}>
+                      <span>📅 취득일</span>
+                      
+                      {/* 🔴 필수 표시 강화 */}
+                      <div className="flex items-center gap-1">
+                        <span className="text-red-500 text-lg font-bold">*</span>
+                        <Badge variant="outline" className="text-xs bg-red-100 text-red-700 border-red-300 px-1 py-0">
+                          필수
+                        </Badge>
+                      </div>
+                      
+                      {/* ✅ 완료 표시 */}
+                      {inputs.acquisitionDate && (
+                        <Badge variant="outline" className="text-xs bg-green-100 text-green-700 border-green-300">
+                          ✅ 완료
+                        </Badge>
+                      )}
                     </Label>
-                    <Input
-                      id="acquisitionDate"
-                      type="date"
-                      value={inputs.acquisitionDate}
-                      onChange={(e) => updateInput('acquisitionDate', e.target.value)}
-                      className="text-right font-mono"
-                    />
+                    
+                    {/* 🔴 개선된 입력 필드 */}
+                    <div className="relative">
+                      <Input
+                        id="acquisitionDate"
+                        type="date"
+                        value={inputs.acquisitionDate}
+                        onChange={(e) => updateInput('acquisitionDate', e.target.value)}
+                        className={`
+                          ${!inputs.acquisitionDate ? 
+                            'border-red-400 border-2 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-200' :
+                            'border-green-500 bg-green-50 focus:border-green-500'}
+                          text-right font-mono transition-all duration-200
+                        `}
+                      />
+                      
+                      {/* 🔴 필수 필드 시각적 표시 */}
+                      {!inputs.acquisitionDate && (
+                        <div className="absolute -right-2 -top-2">
+                          <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
+                            !
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* ✅ 완료 표시 */}
+                      {inputs.acquisitionDate && (
+                        <div className="absolute -right-2 -top-2">
+                          <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-green-500 rounded-full">
+                            ✓
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* 🔴 필수 필드 오류 메시지 */}
+                    {!inputs.acquisitionDate && (
+                      <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+                        <div className="flex items-start gap-2">
+                          <span className="text-red-500 font-bold">⚠️</span>
+                          <span>취득일은 필수 입력 항목입니다.</span>
+                          <Badge variant="destructive" className="text-xs ml-2">
+                            REQUIRED
+                          </Badge>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* 🔴 필수 필드 완료 안내 */}
+                    {inputs.acquisitionDate && (
+                      <div className="text-sm text-green-600 bg-green-50 p-2 rounded border border-green-200">
+                        ✅ 필수 입력이 완료되었습니다: {inputs.acquisitionDate}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -800,20 +1346,31 @@ export default function CapitalGainsTaxCalculatorComponent() {
                       </div>
                     </div>
                     
-                    {/* 보유기간별 세율 미리보기 */}
+                    {/* 🔥 보유기간별 세율 미리보기 (수정됨) */}
                     <div className="mt-3 pt-3 border-t border-indigo-200">
                       <div className="grid grid-cols-3 gap-4 text-xs">
                         <div className="text-center">
-                          <div className="font-medium text-indigo-700">기본세율</div>
-                          <div className="text-indigo-900">
+                          <div className="font-medium text-indigo-700">적용세율</div>
+                          <div className={`text-indigo-900 font-bold ${
+                            calculatedValues.holdingPeriodYears < 1 ? 'text-red-700' :
+                            calculatedValues.holdingPeriodYears < 2 ? 'text-orange-700' : 'text-indigo-900'
+                          }`}>
                             {calculatedValues.holdingPeriodYears < 1 ? '70%' : 
                              calculatedValues.holdingPeriodYears < 2 ? '60%' : '6~45%'}
+                          </div>
+                          <div className="text-xs text-indigo-600 mt-1">
+                            {calculatedValues.holdingPeriodYears < 1 ? '단기양도 중과세' :
+                             calculatedValues.holdingPeriodYears < 2 ? '단기양도 중과세' : '일반 누진세율'}
                           </div>
                         </div>
                         <div className="text-center">
                           <div className="font-medium text-indigo-700">장기보유공제</div>
                           <div className="text-indigo-900">
-                            {Math.min(calculatedValues.holdingPeriodYears - 2, 20) * 4}%
+                            {calculatedValues.holdingPeriodYears >= 3 ? 
+                              Math.min((calculatedValues.holdingPeriodYears - 2) * 8, 80) : 0}%
+                          </div>
+                          <div className="text-xs text-indigo-600 mt-1">
+                            {calculatedValues.holdingPeriodYears >= 3 ? '적용가능' : '3년 이상 필요'}
                           </div>
                         </div>
                         <div className="text-center">
@@ -821,6 +1378,9 @@ export default function CapitalGainsTaxCalculatorComponent() {
                           <div className="text-indigo-900">
                             {inputs.salePrice > inputs.acquisitionPrice ? 
                               formatCurrency(inputs.salePrice - inputs.acquisitionPrice) : '0원'}
+                          </div>
+                          <div className="text-xs text-indigo-600 mt-1">
+                            {inputs.salePrice > inputs.acquisitionPrice ? '과세대상' : '양도손실'}
                           </div>
                         </div>
                       </div>
@@ -835,31 +1395,69 @@ export default function CapitalGainsTaxCalculatorComponent() {
               <div className="space-y-4">
                 <h4 className="font-medium text-gray-900 border-b pb-2">부대비용</h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <NumberInput
+                  <EnhancedSmartInput
                     label="취득비용"
                     value={inputs.acquisitionCosts}
                     onChange={(value) => updateInput('acquisitionCosts', value)}
                     placeholder="등록세, 중개수수료 등"
-                    max={1000000000}
-                    helpText="등록세, 중개수수료, 법무사 수수료 등"
+                    calculationRule="capital-gains-acquisition-costs"
+                    connectedInputs={[
+                      { label: '취득가액', value: inputs.acquisitionPrice },
+                      { label: '양도차익', value: capitalGain, isCalculated: true }
+                    ]}
+                    quickActions={[
+                      { label: '취득가액의 3%', value: Math.floor(inputs.acquisitionPrice * 0.03) },
+                      { label: '취득가액의 5%', value: Math.floor(inputs.acquisitionPrice * 0.05) }
+                    ]}
+                    recommendations={inputs.acquisitionPrice > 0 && inputs.acquisitionCosts === 0 ? 
+                      [`일반적으로 취득가액의 3-5% 수준`] : []
+                    }
+                    validationRules={[
+                      { type: 'min', value: 0, message: '취득비용은 0원 이상이어야 합니다' },
+                      { type: 'max', value: 1000000000, message: '취득비용이 너무 큽니다' }
+                    ]}
                   />
                   
-                  <NumberInput
+                  <EnhancedSmartInput
                     label="개량비"
                     value={inputs.improvementCosts}
                     onChange={(value) => updateInput('improvementCosts', value)}
                     placeholder="리모델링 비용 등"
-                    max={5000000000}
-                    helpText="리모델링, 증축 등 자본적 지출"
+                    calculationRule="capital-gains-improvement-costs"
+                    connectedInputs={[
+                      { label: '취득가액', value: inputs.acquisitionPrice },
+                      { label: '양도차익', value: capitalGain, isCalculated: true }
+                    ]}
+                    recommendations={realTimeHoldingPeriod.years >= 5 && inputs.improvementCosts === 0 ? 
+                      ['장기보유 시 개량비 영수증 보관 권장'] : []
+                    }
+                    validationRules={[
+                      { type: 'min', value: 0, message: '개량비는 0원 이상이어야 합니다' },
+                      { type: 'max', value: 5000000000, message: '개량비가 너무 큽니다' }
+                    ]}
                   />
                   
-                  <NumberInput
+                  <EnhancedSmartInput
                     label="양도비용"
                     value={inputs.transferCosts}
                     onChange={(value) => updateInput('transferCosts', value)}
                     placeholder="중개수수료, 인지세 등"
-                    max={1000000000}
-                    helpText="매매 시 발생한 중개수수료, 인지세 등"
+                    calculationRule="capital-gains-transfer-costs"
+                    connectedInputs={[
+                      { label: '양도가액', value: inputs.salePrice },
+                      { label: '양도차익', value: capitalGain, isCalculated: true }
+                    ]}
+                    quickActions={[
+                      { label: '양도가액의 1%', value: Math.floor(inputs.salePrice * 0.01) },
+                      { label: '양도가액의 2%', value: Math.floor(inputs.salePrice * 0.02) }
+                    ]}
+                    recommendations={inputs.salePrice > 0 && inputs.transferCosts === 0 ? 
+                      [`일반적으로 양도가액의 1-2% 수준`] : []
+                    }
+                    validationRules={[
+                      { type: 'min', value: 0, message: '양도비용은 0원 이상이어야 합니다' },
+                      { type: 'max', value: 1000000000, message: '양도비용이 너무 큽니다' }
+                    ]}
                   />
                 </div>
               </div>
@@ -955,8 +1553,8 @@ export default function CapitalGainsTaxCalculatorComponent() {
                         </div>
                         <div className="text-xs text-gray-600">
                           {calculatedValues.isLongTermHolding ? 
-                            `장기보유공제: ${Math.min((calculatedValues.holdingPeriodYears - 2) * 4, 80)}%` :
-                            `중과세율: ${calculatedValues.holdingPeriodYears < 1 ? '70%' : '60%'}`
+                            `장기보유공제: ${calculatedValues.holdingPeriodYears >= 3 ? Math.min((calculatedValues.holdingPeriodYears - 2) * 8, 80) : 0}%` :
+                            `단기양도 중과세: ${calculatedValues.holdingPeriodYears < 1 ? '70%' : '60%'}`
                           }
                         </div>
                       </div>
@@ -996,10 +1594,12 @@ export default function CapitalGainsTaxCalculatorComponent() {
                         </div>
                         <div className="flex items-center justify-between">
                           <span>💰 예상 세율:</span>
-                          <span className="font-medium">
-                            {calculatedValues.holdingPeriodYears < 1 ? '70%' : 
-                             calculatedValues.holdingPeriodYears < 2 ? '60%' : '6~45%'}
-                            {calculatedValues.autoDetectedHeavyTax.heavyTaxRate > 0 && 
+                          <span className={`font-medium ${
+                            calculatedValues.holdingPeriodYears < 2 ? 'text-red-600' : 'text-gray-900'
+                          }`}>
+                            {calculatedValues.holdingPeriodYears < 1 ? '70% (단기양도)' : 
+                             calculatedValues.holdingPeriodYears < 2 ? '60% (단기양도)' : '6~45% (누진세율)'}
+                            {calculatedValues.holdingPeriodYears >= 2 && calculatedValues.autoDetectedHeavyTax.heavyTaxRate > 0 && 
                               ` (+${calculatedValues.autoDetectedHeavyTax.heavyTaxRate}%p)`
                             }
                           </span>
@@ -1033,13 +1633,34 @@ export default function CapitalGainsTaxCalculatorComponent() {
                       </div>
                     </div>
                     
-                    <NumberInput
+                    <EnhancedSmartInput
                       label="실거주 연수"
                       value={inputs.residenceYears}
                       onChange={(value) => updateInput('residenceYears', value)}
-                      suffix="년"
-                      max={50}
-                      helpText="최소 2년 이상 실거주 필요"
+                      placeholder="2"
+                      calculationRule="capital-gains-residence-years"
+                      connectedInputs={[
+                        { label: '보유기간', value: realTimeHoldingPeriod.years, isCalculated: true },
+                        { label: '1세대1주택 요건', value: oneHouseExemption.isQualified ? 1 : 0, isCalculated: true }
+                      ]}
+                      quickActions={[
+                        { label: '2년 (최소요건)', value: 2 },
+                        { label: '3년', value: 3 },
+                        { label: '5년', value: 5 },
+                        { label: '10년', value: 10 }
+                      ]}
+                      recommendations={inputs.residenceYears < 2 ? 
+                        ['1세대1주택 비과세를 위해 최소 2년 이상 거주 필요'] : 
+                        inputs.residenceYears >= 2 && inputs.totalHousesOwned === 1 ? 
+                        ['1세대1주택 거주 요건 충족!'] : []
+                      }
+                      warningMessage={inputs.residenceYears > realTimeHoldingPeriod.years && realTimeHoldingPeriod.years > 0 ? 
+                        '거주기간이 보유기간을 초과할 수 없습니다' : undefined
+                      }
+                      validationRules={[
+                        { type: 'min', value: 0, message: '거주기간은 0년 이상이어야 합니다' },
+                        { type: 'max', value: 50, message: '거주기간이 너무 깁니다' }
+                      ]}
                     />
                   </div>
 
@@ -1219,13 +1840,22 @@ export default function CapitalGainsTaxCalculatorComponent() {
                 <h4 className="font-medium text-gray-900 border-b pb-2">💰 기납부세액 및 특수상황</h4>
                 <div className="bg-blue-50 p-4 rounded-lg space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <NumberInput
+                    <EnhancedSmartInput
                       label="기납부세액"
                       value={inputs.previousYearTaxPaid}
                       onChange={(value) => updateInput('previousYearTaxPaid', value)}
                       placeholder="중간예납세액 등"
-                      max={1000000000}
-                      helpText="이미 납부한 중간예납세액"
+                      calculationRule="capital-gains-prepaid-tax"
+                      connectedInputs={[
+                        { label: '예상세액', value: results?.totalTax || 0, isCalculated: true }
+                      ]}
+                      recommendations={results && results.totalTax > 0 && inputs.previousYearTaxPaid === 0 ? 
+                        ['중간예납을 했다면 기납부세액을 입력하세요'] : []
+                      }
+                      validationRules={[
+                        { type: 'min', value: 0, message: '기납부세액은 0원 이상이어야 합니다' },
+                        { type: 'max', value: 1000000000, message: '기납부세액이 너무 큽니다' }
+                      ]}
                     />
                     
                     <div className="space-y-3">
@@ -1306,6 +1936,7 @@ export default function CapitalGainsTaxCalculatorComponent() {
                   <div className="bg-emerald-50 p-3 rounded-lg border border-emerald-200">
                     <div className="text-sm font-medium text-emerald-800 mb-2">💡 2024년 절세 팁</div>
                     <div className="text-xs text-emerald-700 space-y-1">
+                      <div>• <strong>기본공제 250만원</strong>: 모든 양도소득에 자동 적용 (별도 신청 불필요)</div>
                       <div>• 장기보유특별공제: 3년 이상 보유 시 연 4%씩 최대 80% 공제</div>
                       <div>• 취득세 및 개량비 영수증 보관으로 필요경비 최대화</div>
                       <div>• 1세대1주택 요건 충족 시 12억원까지 완전 비과세</div>
@@ -1324,7 +1955,7 @@ export default function CapitalGainsTaxCalculatorComponent() {
                 >
                   {isCalculating ? (
                     <>
-                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      <RotateCcw className="w-4 h-4 mr-2 animate-spin" />
                       계산 중...
                     </>
                   ) : (
@@ -1384,6 +2015,19 @@ export default function CapitalGainsTaxCalculatorComponent() {
                   ) : (
                     // 과세 적용 시
                     <div className="space-y-4">
+                      {/* 🔥 기본공제 자동적용 안내 메시지 */}
+                      <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <div className="text-sm font-medium text-green-800">
+                            ✅ 기본공제 250만원 자동 적용됨
+                          </div>
+                        </div>
+                        <div className="text-xs text-green-700 mt-1">
+                          양도소득세는 법정 기본공제 250만원이 자동으로 차감되어 계산됩니다.
+                        </div>
+                      </div>
+
                       <div className="bg-purple-50 p-4 rounded-xl">
                         <div className="text-sm text-purple-600 font-medium">총 납부세액</div>
                         <div className="text-2xl font-bold text-purple-900">
@@ -1444,7 +2088,7 @@ export default function CapitalGainsTaxCalculatorComponent() {
                       <div className="grid grid-cols-2 gap-3">
                         <div className="bg-gray-50 p-3 rounded-lg">
                           <div className="text-sm text-gray-600 flex items-center">
-                            <Percent className="w-4 h-4 mr-1" />
+                            <Lightbulb className="w-4 h-4 mr-1" />
                             적용세율
                           </div>
                           <div className="text-base font-semibold text-gray-900">
@@ -1465,7 +2109,7 @@ export default function CapitalGainsTaxCalculatorComponent() {
                       {/* 보유기간 정보 */}
                       <div className="bg-emerald-50 p-3 rounded-lg">
                         <div className="text-sm text-emerald-600 flex items-center">
-                          <Calendar className="w-4 h-4 mr-1" />
+                          <Clock className="w-4 h-4 mr-1" />
                           보유기간
                         </div>
                         <div className="text-base font-semibold text-emerald-900">
@@ -1518,7 +2162,7 @@ export default function CapitalGainsTaxCalculatorComponent() {
                   {/* 결과 관련 면책 조항 */}
                   <div className="mt-6 p-3 bg-red-50 border border-red-200 rounded-lg">
                     <div className="flex items-start space-x-2">
-                      <Info className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+                      <Users className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
                       <div className="text-sm text-red-800">
                         <p className="font-medium mb-1">⚠️ 중요 안내</p>
                         <p>위 계산 결과는 <strong>참고용</strong>이며, 실제 세무신고 시에는 반드시 <strong>세무사 상담</strong> 또는 <strong>국세청 홈택스</strong>를 통해 정확한 계산을 확인하시기 바랍니다.</p>
@@ -1545,16 +2189,35 @@ export default function CapitalGainsTaxCalculatorComponent() {
                       </TabsList>
                       
                       <TabsContent value="breakdown" className="space-y-4">
+                        {/* 🔥 기본공제 자동적용 안내 메시지 */}
+                        <div className="bg-green-50 p-3 rounded-lg border border-green-200 mb-4">
+                          <div className="flex items-center space-x-2">
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                            <div className="text-sm font-medium text-green-800">
+                              ✅ 기본공제 250만원이 자동으로 적용되었습니다
+                            </div>
+                          </div>
+                          <div className="text-xs text-green-700 mt-1">
+                            양도소득세법에 따라 모든 양도소득에는 기본공제 250만원이 자동으로 차감됩니다.
+                          </div>
+                        </div>
+
                         <div className="space-y-3">
                           {results.calculationDetails.steps.map((step, index) => (
-                            <div key={index} className="flex justify-between items-center py-2 border-b border-gray-100">
+                            <div key={index} className={`flex justify-between items-center py-2 border-b border-gray-100 ${
+                              step.label === '기본공제' ? 'bg-green-50 px-2 rounded' : ''
+                            }`}>
                               <div>
                                 <span className="text-sm font-medium text-gray-700">
                                   {step.label}
+                                  {step.label === '기본공제' && (
+                                    <Badge className="ml-2 text-xs bg-green-100 text-green-700 border-green-300">법정 자동적용</Badge>
+                                  )}
                                 </span>
                                 {step.description && (
                                   <div className="text-xs text-gray-500 mt-1">
                                     {step.description}
+                                    {step.label === '기본공제' && ' (법정 기본공제로 자동 차감)'}
                                   </div>
                                 )}
                               </div>

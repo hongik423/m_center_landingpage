@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Input } from './input';
 import { Label } from './label';
-import { formatNumberInput, parseFormattedNumber, handleNumberInputChange } from '@/lib/utils';
+import { Badge } from './badge';
 
 interface NumberInputProps {
   label?: string;
@@ -19,7 +19,38 @@ interface NumberInputProps {
   prefix?: string;
   required?: boolean;
   error?: string;
+  helpText?: string;
+  
+  // 🔧 기존 세금계산기 호환성을 위한 추가 props
+  limit?: number;                    // max와 동일한 기능
+  unit?: string;                     // suffix와 동일한 기능  
+  info?: string;                     // helpText와 동일한 기능
+  helpMessage?: string;              // helpText와 동일한 기능
+  dependentValue?: number;           // 동적 계산을 위한 값
+  dynamicInfo?: (value: number, dependentValue?: number) => string;  // 동적 정보 생성
+  requiredMessage?: string;          // 커스텀 필수 메시지
 }
+
+// 🔧 개선된 유틸리티 함수들
+const formatNumberDisplay = (num: number): string => {
+  if (num === 0) return '';
+  return new Intl.NumberFormat('ko-KR').format(Math.round(num));
+};
+
+const parseNumberInput = (input: string): number => {
+  if (!input) return 0;
+  // 숫자와 쉼표만 허용, 다른 문자 제거
+  const cleaned = input.replace(/[^\d,]/g, '').replace(/,/g, '');
+  const num = parseInt(cleaned) || 0;
+  return num;
+};
+
+const isValidNumberInput = (input: string): boolean => {
+  // 빈 문자열은 유효
+  if (!input) return true;
+  // 숫자와 쉼표만 허용
+  return /^[\d,]*$/.test(input);
+};
 
 export function NumberInput({
   label,
@@ -34,145 +65,380 @@ export function NumberInput({
   suffix,
   prefix,
   required = false,
-  error
+  error,
+  helpText,
+  
+  // 🔧 기존 호환성 props
+  limit,
+  unit,
+  info,
+  helpMessage,
+  dependentValue,
+  dynamicInfo,
+  requiredMessage
 }: NumberInputProps) {
-  const [localValue, setLocalValue] = useState<string>(
-    value && value > 0 ? formatNumberInput(value) : ''
-  );
+  const [displayValue, setDisplayValue] = useState<string>('');
   const [isFocused, setIsFocused] = useState(false);
+  const [isComposing, setIsComposing] = useState(false);
+  const [dynamicMessage, setDynamicMessage] = useState('');
+  const [hasWarning, setHasWarning] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  
+  // 🔧 props 통합 (기존 호환성)
+  const finalMax = max ?? limit;
+  const finalSuffix = suffix ?? unit;
+  const finalHelpText = helpText ?? helpMessage ?? info;
+  const finalError = error;
+  
+  // 🔴 필수 필드 상태 계산
+  const isCompleted = value > 0 && !hasWarning && !finalError;
+  const hasError = !!finalError;
+  const isRequiredAndEmpty = required && value === 0;
 
-  // 외부 값이 변경될 때 로컬 값 업데이트
+  // 🔧 외부 value 변경 시에만 displayValue 업데이트 (포커스 중이 아닐 때만)
   useEffect(() => {
-    if (!isFocused) {
-      setLocalValue(value && value > 0 ? formatNumberInput(value) : '');
+    if (!isFocused && !isComposing) {
+      setDisplayValue(formatNumberDisplay(value));
     }
-  }, [value, isFocused]);
+  }, [value, isFocused, isComposing]);
+
+  // 🔧 컴포넌트 마운트 시 초기값 설정
+  useEffect(() => {
+    setDisplayValue(formatNumberDisplay(value));
+  }, []);
+
+  // 🔧 동적 정보 업데이트
+  useEffect(() => {
+    if (dynamicInfo) {
+      setDynamicMessage(dynamicInfo(value, dependentValue));
+    }
+  }, [dynamicInfo, value, dependentValue]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     
-    // 천단위 구분기호와 함께 숫자 입력 처리
-    const formattedValue = handleNumberInputChange(
-      inputValue,
-      (num) => {
-        // min/max 범위 체크
-        let finalValue = num;
-        if (min !== undefined && num < min) finalValue = min;
-        if (max !== undefined && num > max) finalValue = max;
-        
-        onChange(finalValue);
-      },
-      { min, max, allowEmpty: true }
-    );
+    // 🔥 IME 입력 중에는 처리하지 않음
+    if (isComposing) {
+      setDisplayValue(inputValue);
+      return;
+    }
+
+    // 🔥 유효하지 않은 문자 입력 시 무시
+    if (!isValidNumberInput(inputValue)) {
+      return;
+    }
+
+    // 🔥 displayValue는 즉시 업데이트 (사용자 입력 피드백)
+    setDisplayValue(inputValue);
     
-    setLocalValue(formattedValue);
+    // 🔥 숫자 값 파싱 및 범위 체크
+    const numericValue = parseNumberInput(inputValue);
+    
+    // 범위 체크 및 경고 설정
+    let finalValue = numericValue;
+    let warning = false;
+    
+    if (min !== undefined && numericValue < min && numericValue !== 0) {
+      finalValue = min;
+      warning = true;
+    }
+    if (finalMax !== undefined && numericValue > finalMax) {
+      finalValue = finalMax;
+      warning = true;
+      // 최대값 초과 시 즉시 표시값도 수정
+      setDisplayValue(formatNumberDisplay(finalValue));
+    }
+    
+    setHasWarning(warning);
+    
+    // 🔥 onChange는 디바운싱 없이 즉시 호출
+    onChange(finalValue);
   };
 
-  const handleFocus = () => {
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(true);
-    // 포커스 시 원본 숫자만 표시 (편집하기 쉽게)
-    const rawNumber = parseFormattedNumber(localValue);
+    // 포커스 시 쉼표 제거하여 편집하기 쉽게 만들기
+    const rawNumber = parseNumberInput(displayValue);
     if (rawNumber > 0) {
-      setLocalValue(rawNumber.toString());
+      setDisplayValue(rawNumber.toString());
     }
   };
 
   const handleBlur = () => {
     setIsFocused(false);
-    // 포커스 해제 시 천단위 구분기호 적용
-    const rawNumber = parseFormattedNumber(localValue || '0');
     
-    if (rawNumber === 0) {
-      setLocalValue('');
-      onChange(0);
-    } else {
-      // 범위 체크 후 정규화
-      let finalValue = rawNumber;
-      if (min !== undefined && rawNumber < min) finalValue = min;
-      if (max !== undefined && rawNumber > max) finalValue = max;
-      
-      setLocalValue(formatNumberInput(finalValue));
-      if (finalValue !== rawNumber) {
-        onChange(finalValue);
-      }
+    // 🔥 블러 시 포맷팅 적용 및 범위 재검증
+    const numericValue = parseNumberInput(displayValue);
+    
+    // 범위 체크 후 최종 값 결정
+    let finalValue = numericValue;
+    let warning = false;
+    
+    if (min !== undefined && numericValue < min && numericValue !== 0) {
+      finalValue = min;
+      warning = true;
+    }
+    if (finalMax !== undefined && numericValue > finalMax) {
+      finalValue = finalMax;
+      warning = true;
+    }
+    
+    setHasWarning(warning);
+    
+    // 포맷팅된 값으로 표시
+    setDisplayValue(formatNumberDisplay(finalValue));
+    
+    // 값이 변경되었으면 onChange 호출
+    if (finalValue !== numericValue) {
+      onChange(finalValue);
     }
   };
 
+  const handleCompositionStart = () => {
+    setIsComposing(true);
+  };
+
+  const handleCompositionEnd = (e: React.CompositionEvent<HTMLInputElement>) => {
+    setIsComposing(false);
+    // 컴포지션 종료 후 즉시 처리
+    handleInputChange(e as any);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // 음수 허용하지 않는 경우 '-' 키 차단
+    // 🔥 Ctrl/Cmd 조합키는 모두 허용
+    if (e.ctrlKey || e.metaKey) {
+      return;
+    }
+
+    // 🔥 음수 입력 방지 (min이 0 이상인 경우)
     if (min !== undefined && min >= 0 && e.key === '-') {
       e.preventDefault();
+      return;
     }
 
-    // 숫자, 백스페이스, 삭제, 탭, 화살표만 허용 (콤마, 소수점 제외)
-    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+    // 🔥 허용되는 키 목록
+    const allowedKeys = [
+      'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+      'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+      'Home', 'End', 'PageUp', 'PageDown'
+    ];
+    
     const isNumber = /^[0-9]$/.test(e.key);
 
+    // 허용되지 않는 키 차단
     if (!allowedKeys.includes(e.key) && !isNumber) {
       e.preventDefault();
+      return;
     }
 
-    // 엔터 키 처리
+    // Enter 키 처리
     if (e.key === 'Enter') {
-      (e.target as HTMLInputElement).blur();
+      inputRef.current?.blur();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData('text');
+    
+    // 붙여넣기된 텍스트에서 숫자만 추출
+    const numbersOnly = pastedText.replace(/[^\d]/g, '');
+    if (numbersOnly) {
+      const numericValue = parseInt(numbersOnly) || 0;
+      
+      // 범위 체크
+      let finalValue = numericValue;
+      if (min !== undefined && numericValue < min) finalValue = min;
+      if (finalMax !== undefined && numericValue > finalMax) finalValue = finalMax;
+      
+      setDisplayValue(finalValue.toString());
+      onChange(finalValue);
     }
   };
 
   return (
     <div className={`space-y-2 ${className}`}>
+      {/* 🔴 개선된 라벨 */}
       {label && (
-        <Label className="text-sm font-medium text-gray-700">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </Label>
+        <div className="flex items-center gap-2">
+          <Label 
+            htmlFor={label.replace(/\s/g, '')} 
+            className={`
+              text-sm font-medium flex items-center gap-2
+              ${required && !isCompleted ? 'text-red-700 font-semibold' : 
+                required && isCompleted ? 'text-green-700 font-semibold' : 
+                'text-gray-700'}
+            `}
+          >
+            <span>{label}</span>
+            
+            {required && (
+              <div className="flex items-center gap-1">
+                <span className="text-red-500 text-lg font-bold">*</span>
+                <Badge variant="outline" className="text-xs bg-red-100 text-red-700 border-red-300 px-1 py-0">
+                  필수
+                </Badge>
+              </div>
+            )}
+            
+            {required && isCompleted && (
+              <Badge variant="outline" className="text-xs bg-green-100 text-green-700 border-green-300">
+                ✅ 완료
+              </Badge>
+            )}
+            
+            {hasError && (
+              <Badge variant="destructive" className="text-xs">
+                ⚠️ 오류
+              </Badge>
+            )}
+          </Label>
+          
+          {/* 🔧 한도 표시 (기존 호환성) */}
+          {finalMax && (
+            <Badge variant="outline" className="text-xs">
+              한도: {formatNumberDisplay(finalMax)}{finalSuffix || '원'}
+            </Badge>
+          )}
+          
+          {/* 🔧 도움말 표시 */}
+          {finalHelpText && (
+            <Badge variant="secondary" className="text-xs">
+              💡 도움말
+            </Badge>
+          )}
+        </div>
       )}
       
+      {/* 🔴 개선된 입력 필드 */}
       <div className="relative">
         {prefix && (
-          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
+          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm z-10">
             {prefix}
           </span>
         )}
         
         <Input
+          ref={inputRef}
+          id={label?.replace(/\s/g, '')}
           type="text"
           inputMode="numeric"
-          value={localValue}
+          value={displayValue}
           onChange={handleInputChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          placeholder={placeholder}
+          onPaste={handlePaste}
+          onCompositionStart={handleCompositionStart}
+          onCompositionEnd={handleCompositionEnd}
+          placeholder={required ? `${placeholder} (필수)` : placeholder}
           disabled={disabled}
           autoComplete="off"
           title={label}
           aria-label={label}
+          aria-required={required}
+          aria-invalid={hasError}
           className={`
-            ${error ? 'border-red-500 bg-red-50' : 'border-gray-300'}
+            ${hasError ? 'border-red-500 bg-red-50 focus:border-red-500' :
+              hasWarning ? 'border-orange-500 bg-orange-50 focus:border-orange-500' :
+              isRequiredAndEmpty ? 'border-red-400 border-2 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-200' :
+              required && isCompleted ? 'border-green-500 bg-green-50 focus:border-green-500' :
+              isCompleted ? 'border-blue-300 bg-blue-50' : 'border-gray-300'}
             ${prefix ? 'pl-8' : ''}
-            ${suffix ? 'pr-12' : ''}
-            text-right font-mono
+            ${finalSuffix ? 'pr-12' : ''}
+            text-right font-mono transition-all duration-200
           `}
         />
         
-        {suffix && (
-          <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
-            {suffix}
+        {finalSuffix && (
+          <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm z-10">
+            {finalSuffix}
           </span>
+        )}
+        
+        {required && !isCompleted && (
+          <div className="absolute -right-2 -top-2">
+            <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
+              !
+            </span>
+          </div>
+        )}
+        
+        {required && isCompleted && (
+          <div className="absolute -right-2 -top-2">
+            <span className="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-green-500 rounded-full">
+              ✓
+            </span>
+          </div>
         )}
       </div>
 
-      {error && (
-        <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
-          ⚠️ {error}
+      {/* 🔧 한도 초과 경고 (기존 호환성) */}
+      {hasWarning && finalMax && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-2">
+          <p className="text-sm text-orange-600">
+            ⚠️ 한도 초과로 {formatNumberDisplay(finalMax)}{finalSuffix || '원'}로 자동 조정되었습니다.
+          </p>
         </div>
       )}
 
-      {isFocused && (
+      {/* 🔴 오류 메시지 */}
+      {finalError && (
+        <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+          <div className="flex items-start gap-2">
+            <span className="text-red-500 font-bold">⚠️</span>
+            <span>{finalError}</span>
+            {required && finalError.includes('필수') && (
+              <Badge variant="destructive" className="text-xs ml-2">
+                REQUIRED
+              </Badge>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 🔴 필수 필드 오류 메시지 */}
+      {required && isRequiredAndEmpty && !finalError && (
+        <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+          <div className="flex items-start gap-2">
+            <span className="text-red-500 font-bold">⚠️</span>
+            <span>{requiredMessage || `${label}은(는) 필수 입력 항목입니다.`}</span>
+            <Badge variant="destructive" className="text-xs ml-2">
+              REQUIRED
+            </Badge>
+          </div>
+        </div>
+      )}
+
+      {/* 🔴 필수 필드 완료 안내 */}
+      {required && isCompleted && (
+        <div className="text-sm text-green-600 bg-green-50 p-2 rounded border border-green-200">
+          ✅ 필수 입력이 완료되었습니다: {formatNumberDisplay(value)}{finalSuffix || '원'}
+        </div>
+      )}
+
+      {/* 🔧 동적 메시지 (기존 호환성) */}
+      {dynamicMessage && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+          <p className="text-sm text-blue-700">
+            💡 {dynamicMessage}
+          </p>
+        </div>
+      )}
+
+      {/* 도움말 */}
+      {finalHelpText && !dynamicMessage && !finalError && (
+        <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded border border-blue-200">
+          💡 {finalHelpText}
+        </div>
+      )}
+
+      {/* 포커스 시 사용법 안내 */}
+      {isFocused && !finalError && (
         <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded border">
-          💡 숫자만 입력하세요. 천단위 쉼표는 자동으로 표시됩니다.
+          💡 숫자만 입력하세요. 천단위 쉼표는 포커스 해제 시 자동으로 표시됩니다.
           {min !== undefined && ` (최소: ${min.toLocaleString()})`}
-          {max !== undefined && ` (최대: ${max.toLocaleString()})`}
+          {finalMax !== undefined && ` (최대: ${finalMax.toLocaleString()})`}
         </div>
       )}
     </div>

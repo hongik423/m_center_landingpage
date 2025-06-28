@@ -43,7 +43,6 @@ const services = [
     bgColor: 'from-blue-50 to-purple-50',
     href: '/services/business-analysis',
     benefits: ['95% 성공률 보장', '세무사 수익 4배 증가', '5단계 BM ZEN 프레임워크'],
-    price: '상담 문의',
     duration: '6-12개월',
     badge: '⭐ 추천',
     featured: true,
@@ -71,7 +70,6 @@ const services = [
     bgColor: 'from-purple-50 to-pink-50',
     href: '/services/ai-productivity',
     benefits: ['정부 100% 지원', '20주 집중 프로그램', '업무 효율성 40% 향상'],
-    price: '무료 (정부지원)',
     duration: '20주',
     badge: '🎯 정부지원',
     features: [
@@ -98,7 +96,6 @@ const services = [
     bgColor: 'from-orange-50 to-red-50',
     href: '/services/factory-auction',
     benefits: ['투자비 40% 절약', '전문가 동행', '완전 위탁 진행'],
-    price: '성공보수제',
     duration: '3-6개월',
     badge: '💰 절약',
     features: [
@@ -125,7 +122,6 @@ const services = [
     bgColor: 'from-green-50 to-emerald-50',
     href: '/services/tech-startup',
     benefits: ['평균 5억원 확보', '성공률 85%', '3년 사후관리'],
-    price: '성공보수제',
     duration: '6-12개월',
     badge: '🚀 성장',
     features: [
@@ -152,7 +148,6 @@ const services = [
     bgColor: 'from-blue-50 to-cyan-50',
     href: '/services/certification',
     benefits: ['5천만원 세제혜택', '통합 인증 관리', '100% 취득 보장'],
-    price: '300만원~',
     duration: '2-4개월',
     badge: '🏆 인증',
     features: [
@@ -178,8 +173,7 @@ const services = [
     color: 'bg-indigo-100 text-indigo-600',
     bgColor: 'from-indigo-50 to-violet-50',
     href: '/services/website',
-    benefits: ['매출 30% 증대', 'AI 기반 최적화', '무료 1년 관리'],
-    price: '500만원~',
+    benefits: ['매출 30% 증대', 'AI 기반 최적화', '1년 관리 포함'],
     duration: '1-3개월',
     badge: '🌐 디지털',
     features: [
@@ -409,20 +403,13 @@ export default function ServicesPage() {
                   </div>
 
                   {/* 서비스 정보 */}
-                  <div className="grid grid-cols-2 gap-4 mb-8">
+                  <div className="grid grid-cols-1 gap-4 mb-8">
                     <div className="bg-white/80 p-4 rounded-xl">
                       <div className="flex items-center gap-2 mb-2">
                         <Calendar className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-500">기간</span>
+                        <span className="text-sm text-gray-500">진행 기간</span>
                       </div>
                       <span className="font-semibold text-gray-900">{service.duration}</span>
-                    </div>
-                    <div className="bg-white/80 p-4 rounded-xl">
-                      <div className="flex items-center gap-2 mb-2">
-                        <DollarSign className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-500">비용</span>
-                      </div>
-                      <span className="font-semibold text-gray-900">{service.price}</span>
                     </div>
                   </div>
 
@@ -462,23 +449,19 @@ export default function ServicesPage() {
                   <div className="flex gap-3">
                     <Link href={service.href} className="flex-1">
                       <Button 
-                        className={`w-full font-semibold py-3 transition-all duration-300 ${
-                          service.featured 
-                            ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg' 
-                            : 'bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-gray-300'
-                        }`}
+                        className="w-full font-semibold py-3 transition-all duration-300 bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-gray-300"
                       >
-                        {service.featured ? '지금 시작하기' : '자세히 보기'}
+                        자세히 보기
                         <ArrowRight className="ml-2 w-4 h-4" />
                       </Button>
                     </Link>
                     
-                    <Link href="/consultation">
+                    <Link href="/consultation" className="flex-1">
                       <Button 
-                        variant="outline"
-                        className="px-4 py-3 border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+                        className="w-full font-semibold py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg"
                       >
-                        <Phone className="w-4 h-4" />
+                        전문가 상담 신청
+                        <Phone className="ml-2 w-4 h-4" />
                       </Button>
                     </Link>
                   </div>
