@@ -35,11 +35,11 @@ export default function ContactPage() {
                 <Phone className="w-12 h-12 text-primary mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-gray-900 mb-2">전화 상담</h3>
                 <p className="text-gray-600 mb-4">
-                  1588-0000<br />
+                  010-9251-9743<br />
                   평일 09:00 - 18:00
                 </p>
-                <Button className="w-full">
-                  전화 걸기
+                <Button className="w-full" asChild>
+                  <a href="tel:010-9251-9743">전화 걸기</a>
                 </Button>
               </CardContent>
             </Card>
@@ -49,11 +49,11 @@ export default function ContactPage() {
                 <Mail className="w-12 h-12 text-primary mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-gray-900 mb-2">이메일 문의</h3>
                 <p className="text-gray-600 mb-4">
-                  info@m-center.co.kr<br />
+                  hongik423@gmail.com<br />
                   24시간 접수
                 </p>
-                <Button className="w-full">
-                  이메일 보내기
+                <Button className="w-full" asChild>
+                  <a href="mailto:hongik423@gmail.com">이메일 보내기</a>
                 </Button>
               </CardContent>
             </Card>
@@ -61,13 +61,13 @@ export default function ContactPage() {
             <Card className="text-center">
               <CardContent className="p-8">
                 <MessageCircle className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="text-xl font-bold text-gray-900 mb-2">온라인 채팅</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">상담 신청</h3>
                 <p className="text-gray-600 mb-4">
-                  실시간 채팅 상담<br />
-                  평일 09:00 - 18:00
+                  전문가 상담 신청<br />
+                  24시간 접수 가능
                 </p>
-                <Button className="w-full">
-                  채팅 시작
+                <Button className="w-full" asChild>
+                  <a href="/consultation">상담신청</a>
                 </Button>
               </CardContent>
             </Card>
@@ -100,7 +100,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-4">긴급 지원</h3>
-                  <div className="space-y-2 text-gray-600">
+                  <div className="space-y-2 text-gray-600 mb-4">
                     <div className="flex justify-between">
                       <span>기술 지원</span>
                       <span>24시간 (이메일)</span>
@@ -114,6 +114,9 @@ export default function ContactPage() {
                       <span>평일 연장 가능</span>
                     </div>
                   </div>
+                  <Button className="w-full bg-red-600 hover:bg-red-700 text-white" asChild>
+                    <a href="mailto:hongik423@gmail.com?subject=오류신고">오류신고</a>
+                  </Button>
                 </div>
               </div>
             </CardContent>

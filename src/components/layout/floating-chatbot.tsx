@@ -33,26 +33,27 @@ export default function FloatingChatbot() {
     if (isOpen && messages.length === 0) {
       const welcomeMessage: Message = {
         id: Date.now().toString(),
-        content: `🌟 안녕하세요! **기업의별 M-CENTER** AI상담사입니다!
+        content: `🎯 안녕하세요! **기업의별 M-CENTER** M센터장입니다!
 
-✨ **GEMINI AI 기반 스마트 상담**으로 더욱 정확하고 개인화된 답변을 제공해드립니다!
+28년간 500개 이상 기업의 성장을 함께해온 **이후경 경영지도사**를 대표하여 상담해드리겠습니다.
 
-🎯 **상담 가능한 분야:**
-• 📈 **매출 증대 전략** - BM ZEN 사업분석 (성공률 95%)
-• 🤖 **AI 생산성향상** - ChatGPT 활용법 (효율 40-60% 향상)
-• 🏭 **공장/부동산** - 경매활용 구매전략 (30-50% 절감)
-• 🚀 **기술창업** - 사업화 및 정부지원 (평균 5억원 확보)
+🏆 **M-CENTER 전문 상담 분야:**
+• 📈 **BM ZEN 사업분석** - 생산성 42% 향상, ROI 290% 달성
+• 🤖 **AI 생산성향상** - 20-99인 기업 100% 정부지원 (완전무료)
+• 🏭 **경매활용 공장구매** - 25년 노하우로 30-50% 절감
+• 🚀 **기술사업화/창업** - 평균 5억원 정부지원 확보
 • 🏆 **인증지원** - ISO/벤처/연구소 (연간 5천만원 세제혜택)
-• 🌐 **웹사이트 구축** - SEO 전문 (매출 300-500% 증대)
+• 🌐 **웹사이트 구축** - 온라인 매출 300-500% 증대
+• 🧮 **세금계산기 11종** - 2024년 최신 세법 완벽 반영
 
 💬 **궁금한 것을 자유롭게 물어보세요!**
-📞 **긴급상담: 010-9251-9743 (이후경 경영지도사)**
+📞 **직접 상담: 010-9251-9743 (이후경 경영지도사)**
 
 ---
 💡 **예시 질문:**
-"우리 회사 매출을 늘리려면 어떻게 해야 하나요?"
-"AI 도입으로 업무 효율을 높이고 싶어요"
-"공장 구매를 저렴하게 하는 방법이 있나요?"`,
+"BM ZEN 사업분석은 어떻게 진행되나요?"
+"일터혁신 상생컨설팅이 정말 무료인가요?"
+"경매로 공장을 안전하게 구매하는 방법은?"`,
         sender: 'bot',
         timestamp: new Date()
       };
@@ -308,19 +309,21 @@ export default function FloatingChatbot() {
 
   // 폴백 응답 생성
   const generateFallbackResponse = (message: string): string => {
-    return `✨ **기업의별 M-CENTER**에서 도움드리겠습니다!
+    return `🎯 **기업의별 M-CENTER** M센터장입니다!
 
-🎯 **맞춤형 솔루션 제공 분야:**
-• 📈 **매출 증대** - BM ZEN 사업분석으로 20-40% 성장
-• 🤖 **AI 생산성향상** - ChatGPT 활용으로 업무효율 60% 향상  
-• 🏭 **공장/부동산** - 경매활용으로 30-50% 비용절감
-• 🚀 **기술창업** - 평균 5억원 정부지원 연계
+28년간 500개 이상 기업과 함께한 **이후경 경영지도사**를 대표하여 답변드리겠습니다.
+
+🏆 **검증된 M-CENTER 솔루션:**
+• 📈 **BM ZEN 사업분석** - 생산성 42% 향상, ROI 290% 달성
+• 🤖 **AI 생산성향상** - 20-99인 기업 100% 정부지원 (완전무료)
+• 🏭 **경매활용 공장구매** - 25년 노하우로 30-50% 절감
+• 🚀 **기술사업화/창업** - 평균 5억원 정부지원 확보
 
 **더 구체적인 상담을 원하시면:**
-📞 **즉시 상담: 010-9251-9743 (이후경 경영지도사)**
+📞 **직접 상담: 010-9251-9743 (이후경 경영지도사)**
 🔗 **무료 진단: /services/diagnosis**
 
-💡 **25년 경험의 전문 컨설팅**으로 확실한 성과를 보장합니다!`;
+💡 **28년 현장 경험의 검증된 전문성**으로 확실한 성과를 보장합니다!`;
   };
 
   return (
@@ -379,10 +382,10 @@ export default function FloatingChatbot() {
         }}
         data-floating-chatbot="true"
       >
-        {/* AI상담사 아이콘 */}
+        {/* M센터장 아이콘 */}
         <img
           src={getImagePath('/star-counselor-icon.svg')}
-          alt="AI상담사"
+          alt="M센터장"
           style={{
             width: isMobile ? '50px' : '60px',
             height: isMobile ? '50px' : '60px',
@@ -505,7 +508,7 @@ export default function FloatingChatbot() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <img
                 src={getImagePath('/star-counselor-icon.svg')}
-                alt="AI상담사"
+                alt="M센터장"
                 style={{
                   width: '35px',
                   height: '35px',
@@ -515,7 +518,7 @@ export default function FloatingChatbot() {
               />
               <div>
                 <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                  AI상담사
+                  M센터장
                 </div>
                 <div style={{ fontSize: '12px', opacity: 0.9 }}>
                   GEMINI AI • 온라인

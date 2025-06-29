@@ -14,6 +14,11 @@ import {
   Download,
   Video
 } from 'lucide-react';
+import { 
+  generateServiceGuideBook, 
+  generateAIManual, 
+  generateTaxCalculatorManual 
+} from '@/lib/utils/pdfDocumentGenerator';
 
 const faqData = [
   {
@@ -63,36 +68,58 @@ const faqData = [
 
 const supportResources = [
   {
+    id: 'service-guide',
     title: '서비스 가이드북',
     description: '6대 핵심서비스 상세 안내서',
     icon: FileText,
     type: 'PDF',
-    size: '2.5MB'
+    size: '2.5MB',
+    downloadAction: generateServiceGuideBook
   },
   {
+    id: 'ai-manual',
     title: 'AI 활용 매뉴얼',
     description: '기업용 AI 도구 활용 가이드',
     icon: FileText,
     type: 'PDF',
-    size: '3.2MB'
+    size: '3.2MB',
+    downloadAction: generateAIManual
   },
   {
-    title: '정부지원 신청 가이드',
-    description: '정부지원 프로그램 신청 방법',
+    id: 'tax-calculator-manual',
+    title: '세금계산기 사용매뉴얼',
+    description: '세금계산기 완벽 활용 가이드',
     icon: FileText,
     type: 'PDF',
-    size: '1.8MB'
+    size: '2.1MB',
+    downloadAction: generateTaxCalculatorManual
   },
   {
+    id: 'online-seminar',
     title: '온라인 세미나 영상',
     description: 'BM ZEN 프레임워크 소개',
     icon: Video,
     type: 'Video',
-    size: '45분'
+    size: '45분',
+    downloadAction: null
   }
 ];
 
 export default function SupportPage() {
+  // PDF 다운로드 핸들러
+  const handleDownload = (resource: typeof supportResources[0]) => {
+    if (resource.downloadAction) {
+      try {
+        resource.downloadAction();
+      } catch (error) {
+        console.error('PDF 생성 중 오류가 발생했습니다:', error);
+        alert('PDF 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      }
+    } else {
+      // 비디오나 기타 파일의 경우
+      alert('준비 중인 콘텐츠입니다. 곧 제공될 예정입니다.');
+    }
+  };
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -115,11 +142,11 @@ export default function SupportPage() {
                 <Phone className="w-12 h-12 text-primary mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-gray-900 mb-2">전화 상담</h3>
                 <p className="text-gray-600 mb-4">
-                  1588-0000<br />
+                  010-9251-9743<br />
                   평일 09:00 - 18:00
                 </p>
-                <Button className="w-full">
-                  전화 걸기
+                <Button className="w-full" asChild>
+                  <a href="tel:010-9251-9743">전화 걸기</a>
                 </Button>
               </CardContent>
             </Card>
@@ -129,11 +156,11 @@ export default function SupportPage() {
                 <Mail className="w-12 h-12 text-primary mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-gray-900 mb-2">이메일 문의</h3>
                 <p className="text-gray-600 mb-4">
-                  info@m-center.co.kr<br />
+                  hongik423@gmail.com<br />
                   24시간 접수
                 </p>
-                <Button className="w-full">
-                  이메일 보내기
+                <Button className="w-full" asChild>
+                  <a href="mailto:hongik423@gmail.com">이메일 보내기</a>
                 </Button>
               </CardContent>
             </Card>
@@ -141,13 +168,13 @@ export default function SupportPage() {
             <Card className="text-center">
               <CardContent className="p-8">
                 <MessageCircle className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="text-xl font-bold text-gray-900 mb-2">온라인 채팅</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">상담 신청</h3>
                 <p className="text-gray-600 mb-4">
-                  실시간 채팅 상담<br />
-                  평일 09:00 - 18:00
+                  전문가 상담 신청<br />
+                  24시간 접수 가능
                 </p>
-                <Button className="w-full">
-                  채팅 시작
+                <Button className="w-full" asChild>
+                  <a href="/consultation">상담신청</a>
                 </Button>
               </CardContent>
             </Card>
@@ -252,7 +279,11 @@ export default function SupportPage() {
                     <div className="text-xs text-gray-500 mb-4">
                       {resource.type} • {resource.size}
                     </div>
-                    <Button variant="outline" className="w-full">
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => handleDownload(resource)}
+                    >
                       <Download className="w-4 h-4 mr-2" />
                       다운로드
                     </Button>
@@ -271,13 +302,17 @@ export default function SupportPage() {
               전문 상담원이 직접 도와드리겠습니다. 언제든지 연락주세요.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3">
-                <Phone className="w-4 h-4 mr-2" />
-                즉시 전화 상담
+              <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3" asChild>
+                <a href="/consultation">
+                  <Phone className="w-4 h-4 mr-2" />
+                  상담신청
+                </a>
               </Button>
-              <Button variant="outline" className="px-6 py-3">
-                <Mail className="w-4 h-4 mr-2" />
-                문의 이메일 보내기
+              <Button variant="outline" className="px-6 py-3" asChild>
+                <a href="mailto:hongik423@gmail.com">
+                  <Mail className="w-4 h-4 mr-2" />
+                  문의 이메일 보내기
+                </a>
               </Button>
             </div>
           </div>

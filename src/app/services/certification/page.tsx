@@ -51,7 +51,7 @@ const certificationServices = [
       '투자유치 전략',
       '벤처캐피털 IR 지원'
     ],
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80'
+    image: '/images/VENTURE.png'
   },
   {
     id: 'research-institute',
@@ -68,7 +68,7 @@ const certificationServices = [
       '연구인력 채용 전략',
       '연구과제 관리 시스템'
     ],
-    image: 'https://images.unsplash.com/photo-1532619187608-e5375cab36aa?auto=format&fit=crop&w=800&q=80'
+    image: '/images/LAB.png'
   },
   {
     id: 'innobiz',
@@ -85,7 +85,7 @@ const certificationServices = [
       '품질경영시스템',
       '생산성 향상 프로그램'
     ],
-    image: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=800&q=80'
+    image: '/images/INNOVIZ.png'
   },
   {
     id: 'iso',
@@ -102,7 +102,7 @@ const certificationServices = [
       'ISO 45001 안전보건',
       'ISO 27001 정보보안'
     ],
-    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80'
+    image: '/images/ISO.png'
   },
   {
     id: 'esg',
@@ -119,7 +119,7 @@ const certificationServices = [
       '투명경영 시스템',
       'ESG 성과 공개'
     ],
-    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80'
+    image: '/images/ESG.png'
   }
 ];
 
@@ -130,32 +130,28 @@ const growthStages = [
     period: '1-3년',
     title: '신뢰받는 기업의 첫 걸음',
           certifications: ['벤처확인', '연구소설립'],
-    effect: '세제혜택 확보 + 정부지원 기반',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80'
+    effect: '세제혜택 확보 + 정부지원 기반'
   },
   {
     stage: 'Step 2',
     period: '3-7년',
     title: '경쟁력 강화 종합 체계',
           certifications: ['이노비즈/메인비즈', 'ISO 9001'],
-      effect: '시장 신뢰도 + 대기업 납품 자격',
-      image: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=600&q=80'
+      effect: '시장 신뢰도 + 대기업 납품 자격'
   },
   {
     stage: 'Step 3',
     period: '7-10년',
     title: '글로벌 진출 국제 인증',
     certifications: ['ISO 전영역', 'ESG 인증'],
-    effect: '해외 진출 + 대기업 파트너십',
-    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80'
+    effect: '해외 진출 + 대기업 파트너십'
   },
   {
     stage: 'Step 4',
     period: '10년+',
     title: '산업 리더 사회적 책임',
           certifications: ['ESG 경영 고도화', 'R&D 허브'],
-      effect: '지속가능경영 + 생태계 주도권',
-      image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=600&q=80'
+      effect: '지속가능경영 + 생태계 주도권'
   }
 ];
 
@@ -210,15 +206,6 @@ export default function CertificationPage() {
       
       {/* Apple Store 스타일 Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-white">
-        {/* 배경 이미지 */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=2000&q=80"
-            alt="Business Excellence"
-            className="w-full h-full object-cover opacity-5"
-          />
-        </div>
-        
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
           <div className="mb-8">
             <div className="inline-flex items-center px-6 py-3 bg-gray-100 rounded-full text-sm font-medium text-gray-700 mb-8">
@@ -337,66 +324,60 @@ export default function CertificationPage() {
             </p>
           </div>
           
-          <div className="space-y-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {certificationServices.map((service, index) => (
-              <div key={service.id} className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-16`}>
-                {/* 이미지 */}
-                <div className="flex-1">
-                  <div className="relative overflow-hidden rounded-3xl shadow-2xl">
+              <div key={service.id} className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300">
+                {/* 이미지 섹션 */}
+                <div className="mb-6">
+                  <div className="relative overflow-hidden rounded-2xl">
                     <img 
                       src={service.image}
                       alt={service.title}
-                      className="w-full h-96 object-cover hover:scale-105 transition-transform duration-700"
+                      className="w-full h-48 object-contain bg-gray-50 hover:scale-105 transition-transform duration-300"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                   </div>
                 </div>
                 
-                {/* 콘텐츠 */}
-                <div className="flex-1 space-y-8">
-                  <div>
-                    <div className="flex items-center mb-4">
-                      <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center mr-4">
-                        <service.icon className="w-6 h-6 text-white" />
-                      </div>
-                      <div className="text-sm font-medium text-blue-600">{service.subtitle}</div>
-                    </div>
-                    
-                    <h3 className="text-4xl font-black text-gray-900 mb-4 tracking-tight">
-                      {service.title}
-                    </h3>
-                    
-                    <p className="text-xl text-gray-600 leading-relaxed mb-8">
-                      {service.description}
-                    </p>
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center mr-4">
+                    <service.icon className="w-6 h-6 text-white" />
                   </div>
-
-                  <div className="mb-8">
-                    <div className="bg-gray-50 p-4 rounded-2xl inline-block">
-                      <div className="text-sm text-gray-600 mb-1">소요기간</div>
-                      <div className="text-2xl font-bold text-gray-900">{service.duration}</div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4 mb-8">
-                    <h4 className="text-lg font-bold text-gray-900">주요 혜택</h4>
-                    <div className="space-y-3">
-                      {service.benefits.map((benefit, idx) => (
-                        <div key={idx} className="flex items-center">
-                          <CheckCircle className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
-                          <span className="text-gray-700">{benefit}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Link href="/consultation">
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg rounded-full font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
-                      상담 신청하기
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
-                  </Link>
+                  <div className="text-sm font-medium text-blue-600">{service.subtitle}</div>
                 </div>
+                
+                <h3 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">
+                  {service.title}
+                </h3>
+                
+                <p className="text-lg text-gray-600 leading-relaxed mb-6">
+                  {service.description}
+                </p>
+
+                <div className="mb-6">
+                  <div className="bg-gray-50 p-4 rounded-2xl inline-block">
+                    <div className="text-sm text-gray-600 mb-1">소요기간</div>
+                    <div className="text-2xl font-bold text-gray-900">{service.duration}</div>
+                  </div>
+                </div>
+
+                <div className="space-y-4 mb-8">
+                  <h4 className="text-lg font-bold text-gray-900">주요 혜택</h4>
+                  <div className="space-y-3">
+                    {service.benefits.map((benefit, idx) => (
+                      <div key={idx} className="flex items-center">
+                        <CheckCircle className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
+                        <span className="text-gray-700">{benefit}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <Link href="/consultation">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg rounded-full font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
+                    상담 신청하기
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </Link>
               </div>
             ))}
           </div>

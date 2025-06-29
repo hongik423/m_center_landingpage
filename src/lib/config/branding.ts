@@ -106,12 +106,12 @@ ${COMPANY_INFO.slogan}
   `.trim()
 } as const;
 
-// 🤖 AI 챗봇 설정
+// 🎯 M센터장 설정
 export const CHATBOT_CONFIG = {
-  name: `AI상담사`,
-  greeting: `안녕하세요! 🤖 ${COMPANY_INFO.name} AI상담사입니다.`,
+  name: `M센터장`,
+  greeting: `안녕하세요! 🎯 ${COMPANY_INFO.name} M센터장입니다.`,
   
-  systemMessage: `당신은 ${COMPANY_INFO.name}의 전문 AI상담사입니다. ${CONSULTANT_INFO.name}을 대표하여 친절하고 전문적으로 상담을 진행합니다.`,
+  systemMessage: `저는 ${COMPANY_INFO.name}의 M센터장으로, ${CONSULTANT_INFO.name} 경영지도사를 대표하여 28년 현장 경험을 바탕으로 전문적인 상담을 진행합니다.`,
   
   contactInfo: {
     consultant: CONSULTANT_INFO.name,

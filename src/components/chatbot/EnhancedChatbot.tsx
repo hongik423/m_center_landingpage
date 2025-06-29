@@ -541,7 +541,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
                 <div className="w-8 h-8 rounded-full flex items-center justify-center relative" style={{ backgroundColor: '#4285F4' }}>
                   <img 
                     src={getImagePath('/star-counselor-icon.svg')} 
-                    alt="AI상담사" 
+                    alt="M센터장" 
                     className="w-8 h-8 rounded-full"
                   />
                 </div>

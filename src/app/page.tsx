@@ -428,7 +428,7 @@ export default function Home() {
                             {/* 실시간 대화 시뮬레이션 */}
                             <div className="space-y-3 max-w-md">
                               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-left">
-                                <p className="text-sm text-white/90">안녕하세요! M-CENTER AI상담사입니다.</p>
+                                <p className="text-sm text-white/90">안녕하세요! M-CENTER M센터장입니다.</p>
                               </div>
                               <div className="bg-blue-500/80 backdrop-blur-sm rounded-2xl p-4 text-right ml-8">
                                 <p className="text-sm text-white">우리 회사 매출 증대 방법을 알고 싶어요</p>
@@ -577,7 +577,7 @@ export default function Home() {
               >
                 {/* 🌟 특별 추천 배지 */}
                 {service.featured && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-20">
+                  <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
                     <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white 
                                     px-4 py-1.5 rounded-full text-xs font-bold shadow-xl animate-pulse">
                       최고 추천
@@ -654,7 +654,7 @@ export default function Home() {
                         }
                       }}
                     >
-                      💬 AI상담사에게 바로 문의하기
+                      💬 M센터장에게 바로 문의하기
                     </button>
                   </div>
                 </CardContent>
