@@ -23,11 +23,13 @@ import {
   Shield,
   Sparkles,
   CheckCircle2,
-  Phone
+  Phone,
+  Bot
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import MCenterChatInterface from '@/components/chatbot/MCenterChatInterface';
 
 // 서비스 데이터 - 애플스토어 스타일로 업데이트
 const services = [
@@ -255,6 +257,18 @@ function MetricCard({ metric }: { metric: typeof performanceMetrics[0] }) {
 
 export default function Home() {
   const router = useRouter();
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+
+  const handleChatbotConnect = () => {
+    setIsConnecting(true);
+    
+    // "M센터장 챗봇과 연결하기...." 메시지 표시
+    setTimeout(() => {
+      setIsConnecting(false);
+      setIsChatOpen(true);
+    }, 2000);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -363,32 +377,34 @@ export default function Home() {
                   {/* 설명 텍스트 */}
                   <div className="text-center lg:text-left max-w-lg mx-auto lg:mx-0">
                     <p className="text-xl md:text-2xl text-gray-600 leading-relaxed font-light">
-                      M-CENTER는 당신이 더 나은 작업을 처리할 수 있는 완전한 
-                      AI 상담 플랫폼을 제공합니다. 25년 노하우가 집약된 
-                      전문 시스템으로 Magic Keyboard, Magic Mouse와 같은 
-                      혁신적 도구들과 함께 Bluetooth 연결과 
-                      개인맞춤 설정이 가능한 SharePlay를 통해 최상의 경험을 
-                      완벽 사용하여 협업할 수 있습니다.
+                      안녕하세요, 이후경 경영지도사입니다. 28년간 쌓인 재무·인사·생산·마케팅의 
+                      통합적 솔루션에 AI 기술을 접목하여 실무에서 전략까지 
+                      폭발적인 일터혁신을 이끌어내는 성과중심 컨설팅을 제공합니다. 
+                      <br /><br />
+                      BM ZEN 사업분석, AI 생산성혁신, 공장경매, 기술창업, 인증지원, 
+                      웹사이트구축 등 6대 핵심서비스를 통해 귀하의 기업이 
+                      차원이 다른 성장을 경험할 수 있도록 직접 지도해드리겠습니다.
                     </p>
                   </div>
                   
                   {/* 애플 스타일 버튼 */}
                   <div className="text-center lg:text-left">
                     <button 
-                      className="inline-flex items-center justify-center px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white text-lg font-medium rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg"
-                      onClick={() => {
-                        if (typeof window !== 'undefined') {
-                          const chatbot = document.querySelector('[data-floating-chatbot]') as HTMLElement;
-                          if (chatbot) {
-                            chatbot.click();
-                          } else {
-                            router.push('/chatbot');
-                          }
-                        }
-                      }}
+                      className="inline-flex items-center justify-center px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white text-lg font-medium rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+                      onClick={handleChatbotConnect}
+                      disabled={isConnecting || isChatOpen}
                     >
-                      <span className="mr-2">+</span>
-                      무료 체험해보기 및 자세히 알아보기
+                      {isConnecting ? (
+                        <>
+                          <div className="w-5 h-5 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          M센터장 챗봇과 연결하기...
+                        </>
+                      ) : (
+                        <>
+                          <span className="mr-2">+</span>
+                          무료 체험해보기 및 자세히 알아보기
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -975,6 +991,31 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* M센터장 챗봇 인터페이스 */}
+      <MCenterChatInterface
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        onMinimize={() => setIsChatOpen(false)}
+      />
+
+      {/* 연결 중 로딩 오버레이 */}
+      {isConnecting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-8 shadow-2xl max-w-md mx-4 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+              <Bot className="w-8 h-8 text-white animate-pulse" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">M센터장 챗봇과 연결하기...</h3>
+            <p className="text-gray-600 mb-4">잠시만 기다려 주세요</p>
+            <div className="flex justify-center space-x-1">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

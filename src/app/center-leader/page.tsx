@@ -376,34 +376,34 @@ export default function CenterLeaderPage() {
                 <div className="flex-1 pl-8"></div>
               </div>
               
-              {/* 2006년~2014년 */}
+              {/* 2010년~2014년 */}
               <div className="relative flex items-center">
                 <div className="flex-1 pr-8"></div>
                 <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-green-600 rounded-full border-4 border-white shadow-lg"></div>
                 <div className="flex-1 pl-8">
                   <Card className="inline-block max-w-md shadow-lg">
                     <CardHeader className="bg-green-600 text-white">
-                      <CardTitle className="text-lg">2006년~2014년 (8년)</CardTitle>
-                      <CardDescription className="text-green-100">현대그룹 고려산업개발</CardDescription>
+                      <CardTitle className="text-lg">2010년~2014년</CardTitle>
+                      <CardDescription className="text-green-100">엠오티랩 대표 컨설턴트</CardDescription>
                     </CardHeader>
                     <CardContent className="mt-4">
                       <ul className="space-y-2 text-sm">
-                        <li>• 인사노무담당 실무진</li>
-                        <li>• 대기업 인사제도 설계 및 운영 경험</li>
-                        <li>• 조직관리 및 노무관리 전문성 구축</li>
+                        <li>• 공장생산관리</li>
+                        <li>• 재무관리</li>
+                        <li>• ABC원가관리</li>
                       </ul>
                     </CardContent>
                   </Card>
                 </div>
               </div>
               
-              {/* 1996년~2006년 */}
+              {/* 2000년~2010년 */}
               <div className="relative flex items-center">
                 <div className="flex-1 text-right pr-8">
                   <Card className="inline-block max-w-md shadow-lg">
                     <CardHeader className="bg-purple-600 text-white">
-                      <CardTitle className="text-lg">1996년~2006년 (10년)</CardTitle>
-                      <CardDescription className="text-purple-100">삼성생명</CardDescription>
+                      <CardTitle className="text-lg">2000년부터 2010년까지</CardTitle>
+                      <CardDescription className="text-purple-100">영업조직 관리</CardDescription>
                     </CardHeader>
                     <CardContent className="mt-4">
                       <ul className="space-y-2 text-sm">
@@ -416,6 +416,27 @@ export default function CenterLeaderPage() {
                 </div>
                 <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-purple-600 rounded-full border-4 border-white shadow-lg"></div>
                 <div className="flex-1 pl-8"></div>
+              </div>
+              
+              {/* 1993년~2000년 */}
+              <div className="relative flex items-center">
+                <div className="flex-1 pr-8"></div>
+                <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-orange-600 rounded-full border-4 border-white shadow-lg"></div>
+                <div className="flex-1 pl-8">
+                  <Card className="inline-block max-w-md shadow-lg">
+                    <CardHeader className="bg-orange-600 text-white">
+                      <CardTitle className="text-lg">1993년~2000년 (8년)</CardTitle>
+                      <CardDescription className="text-orange-100">현대그룹 고려산업개발</CardDescription>
+                    </CardHeader>
+                    <CardContent className="mt-4">
+                      <ul className="space-y-2 text-sm">
+                        <li>• 인사노무담당 실무진</li>
+                        <li>• 대기업 인사제도 설계 및 운영 경험</li>
+                        <li>• 조직관리 및 노무관리 전문성 구축</li>
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             </div>
           </div>
