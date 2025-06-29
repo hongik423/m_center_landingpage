@@ -37,11 +37,12 @@ const services = [
     subtitle: '신규사업 성공률 95%',
     description: '차세대 비즈니스 혁신 솔루션',
     icon: Cpu,
-    color: 'from-blue-500 to-purple-600',
+    color: 'bg-white text-white',
+    bgColor: 'from-blue-50 to-purple-50',
     textColor: 'text-white',
     href: '/services/business-analysis',
     benefits: ['95% 성공률 보장', '매출 4배 증가', '5단계 전략 프레임워크'],
-    badge: '추천',
+    badge: '⭐ 추천',
     featured: true
   },
   {
@@ -50,11 +51,12 @@ const services = [
     subtitle: '업무 효율성 40% 향상',
     description: '20주 프로그램으로 디지털 혁신 완성',
     icon: Zap,
-    color: 'from-purple-500 to-pink-600',
+    color: 'bg-purple-100 text-purple-600',
+    bgColor: 'from-purple-50 to-pink-50',
     textColor: 'text-white',
     href: '/services/ai-productivity',
     benefits: ['정부 100% 지원', '20주 집중 프로그램', '업무 효율성 40% 향상'],
-    badge: '정부지원'
+    badge: '🎯 정부지원'
   },
   {
     id: 'factory-auction',
@@ -62,11 +64,12 @@ const services = [
     subtitle: '시장가 대비 40% 절약',
     description: '경매 활용 지능형 투자 전략',
     icon: Factory,
-    color: 'from-orange-500 to-red-600',
+    color: 'bg-orange-100 text-orange-600',
+    bgColor: 'from-orange-50 to-red-50',
     textColor: 'text-white',
     href: '/services/factory-auction',
     benefits: ['투자비 40% 절약', '전문가 동행', '완전 위탁 진행'],
-    badge: '절약'
+    badge: '💰 절약'
   },
   {
     id: 'tech-startup',
@@ -74,11 +77,12 @@ const services = [
     subtitle: '평균 5억원 자금 확보',
     description: '정부지원 연계 기술사업화',
     icon: Rocket,
-    color: 'from-green-500 to-emerald-600',
+    color: 'bg-green-100 text-green-600',
+    bgColor: 'from-green-50 to-emerald-50',
     textColor: 'text-white',
     href: '/services/tech-startup',
     benefits: ['평균 5억원 확보', '성공률 85%', '3년 사후관리'],
-    badge: '성장'
+    badge: '🚀 성장'
   },
   {
     id: 'certification',
@@ -86,11 +90,12 @@ const services = [
     subtitle: '연간 5천만원 세제혜택',
     description: '벤처·ISO·ESG 통합 인증',
     icon: Award,
-    color: 'from-blue-500 to-cyan-600',
+    color: 'bg-blue-100 text-blue-600',
+    bgColor: 'from-blue-50 to-cyan-50',
     textColor: 'text-white',
     href: '/services/certification',
     benefits: ['5천만원 세제혜택', '통합 인증 관리', '100% 취득 보장'],
-    badge: '인증'
+    badge: '🏆 인증'
   },
   {
     id: 'website',
@@ -98,7 +103,8 @@ const services = [
     subtitle: '온라인 매출 30% 증대',
     description: '차세대 디지털 솔루션',
     icon: Globe,
-    color: 'from-indigo-500 to-violet-600',
+    color: 'bg-indigo-100 text-indigo-600',
+    bgColor: 'from-indigo-50 to-violet-50',
     textColor: 'text-white',
     href: '/services/website',
     benefits: ['매출 30% 증대', '지능형 최적화', '무료 1년 관리'],
@@ -530,7 +536,6 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
           </div>
         </div>
       </section>
