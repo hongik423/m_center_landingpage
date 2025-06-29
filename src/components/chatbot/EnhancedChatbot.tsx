@@ -198,7 +198,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
       id: generateMessageId(),
       content: `안녕하세요! M-CENTER의 전문상담사입니다.
 
-저는 28년간 수많은 기업과 함께 성장해온 이후경 경영지도사의 노하우를 바탕으로 상담해드리고 있어요.
+저는 28년간 수많은 기업과 함께 성장해온 이후경 M센터장의 노하우를 바탕으로 상담해드리고 있어요.
 
 실제 검증된 성과로 증명하는 M-CENTER
 
@@ -427,7 +427,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
                 </div>
                 <div>
                   <h2 className="text-xl font-bold">M-CENTER 전문상담사</h2>
-                  <p className="text-sm text-gray-600">⭐ 이후경 경영지도사 28년 노하우</p>
+                  <p className="text-sm text-gray-600">⭐ 이후경 M센터장 28년 노하우</p>
                 </div>
               <div className="ml-auto flex items-center gap-2">
                 <Badge 
