@@ -148,8 +148,30 @@ export async function saveDiagnosisToGoogleSheets(
     const currentDateTime = getKoreanDateTime();
     const googleScriptUrl = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || DEFAULT_GOOGLE_SCRIPT_URL;
 
+    // 📋 **헤더 정의 (구글시트 첫행 자동생성용)**
+    const sheetHeaders = [
+      '제출일시', '폼타입', 'API버전', '신청구분', '회사명', '업종', '사업담당자', '직원수', 
+      '사업성장단계', '주요고민사항', '예상혜택', '진행사업장', '담당자명', '연락처', '이메일', 
+      '개인정보동의', '진단점수', '추천서비스', '보고서타입', '진단폼타입', '문항별점수', 
+      '카테고리점수', '진단보고서요약', '종합점수', '강점영역', '약점영역', '보고서글자수', 
+      '평가일시', '분석엔진버전', '요청시간'
+    ];
+
+    // 🔧 **확장된 진단 데이터 추출 (점수 포함)**
+    const enhancedData = data as any;
+    const detailedScores = enhancedData.문항별점수 || enhancedData.detailedScores || {};
+    const categoryScores = enhancedData.카테고리점수 || enhancedData.categoryScores || {};
+    const totalScore = enhancedData.종합점수 || enhancedData.totalScore || 0;
+    const reportSummary = enhancedData.진단보고서요약 || enhancedData.summaryReport || '';
+    
     // Apps Script 호환 데이터 구조
     const sheetData = {
+      // 📋 **헤더 정보 (첫행 자동생성용)**
+      action: 'saveDiagnosis',
+      headers: sheetHeaders,
+      autoCreateHeaders: true,
+      sheetName: 'AI_진단신청',
+      
       // 기본 메타데이터
       제출일시: currentDateTime,
       폼타입: formType,
@@ -171,14 +193,27 @@ export async function saveDiagnosisToGoogleSheets(
       이메일: String(data.contactEmail || data.이메일 || ''),
       개인정보동의: data.privacyConsent === true || data.개인정보동의 === '동의' ? '동의' : '미동의',
       
-      // 🔧 진단 결과 정보 추가
-      진단점수: String((data as any).diagnosisScore || ''),
+      // 🔧 **진단 결과 정보 (점수 포함)**
+      종합점수: totalScore,
+      totalScore: totalScore,
+      진단점수: String(totalScore || ''),
       추천서비스: String((data as any).recommendedServices || ''),
       보고서타입: String((data as any).reportType || ''),
       진단폼타입: String((data as any).diagnosisFormType || formType),
       
+      // 📊 **문항별 상세 점수 (1-5점) - 핵심!**
+      문항별점수: detailedScores,
+      detailedScores: detailedScores,
+      
+      // 📊 **카테고리별 점수**
+      카테고리점수: categoryScores,
+      categoryScores: categoryScores,
+      
+      // 📝 **진단결과보고서 요약**
+      진단보고서요약: reportSummary,
+      summaryReport: reportSummary,
+      
       // Apps Script 처리용 메타데이터
-      action: 'saveDiagnosis',
       dataSource: '웹사이트_AI진단',
       timestamp: Date.now(),
       uniqueKey: `diagnosis_${data.contactEmail || data.이메일}_${Date.now()}`
@@ -408,8 +443,21 @@ export async function saveConsultationToGoogleSheets(
     const currentDateTime = getKoreanDateTime();
     const googleScriptUrl = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || DEFAULT_GOOGLE_SCRIPT_URL;
 
+    // 📋 **상담신청 헤더 정의 (구글시트 첫행 자동생성용)**
+    const consultationHeaders = [
+      '제출일시', '폼타입', 'API버전', '신청구분', '상담유형', '성명', '연락처', '이메일', 
+      '회사명', '직책', '상담분야', '문의내용', '희망상담시간', '개인정보동의', '진단연계여부', 
+      '진단점수', '추천서비스', '진단결과URL', '요청시간'
+    ];
+
     // Apps Script 호환 데이터 구조
     const consultationData = {
+      // 📋 **헤더 정보 (첫행 자동생성용)**
+      action: 'saveConsultation',
+      headers: consultationHeaders,
+      autoCreateHeaders: true,
+      sheetName: '상담신청',
+      
       // 기본 메타데이터
       제출일시: currentDateTime,
       폼타입: '상담신청',
@@ -436,7 +484,6 @@ export async function saveConsultationToGoogleSheets(
       진단결과URL: diagnosisInfo?.resultUrl || '',
       
       // Apps Script 처리용 메타데이터
-      action: 'saveConsultation',
       dataSource: '웹사이트_상담신청',
       timestamp: Date.now(),
       uniqueKey: `consultation_${data.email || data.이메일}_${Date.now()}`

@@ -30,16 +30,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 개인정보 동의 확인
-    if (!consultationData.privacyConsent) {
+    // 개인정보 동의 확인 (엄격한 검증)
+    if (!consultationData.privacyConsent || consultationData.privacyConsent !== true) {
+      console.log('개인정보 동의 검증 실패:', consultationData.privacyConsent);
       return NextResponse.json(
         { 
           success: false, 
-          error: '개인정보 수집 및 이용에 동의해주세요' 
+          error: '개인정보 수집 및 이용에 동의해주세요. 동의는 필수 사항입니다.' 
         },
         { status: 400 }
       );
     }
+    
+    console.log('✅ 개인정보 동의 검증 성공:', consultationData.privacyConsent);
 
     // 상담신청 데이터 구조화
     const processedData = {

@@ -9,6 +9,7 @@ import { saveToGoogleSheets } from '@/lib/utils/googleSheetsService';
 import { processDiagnosisSubmission, type DiagnosisFormData } from '@/lib/utils/emailService';
 import { CONSULTANT_INFO, CONTACT_INFO, COMPANY_INFO } from '@/lib/config/branding';
 import { getGeminiKey, isDevelopment, maskApiKey } from '@/lib/config/env';
+import { EnhancedDiagnosisEngine, DiagnosisReportGenerator, validateDiagnosisData } from '@/lib/utils/enhancedDiagnosisEngine';
 
 interface SimplifiedDiagnosisRequest {
   companyName: string;
@@ -978,7 +979,7 @@ function generateSimplifiedDiagnosis(data: SimplifiedDiagnosisRequest) {
     consultant: {
       name: CONSULTANT_INFO.name,
       phone: CONTACT_INFO.mainPhone,
-      email: CONTACT_INFO.mainEmail
+      email: CONTACT_INFO.email
     },
     generatedAt: new Date().toISOString(),
     resultId: `DIAG_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`.toUpperCase()
@@ -1259,8 +1260,12 @@ async function generateAIEnhancedReport(data: SimplifiedDiagnosisRequest, diagno
     // 📊 **2단계: 상세 점수 분석 및 피드백 생성**
     const detailedScoreAnalysis = analyzeDetailedScores(diagnosisData);
     
-    // 🎯 **3단계: 맞춤형 진단 보고서 생성 (2000자 미만 제한)**
-    const enhancedReportPrompt = `다음 기업의 레벨업 시트 진단 결과를 바탕으로 전문적인 경영진단보고서를 작성해주세요:
+    // 📊 **3단계: GAP 분석 및 컨설팅 제안 생성**
+    const gapAnalysis = generateGAPAnalysis(diagnosisData, data);
+    const consultingProposal = generateConsultingProposal(diagnosisData, data, gapAnalysis);
+    
+    // 🎯 **4단계: AI 일터혁신 중심 진단 보고서 생성 (5000자 이내)**
+    const enhancedReportPrompt = `다음 기업의 레벨업 시트 진단 결과를 바탕으로 **AI 실무도입을 통한 일터혁신과 고몰입조직 구축** 중심의 GAP 분석 기반 경영진단보고서를 작성해주세요:
 
 기업명: ${data.companyName}
 업종: ${data.industry}
@@ -1274,39 +1279,89 @@ ${companySearchResult}
 ${detailedScoreAnalysis.scoreBreakdown}
 
 === 종합 진단 결과 ===
-• 총점: ${diagnosisData.totalScore || 0}점/100점
+• 총점: ${diagnosisData.totalScore || 0}점/100점 (${getGradeFromScore(diagnosisData.totalScore || 0)}급)
+• 평가 신뢰도: ${diagnosisData.reliabilityScore || 0}%
 • 강점 영역: ${diagnosisData.strengths?.join(', ') || '미확인'}
 • 약점 영역: ${diagnosisData.weaknesses?.join(', ') || '미확인'}
 
-=== 기업 고민사항 ===
-${data.mainConcerns}
+=== GAP 분석 결과 ===
+${gapAnalysis.summary}
 
-=== 기대 효과 ===
-${data.expectedBenefits}
+=== 기업 현황 및 전략적 목표 ===
+• 주요 고민: ${data.mainConcerns}
+• 기대 효과: ${data.expectedBenefits}
+
+🎯 **핵심 작성 방향**:
+이 보고서는 **AI 실무도입을 통한 일터혁신으로 고몰입조직을 구축**하여 조직의 전략적 목표 달성을 지원하는 것을 목표로 합니다.
 
 ⚠️ **중요 제약 조건**:
-1. 전체 보고서는 반드시 **2000자 미만**으로 작성
-2. 검색된 기업 정보를 진단 결과에 자연스럽게 반영
-3. 20개 평가 항목의 상세 점수를 분석에 활용
-4. 구체적이고 실행 가능한 개선 방안 제시
-5. 전문적이고 신뢰성 있는 톤앤매너 유지
+1. 전체 보고서는 반드시 **5000자 이내**로 작성 (답변이 잘리지 않도록 핵심 요약)
+2. GAP 분석 기반으로 AI 실무도입과 프로세스 효율화 방법론 중심 제안
+3. 고몰입조직 구축을 위한 일터혁신 전략에 집중
+4. 조직의 전략적 목표와 ALIGNED된 실행 방안 제시
+5. 경영지도사 수준의 전문적이고 신뢰성 있는 톤앤매너 유지
+
+📋 **이후경 경영지도사 스타일 보고서 구성 (5000자 이내):**
 
 보고서 구성:
-1. 현황 진단 요약 (300자)
-2. 강점 및 약점 분석 (400자)
-3. 시장 기회 및 위험 요소 (300자)
-4. 우선 개선 과제 (500자)
-5. 실행 방안 및 기대 효과 (500자)
 
-전문 경영지도사 관점에서 작성하되, 과도한 전문용어는 피하고 이해하기 쉽게 작성해주세요.`;
+1. 조직 현황 진단 및 AI 도입 준비도 평가
+   - 총점 기반 조직 성숙도 및 업종 내 위치 분석
+   - AI 실무도입을 위한 조직 준비도 평가
+   - 검색된 시장 동향과 AI 전환 필요성 연계
+
+2. 강점 기반 AI 활용 전략 및 고몰입 요소 발굴
+   - 4점 이상 영역을 활용한 AI 도입 우선순위 설정
+   - 기존 강점과 AI 기술의 시너지 효과 분석
+   - 고몰입조직 구축을 위한 강점 영역 활용 방안
+
+3. GAP 분석 기반 일터혁신 우선순위 및 AI 솔루션
+   - 3점 이하 영역의 AI 기반 해결 방안 제시
+   - 프로세스 효율화를 위한 단계별 AI 도입 전략
+   - 일터혁신을 통한 조직 역량 강화 로드맵
+
+4. AI 실무도입 액션플랜 및 고몰입조직 구축 방법론
+   - 구체적 실무 적용 방안 (업무 자동화, 데이터 분석 등)
+   - 직원 참여도 향상을 위한 AI 교육 및 변화관리 전략
+   - 성과 기반 몰입도 제고 시스템 구축 방안
+
+5. 전략적 목표 달성을 위한 AI 기반 성과 관리 체계
+   - 조직의 전략적 목표와 연계된 AI KPI 설계
+   - 실시간 성과 모니터링 및 피드백 시스템
+   - 지속적 개선을 위한 AI 기반 의사결정 체계
+
+6. 통합 실행 로드맵 및 성과 예측
+   - 3단계(도입/정착/확산) AI 일터혁신 실행 계획
+   - 단계별 몰입도 향상 지표 및 성과 측정 방법
+
+🔧 작성 가이드라인:
+- 이후경 경영지도사 톤앤매너: 전문적이면서도 친근하고 실무적인 조언 스타일
+- 마크다운 표시(##, **, 등) 일체 사용 금지 - 자연스러운 보고서 형식
+- 글자수 표기나 기술적 용어 표기 금지
+- "GEMINI", "ChatGPT" 등 브랜드명 직접 언급 금지 - "AI 도구", "생성형 AI" 등으로 대체
+- 28년 경영지도 경험을 바탕으로 한 실무적이고 친근한 조언 톤
+- 실무진이 바로 적용 가능한 구체적 방법론 제시
+- GAP 분석을 활용한 단계적 접근으로 논리적 일관성 확보
+- 고몰입조직 구축을 위한 인사/조직 전략과 AI 기술의 융합
+- 5000자 한도 내에서 압축적이면서도 실용적인 핵심 내용 집중
+- 조직의 전략적 목표 달성에 직결되는 실행 가능한 방안 중심
+
+중요한 포맷 지침:
+- 제목은 자연스럽게 "상세 분석 보고서"로 시작
+- 섹션 제목은 "1. 조직 현황 진단 및 AI 도입 준비도 평가" 형식으로 숫자와 함께 자연스럽게 표기
+- 마크다운 문법(##, **, 등) 절대 사용하지 말고 일반 텍스트로 작성
+- 경영지도사가 직접 작성한 것처럼 자연스럽고 전문적인 문체 사용
+- 글자수나 기술적 표기는 일체 포함하지 않음
+
+반드시 5000자 이내로 작성하되, AI 실무도입을 통한 일터혁신으로 고몰입조직을 구축하여 조직의 전략적 목표를 달성할 수 있는 구체적이고 실행 가능한 방법론을 제시해주세요.`;
 
     const reportResponse = await model.generateContent(enhancedReportPrompt);
     let aiReport = reportResponse.response.text() || '분석 시스템 처리 중 오류가 발생했습니다.';
 
-    // 📝 **글자수 제한 강제 적용**
-    if (aiReport.length > 2000) {
-      console.log(`⚠️ 보고서 길이 초과 (${aiReport.length}자), 2000자로 압축`);
-      aiReport = aiReport.substring(0, 1950) + '\n\n[보고서 요약 완료]';
+    // 📝 **글자수 제한 5000자로 확대**
+    if (aiReport.length > 5000) {
+      console.log(`⚠️ 보고서 길이 초과 (${aiReport.length}자), 5000자로 압축`);
+      aiReport = aiReport.substring(0, 4950) + '\n\n[AI 일터혁신 진단보고서 완료]';
     }
 
     console.log('✅ 고급 진단 보고서 생성 완료:', {
@@ -1360,6 +1415,253 @@ function getScoreLevel(score: number): string {
   return '시급 개선';
 }
 
+// 📊 **GAP 분석 생성 함수 (신규)**
+function generateGAPAnalysis(diagnosisData: any, data: SimplifiedDiagnosisRequest): {
+  summary: string;
+  weakAreas: Array<{ category: string; item: string; currentScore: number; targetScore: number; gap: number; priority: 'HIGH' | 'MEDIUM' | 'LOW' }>;
+  strongAreas: Array<{ category: string; item: string; score: number; advantage: string }>;
+  recommendations: string[];
+} {
+  const categories = diagnosisData.categoryScores || {};
+  const weakAreas: any[] = [];
+  const strongAreas: any[] = [];
+  const recommendations: string[] = [];
+
+  // 📊 **카테고리별 GAP 분석**
+  Object.values(categories).forEach((category: any) => {
+    if (category.items && Array.isArray(category.items)) {
+      category.items.forEach((item: any) => {
+        if (item.score <= 3) {
+          // 취약 영역 (3점 이하)
+          const targetScore = 4; // 목표 점수
+          const gap = targetScore - item.score;
+          const priority = item.score <= 2 ? 'HIGH' : (item.score <= 2.5 ? 'MEDIUM' : 'LOW');
+          
+          weakAreas.push({
+            category: category.name,
+            item: item.name,
+            currentScore: item.score,
+            targetScore: targetScore,
+            gap: gap,
+            priority: priority
+          });
+        } else if (item.score >= 4) {
+          // 강점 영역 (4점 이상)
+          strongAreas.push({
+            category: category.name,
+            item: item.name,
+            score: item.score,
+            advantage: getAdvantageDescription(item.name, item.score)
+          });
+        }
+      });
+    }
+  });
+
+  // 📋 **GAP 분석 요약 생성**
+  const summary = `
+📊 GAP 분석 요약
+• 강점 영역: ${strongAreas.length}개 항목 (평균 4.0점 이상)
+• 개선 영역: ${weakAreas.length}개 항목 (3.0점 이하)
+• 우선 개선: ${weakAreas.filter(w => w.priority === 'HIGH').length}개 항목 (시급)
+• 중기 개선: ${weakAreas.filter(w => w.priority === 'MEDIUM').length}개 항목 (6개월 내)
+
+🎯 핵심 GAP
+${weakAreas
+  .filter(w => w.priority === 'HIGH')
+  .slice(0, 3)
+  .map(w => `• ${w.category} > ${w.item}: ${w.currentScore}점 → ${w.targetScore}점 목표 (GAP: ${w.gap.toFixed(1)}점)`)
+  .join('\n')}
+
+💪 활용 가능 강점
+${strongAreas
+  .slice(0, 3)
+  .map(s => `• ${s.category} > ${s.item}: ${s.score}점 (${s.advantage})`)
+  .join('\n')}
+`.trim();
+
+  // 📋 **GAP 기반 추천사항 생성**
+  if (weakAreas.length > 0) {
+    recommendations.push(`1. 우선 개선 영역: ${weakAreas.filter(w => w.priority === 'HIGH').map(w => w.item).join(', ')}`);
+    recommendations.push(`2. 3개월 집중 목표: 핵심 취약점 1-2개 영역 4점 달성`);
+    recommendations.push(`3. 강점 활용 전략: ${strongAreas.slice(0, 2).map(s => s.item).join(', ')} 차별화 극대화`);
+  }
+
+  return { summary, weakAreas, strongAreas, recommendations };
+}
+
+// 🎯 **맞춤형 컨설팅 제안 생성 함수 (신규)**
+function generateConsultingProposal(diagnosisData: any, data: SimplifiedDiagnosisRequest, gapAnalysis: any): {
+  summary: string;
+  proposals: Array<{ title: string; description: string; duration: string; expectedROI: string; priority: number }>;
+  roadmap: string;
+} {
+  const totalScore = diagnosisData.totalScore || 0;
+  const proposals: any[] = [];
+
+  // 📊 **점수 구간별 맞춤형 제안**
+  if (totalScore < 60) {
+    // 60점 미만: 기초 역량 강화 집중
+    proposals.push({
+      title: "기초 경영 시스템 구축",
+      description: "기본적인 업무 프로세스 정립 및 고객 응대 역량 강화",
+      duration: "3-6개월",
+      expectedROI: "업무 효율성 30% 향상",
+      priority: 1
+    });
+    
+    proposals.push({
+      title: "핵심 취약점 집중 개선",
+      description: gapAnalysis.weakAreas.filter((w: any) => w.priority === 'HIGH').map((w: any) => w.item).join(', ') + " 영역 맞춤 컨설팅",
+      duration: "2-4개월",
+      expectedROI: "문제 영역 점수 2점 이상 향상",
+      priority: 2
+    });
+  } else if (totalScore < 80) {
+    // 60-80점: 차별화 및 성장 동력 확보
+    proposals.push({
+      title: "디지털 전환 및 마케팅 강화",
+      description: "온라인 채널 구축 및 데이터 기반 고객 관리 시스템 도입",
+      duration: "4-8개월",
+      expectedROI: "매출 20% 증가, 고객만족도 향상",
+      priority: 1
+    });
+    
+    proposals.push({
+      title: "운영 효율성 최적화",
+      description: "업무 프로세스 개선 및 재고/구매 관리 시스템 고도화",
+      duration: "3-6개월",
+      expectedROI: "운영비용 15% 절감",
+      priority: 2
+    });
+  } else {
+    // 80점 이상: 시장 리더십 강화
+    proposals.push({
+      title: "시장 리더십 확보 전략",
+      description: "브랜드 차별화 및 시장 확장을 위한 고급 전략 컨설팅",
+      duration: "6-12개월",
+      expectedROI: "시장 점유율 확대, 브랜드 가치 향상",
+      priority: 1
+    });
+    
+    proposals.push({
+      title: "지속 성장 동력 구축",
+      description: "신사업 발굴 및 조직 역량 고도화 컨설팅",
+      duration: "8-12개월",
+      expectedROI: "신규 수익원 창출, 조직 경쟁력 강화",
+      priority: 2
+    });
+  }
+
+  // 📊 **산업별 특화 제안 추가**
+  if (data.industry.includes('retail') || data.industry.includes('food')) {
+    proposals.push({
+      title: "고객 경험 혁신 프로그램",
+      description: "매장 환경 개선 및 고객 응대 서비스 고도화",
+      duration: "2-4개월",
+      expectedROI: "고객 재방문율 25% 향상",
+      priority: 3
+    });
+  }
+
+  // 📋 **컨설팅 제안 요약**
+  const summary = `
+🎯 맞춤형 컨설팅 제안 (총점 ${totalScore}점 기준)
+
+우선 추천 솔루션:
+${proposals.slice(0, 2).map((p, i) => `${i + 1}. ${p.title} (${p.duration})
+   • ${p.description}
+   • 기대효과: ${p.expectedROI}`).join('\n\n')}
+
+📈 예상 성과:
+• 3개월 후: 핵심 취약점 개선으로 총점 ${Math.min(totalScore + 10, 100)}점 달성
+• 6개월 후: 체계적 개선으로 ${Math.min(totalScore + 20, 100)}점 수준 도달
+• 1년 후: 지속적 성장 기반 구축으로 업종 상위 10% 진입
+`.trim();
+
+  // 📅 **실행 로드맵**
+  const roadmap = `
+📅 3단계 실행 로드맵:
+1단계 (1-3개월): 긴급 개선 과제 해결 및 기초 시스템 구축
+2단계 (4-6개월): 운영 효율성 향상 및 차별화 요소 강화  
+3단계 (7-12개월): 지속 성장 동력 확보 및 시장 경쟁력 강화
+`.trim();
+
+  return { summary, proposals, roadmap };
+}
+
+// 🔍 **강점 설명 생성 함수**
+function getAdvantageDescription(itemName: string, score: number): string {
+  const descriptions: Record<string, string> = {
+    '기획수준': '체계적인 상품 기획력',
+    '차별화정도': '독특한 경쟁 우위',
+    '가격설정': '합리적 가격 정책',
+    '전문성': '높은 업무 전문성',
+    '품질': '우수한 품질 관리',
+    '고객맞이': '친절한 서비스',
+    '고객응대': '탁월한 응대 능력',
+    '불만관리': '효과적인 CS',
+    '고객유지': '우수한 고객 관리',
+    '고객이해': '정확한 고객 분석',
+    '마케팅계획': '체계적인 마케팅',
+    '오프라인마케팅': '효과적인 오프라인 홍보',
+    '온라인마케팅': '디지털 마케팅 역량',
+    '판매전략': '전략적 영업력',
+    '구매관리': '효율적인 구매',
+    '재고관리': '최적화된 재고 운영',
+    '외관관리': '매력적인 매장 외관',
+    '인테리어관리': '세련된 매장 환경',
+    '청결도': '청결한 매장 관리',
+    '작업동선': '효율적인 업무 flow'
+  };
+  
+  return descriptions[itemName] || '우수한 역량';
+}
+
+// 📝 **300자 미만 핵심요약 보고서 생성** (구글시트 전송용)
+function generateCoreReportSummary(data: SimplifiedDiagnosisRequest, diagnosisData: any, fullReport: string): string {
+  const totalScore = diagnosisData.totalScore || 0;
+  const grade = getGradeFromScore(totalScore);
+  
+  // 주요 강점과 약점 추출 (최대 2개씩)
+  const strengths = (diagnosisData.strengths || []).slice(0, 2);
+  const weaknesses = (diagnosisData.weaknesses || []).slice(0, 2);
+  
+  // 추천 서비스 추출 (최대 2개)
+  const recommendedServices = (diagnosisData.recommendedServices || []).slice(0, 2);
+  
+  let summary = `${data.companyName} 진단결과: ${totalScore}점(${grade}급). `;
+  
+  // 강점 추가 (간단히)
+  if (strengths.length > 0) {
+    summary += `강점: ${strengths.map((s: any) => typeof s === 'string' ? s.split(':')[0] : s).join(', ')}. `;
+  }
+  
+  // 약점 추가 (간단히)
+  if (weaknesses.length > 0) {
+    summary += `개선필요: ${weaknesses.map((w: any) => typeof w === 'string' ? w.split(':')[0] : w).join(', ')}. `;
+  }
+  
+  // 추천 서비스 추가
+  if (recommendedServices.length > 0) {
+    const serviceNames = recommendedServices.map((s: any) => s.name || s.id || s).join(', ');
+    summary += `추천서비스: ${serviceNames}. `;
+  }
+  
+  // 주요 고민사항 반영
+  if (data.mainConcerns) {
+    const concerns = data.mainConcerns.substring(0, 50);
+    summary += `고민: ${concerns}${data.mainConcerns.length > 50 ? '...' : ''}. `;
+  }
+  
+  // 300자 제한
+  if (summary.length > 300) {
+    summary = summary.substring(0, 297) + '...';
+  }
+  
+  return summary;
+}
+
 // 🔄 **폴백 보고서 생성**
 function generateFallbackReport(data: SimplifiedDiagnosisRequest, diagnosisData: any): string {
   const totalScore = diagnosisData.totalScore || 0;
@@ -1390,177 +1692,75 @@ ${data.companyName}은 ${data.industry} 업종에서 ${data.employeeCount} 규�
 `.trim();
 }
 
-// 📊 **5점 척도 평가표 → 카테고리별 점수 계산 함수 (신규)**
-function calculateLevelUpScores(data: SimplifiedDiagnosisRequest): {
-  totalScore: number;
-  categoryScores: any;
-  detailedScores: any;
-  reliability: number;
-} {
-  console.log('📊 5점 척도 평가표 점수 계산 시작');
-  
-  // 📊 **20개 문항별 점수 추출**
-  const scores = {
-    // 상품/서비스 관리 역량 (5개, 가중치 25%)
-    productService: {
-      planning_level: data.planning_level || 0,
-      differentiation_level: data.differentiation_level || 0,
-      pricing_level: data.pricing_level || 0,
-      expertise_level: data.expertise_level || 0,
-      quality_level: data.quality_level || 0
-    },
-    // 고객응대 역량 (4개, 가중치 20%)
-    customerService: {
-      customer_greeting: data.customer_greeting || 0,
-      customer_service: data.customer_service || 0,
-      complaint_management: data.complaint_management || 0,
-      customer_retention: data.customer_retention || 0
-    },
-    // 마케팅 역량 (5개, 가중치 25%)
-    marketing: {
-      customer_understanding: data.customer_understanding || 0,
-      marketing_planning: data.marketing_planning || 0,
-      offline_marketing: data.offline_marketing || 0,
-      online_marketing: data.online_marketing || 0,
-      sales_strategy: data.sales_strategy || 0
-    },
-    // 구매/재고관리 (2개, 가중치 15%)
-    procurement: {
-      purchase_management: data.purchase_management || 0,
-      inventory_management: data.inventory_management || 0
-    },
-    // 매장관리 역량 (4개, 가중치 15%)
-    storeManagement: {
-      exterior_management: data.exterior_management || 0,
-      interior_management: data.interior_management || 0,
-      cleanliness: data.cleanliness || 0,
-      work_flow: data.work_flow || 0
-    }
+// 📊 **삭제됨: 기존 함수를 Enhanced 진단평가 엔진으로 완전 대체**
+// function calculateLevelUpScores - Enhanced 진단평가 엔진 v3.0으로 통합됨
+
+// 🔧 헬퍼 함수들 (기존 코드와의 호환성 유지)
+function getCategoryKeyFromName(categoryName: string): string {
+  const mapping: Record<string, string> = {
+    '상품/서비스 관리 역량': 'productService',
+    '고객응대 역량': 'customerService',
+    '마케팅 역량': 'marketing',
+    '구매 및 재고관리': 'procurement',
+    '매장관리 역량': 'storeManagement'
   };
-  
-  // 📊 **카테고리별 평균 점수 계산**
-  const categoryAverages = {
-    productService: Object.values(scores.productService).reduce((a, b) => a + b, 0) / 5,
-    customerService: Object.values(scores.customerService).reduce((a, b) => a + b, 0) / 4,
-    marketing: Object.values(scores.marketing).reduce((a, b) => a + b, 0) / 5,
-    procurement: Object.values(scores.procurement).reduce((a, b) => a + b, 0) / 2,
-    storeManagement: Object.values(scores.storeManagement).reduce((a, b) => a + b, 0) / 4
+  return mapping[categoryName] || 'unknown';
+}
+
+function getItemDisplayName(itemId: string): string {
+  const mapping: Record<string, string> = {
+    'planning_level': '기획수준',
+    'differentiation_level': '차별화정도',
+    'pricing_level': '가격설정',
+    'expertise_level': '전문성',
+    'quality_level': '품질',
+    'customer_greeting': '고객맞이',
+    'customer_service': '고객응대',
+    'complaint_management': '불만관리',
+    'customer_retention': '고객유지',
+    'customer_understanding': '고객이해',
+    'marketing_planning': '마케팅계획',
+    'offline_marketing': '오프라인마케팅',
+    'online_marketing': '온라인마케팅',
+    'sales_strategy': '판매전략',
+    'purchase_management': '구매관리',
+    'inventory_management': '재고관리',
+    'exterior_management': '외관관리',
+    'interior_management': '인테리어관리',
+    'cleanliness': '청결도',
+    'work_flow': '작업동선'
   };
-  
-  // 📊 **가중치 적용 100점 환산**
-  const weights = { productService: 0.25, customerService: 0.20, marketing: 0.25, procurement: 0.15, storeManagement: 0.15 };
-  const totalScore = Math.round(
-    (categoryAverages.productService * weights.productService +
-     categoryAverages.customerService * weights.customerService +
-     categoryAverages.marketing * weights.marketing +
-     categoryAverages.procurement * weights.procurement +
-     categoryAverages.storeManagement * weights.storeManagement) * 20
-  ); // 5점 만점을 100점 만점으로 환산
-  
-  // 📊 **카테고리별 상세 정보 생성**
-  const categoryScores = {
-    productService: {
-      name: '상품/서비스 관리 역량',
-      score: categoryAverages.productService,
-      maxScore: 5,
-      weight: 25,
-      items: [
-        { name: '기획수준', score: data.planning_level || 0, question: '상품/서비스 기획 수준이 어느 정도인가요?' },
-        { name: '차별화정도', score: data.differentiation_level || 0, question: '경쟁업체 대비 차별화 정도는?' },
-        { name: '가격설정', score: data.pricing_level || 0, question: '가격 설정의 합리성은?' },
-        { name: '전문성', score: data.expertise_level || 0, question: '업무 전문성 수준은?' },
-        { name: '품질', score: data.quality_level || 0, question: '상품/서비스 품질 수준은?' }
-      ]
-    },
-    customerService: {
-      name: '고객응대 역량',
-      score: categoryAverages.customerService,
-      maxScore: 5,
-      weight: 20,
-      items: [
-        { name: '고객맞이', score: data.customer_greeting || 0, question: '고객 맞이의 친절함은?' },
-        { name: '고객응대', score: data.customer_service || 0, question: '고객 응대 능력은?' },
-        { name: '불만관리', score: data.complaint_management || 0, question: '고객 불만 처리 능력은?' },
-        { name: '고객유지', score: data.customer_retention || 0, question: '고객 유지 관리 능력은?' }
-      ]
-    },
-    marketing: {
-      name: '마케팅 역량',
-      score: categoryAverages.marketing,
-      maxScore: 5,
-      weight: 25,
-      items: [
-        { name: '고객이해', score: data.customer_understanding || 0, question: '고객 특성 이해도는?' },
-        { name: '마케팅계획', score: data.marketing_planning || 0, question: '마케팅 계획 수립 능력은?' },
-        { name: '오프라인마케팅', score: data.offline_marketing || 0, question: '오프라인 마케팅 실행 능력은?' },
-        { name: '온라인마케팅', score: data.online_marketing || 0, question: '온라인 마케팅 활용 능력은?' },
-        { name: '판매전략', score: data.sales_strategy || 0, question: '판매 전략 수립 및 실행 능력은?' }
-      ]
-    },
-    procurement: {
-      name: '구매 및 재고관리',
-      score: categoryAverages.procurement,
-      maxScore: 5,
-      weight: 15,
-      items: [
-        { name: '구매관리', score: data.purchase_management || 0, question: '구매 관리의 체계성은?' },
-        { name: '재고관리', score: data.inventory_management || 0, question: '재고 관리의 효율성은?' }
-      ]
-    },
-    storeManagement: {
-      name: '매장관리 역량',
-      score: categoryAverages.storeManagement,
-      maxScore: 5,
-      weight: 15,
-      items: [
-        { name: '외관관리', score: data.exterior_management || 0, question: '매장 외관 관리 상태는?' },
-        { name: '인테리어관리', score: data.interior_management || 0, question: '내부 인테리어 관리 상태는?' },
-        { name: '청결도', score: data.cleanliness || 0, question: '매장 청결도는?' },
-        { name: '작업동선', score: data.work_flow || 0, question: '작업 동선의 효율성은?' }
-      ]
-    }
+  return mapping[itemId] || itemId;
+}
+
+function getKoreanKeyFromItemId(itemId: string): string {
+  return getItemDisplayName(itemId); // 동일한 매핑 사용
+}
+
+function getItemQuestion(itemId: string): string {
+  const questions: Record<string, string> = {
+    'planning_level': '상품/서비스 기획 수준이 어느 정도인가요?',
+    'differentiation_level': '경쟁업체 대비 차별화 정도는?',
+    'pricing_level': '가격 설정의 합리성은?',
+    'expertise_level': '업무 전문성 수준은?',
+    'quality_level': '상품/서비스 품질 수준은?',
+    'customer_greeting': '고객 맞이의 친절함은?',
+    'customer_service': '고객 응대 능력은?',
+    'complaint_management': '고객 불만 처리 능력은?',
+    'customer_retention': '고객 유지 관리 능력은?',
+    'customer_understanding': '고객 특성 이해도는?',
+    'marketing_planning': '마케팅 계획 수립 능력은?',
+    'offline_marketing': '오프라인 마케팅 실행 능력은?',
+    'online_marketing': '온라인 마케팅 활용 능력은?',
+    'sales_strategy': '판매 전략 수립 및 실행 능력은?',
+    'purchase_management': '구매 관리의 체계성은?',
+    'inventory_management': '재고 관리의 효율성은?',
+    'exterior_management': '매장 외관 관리 상태는?',
+    'interior_management': '내부 인테리어 관리 상태는?',
+    'cleanliness': '매장 청결도는?',
+    'work_flow': '작업 동선의 효율성은?'
   };
-  
-  // 📊 **상세 점수 데이터 (구글시트 저장용)**
-  const detailedScores = {
-    기획수준: data.planning_level || 0,
-    차별화정도: data.differentiation_level || 0,
-    가격설정: data.pricing_level || 0,
-    전문성: data.expertise_level || 0,
-    품질: data.quality_level || 0,
-    고객맞이: data.customer_greeting || 0,
-    고객응대: data.customer_service || 0,
-    불만관리: data.complaint_management || 0,
-    고객유지: data.customer_retention || 0,
-    고객이해: data.customer_understanding || 0,
-    마케팅계획: data.marketing_planning || 0,
-    오프라인마케팅: data.offline_marketing || 0,
-    온라인마케팅: data.online_marketing || 0,
-    판매전략: data.sales_strategy || 0,
-    구매관리: data.purchase_management || 0,
-    재고관리: data.inventory_management || 0,
-    외관관리: data.exterior_management || 0,
-    인테리어관리: data.interior_management || 0,
-    청결도: data.cleanliness || 0,
-    작업동선: data.work_flow || 0
-  };
-  
-  // 📊 **신뢰도 계산 (응답 완성도 기반)**
-  const totalQuestions = 20;
-  const answeredQuestions = Object.values(detailedScores).filter(score => score > 0).length;
-  const reliability = Math.round((answeredQuestions / totalQuestions) * 100);
-  
-  console.log('✅ 5점 척도 점수 계산 완료:', {
-    totalScore,
-    answeredQuestions,
-    reliability,
-    카테고리점수: Object.keys(categoryScores).map(key => {
-      const category = categoryScores[key as keyof typeof categoryScores];
-      return `${category.name}: ${category.score.toFixed(1)}/5.0`;
-    })
-  });
-  
-  return { totalScore, categoryScores, detailedScores, reliability };
+  return questions[itemId] || `${itemId}에 대한 평가`;
 }
 
 export async function POST(request: NextRequest) {
@@ -1579,27 +1779,109 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // 개인정보 동의 확인
-    if (!data.privacyConsent) {
+    // 개인정보 동의 확인 (엄격한 검증)
+    if (!data.privacyConsent || data.privacyConsent !== true) {
+      console.log('개인정보 동의 검증 실패:', data.privacyConsent);
       return NextResponse.json({
         success: false,
-        error: '개인정보 수집 및 이용 동의가 필요합니다.'
+        error: '개인정보 수집 및 이용에 동의해주세요. 동의는 필수 사항입니다.'
       }, { status: 400 });
     }
-
-    // 1단계: 5점 척도 평가표 점수 계산
-    console.log('📊 5점 척도 평가표 점수 계산 중...');
-    const levelUpResults = calculateLevelUpScores(data);
     
-    // 2단계: 기존 진단 로직과 통합
-    console.log('📊 정교한 진단 분석 수행 중...');
+    console.log('✅ 개인정보 동의 검증 성공:', data.privacyConsent);
+
+    // 📊 **디버깅: 받은 점수 데이터 확인**
+    console.log('📊 API에서 받은 점수 데이터:', {
+      planning_level: data.planning_level,
+      differentiation_level: data.differentiation_level,
+      pricing_level: data.pricing_level,
+      customer_greeting: data.customer_greeting,
+      customer_service: data.customer_service,
+      marketing_planning: data.marketing_planning,
+      purchase_management: data.purchase_management,
+      exterior_management: data.exterior_management,
+      총점수개수: [
+        data.planning_level, data.differentiation_level, data.pricing_level, data.expertise_level, data.quality_level,
+        data.customer_greeting, data.customer_service, data.complaint_management, data.customer_retention,
+        data.customer_understanding, data.marketing_planning, data.offline_marketing, data.online_marketing, data.sales_strategy,
+        data.purchase_management, data.inventory_management,
+        data.exterior_management, data.interior_management, data.cleanliness, data.work_flow
+      ].filter(score => score && score > 0).length + '/20개'
+    });
+
+    // 1단계: Enhanced 진단평가 엔진 v3.0 사용
+    console.log('🚀 Enhanced 진단평가 엔진 v3.0 시작');
+    const diagnosisEngine = new EnhancedDiagnosisEngine();
+    
+    // 데이터 유효성 검증
+    const validation = validateDiagnosisData(data);
+    if (!validation.isValid) {
+      console.warn('⚠️ 데이터 유효성 검증 실패:', validation.errors);
+    }
+    
+    // Enhanced 진단 실행
+    const enhancedResult = diagnosisEngine.evaluate(data);
+    console.log('✅ Enhanced 진단 완료:', {
+      totalScore: enhancedResult.totalScore,
+      grade: enhancedResult.overallGrade,
+      reliability: enhancedResult.reliabilityScore,
+      categoriesEvaluated: enhancedResult.categoryResults.filter(c => 
+        c.itemResults.some(i => i.currentScore !== null)
+      ).length
+    });
+    
+    // 2단계: 기존 진단 로직과 통합 (하위 호환성)
+    console.log('📊 기존 시스템과 통합 중...');
     const diagnosisResult = generateSimplifiedDiagnosis(data);
     
-    // 3단계: 5점 척도 결과로 기존 진단 결과 업데이트
-    (diagnosisResult as any).totalScore = levelUpResults.totalScore;
-    (diagnosisResult as any).categoryScores = levelUpResults.categoryScores;
-    (diagnosisResult as any).detailedScores = levelUpResults.detailedScores;
-    (diagnosisResult as any).reliabilityScore = levelUpResults.reliability.toString();
+         // 3단계: Enhanced 결과로 기존 진단 결과 업데이트
+     (diagnosisResult as any).totalScore = enhancedResult.totalScore;
+     
+     // 카테고리별 점수 변환 (기존 형식 유지)
+     const legacyCategoryScores = enhancedResult.categoryResults.reduce((acc, cat) => {
+       const validItems = cat.itemResults.filter(item => item.currentScore !== null);
+       
+       acc[getCategoryKeyFromName(cat.categoryName)] = {
+         name: cat.categoryName,
+         score: cat.currentScore,
+         maxScore: 5.0,
+         weight: Math.round(cat.weight * 100),
+         selectedCount: validItems.length,
+         totalCount: cat.itemResults.length,
+         gapScore: cat.gapScore,
+         items: cat.itemResults.map(item => ({
+           name: getItemDisplayName(item.itemId),
+           score: item.currentScore,
+           selected: item.currentScore !== null,
+           question: getItemQuestion(item.itemId),
+           gap: item.gap,
+           priority: item.priority,
+           recommendation: item.recommendation
+         }))
+       };
+       return acc;
+     }, {} as any);
+     
+     // 상세 점수 변환 (기존 키 형식 유지)
+     const legacyDetailedScores = enhancedResult.categoryResults
+       .flatMap(cat => cat.itemResults)
+       .reduce((acc, item) => {
+         acc[getKoreanKeyFromItemId(item.itemId)] = item.currentScore;
+         return acc;
+       }, {} as Record<string, number | null>);
+     
+     (diagnosisResult as any).categoryScores = legacyCategoryScores;
+     (diagnosisResult as any).detailedScores = legacyDetailedScores;
+     (diagnosisResult as any).enhancedAnalysis = {
+       gapAnalysis: enhancedResult.gapAnalysis,
+       recommendedActions: enhancedResult.recommendedActions,
+       comparisonMetrics: enhancedResult.comparisonMetrics,
+       gradeInfo: {
+         grade: enhancedResult.overallGrade,
+         description: getGradeFromScore(enhancedResult.totalScore)
+       }
+     };
+     (diagnosisResult as any).reliabilityScore = enhancedResult.reliabilityScore.toString();
     
     // 2단계: 🔮 고급 진단 보고서 생성 (2000자 미만)
     console.log('🔮 고급 보고서 생성 중...');
@@ -1617,11 +1899,11 @@ export async function POST(request: NextRequest) {
     try {
       console.log('🔄 통합 데이터 처리 시작 (구글시트 + 이메일)...');
       
-              // 📊 **문항별 점수 데이터 추출 및 변환**
+              // 📊 **Enhanced 결과를 Google Apps Script 형식으로 변환**
         const detailedScores: any = {};
         const categoryScores = (diagnosisResult as any).categoryScores || {};
       
-      // 20개 평가 항목의 점수를 Google Apps Script 형식으로 변환
+      // Enhanced 진단평가 엔진의 결과를 Google Apps Script 형식으로 변환
       Object.values(categoryScores).forEach((category: any) => {
         if (category.items && Array.isArray(category.items)) {
           category.items.forEach((item: any) => {
@@ -1636,7 +1918,7 @@ export async function POST(request: NextRequest) {
               '고객응대': 'customer_service',
               '불만관리': 'complaint_management',
               '고객유지': 'customer_retention',
-              '고객특성이해': 'customer_understanding',
+              '고객이해': 'customer_understanding',
               '마케팅계획': 'marketing_planning',
               '오프라인마케팅': 'offline_marketing',
               '온라인마케팅': 'online_marketing',
@@ -1696,9 +1978,9 @@ export async function POST(request: NextRequest) {
         카테고리점수: categoryScores,
         categoryScores: categoryScores,
         
-        // 📝 **NEW: 진단결과보고서 요약**
-        진단보고서요약: summaryReport,
-        summaryReport: summaryReport,
+        // 📝 **NEW: 진단결과보고서 요약 (300자 미만 핵심요약)**
+        진단보고서요약: generateCoreReportSummary(data, diagnosisResult, summaryReport),
+        summaryReport: generateCoreReportSummary(data, diagnosisResult, summaryReport),
         
         // 🎯 **NEW: 종합 점수 및 메타 정보**
         종합점수: diagnosisResult.totalScore,

@@ -44,8 +44,18 @@ export default function CenterLeaderPage() {
             {/* 좌측: 프로필 정보 */}
             <div>
               <div className="flex items-center mb-6">
-                <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mr-4 backdrop-blur-sm border border-white/30">
-                  <User className="w-10 h-10 text-white" />
+                <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mr-4 backdrop-blur-sm border border-white/30 overflow-hidden">
+                  <img 
+                    src="/M-Center-leader.png" 
+                    alt="이후경 경영지도사 프로필 사진"
+                    className="w-full h-full object-cover rounded-full"
+                    onError={(e) => {
+                      // 이미지 로드 실패 시 기본 아이콘으로 대체
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.nextElementSibling.style.display = 'flex';
+                    }}
+                  />
+                  <User className="w-10 h-10 text-white hidden" />
                 </div>
                 <div>
                   <Badge className="bg-yellow-500 text-black mb-2">28년 검증된 전문가</Badge>
@@ -82,17 +92,15 @@ export default function CenterLeaderPage() {
               </div>
               
               <div className="flex flex-wrap gap-4">
-                <Link href="/consultation">
-                  <Button 
-                    size="lg" 
-                    className="bg-white text-blue-900 hover:bg-blue-50 font-semibold px-8 py-3 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group"
-                  >
-                    <span className="absolute inset-0 bg-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
-                    <span className="relative flex items-center">
-                      <Phone className="w-5 h-5 mr-2 group-hover:animate-pulse" />
-                      무료 상담 신청
-                    </span>
-                  </Button>
+                <Link 
+                  href="/consultation"
+                  className="inline-flex items-center justify-center bg-white text-blue-900 hover:bg-blue-50 font-semibold px-8 py-3 rounded-md transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group text-lg h-12"
+                >
+                  <span className="absolute inset-0 bg-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="relative flex items-center">
+                    <Phone className="w-5 h-5 mr-2 group-hover:animate-pulse" />
+                    무료 상담 신청
+                  </span>
                 </Link>
                 
                 <Button 
@@ -458,31 +466,26 @@ export default function CenterLeaderPage() {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/diagnosis">
-              <Button 
-                size="lg"
-                className="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-8 py-4 text-lg transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group"
-              >
-                <span className="absolute inset-0 bg-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
-                <span className="relative flex items-center">
-                  <Target className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-200" />
-                  무료진단 신청
-                </span>
-              </Button>
+            <Link 
+              href="/diagnosis"
+              className="inline-flex items-center justify-center bg-white text-blue-600 hover:bg-blue-50 font-semibold px-8 py-4 text-lg rounded-md transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group h-14"
+            >
+              <span className="absolute inset-0 bg-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+              <span className="relative flex items-center">
+                <Target className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-200" />
+                무료진단 신청
+              </span>
             </Link>
             
-            <Link href="/consultation">
-              <Button 
-                variant="outline"
-                size="lg"
-                className="border-white text-white hover:bg-white/10 font-semibold px-8 py-4 text-lg transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] hover:shadow-lg relative overflow-hidden group"
-              >
-                <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
-                <span className="relative flex items-center">
-                  <MessageCircle className="w-5 h-5 mr-2 group-hover:animate-pulse transition-transform duration-200" />
-                  1:1 상담 신청
-                </span>
-              </Button>
+            <Link 
+              href="/consultation"
+              className="inline-flex items-center justify-center border border-white text-white hover:bg-white/10 font-semibold px-8 py-4 text-lg rounded-md transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] hover:shadow-lg relative overflow-hidden group h-14"
+            >
+              <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+              <span className="relative flex items-center">
+                <MessageCircle className="w-5 h-5 mr-2 group-hover:animate-pulse transition-transform duration-200" />
+                1:1 상담 신청
+              </span>
             </Link>
           </div>
           

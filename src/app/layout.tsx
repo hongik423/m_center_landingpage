@@ -96,39 +96,7 @@ export default function RootLayout({
         {/* Vercel 배포 최적화 설정 */}
         <link rel="canonical" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://m-center-landingpage.vercel.app'} />
         
-        {/* 전역 에러 처리 */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.addEventListener('error', function(e) {
-                // ChunkLoadError 처리
-                if (e.error && (e.error.name === 'ChunkLoadError' || e.message.includes('ChunkLoadError'))) {
-                  console.log('전역 ChunkLoadError 감지됨. 페이지를 새로고침합니다...');
-                  window.location.reload();
-                  return;
-                }
-                
-                // content.js 관련 에러 무시 (브라우저 확장 프로그램 관련)
-                if (e.filename && e.filename.includes('content.js')) {
-                  console.log('브라우저 확장 프로그램 에러 무시:', e.message);
-                  e.preventDefault();
-                  return;
-                }
-              });
-              
-              // Promise rejection 에러 처리
-              window.addEventListener('unhandledrejection', function(e) {
-                // message port 관련 에러 무시
-                if (e.reason && e.reason.message && 
-                    e.reason.message.includes('message port closed')) {
-                  console.log('확장 프로그램 통신 에러 무시:', e.reason.message);
-                  e.preventDefault();
-                  return;
-                }
-              });
-            `
-          }}
-        />
+
       </head>
       <body className={inter.className} suppressHydrationWarning>        
         <Providers>

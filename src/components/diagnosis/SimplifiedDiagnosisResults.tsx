@@ -1176,6 +1176,31 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
     window.location.href = '/consultation';
   };
 
+  // 📝 **이후경 경영지도사 스타일로 보고서 포맷 개선**
+  const formatReportForDisplay = (rawReport: string): string => {
+    return rawReport
+      // 마크다운 헤더 제거 (## → 빈 줄로 변경)
+      .replace(/#{1,6}\s+/g, '')
+      // 볼드 표시 제거 (**text** → text)
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      // 이탤릭 표시 제거 (*text* → text)  
+      .replace(/\*(.*?)\*/g, '$1')
+      // 글자수 표기 제거 (598자) 등
+      .replace(/\(\d+자\)/g, '')
+      // GEMINI, ChatGPT 등 브랜드명 제거
+      .replace(/GEMINI|ChatGPT|Gemini/gi, 'AI 도구')
+      // 기술적 용어 자연스럽게 변경
+      .replace(/생성형 AI/gi, 'AI 기술')
+      // 마크다운 리스트 자연스럽게 변경 (- → •)
+      .replace(/^-\s+/gm, '• ')
+      // 여러 줄바꿈을 적절히 조정
+      .replace(/\n{3,}/g, '\n\n')
+      // 섹션 구분을 자연스럽게
+      .replace(/^(\d+)\.\s*\*\*(.*?)\*\*/gm, '$1. $2')
+      // 자연스러운 문단 구분
+      .trim();
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* 성공 메시지 */}
@@ -1186,7 +1211,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
             <div>
               <h3 className="text-lg font-bold text-green-800">🎉 AI 진단이 완료되었습니다!</h3>
               <p className="text-green-700">
-                {data.data.reportType}가 생성되었습니다. (총 {data.data.reportLength}자)
+                {data.data.reportType}가 생성되었습니다.
               </p>
             </div>
           </div>
@@ -1256,50 +1281,82 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
             </p>
           </CardHeader>
           <CardContent className="p-6">
-            {/* 카테고리별 점수 그리드 */}
+            {/* 카테고리별 점수 그리드 - Enhanced 진단평가 엔진 결과 안전 처리 */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-              {Object.entries(diagnosis.categoryScores).map(([categoryKey, category]) => {
-                if (!category) return null;
+              {(() => {
+                // Enhanced 진단평가 엔진 결과 안전 검증
+                console.log('🔍 카테고리 점수 표시 - 데이터 검증:', {
+                  hasCategoryScores: !!diagnosis.categoryScores,
+                  categoryScoresType: typeof diagnosis.categoryScores,
+                  categoryScoresKeys: diagnosis.categoryScores ? Object.keys(diagnosis.categoryScores) : null,
+                  sampleData: diagnosis.categoryScores ? Object.values(diagnosis.categoryScores)[0] : null
+                });
                 
-                const score100 = Math.round((category.score / category.maxScore) * 100);
-                const getScoreColor = (score: number) => {
-                  if (score >= 80) return 'text-green-600 bg-green-50 border-green-200';
-                  if (score >= 60) return 'text-blue-600 bg-blue-50 border-blue-200';
-                  if (score >= 40) return 'text-orange-600 bg-orange-50 border-orange-200';
-                  return 'text-red-600 bg-red-50 border-red-200';
-                };
+                if (!diagnosis.categoryScores || typeof diagnosis.categoryScores !== 'object') {
+                  console.warn('⚠️ 카테고리 점수 데이터가 없습니다:', diagnosis.categoryScores);
+                  return (
+                    <div className="col-span-5 text-center text-gray-500 p-8 border-2 border-dashed border-gray-300 rounded-lg">
+                      <p>카테고리별 점수 데이터를 불러오는 중입니다...</p>
+                      <p className="text-sm mt-2">진단 엔진에서 결과를 처리하고 있습니다.</p>
+                    </div>
+                  );
+                }
                 
-                const getScoreGrade = (score: number) => {
-                  if (score >= 80) return 'A급';
-                  if (score >= 60) return 'B급';
-                  if (score >= 40) return 'C급';
-                  return 'D급';
-                };
+                return Object.entries(diagnosis.categoryScores).map(([categoryKey, category]) => {
+                  // 안전한 데이터 처리
+                  if (!category || typeof category !== 'object') {
+                    console.warn(`⚠️ 카테고리 데이터 오류: ${categoryKey}`, category);
+                    return null;
+                  }
+                  
+                  // Enhanced 엔진 결과에서 안전하게 점수 추출
+                  const safeScore = typeof category.score === 'number' ? category.score : 0;
+                  const safeMaxScore = typeof category.maxScore === 'number' ? category.maxScore : 5;
+                  const safeName = category.name || categoryKey;
+                  const safeWeight = typeof category.weight === 'number' ? category.weight : 0;
+                  
+                  // 5점 기준을 100점으로 환산
+                  const score100 = Math.round((safeScore / safeMaxScore) * 100);
+                  
+                  const getScoreColor = (score: number) => {
+                    if (score >= 80) return 'text-green-600 bg-green-50 border-green-200';
+                    if (score >= 60) return 'text-blue-600 bg-blue-50 border-blue-200';
+                    if (score >= 40) return 'text-orange-600 bg-orange-50 border-orange-200';
+                    return 'text-red-600 bg-red-50 border-red-200';
+                  };
+                  
+                  const getScoreGrade = (score: number) => {
+                    if (score >= 80) return 'A급';
+                    if (score >= 60) return 'B급';
+                    if (score >= 40) return 'C급';
+                    return 'D급';
+                  };
 
-                return (
-                  <div key={categoryKey} className={`border-2 rounded-lg p-4 text-center ${getScoreColor(score100)}`}>
-                    <div className="text-2xl font-bold mb-1">
-                      {score100}점
+                  return (
+                    <div key={categoryKey} className={`border-2 rounded-lg p-4 text-center ${getScoreColor(score100)}`}>
+                      <div className="text-2xl font-bold mb-1">
+                        {score100}점
+                      </div>
+                      <div className="text-xs font-medium mb-2">
+                        {getScoreGrade(score100)} ({safeScore.toFixed(1)}/5.0)
+                      </div>
+                      <div className="text-sm font-medium mb-1">
+                        {safeName}
+                      </div>
+                      <div className="text-xs opacity-75">
+                        가중치: {Math.round(safeWeight * 100)}%
+                      </div>
+                      {/* 프로그레스 바 */}
+                      <div className="mt-3">
+                        <Progress 
+                          value={score100} 
+                          className="h-2"
+                        />
+                      </div>
                     </div>
-                    <div className="text-xs font-medium mb-2">
-                      {getScoreGrade(score100)} ({category.score.toFixed(1)}/5.0)
-                    </div>
-                    <div className="text-sm font-medium mb-1">
-                      {category.name}
-                    </div>
-                    <div className="text-xs opacity-75">
-                      가중치: {Math.round(category.weight * 100)}%
-                    </div>
-                    {/* 프로그레스 바 */}
-                    <div className="mt-3">
-                      <Progress 
-                        value={score100} 
-                        className="h-2"
-                      />
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                });
+              })()}
             </div>
 
             {/* 문항별 상세 점수 */}
@@ -1309,93 +1366,128 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                 📝 문항별 상세 점수 (20개 항목)
               </h4>
               
-              {Object.entries(diagnosis.categoryScores).map(([categoryKey, category]) => {
-                if (!category || !category.items) return null;
+              {(() => {
+                // Enhanced 진단평가 엔진 결과에서 문항별 점수 안전 처리
+                console.log('🔍 문항별 점수 표시 - 데이터 검증:', {
+                  hasCategoryScores: !!diagnosis.categoryScores,
+                  categoryCount: diagnosis.categoryScores ? Object.keys(diagnosis.categoryScores).length : 0
+                });
                 
-                const categoryIcons: Record<string, string> = {
-                  'productService': '📦',
-                  'customerService': '👥', 
-                  'marketing': '📈',
-                  'procurement': '📊',
-                  'storeManagement': '🏪'
-                };
+                if (!diagnosis.categoryScores || typeof diagnosis.categoryScores !== 'object') {
+                  return (
+                    <div className="text-center text-gray-500 p-8 border-2 border-dashed border-gray-300 rounded-lg">
+                      <p>문항별 점수 데이터를 불러오는 중입니다...</p>
+                    </div>
+                  );
+                }
+                
+                return Object.entries(diagnosis.categoryScores).map(([categoryKey, category]) => {
+                  // 안전한 데이터 처리
+                  if (!category || typeof category !== 'object') {
+                    console.warn(`⚠️ 카테고리 데이터 오류: ${categoryKey}`, category);
+                    return null;
+                  }
+                  
+                  // Enhanced 엔진 결과에서 안전하게 추출
+                  const safeItems = Array.isArray(category.items) ? category.items : [];
+                  const safeName = category.name || categoryKey;
+                  const safeScore = typeof category.score === 'number' ? category.score : 0;
+                  
+                  if (safeItems.length === 0) {
+                    console.warn(`⚠️ 카테고리 ${categoryKey}에 항목이 없습니다:`, category);
+                    return null;
+                  }
+                  
+                  const categoryIcons: Record<string, string> = {
+                    'productService': '📦',
+                    'customerService': '👥', 
+                    'marketing': '📈',
+                    'procurement': '📊',
+                    'storeManagement': '🏪'
+                  };
 
-                return (
-                  <div key={categoryKey} className="bg-gray-50 rounded-lg p-4">
-                    <h5 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                      <span className="text-lg">{categoryIcons[categoryKey] || '📋'}</span>
-                      {category.name} ({category.items.length}개 문항)
-                      <Badge variant="outline" className="ml-auto">
-                        평균 {category.score.toFixed(1)}점
-                      </Badge>
-                    </h5>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {category.items.map((item, index) => {
-                        const getItemScoreColor = (score: number) => {
-                          if (score >= 4) return 'text-green-600';
-                          if (score >= 3) return 'text-blue-600';
-                          if (score >= 2) return 'text-orange-600';
-                          return 'text-red-600';
-                        };
-                        
-                        const getItemScoreLabel = (score: number) => {
-                          if (score >= 5) return '매우 우수';
-                          if (score >= 4) return '우수';
-                          if (score >= 3) return '보통';
-                          if (score >= 2) return '부족';
-                          return '매우 부족';
-                        };
+                  return (
+                    <div key={categoryKey} className="bg-gray-50 rounded-lg p-4">
+                      <h5 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                        <span className="text-lg">{categoryIcons[categoryKey] || '📋'}</span>
+                        {safeName} ({safeItems.length}개 문항)
+                        <Badge variant="outline" className="ml-auto">
+                          평균 {safeScore.toFixed(1)}점
+                        </Badge>
+                      </h5>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {safeItems.map((item, index) => {
+                          // 항목별 안전한 데이터 처리
+                          const safeItemScore = typeof item.score === 'number' ? item.score : 0;
+                          const safeItemName = item.name || `항목 ${index + 1}`;
+                          const safeItemQuestion = item.question || '질문 내용을 불러오는 중...';
+                          
+                          const getItemScoreColor = (score: number) => {
+                            if (score >= 4) return 'text-green-600';
+                            if (score >= 3) return 'text-blue-600';
+                            if (score >= 2) return 'text-orange-600';
+                            return 'text-red-600';
+                          };
+                          
+                          const getItemScoreLabel = (score: number) => {
+                            if (score >= 5) return '매우 우수';
+                            if (score >= 4) return '우수';
+                            if (score >= 3) return '보통';
+                            if (score >= 2) return '부족';
+                            return '매우 부족';
+                          };
 
-                        return (
-                          <div key={index} className="bg-white border rounded-md p-3">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="font-medium text-sm text-gray-900">
-                                {item.name}
-                              </span>
-                              <div className="flex items-center gap-2">
-                                <span className={`font-bold ${getItemScoreColor(item.score)}`}>
-                                  {item.score}점
+                          return (
+                            <div key={index} className="bg-white border rounded-md p-3">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="font-medium text-sm text-gray-900">
+                                  {safeItemName}
                                 </span>
-                                <Badge 
-                                  variant="outline" 
-                                  className={`text-xs ${getItemScoreColor(item.score)}`}
-                                >
-                                  {getItemScoreLabel(item.score)}
-                                </Badge>
+                                <div className="flex items-center gap-2">
+                                  <span className={`font-bold ${getItemScoreColor(safeItemScore)}`}>
+                                    {safeItemScore}점
+                                  </span>
+                                  <Badge 
+                                    variant="outline" 
+                                    className={`text-xs ${getItemScoreColor(safeItemScore)}`}
+                                  >
+                                    {getItemScoreLabel(safeItemScore)}
+                                  </Badge>
+                                </div>
+                              </div>
+                              <div className="text-xs text-gray-600 mb-2">
+                                {safeItemQuestion.length > 80 
+                                  ? `${safeItemQuestion.substring(0, 80)}...` 
+                                  : safeItemQuestion}
+                              </div>
+                              {/* 5점 척도 시각화 */}
+                              <div className="flex gap-1">
+                                {[1, 2, 3, 4, 5].map((point) => (
+                                  <div
+                                    key={point}
+                                    className={`w-4 h-2 rounded-sm ${
+                                      point <= safeItemScore 
+                                        ? getItemScoreColor(safeItemScore).includes('green') 
+                                          ? 'bg-green-500' 
+                                          : getItemScoreColor(safeItemScore).includes('blue')
+                                          ? 'bg-blue-500'
+                                          : getItemScoreColor(safeItemScore).includes('orange')
+                                          ? 'bg-orange-500'
+                                          : 'bg-red-500'
+                                        : 'bg-gray-200'
+                                    }`}
+                                  />
+                                ))}
                               </div>
                             </div>
-                            <div className="text-xs text-gray-600 mb-2">
-                              {item.question.length > 80 
-                                ? `${item.question.substring(0, 80)}...` 
-                                : item.question}
-                            </div>
-                            {/* 5점 척도 시각화 */}
-                            <div className="flex gap-1">
-                              {[1, 2, 3, 4, 5].map((point) => (
-                                <div
-                                  key={point}
-                                  className={`w-4 h-2 rounded-sm ${
-                                    point <= item.score 
-                                      ? getItemScoreColor(item.score).includes('green') 
-                                        ? 'bg-green-500' 
-                                        : getItemScoreColor(item.score).includes('blue')
-                                        ? 'bg-blue-500'
-                                        : getItemScoreColor(item.score).includes('orange')
-                                        ? 'bg-orange-500'
-                                        : 'bg-red-500'
-                                      : 'bg-gray-200'
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                });
+              })()}
             </div>
 
             {/* 점수 분석 요약 */}
@@ -1495,6 +1587,118 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                     현안 상황 분석 중...
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* GAP 분석 및 개선 방향 */}
+      <Card className="border-red-200 bg-red-50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="w-6 h-6 text-red-600" />
+            GAP 분석 및 우선 개선 과제
+          </CardTitle>
+          <p className="text-sm text-red-700 mt-1">
+            현재 수준 vs 목표 수준의 격차 분석 및 개선 우선순위
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* 취약점 분석 */}
+            <div className="bg-white rounded-lg p-4 border border-red-200">
+              <h4 className="font-semibold text-red-800 mb-3 flex items-center gap-2">
+                ⚠️ 우선 개선 영역 (3점 이하)
+              </h4>
+              <div className="space-y-3">
+                {Object.values(diagnosis.categoryScores || {}).map((category: any, catIndex: number) => {
+                  const weakItems = category.items?.filter((item: any) => item.score <= 3) || [];
+                  if (weakItems.length === 0) return null;
+                  
+                  return (
+                    <div key={catIndex} className="border-l-4 border-red-400 pl-3">
+                      <h5 className="font-medium text-red-700 text-sm">{category.name}</h5>
+                      {weakItems.map((item: any, itemIndex: number) => (
+                        <div key={itemIndex} className="mt-1 text-xs text-red-600">
+                          <div className="flex justify-between items-center">
+                            <span>{item.name}</span>
+                            <div className="flex items-center gap-1">
+                              <span className="text-red-500 font-medium">{item.score}점</span>
+                              <span className="text-gray-400">→</span>
+                              <span className="text-blue-600 font-medium">4점 목표</span>
+                              <span className="text-xs bg-red-100 text-red-700 px-1 rounded">
+                                GAP {(4 - item.score).toFixed(1)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 강점 활용 방안 */}
+            <div className="bg-white rounded-lg p-4 border border-green-200">
+              <h4 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
+                💪 강점 활용 방안 (4점 이상)
+              </h4>
+              <div className="space-y-3">
+                {Object.values(diagnosis.categoryScores || {}).map((category: any, catIndex: number) => {
+                  const strongItems = category.items?.filter((item: any) => item.score >= 4) || [];
+                  if (strongItems.length === 0) return null;
+                  
+                  return (
+                    <div key={catIndex} className="border-l-4 border-green-400 pl-3">
+                      <h5 className="font-medium text-green-700 text-sm">{category.name}</h5>
+                      {strongItems.map((item: any, itemIndex: number) => (
+                        <div key={itemIndex} className="mt-1 text-xs text-green-600">
+                          <div className="flex justify-between items-center">
+                            <span>{item.name}</span>
+                            <div className="flex items-center gap-1">
+                              <span className="text-green-600 font-medium">{item.score}점</span>
+                              <span className="text-xs bg-green-100 text-green-700 px-1 rounded">
+                                {item.score >= 5 ? '최고' : '우수'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* GAP 개선 로드맵 */}
+          <div className="mt-6 bg-white rounded-lg p-4 border border-gray-200">
+            <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              📅 GAP 개선 로드맵
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div className="text-lg font-bold text-red-600 mb-1">1-3개월</div>
+                <div className="text-xs text-red-700">긴급 개선 과제</div>
+                <div className="text-xs text-gray-600 mt-1">
+                  2점 이하 항목 우선 해결
+                </div>
+              </div>
+              <div className="text-center p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <div className="text-lg font-bold text-orange-600 mb-1">4-6개월</div>
+                <div className="text-xs text-orange-700">중기 개선 목표</div>
+                <div className="text-xs text-gray-600 mt-1">
+                  3점 이하 항목 4점 달성
+                </div>
+              </div>
+              <div className="text-center p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="text-lg font-bold text-blue-600 mb-1">7-12개월</div>
+                <div className="text-xs text-blue-700">장기 성장 목표</div>
+                <div className="text-xs text-gray-600 mt-1">
+                  전체 항목 4점 이상 달성
+                </div>
               </div>
             </div>
           </div>
@@ -1662,7 +1866,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-sm text-gray-600 mb-1">
-                2000자 요약 보고서 ({data.data.reportLength}자)
+                상세분석보고서 - GAP 분석 포함
               </p>
               <Badge variant="outline">{data.data.reportType}</Badge>
             </div>
@@ -1710,9 +1914,9 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
               className="bg-white p-6 border rounded-lg print:shadow-none print:border-none"
             >
               <div className="prose max-w-none">
-                <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-gray-700">
-                  {data.data.summaryReport}
-                </pre>
+                <div className="whitespace-pre-line font-sans text-sm leading-relaxed text-gray-700">
+                  {formatReportForDisplay(data.data.summaryReport)}
+                </div>
               </div>
             </div>
           )}
@@ -2065,7 +2269,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
           <CardContent>
             <div className="prose max-w-none">
               <div className="whitespace-pre-line text-sm leading-relaxed text-gray-700">
-                {data.data.summaryReport}
+                {formatReportForDisplay(data.data.summaryReport)}
               </div>
             </div>
           </CardContent>

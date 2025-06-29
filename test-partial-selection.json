@@ -1,0 +1,16 @@
+{
+  "companyName": "테스트회사",
+  "industry": "manufacturing",
+  "contactManager": "홍길동",
+  "email": "test@test.com",
+  "employeeCount": "11-30",
+  "businessLocation": "seoul",
+  "planning_level": "4",
+  "differentiation_level": "5",
+  "customer_greeting": "3",
+  "marketing_planning": "4",
+  "online_marketing": "5",
+  "mainConcerns": "매출 증대가 필요합니다",
+  "expectedBenefits": "30% 매출 향상을 기대합니다",
+  "privacyConsent": true
+} 

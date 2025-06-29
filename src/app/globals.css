@@ -1558,4 +1558,43 @@ th {
   }
 }
 
+/* 사용자 중심 서비스 카드 스타일 */
+.service-card-mobile {
+  @apply bg-white border border-gray-200 rounded-2xl p-6 shadow-lg;
+  transform: translateZ(0); /* GPU 가속 */
+  backface-visibility: hidden;
+}
+
+.service-card-mobile:hover {
+  @apply shadow-2xl border-gray-300;
+  transform: translateY(-8px) translateZ(0);
+}
+
+/* 애플 스타일 미니멀 네비게이션 */
+.apple-nav-item {
+  @apply text-gray-600 hover:text-gray-900 text-sm font-medium transition-all duration-200 px-3 py-2 rounded-lg hover:bg-gray-50;
+}
+
+.apple-button-primary {
+  @apply bg-gray-900 hover:bg-black text-white px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md;
+}
+
+.apple-button-ghost {
+  @apply text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200;
+}
+
+/* 애플 스타일 모바일 카드 */
+.apple-mobile-card {
+  @apply w-full p-4 rounded-xl transition-all duration-200 border border-gray-200 hover:border-gray-300 hover:bg-gray-50;
+}
+
+/* 배지 스타일 개선 */
+.badge-primary {
+  @apply inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 rounded-full font-semibold text-sm;
+}
+
+.badge-minimal {
+  @apply text-xs px-2 py-1 rounded-md font-medium bg-gray-100 text-gray-700;
+}
+
 

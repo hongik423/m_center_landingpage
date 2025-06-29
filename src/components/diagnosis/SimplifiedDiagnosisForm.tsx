@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
+import PrivacyConsent from '@/components/ui/privacy-consent';
 import { 
   Building, 
   User, 
@@ -33,6 +34,7 @@ import {
   Zap
 } from 'lucide-react';
 import { safeGet, validateApiResponse, collectErrorInfo, checkApiCompatibility } from '@/lib/utils/safeDataAccess';
+import { EnhancedDiagnosisEngine, DiagnosisReportGenerator, validateDiagnosisData, getScoreGrade, type DiagnosisResult } from '@/lib/utils/enhancedDiagnosisEngine';
 
 // 레벨업 시트 기반 진단 폼 검증 스키마 (20개 객관식 + 기본 정보)
 const levelUpDiagnosisFormSchema = z.object({
@@ -233,172 +235,277 @@ const evaluationOptions = [
   { value: '1', label: '매우 부족 (1점)', description: '거의 수행하지 않음' }
 ];
 
-// 레벨업 시트 기반 진단 결과 생성 함수
+// 🔧 헬퍼 함수들 (Enhanced 진단평가 엔진 호환)
+function getCategoryKeyFromName(categoryName: string): string {
+  const mapping: Record<string, string> = {
+    '상품/서비스 관리 역량': 'productService',
+    '고객응대 역량': 'customerService',
+    '마케팅 역량': 'marketing',
+    '구매 및 재고관리': 'procurement',
+    '매장관리 역량': 'storeManagement'
+  };
+  return mapping[categoryName] || 'unknown';
+}
+
+function getItemDisplayName(itemId: string): string {
+  const mapping: Record<string, string> = {
+    'planning_level': '기획수준',
+    'differentiation_level': '차별화정도',
+    'pricing_level': '가격설정',
+    'expertise_level': '전문성',
+    'quality_level': '품질',
+    'customer_greeting': '고객맞이',
+    'customer_service': '고객응대',
+    'complaint_management': '불만관리',
+    'customer_retention': '고객유지',
+    'customer_understanding': '고객이해',
+    'marketing_planning': '마케팅계획',
+    'offline_marketing': '오프라인마케팅',
+    'online_marketing': '온라인마케팅',
+    'sales_strategy': '판매전략',
+    'purchase_management': '구매관리',
+    'inventory_management': '재고관리',
+    'exterior_management': '외관관리',
+    'interior_management': '인테리어관리',
+    'cleanliness': '청결도',
+    'work_flow': '작업동선'
+  };
+  return mapping[itemId] || itemId;
+}
+
+function getKoreanKeyFromItemId(itemId: string): string {
+  return getItemDisplayName(itemId);
+}
+
+function getItemQuestion(itemId: string): string {
+  const questions: Record<string, string> = {
+    'planning_level': '상품/서비스 기획 수준이 어느 정도인가요?',
+    'differentiation_level': '경쟁업체 대비 차별화 정도는?',
+    'pricing_level': '가격 설정의 합리성은?',
+    'expertise_level': '업무 전문성 수준은?',
+    'quality_level': '상품/서비스 품질 수준은?',
+    'customer_greeting': '고객 맞이의 친절함은?',
+    'customer_service': '고객 응대 능력은?',
+    'complaint_management': '고객 불만 처리 능력은?',
+    'customer_retention': '고객 유지 관리 능력은?',
+    'customer_understanding': '고객 특성 이해도는?',
+    'marketing_planning': '마케팅 계획 수립 능력은?',
+    'offline_marketing': '오프라인 마케팅 실행 능력은?',
+    'online_marketing': '온라인 마케팅 활용 능력은?',
+    'sales_strategy': '판매 전략 수립 및 실행 능력은?',
+    'purchase_management': '구매 관리의 체계성은?',
+    'inventory_management': '재고 관리의 효율성은?',
+    'exterior_management': '매장 외관 관리 상태는?',
+    'interior_management': '내부 인테리어 관리 상태는?',
+    'cleanliness': '매장 청결도는?',
+    'work_flow': '작업 동선의 효율성은?'
+  };
+  return questions[itemId] || `${itemId}에 대한 평가`;
+}
+
+// 📊 Enhanced 진단 보고서 생성 (Gap 분석 포함)
+function generateEnhancedDiagnosticReportWithGap(
+  data: LevelUpDiagnosisFormData, 
+  diagnosisResult: DiagnosisResult, 
+  companySearchInfo: any
+): string {
+  const { totalScore, gapAnalysis, recommendedActions, comparisonMetrics } = diagnosisResult;
+  const gradeInfo = getScoreGrade(totalScore);
+  
+  return `
+📊 ${data.companyName} Enhanced 역량진단 보고서 v3.0
+
+🏆 **종합 평가 결과**
+- 총점: ${totalScore}/100점 (${gradeInfo.grade}급 - ${gradeInfo.description})
+- 업계 상위: ${comparisonMetrics.industryPercentile}%
+- 신뢰도: ${diagnosisResult.reliabilityScore}%
+- 성장 잠재력: ${comparisonMetrics.growthPotential}점
+
+📈 **카테고리별 Gap 분석**
+${diagnosisResult.categoryResults.map(cat => 
+  `• ${cat.categoryName}: ${cat.currentScore.toFixed(1)}/5.0 (목표: ${cat.targetScore}, Gap: ${cat.gapScore.toFixed(1)})`
+).join('\n')}
+
+🎯 **전체 Gap 점수: ${gapAnalysis.overallGap.toFixed(1)}점**
+
+🚨 **중요 개선 사항**
+${gapAnalysis.criticalIssues.length > 0 ? 
+  gapAnalysis.criticalIssues.map(issue => `• ${issue}`).join('\n') : 
+  '• 중대한 개선 사항이 발견되지 않았습니다.'}
+
+⚡ **빠른 개선 가능 항목**
+${gapAnalysis.quickWins.length > 0 ? 
+  gapAnalysis.quickWins.map(win => `• ${win}`).join('\n') : 
+  '• 즉시 개선 가능한 항목을 식별 중입니다.'}
+
+💡 **우선 추천 액션 플랜**
+${recommendedActions.slice(0, 3).map((action, idx) => 
+  `${idx + 1}. **${action.title}** (${action.priority} 우선순위)
+   - 기간: ${action.timeframe}
+   - 예상 효과: ${action.expectedImpact}
+   - 구현 비용: ${action.implementationCost}
+   - 세부사항: ${action.description}`
+).join('\n\n')}
+
+🏢 **기업 현황 분석**
+${companySearchInfo.marketInsights || '시장 분석 데이터를 수집 중입니다.'}
+
+📞 **전문가 상담 안내**
+더 상세한 Gap 분석과 맞춤형 개선 전략을 원하시면 전문가 상담을 신청하세요.
+연락처: 010-9251-9743 (이후경 경영지도사)
+
+*본 보고서는 Enhanced 진단평가 엔진 v3.0으로 생성된 과학적 분석 결과입니다.*
+`.trim();
+}
+
+// 📊 개선된 레벨업 시트 기반 진단 결과 생성 함수 (Enhanced v3.0)
 function generateLevelUpDiagnosisResults(data: LevelUpDiagnosisFormData) {
-  // 20개 객관식 질문 점수 계산
-  const scores = {
-    // 상품/서비스 관리 역량 (5개 항목)
-    planning_level: parseInt(data.planning_level),
-    differentiation_level: parseInt(data.differentiation_level),
-    pricing_level: parseInt(data.pricing_level),
-    expertise_level: parseInt(data.expertise_level),
-    quality_level: parseInt(data.quality_level),
-    
-    // 고객응대 역량 (4개 항목)
-    customer_greeting: parseInt(data.customer_greeting),
-    customer_service: parseInt(data.customer_service),
-    complaint_management: parseInt(data.complaint_management),
-    customer_retention: parseInt(data.customer_retention),
-    
-    // 마케팅 역량 (5개 항목)
-    customer_understanding: parseInt(data.customer_understanding),
-    marketing_planning: parseInt(data.marketing_planning),
-    offline_marketing: parseInt(data.offline_marketing),
-    online_marketing: parseInt(data.online_marketing),
-    sales_strategy: parseInt(data.sales_strategy),
-    
-    // 구매 및 재고관리 (2개 항목)
-    purchase_management: parseInt(data.purchase_management),
-    inventory_management: parseInt(data.inventory_management),
-    
-    // 매장관리 역량 (4개 항목)
-    exterior_management: parseInt(data.exterior_management),
-    interior_management: parseInt(data.interior_management),
-    cleanliness: parseInt(data.cleanliness),
-    work_flow: parseInt(data.work_flow)
-  };
+  console.log('🚀 Enhanced 진단평가 엔진 시작 v3.0');
 
-  // 카테고리별 점수 계산 (정확한 가중치 적용)
-  const categoryScores = {
-    productService: {
-      name: '상품/서비스 관리 역량',
-      score: (scores.planning_level + scores.differentiation_level + scores.pricing_level + scores.expertise_level + scores.quality_level) / 5,
-      maxScore: 5.0,
-      weight: 0.25, // 25%
-      items: [
-        { name: '기획 수준', score: scores.planning_level, question: '주력으로 하고 있는 상품과 서비스의 구성이 확고하며 주기적으로 개선을 하고 있는가?' },
-        { name: '차별화 정도', score: scores.differentiation_level, question: '동종업계의 상품 및 서비스와 차별화되며 모방이 가능한가?' },
-        { name: '가격 설정', score: scores.pricing_level, question: '해당 상권 내 경쟁업체와의 분석을 주기적으로 파악하며 가격 설정이 적절히 되었는가?' },
-        { name: '전문성', score: scores.expertise_level, question: '상품 및 서비스와 관련된 전문성과 기술력을 보유하고 있는가?' },
-        { name: '품질', score: scores.quality_level, question: '상품 및 서비스의 품질이 균일하며 능동적으로 품질을 지속적으로 개선하는가?' }
-      ]
-    },
-    customerService: {
-      name: '고객응대 역량',
-      score: (scores.customer_greeting + scores.customer_service + scores.complaint_management + scores.customer_retention) / 4,
-      maxScore: 5.0,
-      weight: 0.20, // 20%
-      items: [
-        { name: '고객맞이', score: scores.customer_greeting, question: '직원들의 미소와 용모가 단정하며 복장이나 청결상태를 주기적으로 관리하는가?' },
-        { name: '고객 응대', score: scores.customer_service, question: '고객의 요청사항에 대한 매뉴얼이 있으며 주기적인 직원교육을 통해 원활한 고객응대를 하고 있는가?' },
-        { name: '불만관리', score: scores.complaint_management, question: '고객 불만 사항에 대한 표준 체계를 갖추고 불만사항을 주기적으로 분석하며 관리하는가?' },
-        { name: '고객 유지', score: scores.customer_retention, question: '고객을 지속적으로 유지하고 관리하기 위한 방안을 보유하며 수행하고 있는가?' }
-      ]
-    },
-    marketing: {
-      name: '마케팅 역량',
-      score: (scores.customer_understanding + scores.marketing_planning + scores.offline_marketing + scores.online_marketing + scores.sales_strategy) / 5,
-      maxScore: 5.0,
-      weight: 0.25, // 25%
-      items: [
-        { name: '고객 특성 이해', score: scores.customer_understanding, question: '주요 고객의 특성에 관해 주기적으로 분석하며 시장의 전반적인 트렌드를 파악하고 있는가?' },
-        { name: '마케팅 계획', score: scores.marketing_planning, question: '마케팅 홍보에 대한 이해와 관심이 있으며 구체적인 실행방안을 가지고 있는가?' },
-        { name: '오프라인 마케팅', score: scores.offline_marketing, question: '판촉행사를 정기적으로 운영하며 표준화된 운영 방식이 있는가?' },
-        { name: '온라인 마케팅', score: scores.online_marketing, question: '온라인 마케팅에 대한 관심이 있으며 활용을 통한 매출액 증대로 이루어지고 있는가?' },
-        { name: '판매 전략', score: scores.sales_strategy, question: '오프라인, 온라인, 모바일 판매 채널을 모두 보유하고 있으며 판매 채널에 따라 상품/서비스의 구성을 달리하는가?' }
-      ]
-    },
-    procurement: {
-      name: '구매 및 재고관리',
-      score: (scores.purchase_management + scores.inventory_management) / 2,
-      maxScore: 5.0,
-      weight: 0.15, // 15%
-      items: [
-        { name: '구매관리', score: scores.purchase_management, question: '상품과 서비스의 생산과 제조를 위한 원재료, 설비등의 구매를 정리하여 관리하고 있으며 적정주기에 구매활동을 실행하고 있는가?' },
-        { name: '재고관리', score: scores.inventory_management, question: '판매계획 또는 구매계획을 바탕으로 재고를 주기적으로 관리하여 적정한 재고를 유지하는가?' }
-      ]
-    },
-    storeManagement: {
-      name: '매장관리 역량',
-      score: (scores.exterior_management + scores.interior_management + scores.cleanliness + scores.work_flow) / 4,
-      maxScore: 5.0,
-      weight: 0.15, // 15%
-      items: [
-        { name: '외관 관리', score: scores.exterior_management, question: '점포와 매장의 간판이나 디자인이 상품/서비스의 특징을 잘 나타내며 고객에게 효율적으로 어필이 되고 있는가?' },
-        { name: '인테리어', score: scores.interior_management, question: '인테리어가 주력 상품이나 서비스의 컨셉과 일치하며 주요 고객의 편의 요구에 따라 필요한 부대시설을 갖추고 있는가?' },
-        { name: '청결도', score: scores.cleanliness, question: '점포 내/외부가 전반적으로 청결한 편이며 주기적인 청소를 시행하고 있는가?' },
-        { name: '작업 동선', score: scores.work_flow, question: '작업을 위한 공간이 효율적으로 확보되었으며 고객들과의 지속적인 소통이 가능한가?' }
-      ]
+  // 🔍 데이터 유효성 검증
+  const validation = validateDiagnosisData(data);
+  if (!validation.isValid) {
+    console.warn('⚠️ 데이터 유효성 검증 경고:', validation.errors);
+  }
+
+  // 🚀 새로운 진단평가 엔진 사용
+  const diagnosisEngine = new EnhancedDiagnosisEngine();
+  const diagnosisResult = diagnosisEngine.evaluate(data);
+
+  // 📊 종합 진단 보고서 생성
+  const comprehensiveReport = DiagnosisReportGenerator.generateComprehensiveReport(
+    diagnosisResult, 
+    {
+      companyName: data.companyName,
+      industry: data.industry,
+      employeeCount: data.employeeCount,
+      businessLocation: data.businessLocation
     }
-  };
-
-  // 🎯 **정확한 100점 만점 계산 (가중치 적용)**
-  const totalScore = Math.round(
-    (categoryScores.productService.score * categoryScores.productService.weight +
-     categoryScores.customerService.score * categoryScores.customerService.weight +
-     categoryScores.marketing.score * categoryScores.marketing.weight +
-     categoryScores.procurement.score * categoryScores.procurement.weight +
-     categoryScores.storeManagement.score * categoryScores.storeManagement.weight) * 20
   );
 
-  // 🔍 **기업 검색 정보 생성**
+  // 🔍 기업 검색 정보 생성 (기존 로직 유지)
   const companySearchInfo = generateCompanySearchInfo(data);
 
-  // 강점/약점 분석
-  const strengthsWeaknesses = identifyStrengthsWeaknesses(categoryScores);
-  
-  // SWOT 분석 (기업 검색 정보 반영)
-  const swotAnalysis = generateLevelUpSWOTAnalysis(categoryScores, data, companySearchInfo);
-  
-  // 개선 우선순위
-  const improvementPriorities = calculateImprovementPriorities(categoryScores);
-  
-  // 서비스 추천 (기업 검색 정보 반영)
-  const serviceRecommendations = matchLevelUpServices(swotAnalysis, improvementPriorities, companySearchInfo);
-  
-  // 액션 플랜
-  const actionPlan = generateLevelUpActionPlan(serviceRecommendations, improvementPriorities);
-  
-  // 🎯 **개선된 진단 보고서 생성 (기업 검색 정보 + 상세 점수 반영)**
-  const diagnosticReport = generateEnhancedLevelUpDiagnosticReport(
-    data, 
-    totalScore, 
-    categoryScores, 
-    swotAnalysis, 
-    serviceRecommendations,
+  // 🔄 기존 형식으로 변환 (하위 호환성)
+  const legacyCategoryScores = diagnosisResult.categoryResults.reduce((acc, cat) => {
+    const validItems = cat.itemResults.filter(item => item.currentScore !== null);
+    
+    acc[getCategoryKeyFromName(cat.categoryName)] = {
+      name: cat.categoryName,
+      score: cat.currentScore,
+      maxScore: 5.0,
+      weight: cat.weight,
+      selectedCount: validItems.length,
+      totalCount: cat.itemResults.length,
+      gapScore: cat.gapScore,
+      items: cat.itemResults.map(item => ({
+        name: getItemDisplayName(item.itemId),
+        score: item.currentScore,
+        selected: item.currentScore !== null,
+        question: getItemQuestion(item.itemId),
+        gap: item.gap,
+        priority: item.priority,
+        recommendation: item.recommendation
+      }))
+    };
+    return acc;
+  }, {} as any);
+
+  // 🎯 **개선된 진단 보고서 생성 (Gap 분석 포함)**
+  const enhancedReport = generateEnhancedDiagnosticReportWithGap(
+    data,
+    diagnosisResult,
     companySearchInfo
   );
+
+  // 📊 등급 정보 계산
+  const gradeInfo = getScoreGrade(diagnosisResult.totalScore);
+
+  console.log('✅ Enhanced 진단평가 완료:', {
+    totalScore: diagnosisResult.totalScore,
+    grade: gradeInfo.grade,
+    reliability: diagnosisResult.reliabilityScore,
+    categoriesEvaluated: diagnosisResult.categoryResults.filter(c => 
+      c.itemResults.some(i => i.currentScore !== null)
+    ).length,
+    gapAnalysis: {
+      overallGap: diagnosisResult.gapAnalysis.overallGap,
+      criticalIssues: diagnosisResult.gapAnalysis.criticalIssues.length,
+      quickWins: diagnosisResult.gapAnalysis.quickWins.length
+    }
+  });
 
   return {
     success: true,
     data: {
       diagnosis: {
         companyName: data.companyName,
-        totalScore: totalScore,
-        categoryScores: categoryScores,
-        marketPosition: getMarketPosition(totalScore),
+        totalScore: diagnosisResult.totalScore,
+        categoryScores: legacyCategoryScores,
+        marketPosition: getMarketPosition(diagnosisResult.totalScore),
         industryGrowth: getIndustryGrowth(data.industry),
-        reliabilityScore: '98%',
+        reliabilityScore: `${diagnosisResult.reliabilityScore}%`,
         industry: data.industry,
         employeeCount: data.employeeCount,
-        scoreDescription: getLevelUpGradeDescription(totalScore),
-        detailedScores: scores, // 📊 상세 문항별 점수 추가
-        companySearchInfo: companySearchInfo, // 🔍 기업 검색 정보 추가
-        strengths: strengthsWeaknesses.strengths,
-        weaknesses: strengthsWeaknesses.weaknesses,
-        opportunities: swotAnalysis.opportunities,
-        threats: swotAnalysis.threats,
-        currentSituationForecast: generateLevelUpSituationForecast(data, categoryScores, companySearchInfo),
-        recommendedServices: serviceRecommendations.slice(0, 3).map((service: any) => ({
-          name: service.serviceName,
-          description: service.rationale,
-          expectedEffect: `예상 ROI: ${service.expectedROI}%`,
-          duration: service.implementationPeriod,
-          successRate: '95%',
-          priority: service.rank === 1 ? 'highest' : 'high'
-        })),
-        actionPlan: actionPlan,
-        improvementPriorities: improvementPriorities,
+        scoreDescription: getLevelUpGradeDescription(diagnosisResult.totalScore),
+        
+        // 🆕 Enhanced 기능들
+        enhancedAnalysis: {
+          gapAnalysis: diagnosisResult.gapAnalysis,
+          recommendedActions: diagnosisResult.recommendedActions,
+          comparisonMetrics: diagnosisResult.comparisonMetrics,
+          gradeInfo: gradeInfo
+        },
+        
+        // 📊 상세 분석 데이터
+        detailedScores: diagnosisResult.categoryResults
+          .flatMap(cat => cat.itemResults)
+          .reduce((acc, item) => {
+            acc[getKoreanKeyFromItemId(item.itemId)] = item.currentScore;
+            return acc;
+          }, {} as Record<string, number | null>),
+        
+        selectedItemsCount: diagnosisResult.categoryResults
+          .flatMap(cat => cat.itemResults)
+          .filter(item => item.currentScore !== null).length,
+        totalItemsCount: 20,
+        
+        companySearchInfo: companySearchInfo,
+        
+        // 🎯 개선된 분석 결과
+        strengths: diagnosisResult.categoryResults
+          .flatMap(cat => cat.strengths)
+          .slice(0, 3),
+        weaknesses: diagnosisResult.categoryResults
+          .flatMap(cat => cat.weaknesses)
+          .slice(0, 3),
+        
+        opportunities: diagnosisResult.gapAnalysis.quickWins.slice(0, 3),
+        threats: diagnosisResult.gapAnalysis.criticalIssues.slice(0, 3),
+        
+        currentSituationForecast: generateLevelUpSituationForecast(data, legacyCategoryScores, companySearchInfo),
+        
+                 recommendedServices: diagnosisResult.recommendedActions.slice(0, 3).map((action, idx) => ({
+           name: action.title,
+           description: action.description,
+           expectedEffect: action.expectedImpact,
+           duration: action.timeframe,
+           successRate: '95%',
+           priority: idx === 0 ? 'highest' : 'high'
+                 })),
+         
+                  // 🎯 액션 플랜 생성
+         actionPlan: diagnosisResult.recommendedActions.map(action => action.title),
+         
+         // 📊 개선 우선순위
+         improvementPriorities: diagnosisResult.gapAnalysis.categoryGaps
+           .sort((a, b) => b.gap - a.gap)
+           .map(gap => ({
+             category: gap.categoryName,
+             priority: gap.priority,
+             gap: gap.gap,
+             potential: gap.improvementPotential
+           })),
         expectedResults: {
           revenue: '매출 30-45% 증대',
           efficiency: '업무효율 50% 향상',
@@ -412,14 +519,14 @@ function generateLevelUpDiagnosisResults(data: LevelUpDiagnosisFormData) {
           email: 'lhk@injc.kr'
         }
       },
-      summaryReport: diagnosticReport,
-      reportLength: diagnosticReport.length,
+      summaryReport: enhancedReport,
+      reportLength: enhancedReport.length,
       resultId: `ENHANCED_${Date.now()}`,
       resultUrl: '',
       submitDate: new Date().toLocaleString('ko-KR'),
       googleSheetsSaved: true,
       processingTime: '3분 25초',
-      reportType: '개선된 레벨업 시트 종합 진단 보고서 (기업 검색 정보 반영)'
+      reportType: '선택된 항목 기반 레벨업 시트 진단 보고서'
     }
   };
 }
@@ -1134,7 +1241,7 @@ function getLevelUpGradeDescription(score: number): string {
   } else if (score >= 80) {
     return '대부분의 경영 영역에서 양호한 수준을 유지하고 있습니다. 일부 영역의 개선을 통해 우수 기업으로 발전할 수 있는 기반을 갖추고 있습니다.';
   } else if (score >= 70) {
-    return '기본적인 경영 기능은 수행하고 있으나 경쟁력 강화를 위한 체계적 개선이 필요합니다. 핵심 영역 중심의 집중 투자가 효과적입니다.';
+    return '기본적인 경영 기능은 수행하고 있으나 경쟁력 강화를 위해서는 체계적인 개선이 필요합니다. 핵심 영역 중심의 집중 투자가 효과적입니다.';
   } else if (score >= 60) {
     return '여러 경영 영역에서 보완이 필요한 상황입니다. 전문가 지원을 통한 단계적 개선으로 경영 효율성을 제고할 수 있습니다.';
   } else {
@@ -1157,27 +1264,27 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
       email: '',
       employeeCount: '',
       businessLocation: '',
-      // 상품/서비스 관리 역량
+      // 상품/서비스 관리 역량 (기본값: 선택 안함)
       planning_level: '',
       differentiation_level: '',
       pricing_level: '',
       expertise_level: '',
       quality_level: '',
-      // 고객응대 역량
+      // 고객응대 역량 (기본값: 선택 안함)
       customer_greeting: '',
       customer_service: '',
       complaint_management: '',
       customer_retention: '',
-      // 마케팅 역량
+      // 마케팅 역량 (기본값: 선택 안함)
       customer_understanding: '',
       marketing_planning: '',
       offline_marketing: '',
       online_marketing: '',
       sales_strategy: '',
-      // 구매 및 재고관리
+      // 구매 및 재고관리 (기본값: 선택 안함)
       purchase_management: '',
       inventory_management: '',
-      // 매장관리 역량
+      // 매장관리 역량 (기본값: 선택 안함)
       exterior_management: '',
       interior_management: '',
       cleanliness: '',
@@ -1203,8 +1310,46 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
       setEstimatedTime(120);
       await new Promise(resolve => setTimeout(resolve, 1500));
 
+      // 🔍 **디버깅: 폼에서 수집된 원본 데이터 확인**
+      console.log('🎯 폼에서 수집된 원본 데이터:', {
+        회사명: data.companyName,
+        업종: data.industry,
+        점수데이터: {
+          planning_level: data.planning_level,
+          differentiation_level: data.differentiation_level,
+          pricing_level: data.pricing_level,
+          expertise_level: data.expertise_level,
+          quality_level: data.quality_level,
+          customer_greeting: data.customer_greeting,
+          customer_service: data.customer_service,
+          complaint_management: data.complaint_management,
+          customer_retention: data.customer_retention,
+          customer_understanding: data.customer_understanding,
+          marketing_planning: data.marketing_planning,
+          offline_marketing: data.offline_marketing,
+          online_marketing: data.online_marketing,
+          sales_strategy: data.sales_strategy,
+          purchase_management: data.purchase_management,
+          inventory_management: data.inventory_management,
+          exterior_management: data.exterior_management,
+          interior_management: data.interior_management,
+          cleanliness: data.cleanliness,
+          work_flow: data.work_flow
+        },
+        모든필드: Object.keys(data).length + '개',
+        점수필드개수: Object.keys(data).filter(key => key.includes('level') || key.includes('management') || key.includes('marketing') || key.includes('service') || key.includes('greeting') || key.includes('retention') || key.includes('understanding') || key.includes('planning') || key.includes('strategy') || key.includes('exterior') || key.includes('interior') || key.includes('cleanliness') || key.includes('work_flow')).length + '개'
+      });
+
       // 레벨업 시트 기반 진단 로직
       const results = generateLevelUpDiagnosisResults(data);
+      
+      // 🔍 **디버깅: 생성된 결과 확인**
+      console.log('🎯 generateLevelUpDiagnosisResults 결과:', {
+        success: results.success,
+        totalScore: results.data?.diagnosis?.totalScore,
+        categoryScores: results.data?.diagnosis?.categoryScores,
+        detailedScores: results.data?.diagnosis?.detailedScores
+      });
 
       // 3단계: 📋 서버 API를 통한 진단 데이터 통합 처리 (구글시트 저장 + 이메일 발송)
       setProcessingStage('📋 진단결과 저장 및 이메일 발송 중...');
@@ -1227,6 +1372,28 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
           privacyConsent: Boolean(data.privacyConsent),
           submitDate: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
           
+          // 📊 **중요: 20개 평가 항목 점수를 숫자로 변환하여 포함 (선택하지 않은 항목은 null로 설정)**
+          planning_level: data.planning_level ? parseInt(data.planning_level) : null,
+          differentiation_level: data.differentiation_level ? parseInt(data.differentiation_level) : null,
+          pricing_level: data.pricing_level ? parseInt(data.pricing_level) : null,
+          expertise_level: data.expertise_level ? parseInt(data.expertise_level) : null,
+          quality_level: data.quality_level ? parseInt(data.quality_level) : null,
+          customer_greeting: data.customer_greeting ? parseInt(data.customer_greeting) : null,
+          customer_service: data.customer_service ? parseInt(data.customer_service) : null,
+          complaint_management: data.complaint_management ? parseInt(data.complaint_management) : null,
+          customer_retention: data.customer_retention ? parseInt(data.customer_retention) : null,
+          customer_understanding: data.customer_understanding ? parseInt(data.customer_understanding) : null,
+          marketing_planning: data.marketing_planning ? parseInt(data.marketing_planning) : null,
+          offline_marketing: data.offline_marketing ? parseInt(data.offline_marketing) : null,
+          online_marketing: data.online_marketing ? parseInt(data.online_marketing) : null,
+          sales_strategy: data.sales_strategy ? parseInt(data.sales_strategy) : null,
+          purchase_management: data.purchase_management ? parseInt(data.purchase_management) : null,
+          inventory_management: data.inventory_management ? parseInt(data.inventory_management) : null,
+          exterior_management: data.exterior_management ? parseInt(data.exterior_management) : null,
+          interior_management: data.interior_management ? parseInt(data.interior_management) : null,
+          cleanliness: data.cleanliness ? parseInt(data.cleanliness) : null,
+          work_flow: data.work_flow ? parseInt(data.work_flow) : null,
+          
           // 진단 결과 정보 (문항별 점수 포함)
           diagnosisResults: {
             totalScore: results.data.diagnosis.totalScore,
@@ -1245,7 +1412,60 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
           company: apiData.companyName,
           email: apiData.email,
           score: apiData.diagnosisResults.totalScore,
-          services: apiData.diagnosisResults.recommendedServices.length
+          services: apiData.diagnosisResults.recommendedServices.length,
+          // 📊 점수 디버깅 정보 추가
+          scoreData: {
+            planning_level: apiData.planning_level,
+            differentiation_level: apiData.differentiation_level,
+            customer_greeting: apiData.customer_greeting,
+            marketing_planning: apiData.marketing_planning,
+            purchase_management: apiData.purchase_management,
+            exterior_management: apiData.exterior_management
+          },
+          validScoresCount: Object.values({
+            planning_level: apiData.planning_level,
+            differentiation_level: apiData.differentiation_level,
+            pricing_level: apiData.pricing_level,
+            expertise_level: apiData.expertise_level,
+            quality_level: apiData.quality_level,
+            customer_greeting: apiData.customer_greeting,
+            customer_service: apiData.customer_service,
+            complaint_management: apiData.complaint_management,
+            customer_retention: apiData.customer_retention,
+            customer_understanding: apiData.customer_understanding,
+            marketing_planning: apiData.marketing_planning,
+            offline_marketing: apiData.offline_marketing,
+            online_marketing: apiData.online_marketing,
+            sales_strategy: apiData.sales_strategy,
+            purchase_management: apiData.purchase_management,
+            inventory_management: apiData.inventory_management,
+            exterior_management: apiData.exterior_management,
+            interior_management: apiData.interior_management,
+            cleanliness: apiData.cleanliness,
+            work_flow: apiData.work_flow
+          }).filter(score => score !== null && score > 0).length,
+          allScoresIncluded: {
+            planning_level: apiData.planning_level,
+            differentiation_level: apiData.differentiation_level,
+            pricing_level: apiData.pricing_level,
+            expertise_level: apiData.expertise_level,
+            quality_level: apiData.quality_level,
+            customer_greeting: apiData.customer_greeting,
+            customer_service: apiData.customer_service,
+            complaint_management: apiData.complaint_management,
+            customer_retention: apiData.customer_retention,
+            customer_understanding: apiData.customer_understanding,
+            marketing_planning: apiData.marketing_planning,
+            offline_marketing: apiData.offline_marketing,
+            online_marketing: apiData.online_marketing,
+            sales_strategy: apiData.sales_strategy,
+            purchase_management: apiData.purchase_management,
+            inventory_management: apiData.inventory_management,
+            exterior_management: apiData.exterior_management,
+            interior_management: apiData.interior_management,
+            cleanliness: apiData.cleanliness,
+            work_flow: apiData.work_flow
+          }
         });
         
         // 실제 API 호출
@@ -1540,6 +1760,8 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
           </CardTitle>
           <p className="text-sm md:text-base text-gray-600 mt-2">
             20개 핵심 평가 항목을 5점 척도로 평가해주세요. 현재 수준을 솔직하게 체크하시면 더 정확한 진단이 가능합니다.
+            <br />
+            <span className="text-blue-600 font-medium">💡 실제로 선택하신 항목들만 점수 계산에 반영되며, 선택하지 않은 항목은 제외됩니다.</span>
           </p>
         </CardHeader>
 
@@ -2148,33 +2370,24 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                 </div>
               </div>
 
-              {/* 5. 개인정보 동의 - 모바일 최적화 */}
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="privacyConsent"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          className="w-5 h-5 md:w-6 md:h-6 touch-manipulation"
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel className="text-sm md:text-base font-medium cursor-pointer">
-                          개인정보 수집 및 이용 동의 (필수)
-                        </FormLabel>
-                        <p className="text-xs md:text-sm text-gray-600">
-                          상담 서비스 제공 및 마케팅 활용을 위한 개인정보 수집 및 이용에 동의합니다.
-                          수집된 정보는 상담 진행, 맞춤형 서비스 제공, 마케팅 정보 안내 목적으로 사용되며, 개인정보보호법에 따라 3년간 보관됩니다.
-                        </p>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </div>
+              {/* 5. 개인정보 동의 - 개인정보보호법 준수 */}
+              <FormField
+                control={form.control}
+                name="privacyConsent"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <PrivacyConsent
+                        checked={field.value || false}
+                        onCheckedChange={field.onChange}
+                        required={true}
+                        className="border-0 p-0 bg-transparent"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               {/* 제출 버튼 - 모바일 최적화 */}
               <div className="pt-4 md:pt-6 border-t">

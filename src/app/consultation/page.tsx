@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import PrivacyConsent from '@/components/ui/privacy-consent';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Phone, 
@@ -90,7 +91,27 @@ export default function ConsultationPage() {
 
     try {
       if (!isFormValid) {
+        console.log('폼 검증 실패:', {
+          consultationType: formData.consultationType,
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          company: formData.company,
+          privacyConsent: formData.privacyConsent
+        });
         throw new Error('VALIDATION_ERROR');
+      }
+
+      // 개인정보 동의 재확인
+      if (!formData.privacyConsent || formData.privacyConsent !== true) {
+        console.log('개인정보 동의 상태 확인 실패:', formData.privacyConsent);
+        toast({
+          variant: "destructive",
+          title: "⚠️ 개인정보 동의 필요",
+          description: "개인정보 수집 및 이용에 동의해주세요. 이는 필수 사항입니다.",
+          duration: 5000,
+        });
+        return;
       }
 
       const consultationData = {
@@ -114,7 +135,7 @@ export default function ConsultationPage() {
         상담분야: consultationData.consultationArea || '',
         문의내용: consultationData.inquiryContent || '',
         희망상담시간: consultationData.preferredTime || '',
-        개인정보동의: consultationData.privacyConsent ? '동의' : '미동의',
+        개인정보동의: consultationData.privacyConsent === true ? '동의' : '미동의',
         action: 'saveConsultation',
         dataSource: '웹사이트_상담신청',
         timestamp: Date.now()
@@ -521,28 +542,12 @@ export default function ConsultationPage() {
                       />
                     </div>
 
-                    {/* 🍎 개인정보 동의 (애플스토어 스타일) */}
-                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200/50 rounded-3xl p-8">
-                      <div className="flex items-start gap-6">
-                        <Checkbox
-                          id="privacy-consent"
-                          checked={formData.privacyConsent}
-                          onCheckedChange={(checked) => handleInputChange('privacyConsent', checked as boolean)}
-                          className="mt-1 w-6 h-6 border-2 border-blue-400 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 rounded-lg"
-                          required
-                        />
-                        <div className="flex-1">
-                          <label htmlFor="privacy-consent" className="text-base text-gray-700 cursor-pointer leading-relaxed">
-                            <span className="text-red-500 font-bold">*</span> 
-                            <span className="font-bold text-gray-900"> 개인정보 수집 및 이용에 동의합니다.</span>
-                            <br />
-                            <span className="text-gray-600 text-sm">
-                              수집된 정보는 상담 목적으로만 사용되며, 상담 완료 후 안전하게 관리됩니다.
-                            </span>
-                          </label>
-                        </div>
-                      </div>
-                    </div>
+                    {/* 🍎 개인정보 동의 (개인정보보호법 준수) */}
+                    <PrivacyConsent
+                      checked={formData.privacyConsent}
+                      onCheckedChange={(checked) => handleInputChange('privacyConsent', checked)}
+                      required={true}
+                    />
 
                     {/* 🍎 제출 버튼 (애플스토어 스타일) */}
                     <div className="pt-8">

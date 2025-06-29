@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { 
   Cpu, 
   Factory, 
@@ -499,100 +500,174 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6대 핵심서비스 - 토스 스타일 */}
-      <section className="section-padding bg-white">
-        <div className="mobile-container">
+      {/* 6대 핵심서비스 - 사용자 중심 개선 */}
+      <section className="section-padding bg-white relative">
+        {/* 배경 패턴 */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-20 left-10 w-40 h-40 bg-blue-400 rounded-full blur-2xl"></div>
+          <div className="absolute bottom-20 right-10 w-48 h-48 bg-purple-400 rounded-full blur-2xl"></div>
+        </div>
+        
+        <div className="mobile-container relative z-10">
           <div className="text-center mb-16">
+            <div className="badge-primary mb-6 animate-bounce-gentle">
+              <Star className="w-5 h-5 mr-2" />
+              <span className="font-semibold text-overflow-safe">기업 성장 솔루션</span>
+            </div>
+            
             <h2 className="text-h1 text-gray-900 mb-4 mobile-centered">
               <span className="text-overflow-safe">6대 핵심서비스</span>
             </h2>
-            <p className="text-body-lg text-gray-600 max-w-3xl mx-auto mobile-text">
-              기업 성장 단계별 맞춤형 솔루션으로 경쟁력을 확보하세요
+            <p className="text-body-lg text-gray-600 max-w-4xl mx-auto mobile-text">
+              기업 단계별 맞춤 솔루션으로 <strong className="text-blue-600">확실한 성과</strong>를 경험하세요<br />
+              25년 전문가 경험 + 최신 AI 기술 = <strong className="text-purple-600">검증된 결과</strong>
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* 🔥 사용자 중심 서비스 그리드 - 우선순위 기반 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {services.map((service, index) => (
-              <Link href={service.href} key={service.id} className="block">
-                <Card 
-                  className={`service-card-mobile group relative overflow-hidden cursor-pointer
-                             ${service.featured ? 'ring-2 ring-blue-400 ring-opacity-50 scale-105' : ''} 
-                             bg-gradient-to-br ${service.bgColor} hover:shadow-xl hover:-translate-y-2 transition-all duration-300`}
-                >
-                  {service.featured && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white 
-                                      px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                        ⭐ 추천
-                      </div>
+              <div
+                key={service.id}
+                className={`service-card-mobile group relative overflow-hidden cursor-pointer
+                           ${service.featured ? 'ring-2 ring-blue-400 ring-opacity-50 scale-[1.02] md:scale-105' : ''} 
+                           bg-gradient-to-br ${service.bgColor} hover:shadow-2xl hover:-translate-y-3 
+                           transition-all duration-300 animate-scale-in gpu-accelerated`}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                {/* 🌟 특별 추천 배지 */}
+                {service.featured && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-20">
+                    <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white 
+                                    px-4 py-1.5 rounded-full text-xs font-bold shadow-xl animate-pulse">
+                      ⭐ 최고 추천
                     </div>
-                  )}
+                  </div>
+                )}
+                
+                <CardContent className="p-6 h-full flex flex-col">
+                  {/* 🎯 서비스 헤더 - 간소화 */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`p-3 rounded-2xl ${service.color} shadow-lg 
+                                    group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
+                      <service.icon className="w-8 h-8" />
+                    </div>
+                    <Badge className="bg-white/90 text-gray-700 font-bold text-xs shadow-md">
+                      {service.badge}
+                    </Badge>
+                  </div>
                   
-                  <CardHeader className="pb-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className={`w-12 h-12 rounded-2xl ${service.color} 
-                                      flex items-center justify-center shadow-lg 
-                                      group-hover:scale-110 transition-transform duration-300`}>
-                        <service.icon className="w-6 h-6" />
-                      </div>
-                      <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                        {service.badge}
-                      </span>
-                    </div>
-                    
-                    <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                  {/* 📝 서비스 정보 - 핵심만 */}
+                  <div className="mb-6 flex-1">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 
+                                   transition-colors mobile-centered leading-tight">
                       <span className="text-overflow-safe">{service.title}</span>
-                    </CardTitle>
+                    </h3>
                     
-                    <div className="text-sm font-semibold text-blue-600 mb-2">
+                    <div className="text-sm font-semibold text-blue-600 mb-3 mobile-text">
                       <span className="text-overflow-safe">{service.subtitle}</span>
                     </div>
                     
-                    <p className="text-sm text-gray-600 mobile-text">
+                    <p className="text-gray-600 mb-4 mobile-text leading-relaxed">
                       {service.description}
                     </p>
-                  </CardHeader>
-                  
-                  <CardContent className="pt-0">
-                    {/* 혜택 리스트 */}
-                    <div className="space-y-2 mb-6">
-                      {service.benefits.map((benefit, idx) => (
-                        <div key={idx} className="flex items-center gap-2 text-sm">
-                          <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                          <span className="text-gray-700 text-overflow-safe">{benefit}</span>
+                    
+                    {/* 🎁 핵심 혜택 - 3개만 표시 */}
+                    <div className="space-y-2">
+                      {service.benefits.slice(0, 3).map((benefit, benefitIndex) => (
+                        <div key={benefitIndex} className="flex items-center gap-3">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                          <span className="text-sm text-gray-700 mobile-text font-medium">{benefit}</span>
                         </div>
                       ))}
                     </div>
+                  </div>
+                  
+                  {/* 🚀 액션 버튼 - 명확한 CTA */}
+                  <div className="space-y-3">
+                    <Link href={service.href}>
+                      <Button 
+                        className={`mobile-button w-full font-semibold py-3 transition-all duration-300 
+                                   shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]
+                                   ${service.featured 
+                                     ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white' 
+                                     : 'bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-blue-400'
+                                   } touch-feedback`}
+                      >
+                        <span className="text-overflow-safe">자세히 보기</span>
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </Button>
+                    </Link>
                     
-                    {/* 버튼 그룹 */}
-                    <div className="space-y-3">
-                      <Link href={service.href}>
-                        <Button 
-                          className={`mobile-button w-full font-semibold py-3 transition-all duration-300 ${ 
-                            service.featured 
-                              ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]' 
-                              : 'bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]'
-                          }`}
-                        >
-                          <span className="text-overflow-safe">지금 시작하기</span>
-                          <ArrowRight className="ml-2 w-4 h-4" />
-                        </Button>
-                      </Link>
-                      
-                      <Link href={service.href}>
-                        <Button 
-                          variant="outline" 
-                          className="mobile-button w-full border-2 border-gray-200 hover:border-blue-600 hover:bg-blue-50 hover:text-blue-600 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
-                        >
-                          <span className="text-overflow-safe">자세히 보기</span>
-                          <FileText className="ml-2 w-4 h-4" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+                    {/* 💬 빠른 상담 버튼 */}
+                    <button 
+                      className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium 
+                                py-2 hover:bg-blue-50 rounded-lg transition-colors duration-200 touch-feedback"
+                      onClick={() => {
+                        if (typeof window !== 'undefined') {
+                          const chatbot = document.querySelector('[data-floating-chatbot]') as HTMLElement;
+                          if (chatbot) {
+                            chatbot.click();
+                          } else {
+                            router.push('/consultation');
+                          }
+                        }
+                      }}
+                    >
+                      💬 AI상담사에게 바로 문의하기
+                    </button>
+                  </div>
+                </CardContent>
+              </div>
             ))}
+          </div>
+
+          {/* 🎯 빠른 액션 섹션 */}
+          <div className="mt-16 text-center">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-8 rounded-3xl border border-blue-200">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4 mobile-centered">
+                <span className="text-overflow-safe">어떤 서비스가 필요한지 모르겠다면?</span>
+              </h3>
+              <p className="text-gray-600 mb-6 mobile-text">
+                AI 진단으로 맞춤형 솔루션을 추천받으세요 (소요시간: 3분)
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-2xl mx-auto">
+                <Link href="/diagnosis">
+                  <Button 
+                    className="mobile-button btn-hero bg-gradient-to-r from-green-500 to-emerald-600 
+                              hover:from-green-600 hover:to-emerald-700 text-white shadow-xl w-full sm:w-auto"
+                  >
+                    <Zap className="w-5 h-5 mr-2" />
+                    <span className="text-overflow-safe">3분 무료 AI 진단</span>
+                  </Button>
+                </Link>
+                
+                <Link href="/consultation">
+                  <Button 
+                    className="mobile-button btn-secondary w-full sm:w-auto"
+                  >
+                    <Users className="w-5 h-5 mr-2" />
+                    <span className="text-overflow-safe">전문가 직접 상담</span>
+                  </Button>
+                </Link>
+              </div>
+              
+              <div className="flex items-center justify-center gap-6 mt-6 text-sm text-gray-500">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>무료 진단</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>즉시 결과</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>전문가 검증</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
