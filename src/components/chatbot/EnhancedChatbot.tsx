@@ -85,9 +85,9 @@ const QUICK_RESPONSES = [
     category: "case"
   },
   {
-    text: "AI 기반 생산성 향상 방법",
+    text: "스마트 생산성 향상 방법",
     icon: <Zap className="w-4 h-4" />,
-    category: "ai"
+    category: "smart"
   },
   {
     text: "세금계산기 11개 종류",
@@ -121,7 +121,7 @@ const SERVICE_SUGGESTIONS = [
     color: "bg-purple-500"
   },
   {
-    name: "AI 기반 스마트 생산시스템",
+    name: "스마트 생산시스템 구축",
     description: "품질 불량률 78% 감소", 
     icon: <Zap className="w-5 h-5" />,
     color: "bg-green-500"
@@ -196,24 +196,28 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
   useEffect(() => {
     const welcomeMessage: Message = {
       id: generateMessageId(),
-      content: `안녕하세요! 🤖 M-CENTER AI상담사입니다.
+      content: `안녕하세요! M-CENTER의 전문상담사입니다.
 
-🏆 **대한민국 최고 수준의 경영컨설팅 전문기관**
-✅ 25년 검증된 전문성 | ✅ 실제 기업 성과 검증 | ✅ 정부지원 전문기관
+저는 28년간 수많은 기업과 함께 성장해온 이후경 경영지도사의 노하우를 바탕으로 상담해드리고 있어요.
 
-🚀 **2025년 핵심 서비스 - 실제 검증 완료**
-• **BM ZEN 5단계 프레임워크** - 생산성 42% 향상, ROI 290% 달성
-• **2025년 일터혁신 상생컨설팅** - 20-99인 기업 100% 무료 (고용노동부)
-• **AI 기반 스마트 생산시스템** - 품질 불량률 78% 감소, 정확도 96.8%
-• **전문 세금계산기 11종** - 2024년 최신 세법 완벽 반영
+실제 검증된 성과로 증명하는 M-CENTER
 
-🏭 **실제 기업 적용 사례 (㈜한국정밀기계)**
-• 생산성 42% 향상 (100개 → 142개/일)
-• 품질 불량률 78% 감소 (3.2% → 0.7%)
-• 6개월 ROI 290% 달성
+한국정밀기계 고객사와 함께 이뤄낸 놀라운 변화:
+- 생산성 42% 향상 (하루 100개 → 142개 생산)
+- 품질 불량률 78% 감소 (3.2% → 0.7%)
+- 6개월 만에 ROI 290% 달성
 
-💡 **30일 내 가시적 결과**를 보장하는 차별화된 전문성으로 도움드리겠습니다!
-궁금한 점이나 상담이 필요하시면 언제든 말씀해 주세요! 😊`,
+2025년 특별 지원 프로그램
+
+1. BM ZEN 5단계 프레임워크 - 실제 검증된 혁신 방법론
+2. 일터혁신 상생컨설팅 - 고용노동부 20-99인 기업 100% 무료 지원
+3. AI 기반 스마트 생산시스템 - 96.8% 정확도 보장
+4. 경매활용 공장구매 - 25년 노하우로 30-50% 비용 절감
+5. 전문 세금계산기 11종 - 2024년 최신 세법 완벽 반영
+
+28년간 현장에서 쌓아온 경험과 노하우로 고객사들의 성공을 함께 만들어가고 있습니다.
+
+어떤 것이든 편하게 궁금한 점을 물어보세요! 정성껏 답변드리겠습니다.`,
       sender: 'bot',
       timestamp: new Date(),
       type: 'text',
@@ -304,13 +308,17 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
       
       const errorMessage: Message = {
         id: generateMessageId(),
-        content: `죄송합니다. 일시적인 오류가 발생했습니다. 
+        content: `죄송합니다. 일시적으로 시스템에 문제가 있어 답변을 드리지 못하고 있습니다.
 
-📞 **즉시 전문가 상담 가능**
-• 전화: 010-9251-9743 (이후경 경영지도사)
-  • 이메일: hongik423@gmail.com
+이런 경우에는 직접 연락주시면 더 정확하고 빠르게 도움을 드릴 수 있어요.
 
-다시 질문해주시거나 위 연락처로 직접 상담받으세요! 🙏`,
+즉시 전문가 상담 가능합니다
+- 전화: 010-9251-9743 (이후경 경영지도사)
+- 이메일: hongik423@gmail.com
+
+28년간의 경험으로 고객님의 상황에 맞는 최적의 솔루션을 제안해드리겠습니다.
+
+조금 있다가 다시 질문해보시거나, 위 연락처로 직접 상담받으세요!`,
         sender: 'bot',
         timestamp: new Date(),
         type: 'text',
@@ -361,14 +369,17 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
     setTimeout(() => {
       const welcomeMessage: Message = {
         id: generateMessageId(),
-        content: `새로운 상담을 시작합니다! 🚀
+        content: `새로운 상담을 시작합니다!
 
-🏭 **실제 검증된 성과로 증명**
-• ㈜한국정밀기계: 생산성 42% 향상, ROI 290% 달성
-• 품질 불량률 78% 감소 (3.2% → 0.7%)
+28년간의 경험으로 다양한 기업들과 함께 성장해온 노하우를 바탕으로 도움드리겠습니다.
 
-🎯 어떤 도움이 필요하신지 말씀해주세요.
-M-CENTER의 실제 검증된 전문성으로 **30일 내 가시적 결과**를 제공해드리겠습니다! ✨`,
+한국정밀기계 고객사와 함께 이뤄낸 실제 성과:
+- 생산성 42% 향상 (하루 100개 → 142개 생산)
+- 품질 불량률 78% 감소 (3.2% → 0.7%)
+- 6개월 만에 ROI 290% 달성
+
+어떤 것이든 편하게 말씀해주세요. 
+고객사의 상황에 맞는 최적의 솔루션을 정성껏 제안해드리겠습니다!`,
         sender: 'bot',
         timestamp: new Date(),
         type: 'text'
@@ -410,13 +421,13 @@ M-CENTER의 실제 검증된 전문성으로 **30일 내 가시적 결과**를 �
                 <div className="w-10 h-10 rounded-full flex items-center justify-center relative" style={{ backgroundColor: '#4285F4' }}>
                   <img 
                     src={getImagePath('/star-counselor-icon.svg')} 
-                    alt="AI상담사" 
+                    alt="전문상담사" 
                     className="w-10 h-10 rounded-full"
                   />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold">M-CENTER AI상담사</h2>
-                  <p className="text-sm text-gray-600">⭐ 25년 경험의 전문 경영컨설턴트</p>
+                  <h2 className="text-xl font-bold">M-CENTER 전문상담사</h2>
+                  <p className="text-sm text-gray-600">⭐ 이후경 경영지도사 28년 노하우</p>
                 </div>
               <div className="ml-auto flex items-center gap-2">
                 <Badge 
@@ -443,7 +454,7 @@ M-CENTER의 실제 검증된 전문성으로 **30일 내 가시적 결과**를 �
                   <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 relative" style={{ backgroundColor: '#4285F4' }}>
                     <img 
                       src={getImagePath('/star-counselor-icon.svg')} 
-                      alt="AI상담사" 
+                      alt="전문상담사" 
                       className="w-8 h-8 rounded-full"
                     />
                   </div>

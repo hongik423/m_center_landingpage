@@ -33,7 +33,7 @@ export class OptimizedReportGenerator {
         this.generateQuickActionPlan(diagnosis),
         this.generateQuickContact(diagnosis)
       ],
-      footer: `생성일: ${currentDate} | M-Center 최적화 진단 시스템 v2.0`
+      footer: `생성일: ${currentDate} | M-Center 이후경 경영지도사 전문 진단시스템`
     };
   }
 
@@ -302,7 +302,7 @@ export class OptimizedReportGenerator {
             ${template.footer}
             <br>
             <span class="badge">⚡ 3초 이내 생성</span>
-            <span class="badge">🤖 AI 최적화</span>
+            <span class="badge">🏢 전문가 분석</span>
             <span class="badge">📞 즉시 상담 가능</span>
         </div>
     </div>
@@ -346,7 +346,7 @@ export class OptimizedReportGenerator {
         `🚀 처리 시간: ${processingTime}ms`,
         `🎯 목표 시간: 3000ms`,
         `✅ 성능 개선: ${processingTime < 3000 ? '목표 달성' : '최적화 필요'}`,
-        `🤖 AI 활용: ${diagnosis.aiGenerated ? '사용' : '빠른 모드'}`,
+        `🏢 전문 분석: ${diagnosis.professionalAnalysis ? '적용' : '기본 모드'}`,
         `⚡ 최적화: ${diagnosis.optimized ? '적용됨' : '기본 모드'}`,
         '',
         '📊 시스템 최적화 효과:',
@@ -381,7 +381,7 @@ export class ReportGenerator {
         this.generateImplementationPlan(results),
         this.generateAppendix(diagnosisData)
       ],
-      footer: `생성일: ${currentDate} | M-Center 진단 시스템`
+      footer: `생성일: ${currentDate} | M-Center 이후경 경영지도사 진단시스템`
     };
   }
 
