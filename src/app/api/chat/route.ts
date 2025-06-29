@@ -339,20 +339,20 @@ export async function POST(request: NextRequest) {
 
     // GEMINI API 키가 없거나 비어있으면 폴백 응답
     if (!GEMINI_API_KEY || GEMINI_API_KEY.trim() === '') {
-      console.warn('⚠️ GEMINI_API_KEY가 설정되지 않았습니다. 폴백 응답을 사용합니다.');
-      console.info('💡 .env.local 파일에 GEMINI_API_KEY를 설정하면 실제 AI 응답을 사용할 수 있습니다.');
+      console.warn('API_KEY가 설정되지 않았습니다. 폴백 응답을 사용합니다.');
+      console.info('.env.local 파일에 API_KEY를 설정하면 실제 AI 응답을 사용할 수 있습니다.');
       return NextResponse.json({
         response: generateEnhancedFallbackResponse(message),
         source: 'fallback_no_key',
         timestamp: new Date().toISOString(),
-        note: '⚠️ AI 기능을 위해 Gemini API 키 설정이 필요합니다.'
+        note: 'AI 기능을 위해 API 키 설정이 필요합니다.'
       }, {
         headers: getCorsHeaders()
       });
     }
 
-    // GEMINI AI API 호출 (향상된 재시도 로직)
-    console.log('🚀 GEMINI API 호출 시작:', { messageLength: message.length, hasApiKey: !!GEMINI_API_KEY });
+    // AI API 호출 (향상된 재시도 로직)
+    console.log('AI API 호출 시작:', { messageLength: message.length, hasApiKey: !!GEMINI_API_KEY });
     
     const maxRetries = 3;
     let lastError: any = null;
@@ -360,7 +360,7 @@ export async function POST(request: NextRequest) {
     for (let retryCount = 0; retryCount < maxRetries; retryCount++) {
       try {
         if (retryCount > 0) {
-          console.log(`🔄 재시도 ${retryCount}/${maxRetries - 1}...`);
+          console.log(`재시도 ${retryCount}/${maxRetries - 1}...`);
           // 재시도 시 잠시 대기 (1초 * 재시도 횟수)
           await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
         }
@@ -370,30 +370,50 @@ export async function POST(request: NextRequest) {
         const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-        const prompt = `당신은 M-CENTER의 AI상담사입니다. 실제 기업 성과를 검증받은 전문 경영컨설팅 기관입니다.
+        const prompt = `안녕하세요! 저는 28년간 수많은 기업과 함께 성장해온 M-CENTER의 이후경 경영지도사를 대신하는 전문상담사입니다.
 
-🚀 **2025년 핵심 서비스 - 실제 검증 완료**:
-1. **BM ZEN 5단계 프레임워크** - 생산성 42% 향상, ROI 290% 달성 (㈜한국정밀기계 실제 성과)
-2. **2025년 일터혁신 상생컨설팅** - 20-99인 기업 100% 무료 (고용노동부 노사발전재단 주관)
-3. **AI 기반 스마트 생산시스템** - 품질 불량률 78% 감소, 정확도 96.8%
-4. **경매활용 공장구매** - 부동산비용 30-50% 절감 (25년 전문 노하우)
-5. **기술사업화/창업** - 평균 5억원 정부지원 연계
-6. **인증지원** - 연간 5천만원 세제혜택 (ISO/벤처/연구소)
-7. **웹사이트 구축** - 온라인 매출 300-500% 증대
-8. **전문 세금계산기 11종** - 2024년 최신 세법 완벽 반영
+오랜 현장 경험으로 얻은 노하우와 실제 검증된 성과를 바탕으로 친근하고 따뜻하게 상담해드리겠습니다.
 
-🏭 **실제 기업 적용 사례**: ㈜한국정밀기계 (자동차부품 제조업)
-- 생산성 42% 향상 (100개 → 142개/일)
+M-CENTER의 실제 검증된 2025년 핵심 서비스들:
+
+1. BM ZEN 5단계 프레임워크
+   생산성 42% 향상, ROI 290% 달성한 실제 사례가 있습니다. 한국정밀기계 고객사의 생생한 변화를 직접 목격했습니다.
+
+2. 2025년 일터혁신 상생컨설팅
+   고용노동부에서 20-99인 기업에 100% 무료로 지원해드립니다. 정말 좋은 기회라 많은 고객분들께 추천드리고 있어요.
+
+3. 스마트 생산시스템 구축
+   품질 불량률을 78%나 줄인 놀라운 결과를 봤습니다. 96.8% 정확도로 기업들이 정말 만족해하세요.
+
+4. 경매활용 공장구매
+   25년간 쌓아온 부동산 경매 노하우로 30-50% 비용을 절감해드립니다. 안전한 낙찰을 위해 법무팀과도 긴밀히 협력하고 있어요.
+
+5. 기술사업화/창업 지원
+   평균 5억원 정부지원금 연계해드립니다. 기업들의 꿈이 현실이 되는 모습을 보는 것이 가장 보람됩니다.
+
+6. 인증지원 (ISO/벤처/연구소)
+   연간 5천만원 세제혜택을 받으실 수 있어요. 복잡한 절차도 차근차근 도와드립니다.
+
+7. 웹사이트 구축
+   온라인 매출 300-500% 증대시킨 사례들이 정말 많습니다. 디지털 시대에 맞춰 고객사들이 성공하는 모습이 뿌듯해요.
+
+8. 전문 세금계산기 11종
+   2024년 최신 세법을 완벽하게 반영했습니다. 복잡한 세무계산도 쉽게 하실 수 있어요.
+
+실제 성공 사례 (한국정밀기계):
+- 생산성 42% 향상 (하루 100개 → 142개 생산)
 - 품질 불량률 78% 감소 (3.2% → 0.7%)
-- 6개월 ROI 290% 달성
+- 6개월 만에 ROI 290% 달성
 
-📞 연락처: 010-9251-9743 (이후경 경영지도사)
+28년간 수많은 기업과 함께하며 느낀 것은, 각 기업마다 고유한 상황과 목표가 있다는 점입니다. 그래서 정확한 비용이나 견적은 직접 상담을 통해 맞춤형으로 안내해드리는 것이 가장 좋습니다.
 
-**중요**: 가격, 비용, 견적 관련 질문에는 구체적인 금액을 제시하지 말고, 차별화된 기술우위와 실제 성과를 강조한 후 "맞춤형 상담을 통해 정확한 안내를 드립니다"라고 안내하세요.
+언제든 편하게 연락주세요! 010-9251-9743 (이후경 경영지도사)
 
 사용자 질문: ${message}
 
-실제 검증된 성과 데이터를 바탕으로 친근하고 전문적으로 답변하세요. 구체적인 수치와 실제 사례를 활용하여 신뢰성 있게 설명하되, 가격은 상담 신청으로 유도하세요.`;
+위의 내용을 바탕으로 이후경 경영지도사의 28년 경험과 따뜻한 마음이 느껴지도록 친근하고 전문적으로 답변해주세요. 구체적인 수치와 실제 사례를 들어 신뢰성 있게 설명하되, 가격 관련 질문에는 "직접 상담을 통해 정확하게 안내해드리겠습니다"라고 답변해주세요. 
+
+중요: 답변할 때는 마크다운 문법(**, ##, - 등)을 사용하지 말고 자연스러운 문체로 답변해주세요.`;
 
         const result = await model.generateContent({
           contents: [
@@ -413,7 +433,7 @@ export async function POST(request: NextRequest) {
         const response = await result.response;
         const aiResponse = response.text();
 
-        console.log('✅ GEMINI API 성공 (Google SDK):', { 
+        console.log('AI API 성공:', { 
           responseLength: aiResponse.length, 
           retryCount
         });
@@ -430,7 +450,7 @@ export async function POST(request: NextRequest) {
 
       } catch (error) {
         lastError = error;
-        console.error(`❌ GEMINI API 시도 ${retryCount + 1} 실패:`, error);
+        console.error(`AI API 시도 ${retryCount + 1} 실패:`, error);
         
         // 마지막 재시도가 아니면 계속 시도
         if (retryCount < maxRetries - 1) {
@@ -440,13 +460,13 @@ export async function POST(request: NextRequest) {
     }
     
     // 모든 재시도 실패 시 fallback 응답
-    console.error('❌ GEMINI API 모든 재시도 실패, fallback 응답 사용');
+    console.error('AI API 모든 재시도 실패, fallback 응답 사용');
     return NextResponse.json({
       response: generateEnhancedFallbackResponse(message),
       source: 'fallback_all_retries_failed',
       error: lastError?.message || '알 수 없는 오류',
       timestamp: new Date().toISOString(),
-      note: '⚠️ AI 서버 연결 문제로 기본 응답을 제공합니다.'
+      note: 'AI 서버 연결 문제로 기본 응답을 제공합니다.'
     }, {
       headers: getCorsHeaders()
     });
@@ -462,7 +482,7 @@ export async function POST(request: NextRequest) {
       source: 'fallback_error',
       error: error instanceof Error ? error.message : '알 수 없는 오류',
       timestamp: new Date().toISOString(),
-      note: '⚠️ 일시적인 오류로 기본 응답을 제공합니다.'
+      note: '일시적인 오류로 기본 응답을 제공합니다.'
     }, {
       headers: getCorsHeaders()
     });
@@ -477,54 +497,52 @@ function generateEnhancedFallbackResponse(message: string): string {
   // 서비스별 맞춤 응답
   if (relevantServices.length > 0 && !relevantServices.includes('general')) {
     const serviceDetails = generateServiceDetails(relevantServices);
-    return `🤖 **M-CENTER AI상담사**입니다! 
+    return `안녕하세요! M-CENTER 전문상담사입니다.
 
 ${serviceDetails}
 
-📞 **전문가 직접 상담**
-• 이후경 경영지도사: 010-9251-9743
-• 25년 경험의 검증된 전문성
-• 95% 이상 성공률 보장
+전문가 직접 상담
+이후경 경영지도사: 010-9251-9743
+25년 경험의 검증된 전문성
+95% 이상 성공률 보장
 
-🔗 **즉시 신청 가능**
-• [무료 AI진단](/services/diagnosis)
-• [전문가 상담](/consultation)
-• [세금계산기](/tax-calculator)
+즉시 신청 가능한 서비스
+무료 AI진단, 전문가 상담, 세금계산기
 
-💡 **더 정확한 AI 응답을 원하시면 관리자에게 API 키 설정을 요청하세요!**`;
+더 정확한 AI 응답을 원하시면 관리자에게 API 키 설정을 요청하세요!`;
   }
   
   // 일반적인 향상된 응답 (2025년 업데이트)
-  return `🤖 **M-CENTER AI상담사**가 도움드리겠습니다!
+  return `안녕하세요! M-CENTER 전문상담사가 도움드리겠습니다!
 
-🏆 **대한민국 최고 수준의 경영컨설팅**
-• 25년 검증된 전문성 | 실제 기업 성과 검증 | 정부지원 전문기관
+대한민국 최고 수준의 경영컨설팅
+25년 검증된 전문성, 실제 기업 성과 검증, 정부지원 전문기관
 
-🚀 **2025년 핵심 서비스 - 실제 검증 완료**
-🎯 **BM ZEN 5단계 프레임워크** - 생산성 42% 향상, ROI 290% 달성
-🤖 **2025년 일터혁신 상생컨설팅** - 20-99인 기업 100% 무료 (고용노동부)
-🏭 **AI 기반 스마트 생산시스템** - 품질 불량률 78% 감소, 정확도 96.8%
-🚀 **기술창업 지원** - 평균 5억원 정부지원 연계
-📋 **각종 인증지원** - 연간 5천만원 세제혜택
-🌐 **웹사이트 구축** - 온라인 매출 300-500% 증대
+2025년 핵심 서비스 - 실제 검증 완료
 
-🧮 **전문 세금계산기 11종** - 2024년 최신 세법 완벽 반영
+1. BM ZEN 5단계 프레임워크 - 생산성 42% 향상, ROI 290% 달성
+2. 2025년 일터혁신 상생컨설팅 - 20-99인 기업 100% 무료 (고용노동부)
+3. 스마트 생산시스템 구축 - 품질 불량률 78% 감소, 정확도 96.8%
+4. 기술창업 지원 - 평균 5억원 정부지원 연계
+5. 각종 인증지원 - 연간 5천만원 세제혜택
+6. 웹사이트 구축 - 온라인 매출 300-500% 증대
+7. 전문 세금계산기 11종 - 2024년 최신 세법 완벽 반영
 
-🏭 **실제 기업 적용 사례 (㈜한국정밀기계)**
-• 생산성 42% 향상 (100개 → 142개/일)
-• 품질 불량률 78% 감소 (3.2% → 0.7%)
-• 6개월 ROI 290% 달성
+실제 기업 적용 사례 (한국정밀기계)
+- 생산성 42% 향상 (100개 → 142개/일)
+- 품질 불량률 78% 감소 (3.2% → 0.7%)
+- 6개월 ROI 290% 달성
 
-📞 **전문가 직접 상담**
-• 이후경 경영지도사: 010-9251-9743
-• 차별화된 기술우위 | 맞춤 솔루션 | 성과 보장
+전문가 직접 상담
+이후경 경영지도사: 010-9251-9743
+차별화된 기술우위, 맞춤 솔루션, 성과 보장
 
-🔗 **온라인 서비스**
-• [무료 AI진단](/services/diagnosis) - 3분 완료
-• [전문가 상담 신청](/consultation) - 24시간 접수
-• [세금계산기 활용](/tax-calculator) - 즉시 계산
+온라인 서비스
+무료 AI진단 - 3분 완료
+전문가 상담 신청 - 24시간 접수
+세금계산기 활용 - 즉시 계산
 
-💡 **"${message}" 관련해서 더 구체적인 상담이 필요하시면 위 연락처로 직접 연락주세요!**`;
+"${message}" 관련해서 더 구체적인 상담이 필요하시면 위 연락처로 직접 연락주세요!`;
 }
 
 // 기존 폴백 응답 생성 함수
@@ -722,7 +740,7 @@ export async function GET(request: NextRequest) {
     const isDev = process.env.NODE_ENV === 'development';
     
     return NextResponse.json({
-      status: 'M-CENTER AI 챗봇 API가 정상 작동 중입니다.',
+      status: 'M-CENTER 전문상담 API가 정상 작동 중입니다.',
       timestamp: new Date().toISOString(),
       configured: hasApiKey,
       environment: process.env.NODE_ENV,
