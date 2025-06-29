@@ -328,12 +328,12 @@ export default function CertificationPage() {
             {certificationServices.map((service, index) => (
               <div key={service.id} className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300">
                 {/* 이미지 섹션 */}
-                <div className="mb-6">
+                <div className="mb-8">
                   <div className="relative overflow-hidden rounded-2xl">
                     <img 
                       src={service.image}
                       alt={service.title}
-                      className="w-full h-48 object-contain bg-gray-50 hover:scale-105 transition-transform duration-300"
+                      className="w-full h-80 object-contain bg-gray-50 hover:scale-105 transition-transform duration-300"
                     />
                   </div>
                 </div>
