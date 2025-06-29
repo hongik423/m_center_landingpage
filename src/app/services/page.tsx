@@ -46,7 +46,7 @@ const services = [
     href: '/services/business-analysis',
     benefits: ['95% 성공률 보장', '세무사 수익 4배 증가', '5단계 BM ZEN 프레임워크'],
     duration: '6-12개월',
-    badge: '⭐ 추천',
+    badge: '추천',
     featured: true,
     features: [
       '시장분석 및 경쟁력 진단',
@@ -73,7 +73,7 @@ const services = [
     href: '/services/ai-productivity',
     benefits: ['정부 100% 지원', '20주 집중 프로그램', '업무 효율성 40% 향상'],
     duration: '20주',
-    badge: '🎯 정부지원',
+    badge: '정부지원',
     features: [
       'ChatGPT & Copilot 실무 활용',
       'AI 도구 통합 워크플로우',
@@ -99,7 +99,7 @@ const services = [
     href: '/services/factory-auction',
     benefits: ['투자비 40% 절약', '전문가 동행', '완전 위탁 진행'],
     duration: '3-6개월',
-    badge: '💰 절약',
+    badge: '절약',
     features: [
       '경매 물건 사전 조사',
       '법무/세무 리스크 검토',
@@ -125,7 +125,7 @@ const services = [
     href: '/services/tech-startup',
     benefits: ['평균 5억원 확보', '성공률 85%', '3년 사후관리'],
     duration: '6-12개월',
-    badge: '🚀 성장',
+    badge: '성장',
     features: [
       '기술 사업성 검토',
       '정부과제 기획 및 신청',
@@ -151,7 +151,7 @@ const services = [
     href: '/services/certification',
     benefits: ['5천만원 세제혜택', '통합 인증 관리', '100% 취득 보장'],
     duration: '2-4개월',
-    badge: '🏆 인증',
+    badge: '인증',
     features: [
       '벤처기업 인증',
       'ISO 9001/14001 인증',
@@ -365,7 +365,7 @@ export default function ServicesPage() {
                 <div className="absolute -top-2 -right-2 z-10">
                   <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white 
                                   px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
-                    ⭐ 최고추천
+                                          최고추천
                   </div>
                 </div>
               )}

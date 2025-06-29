@@ -194,7 +194,7 @@ function CalculatorSelector({ calculators, onSelect, selectedId }: CalculatorSel
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-base sm:text-lg font-semibold text-blue-900 mb-3 sm:mb-4">
-                🚀 계산기 사용 방법 (3단계로 완료!)
+                계산기 사용 방법 (3단계로 완료!)
               </h3>
               <div className="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-1 lg:grid-cols-3 lg:gap-4">
                 <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-100">
@@ -211,7 +211,7 @@ function CalculatorSelector({ calculators, onSelect, selectedId }: CalculatorSel
                     2
                   </div>
                   <div className="min-w-0">
-                    <h4 className="font-bold text-gray-900 text-sm sm:text-base">📋 샘플 활용</h4>
+                    <h4 className="font-bold text-gray-900 text-sm sm:text-base">샘플 활용</h4>
                     <p className="text-xs sm:text-sm text-gray-600 leading-tight">"샘플 데이터" 버튼으로 빠른 테스트</p>
                   </div>
                 </div>
@@ -229,8 +229,8 @@ function CalculatorSelector({ calculators, onSelect, selectedId }: CalculatorSel
               {/* 🔥 새로운 샘플 데이터 안내 섹션 */}
               <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-green-600 text-xl">📋</span>
-                  <h4 className="font-bold text-green-800 text-sm">💡 샘플 데이터로 빠른 체험!</h4>
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <h4 className="font-bold text-green-800 text-sm">샘플 데이터로 빠른 체험!</h4>
                 </div>
                 <p className="text-xs text-green-700 leading-relaxed">
                   각 계산기에는 <strong>실제 사례 기반 샘플 데이터</strong>가 준비되어 있습니다. 
@@ -286,14 +286,14 @@ function CalculatorSelector({ calculators, onSelect, selectedId }: CalculatorSel
               <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-3 rounded-lg mb-4 border border-orange-200">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
-                    <span className="text-xs text-white font-bold">💡</span>
+                    <span className="text-xs text-white font-bold">!</span>
                   </div>
                   <h4 className="text-xs font-bold text-orange-800">샘플 데이터 체험</h4>
                 </div>
                 <div className="text-xs text-orange-700">
                   <div className="flex items-center justify-between">
-                    <span>✨ 원클릭 테스트</span>
-                    <span>🎯 실제 사례 기반</span>
+                    <span>원클릭 테스트</span>
+                    <span>실제 사례 기반</span>
                   </div>
                   <div className="mt-1 text-center text-orange-600 font-medium">
                     선택 후 "샘플 데이터" 버튼 클릭!
@@ -339,7 +339,7 @@ function SingleCalculatorDisplay({ calculator, onSelect }: { calculator: any, on
         <CardContent className="pt-6">
           <div className="text-center">
             <h3 className="text-xl font-bold text-purple-900 mb-4">
-              🎯 {calculator.title} 사용 가이드
+              {calculator.title} 사용 가이드
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="text-center">
@@ -408,7 +408,7 @@ function SingleCalculatorDisplay({ calculator, onSelect }: { calculator: any, on
             <div className="flex items-start gap-3">
               <Clock className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-medium text-amber-900 mb-2">📋 중요 안내사항</h4>
+                <h4 className="font-medium text-amber-900 mb-2">중요 안내사항</h4>
                 <ul className="text-sm text-amber-800 space-y-1">
                   <li>• 가업상속공제는 <strong>중소기업·중견기업</strong>에만 적용됩니다</li>
                   <li>• 공제 적용 후 <strong>10년간 사후관리</strong> 의무가 있습니다</li>

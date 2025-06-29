@@ -41,7 +41,7 @@ const services = [
     textColor: 'text-white',
     href: '/services/business-analysis',
     benefits: ['95% 성공률 보장', '매출 4배 증가', '5단계 전략 프레임워크'],
-    badge: '⭐ 추천',
+    badge: '추천',
     featured: true
   },
   {
@@ -54,7 +54,7 @@ const services = [
     textColor: 'text-white',
     href: '/services/ai-productivity',
     benefits: ['정부 100% 지원', '20주 집중 프로그램', '업무 효율성 40% 향상'],
-    badge: '🎯 정부지원'
+    badge: '정부지원'
   },
   {
     id: 'factory-auction',
@@ -66,7 +66,7 @@ const services = [
     textColor: 'text-white',
     href: '/services/factory-auction',
     benefits: ['투자비 40% 절약', '전문가 동행', '완전 위탁 진행'],
-    badge: '💰 절약'
+    badge: '절약'
   },
   {
     id: 'tech-startup',
@@ -78,7 +78,7 @@ const services = [
     textColor: 'text-white',
     href: '/services/tech-startup',
     benefits: ['평균 5억원 확보', '성공률 85%', '3년 사후관리'],
-    badge: '🚀 성장'
+    badge: '성장'
   },
   {
     id: 'certification',
@@ -90,7 +90,7 @@ const services = [
     textColor: 'text-white',
     href: '/services/certification',
     benefits: ['5천만원 세제혜택', '통합 인증 관리', '100% 취득 보장'],
-    badge: '🏆 인증'
+    badge: '인증'
   },
   {
     id: 'website',
@@ -116,7 +116,7 @@ const growthStages = [
     features: ['창업 자금 확보', '기본 인증 취득', '신뢰도 구축'],
     color: 'from-green-50 to-emerald-50',
     borderColor: 'border-green-200',
-    icon: '🌱'
+    icon: '1'
   },
   {
     step: '2단계',
@@ -126,7 +126,7 @@ const growthStages = [
     features: ['조직 확장', '기술 고도화', '매출 확대'],
     color: 'from-blue-50 to-cyan-50',
     borderColor: 'border-blue-200',
-    icon: '🚀'
+    icon: '2'
   },
   {
     step: '3단계',
@@ -136,7 +136,7 @@ const growthStages = [
     features: ['혁신 도입', '글로벌 진출', '생태계 구축'],
     color: 'from-purple-50 to-pink-50',
     borderColor: 'border-purple-200',
-    icon: '🏆'
+    icon: '3'
   },
   {
     step: '4단계',
@@ -146,7 +146,7 @@ const growthStages = [
     features: ['디지털 전환', '사회적 책임', '미래 준비'],
     color: 'from-orange-50 to-yellow-50',
     borderColor: 'border-orange-200',
-    icon: '⭐'
+    icon: '4'
   }
 ];
 
@@ -166,7 +166,7 @@ const testimonials = [
     company: '○○세무법인',
     content: 'AI 진단을 통해 고객사에게 더 전문적인 솔루션을 제공할 수 있게 되었습니다. 고객 만족도가 크게 향상되었어요.',
     rating: 5,
-    avatar: '👨‍💼'
+    avatar: 'K'
   },
   {
     name: '이창업',
@@ -174,7 +174,7 @@ const testimonials = [
     company: '스마트제조(주)',
     content: '공장구매 컨설팅으로 40% 이상 투자비를 절약했습니다. 전문가의 체계적인 지원이 정말 도움이 되었습니다.',
     rating: 5,
-    avatar: '👨‍🔧'
+    avatar: 'L'
   },
   {
     name: '박기술',
@@ -182,7 +182,7 @@ const testimonials = [
     company: '혁신테크',
     content: '기술사업화 지원을 받아 5억원 자금을 확보했습니다. 3년 사후관리까지 체계적으로 지원받고 있어요.',
     rating: 5,
-    avatar: '👨‍💻'
+    avatar: 'P'
   }
 ];
 
@@ -332,109 +332,44 @@ export default function Home() {
             </p>
           </div>
           
-          <div className="max-w-6xl mx-auto">
-            <div className="apple-card-large">
-              <div className="apple-grid-2 items-center">
-                {/* 좌측: AI 상담사 소개 */}
-                <div className="apple-animation-slideUp">
-                  <div className="flex flex-col sm:flex-row items-center sm:items-start mb-8">
-                    <div className="apple-icon-large bg-gradient-to-br from-indigo-500 to-purple-600 mb-4 sm:mb-0 sm:mr-6">
-                      <Cpu className="w-10 h-10 text-white" />
-                    </div>
-                    <div className="mobile-text-center sm:text-left">
-                      <h3 className="apple-subtitle text-overflow-safe">M-CENTER 전문 상담사</h3>
-                      <div className="flex flex-col sm:flex-row items-center gap-2 mt-2">
-                        <span className="apple-badge-primary">Advanced AI</span>
-                        <span className="apple-badge-success">24시간 상담</span>
-                      </div>
-                    </div>
+          <div className="max-w-7xl mx-auto">
+            {/* 애플스토어 스타일 - 완전히 새로운 디자인 */}
+            <div className="bg-white rounded-none shadow-none relative overflow-hidden min-h-[80vh] flex items-center">
+              
+              <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                {/* 좌측: 텍스트 콘텐츠 */}
+                <div className="space-y-8 order-2 lg:order-1">
+                  {/* 작은 라벨 */}
+                  <div className="text-center lg:text-left">
+                    <span className="inline-block text-lg font-medium text-gray-600 mb-4">
+                      업무 혁신
+                    </span>
                   </div>
                   
-                  <div className="apple-spacing-sm">
-                    {[
-                      {
-                        title: '전문 분야별 맞춤 상담',
-                        desc: null,
-                        links: [
-                          { name: '사업분석', href: '/services/business-analysis', color: 'text-blue-600 hover:text-blue-800' },
-                          { name: 'AI혁신', href: '/services/ai-productivity', color: 'text-purple-600 hover:text-purple-800' },
-                          { name: '공장구매', href: '/services/factory-auction', color: 'text-orange-600 hover:text-orange-800' },
-                          { name: '기술창업', href: '/services/tech-startup', color: 'text-green-600 hover:text-green-800' },
-                          { name: '인증', href: '/services/certification', color: 'text-cyan-600 hover:text-cyan-800' },
-                          { name: '웹사이트', href: '/services/website', color: 'text-indigo-600 hover:text-indigo-800' }
-                        ]
-                      },
-                      {
-                        title: '즉시 응답 및 정확한 분석',
-                        desc: '25년 전문가 경험 + 차세대 AI 기술 융합'
-                      },
-                      {
-                        title: '전문가 연결 및 후속 상담',
-                        desc: '필요시 이후경 M센터장 직접 상담 (010-9251-9743)'
-                      }
-                    ].map((item, index) => (
-                      <div key={index} className="flex items-start gap-4">
-                        <CheckCircle2 className="w-6 h-6 text-green-500 mt-0.5 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 mb-2 text-overflow-safe">{item.title}</p>
-                          {item.desc && (
-                            <p className="mobile-text text-gray-600">{item.desc}</p>
-                          )}
-                          {item.links && (
-                            <div className="flex flex-wrap gap-1 mt-2">
-                              {item.links.map((link, linkIndex) => (
-                                <span key={linkIndex} className="text-sm">
-                                  <Link 
-                                    href={link.href} 
-                                    className={`${link.color} font-medium hover:underline transition-colors duration-200 link-text-wrap`}
-                                  >
-                                    {link.name}
-                                  </Link>
-                                  {linkIndex < item.links.length - 1 && (
-                                    <span className="text-gray-400 mx-1">•</span>
-                                  )}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                  {/* 메인 타이틀 - 애플 스타일 */}
+                  <div className="text-center lg:text-left">
+                    <h2 className="text-5xl md:text-6xl lg:text-7xl font-semibold text-gray-900 leading-tight tracking-tight mb-6">
+                      완전히 새로운<br />
+                      <span className="text-blue-600">AI 상담 경험</span>
+                    </h2>
                   </div>
-
-                  <div className="apple-card bg-gradient-to-r from-indigo-50 to-purple-50">
-                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                      <span className="text-xl">💬</span>
-                      <span className="text-overflow-safe">상담 예시 질문:</span>
-                    </h4>
-                    <ul className="mobile-text text-gray-700 apple-spacing-xs">
-                      {[
-                        "우리 회사 매출을 늘리려면 어떻게 해야 하나요?",
-                        "혁신적인 기술 도입으로 경쟁력을 높이고 싶어요",
-                        "공장 구매를 저렴하게 하는 방법이 있나요?",
-                        "정부지원 사업은 어떤 것들이 있나요?"
-                      ].map((question, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <span className="text-blue-500 font-bold flex-shrink-0">•</span>
-                          <span className="text-overflow-safe">"{question}"</span>
-                        </li>
-                      ))}
-                    </ul>
+                  
+                  {/* 설명 텍스트 */}
+                  <div className="text-center lg:text-left max-w-lg mx-auto lg:mx-0">
+                    <p className="text-xl md:text-2xl text-gray-600 leading-relaxed font-light">
+                      M-CENTER는 당신이 더 나은 작업을 처리할 수 있는 완전한 
+                      AI 상담 플랫폼을 제공합니다. 25년 노하우가 집약된 
+                      전문 시스템으로 Magic Keyboard, Magic Mouse와 같은 
+                      혁신적 도구들과 함께 Bluetooth 연결과 
+                      개인맞춤 설정이 가능한 SharePlay를 통해 최상의 경험을 
+                      완벽 사용하여 협업할 수 있습니다.
+                    </p>
                   </div>
-                </div>
-
-                {/* 우측: 즉시 채팅 시작 */}
-                <div className="apple-card bg-gradient-to-br from-gray-50 to-indigo-50 apple-animation-scale"
-                     style={{ animationDelay: '0.3s' }}>
-                  <div className="text-center mb-8">
-                    <h4 className="apple-subtitle text-overflow-safe">지금 바로 시작하세요!</h4>
-                    <p className="mobile-text text-gray-600">우측 하단 채팅 아이콘을 클릭하거나<br />아래 버튼을 눌러 상담을 시작하세요</p>
-                  </div>
-
-                  <div className="apple-spacing-sm">
-                    {/* AI상담사와 채팅 버튼 */}
+                  
+                  {/* 애플 스타일 버튼 */}
+                  <div className="text-center lg:text-left">
                     <button 
-                      className="apple-button-primary mobile-full-width relative overflow-hidden group"
+                      className="inline-flex items-center justify-center px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white text-lg font-medium rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg"
                       onClick={() => {
                         if (typeof window !== 'undefined') {
                           const chatbot = document.querySelector('[data-floating-chatbot]') as HTMLElement;
@@ -443,54 +378,159 @@ export default function Home() {
                           } else {
                             router.push('/chatbot');
                           }
-                          if (navigator.vibrate) {
-                            navigator.vibrate(100);
-                          }
                         }
                       }}
                     >
-                      <span className="relative flex items-center">
-                        <Sparkles className="w-5 h-5 mr-2 text-yellow-400 group-hover:animate-spin transition-transform duration-200" />
-                        <span className="text-overflow-safe">M센터장과 채팅</span>
-                      </span>
+                      <span className="mr-2">+</span>
+                      무료 체험해보기 및 자세히 알아보기
                     </button>
-                    
-                    {/* 상담신청 버튼 */}
-                    <Link href="/consultation">
-                      <button className="apple-button-outline mobile-full-width">
-                        <Users className="w-5 h-5 mr-2" />
-                        <span className="text-overflow-safe">상담신청</span>
-                      </button>
-                    </Link>
-                    
-                    {/* 전화상담 버튼 */}
-                    <a href="tel:010-9251-9743">
-                      <button className="apple-button-secondary mobile-full-width">
-                        <Phone className="w-5 h-5 mr-2" />
-                        <span className="text-overflow-safe">전화상담 (010-9251-9743)</span>
-                      </button>
-                    </a>
                   </div>
+                </div>
 
-                  <div className="apple-card bg-white/90 border border-indigo-200">
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mobile-text text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-green-500" />
-                        <span className="font-medium">24시간</span>
+                {/* 우측: 비주얼 영역 */}
+                <div className="order-1 lg:order-2 relative">
+                  <div className="relative w-full h-[500px] lg:h-[600px] bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl overflow-hidden shadow-2xl">
+                    
+                    {/* 배경 그라데이션 */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-600/20"></div>
+                    
+                    {/* 모니터 시뮬레이션 */}
+                    <div className="absolute inset-8 bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
+                      {/* 화면 내용 */}
+                      <div className="w-full h-full bg-gradient-to-br from-blue-900 to-purple-900 relative">
+                        
+                        {/* 상단 메뉴바 */}
+                        <div className="absolute top-0 left-0 right-0 h-8 bg-gray-800/50 backdrop-blur-sm flex items-center px-4">
+                          <div className="flex space-x-2">
+                            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                          </div>
+                          <div className="flex-1 text-center">
+                            <span className="text-white/70 text-xs">M-CENTER AI 상담 시스템</span>
+                          </div>
+                        </div>
+                        
+                        {/* 중앙 콘텐츠 */}
+                        <div className="absolute inset-0 top-8 flex items-center justify-center p-8">
+                          <div className="text-center text-white space-y-6">
+                            {/* AI 아이콘 */}
+                            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center shadow-xl">
+                              <Cpu className="w-10 h-10 text-white" />
+                            </div>
+                            
+                            {/* 실시간 대화 시뮬레이션 */}
+                            <div className="space-y-3 max-w-md">
+                              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-left">
+                                <p className="text-sm text-white/90">안녕하세요! M-CENTER AI상담사입니다.</p>
+                              </div>
+                              <div className="bg-blue-500/80 backdrop-blur-sm rounded-2xl p-4 text-right ml-8">
+                                <p className="text-sm text-white">우리 회사 매출 증대 방법을 알고 싶어요</p>
+                              </div>
+                              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-left">
+                                <p className="text-sm text-white/90">BM ZEN 사업분석으로 20-40% 매출 성장이 가능합니다!</p>
+                              </div>
+                            </div>
+                            
+                            {/* 기능 배지들 */}
+                            <div className="flex flex-wrap gap-2 justify-center">
+                              <span className="px-3 py-1 bg-blue-500/30 backdrop-blur-sm rounded-full text-xs text-white/90">Advanced AI</span>
+                              <span className="px-3 py-1 bg-green-500/30 backdrop-blur-sm rounded-full text-xs text-white/90">24시간</span>
+                              <span className="px-3 py-1 bg-purple-500/30 backdrop-blur-sm rounded-full text-xs text-white/90">즉시응답</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* 하단 상태바 */}
+                        <div className="absolute bottom-0 left-0 right-0 h-6 bg-gray-800/30 backdrop-blur-sm flex items-center justify-center">
+                          <span className="text-white/50 text-xs">🟢 온라인 • 즉시 상담 가능</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Shield className="w-4 h-4 text-green-500" />
-                        <span className="font-medium">무료</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-green-500" />
-                        <span className="font-medium">즉시 응답</span>
-                      </div>
+                    </div>
+                    
+                    {/* 플로팅 엘리먼트들 */}
+                    <div className="absolute top-20 right-8 w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center animate-bounce">
+                      <span className="text-2xl">💡</span>
+                    </div>
+                    <div className="absolute bottom-20 left-8 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center animate-pulse">
+                      <span className="text-xl">⚡</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+                  
+            
+            {/* 애플스토어 스타일 하단 섹션 - 간단한 특징들 */}
+            <div className="mt-24 pt-16 border-t border-gray-200">
+              <div className="max-w-4xl mx-auto text-center space-y-16">
+                
+                {/* 핵심 특징들 - 애플 스타일 */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                  <div className="space-y-4">
+                    <div className="w-16 h-16 mx-auto bg-blue-100 rounded-2xl flex items-center justify-center">
+                      <CheckCircle2 className="w-8 h-8 text-blue-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900">전문 분야별 맞춤 상담</h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      사업분석, AI혁신, 공장구매, 기술창업, 인증, 웹사이트 등 6개 전문 분야
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="w-16 h-16 mx-auto bg-green-100 rounded-2xl flex items-center justify-center">
+                      <Zap className="w-8 h-8 text-green-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900">즉시 응답 및 정확한 분석</h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      25년 전문가 경험과 차세대 AI 기술의 완벽한 융합
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="w-16 h-16 mx-auto bg-orange-100 rounded-2xl flex items-center justify-center">
+                      <Phone className="w-8 h-8 text-orange-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900">전문가 연결 및 후속 상담</h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      필요시 이후경 M센터장 직접 상담 (010-9251-9743)
+                    </p>
+                  </div>
+                </div>
+                
+                {/* 추가 액션 버튼들 */}
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                  <Link href="/consultation">
+                    <button className="px-8 py-3 bg-gray-900 hover:bg-gray-800 text-white text-lg font-medium rounded-full transition-all duration-200">
+                      상담신청하기
+                    </button>
+                  </Link>
+                  
+                  <a href="tel:010-9251-9743">
+                    <button className="px-8 py-3 border-2 border-gray-300 hover:border-gray-400 text-gray-900 text-lg font-medium rounded-full transition-all duration-200">
+                      전화상담 (010-9251-9743)
+                    </button>
+                  </a>
+                </div>
+                
+                {/* 상태 인디케이터 */}
+                <div className="flex items-center justify-center gap-6 text-sm text-gray-500">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span>24시간 상담</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <span>무료 진단</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                    <span>즉시 응답</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           </div>
         </div>
       </section>
@@ -535,7 +575,7 @@ export default function Home() {
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-20">
                     <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white 
                                     px-4 py-1.5 rounded-full text-xs font-bold shadow-xl animate-pulse">
-                      ⭐ 최고 추천
+                      최고 추천
                     </div>
                   </div>
                 )}
@@ -823,7 +863,7 @@ export default function Home() {
           <div className="text-center mt-12">
             <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-lg border border-blue-200 max-w-4xl mx-auto">
               <h3 className="text-h3 text-gray-900 mb-4 mobile-centered">
-                <span className="text-overflow-safe">💡 단계별 맞춤 전략 설계</span>
+                <span className="text-overflow-safe">단계별 맞춤 전략 설계</span>
               </h3>
               <p className="text-gray-600 mb-6 mobile-text">
                 귀하의 기업이 현재 어느 단계에 있든, M-CENTER는 다음 성장을 위한 
@@ -870,7 +910,7 @@ export default function Home() {
               {[
                 { icon: Clock, title: '⚡ 처리 속도', before: '기존: 2-3주', after: '신규: 2-3분', improvement: '99.9% 단축', color: 'from-green-400 to-emerald-500' },
                 { icon: BarChart3, title: '📝 입력 항목', before: '기존: 20+ 항목', after: '신규: 8개 항목', improvement: '60% 간소화', color: 'from-blue-400 to-cyan-500' },
-                { icon: FileText, title: '📊 보고서', before: '기존: 5000자+', after: '신규: 전문가 진단보고서', improvement: '핵심 정보 집중', color: 'from-purple-400 to-pink-500' }
+                { icon: FileText, title: '보고서', before: '기존: 5000자+', after: '신규: 전문가 진단보고서', improvement: '핵심 정보 집중', color: 'from-purple-400 to-pink-500' }
               ].map((item, index) => (
                 <Card key={index} className={`text-center p-6 bg-gradient-to-br ${item.color} text-white border-0`}>
                   <CardContent className="p-0">

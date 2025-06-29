@@ -271,7 +271,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
         <Card className="border-red-200 bg-red-50">
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-red-800 mb-2">🔧 데이터 구조 오류</h3>
+            <h3 className="text-xl font-bold text-red-800 mb-2">데이터 구조 오류</h3>
             <p className="text-red-600 mb-4">
               진단 데이터의 구조가 예상과 다릅니다.<br/>
               API 응답 형식 문제일 수 있습니다.
@@ -301,7 +301,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
         <Card className="border-orange-200 bg-orange-50">
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-orange-800 mb-2">⚠️ 진단 처리 중 오류 발생</h3>
+            <h3 className="text-xl font-bold text-orange-800 mb-2">진단 처리 중 오류 발생</h3>
             <p className="text-orange-600 mb-4">
               {normalizedData.message || '진단 처리 과정에서 오류가 발생했습니다.'}
             </p>
@@ -757,7 +757,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
             <div class="meta-info">
                 <div class="meta-item">📅 ${currentDate}</div>
                 <div class="meta-item">⏰ ${currentTime}</div>
-                <div class="meta-item">📊 ${data.companyInfo.reportType}</div>
+                <div class="meta-item">${data.companyInfo.reportType}</div>
                 <div class="meta-item">📝 ${data.companyInfo.reportLength}자</div>
                 <div class="meta-item">⚡ ${data.companyInfo.processingTime}</div>
             </div>
@@ -1209,7 +1209,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
           <div className="flex items-center gap-3">
             <CheckCircle className="w-8 h-8 text-green-600" />
             <div>
-              <h3 className="text-lg font-bold text-green-800">🎉 AI 진단이 완료되었습니다!</h3>
+              <h3 className="text-lg font-bold text-green-800">AI 진단이 완료되었습니다!</h3>
               <p className="text-green-700">
                 {data.data.reportType}가 생성되었습니다.
               </p>
@@ -1274,7 +1274,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
           <CardHeader className="bg-blue-50">
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="w-6 h-6 text-blue-600" />
-              📊 레벨업 시트 평가 결과 (5점 척도)
+레벨업 시트 평가 결과 (5점 척도)
             </CardTitle>
             <p className="text-sm text-gray-600">
               20개 문항을 5개 카테고리로 분류하여 100점 만점으로 환산한 결과입니다.
@@ -1363,7 +1363,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
             <div className="space-y-6">
               <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Star className="w-5 h-5 text-yellow-600" />
-                📝 문항별 상세 점수 (20개 항목)
+문항별 상세 점수 (20개 항목)
               </h4>
               
               {(() => {
@@ -1494,7 +1494,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
             <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <h5 className="font-medium text-blue-900 mb-2 flex items-center gap-2">
                 <Lightbulb className="w-4 h-4" />
-                💡 평가 결과 요약
+평가 결과 요약
               </h5>
               <div className="text-sm text-blue-800 leading-relaxed">
                 <p className="mb-2">
@@ -1502,13 +1502,13 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                   <div>
-                    <span className="font-medium">🏆 우수 영역:</span>
+                    <span className="font-medium">우수 영역:</span>
                     <span className="ml-2">
                       {diagnosis.categoryScores && Object.values(diagnosis.categoryScores).filter(cat => cat && (cat.score / cat.maxScore) >= 0.8).map(cat => cat?.name).join(', ') || '균형적 발전'}
                     </span>
                   </div>
                   <div>
-                    <span className="font-medium">⚠️ 개선 영역:</span>
+                    <span className="font-medium">개선 영역:</span>
                     <span className="ml-2">
                       {diagnosis.categoryScores && Object.values(diagnosis.categoryScores).filter(cat => cat && (cat.score / cat.maxScore) < 0.6).map(cat => cat?.name).join(', ') || '지속적 성장'}
                     </span>
@@ -1609,7 +1609,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
             {/* 취약점 분석 */}
             <div className="bg-white rounded-lg p-4 border border-red-200">
               <h4 className="font-semibold text-red-800 mb-3 flex items-center gap-2">
-                ⚠️ 우선 개선 영역 (3점 이하)
+  우선 개선 영역 (3점 이하)
               </h4>
               <div className="space-y-3">
                 {Object.values(diagnosis.categoryScores || {}).map((category: any, catIndex: number) => {

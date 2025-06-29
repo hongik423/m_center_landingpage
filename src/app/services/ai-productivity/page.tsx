@@ -358,7 +358,7 @@ export default function AIProductivityPage() {
                 <div className="grid md:grid-cols-3 gap-6 mb-8">
                   <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50">
                     <CardHeader className="p-0 pb-4">
-                      <CardTitle className="text-lg text-blue-600">1️⃣ 근로시간 분야 (AI 활용)</CardTitle>
+                      <CardTitle className="text-lg text-blue-600">1. 근로시간 분야 (AI 활용)</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
                       <ul className="space-y-2 text-sm text-gray-700">
@@ -371,7 +371,7 @@ export default function AIProductivityPage() {
                           <strong>근무체계 개편</strong> (일가정양립 포함) [심화형]
                         </li>
                         <li className="bg-blue-100 p-3 rounded-lg mt-3">
-                          <strong className="text-blue-800 text-xs">🤖 AI 혁신 기능:</strong>
+                          <strong className="text-blue-800 text-xs">AI 혁신 기능:</strong>
                           <div className="text-xs text-blue-700 mt-1 space-y-1">
                             <div>• 스마트 근태 관리 자동화</div>
                             <div>• 업무량 예측 알고리즘</div>
@@ -385,7 +385,7 @@ export default function AIProductivityPage() {
 
                   <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
                     <CardHeader className="p-0 pb-4">
-                      <CardTitle className="text-lg text-purple-600">2️⃣ 임금체계 분야 (AI 분석)</CardTitle>
+                      <CardTitle className="text-lg text-purple-600">2. 임금체계 분야 (AI 분석)</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
                       <ul className="space-y-2 text-sm text-gray-700">
@@ -398,7 +398,7 @@ export default function AIProductivityPage() {
                           <strong>임금체계 재설계</strong> [심화형]
                         </li>
                         <li className="bg-purple-100 p-3 rounded-lg mt-3">
-                          <strong className="text-purple-800 text-xs">📊 AI 분석 기능:</strong>
+                          <strong className="text-purple-800 text-xs">AI 분석 기능:</strong>
                           <div className="text-xs text-purple-700 mt-1 space-y-1">
                             <div>• 임금 격차 AI 분석</div>
                             <div>• 성과 연동 평가 시스템</div>
@@ -412,7 +412,7 @@ export default function AIProductivityPage() {
 
                   <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-green-50 to-teal-50">
                     <CardHeader className="p-0 pb-4">
-                      <CardTitle className="text-lg text-green-600">3️⃣ 근로자참여·협력 분야</CardTitle>
+                      <CardTitle className="text-lg text-green-600">3. 근로자참여·협력 분야</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
                       <ul className="space-y-2 text-sm text-gray-700">
@@ -425,7 +425,7 @@ export default function AIProductivityPage() {
                           <strong>인사평가제도</strong> [심화형]
                         </li>
                         <li className="bg-green-100 p-3 rounded-lg mt-3">
-                          <strong className="text-green-800 text-xs">⚡ AI 혁신 영역:</strong>
+                          <strong className="text-green-800 text-xs">AI 혁신 영역:</strong>
                           <div className="text-xs text-green-700 mt-1 space-y-1">
                             <div>• 다면평가 시스템</div>
                             <div>• AI 기반 성과분석</div>
@@ -442,7 +442,7 @@ export default function AIProductivityPage() {
                 <div className="grid md:grid-cols-3 gap-6 mb-8">
                   <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-orange-50 to-yellow-50">
                     <CardHeader className="p-0 pb-4">
-                      <CardTitle className="text-lg text-orange-600">4️⃣ 직장문화 분야</CardTitle>
+                      <CardTitle className="text-lg text-orange-600">4. 직장문화 분야</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
                       <ul className="space-y-2 text-sm text-gray-700">
@@ -455,7 +455,7 @@ export default function AIProductivityPage() {
                           <strong>복리후생제도</strong> [전문형]
                         </li>
                         <li className="bg-orange-100 p-3 rounded-lg mt-3">
-                          <strong className="text-orange-800 text-xs">🎓 디지털 교육:</strong>
+                          <strong className="text-orange-800 text-xs">디지털 교육:</strong>
                           <div className="text-xs text-orange-700 mt-1 space-y-1">
                             <div>• AI 맞춤형 학습 시스템</div>
                             <div>• 역량 진단 및 개발</div>
@@ -468,7 +468,7 @@ export default function AIProductivityPage() {
 
                   <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-red-50 to-pink-50">
                     <CardHeader className="p-0 pb-4">
-                      <CardTitle className="text-lg text-red-600">5️⃣ 직무역량 분야</CardTitle>
+                      <CardTitle className="text-lg text-red-600">5. 직무역량 분야</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
                       <ul className="space-y-2 text-sm text-gray-700">
@@ -481,7 +481,7 @@ export default function AIProductivityPage() {
                           <strong>안전보건관리체계</strong> [심화형]
                         </li>
                         <li className="bg-red-100 p-3 rounded-lg mt-3">
-                          <strong className="text-red-800 text-xs">🛡️ 스마트 안전:</strong>
+                          <strong className="text-red-800 text-xs">스마트 안전:</strong>
                           <div className="text-xs text-red-700 mt-1 space-y-1">
                             <div>• IoT·AI 안전관리</div>
                             <div>• 예방중심 안전문화</div>
@@ -494,7 +494,7 @@ export default function AIProductivityPage() {
 
                   <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-indigo-50 to-purple-50">
                     <CardHeader className="p-0 pb-4">
-                      <CardTitle className="text-lg text-indigo-600">6️⃣ 조직관리·평가 분야</CardTitle>
+                      <CardTitle className="text-lg text-indigo-600">6. 조직관리·평가 분야</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
                       <ul className="space-y-2 text-sm text-gray-700">
@@ -515,7 +515,7 @@ export default function AIProductivityPage() {
                           <strong>업무관리체계</strong> [심화형]
                         </li>
                         <li className="bg-indigo-100 p-3 rounded-lg mt-3">
-                          <strong className="text-indigo-800 text-xs">🌟 디지털 혁신:</strong>
+                          <strong className="text-indigo-800 text-xs">디지털 혁신:</strong>
                           <div className="text-xs text-indigo-700 mt-1 space-y-1">
                             <div>• AI 챗봇 소통 시스템</div>
                             <div>• 워크플로우 자동화</div>
@@ -532,7 +532,7 @@ export default function AIProductivityPage() {
                 <div className="grid md:grid-cols-3 gap-6">
                   <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-teal-50 to-cyan-50">
                     <CardHeader className="p-0 pb-4">
-                      <CardTitle className="text-lg text-teal-600">7️⃣ 차별개선·원하청상생</CardTitle>
+                      <CardTitle className="text-lg text-teal-600">7. 차별개선·원하청상생</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
                       <ul className="space-y-2 text-sm text-gray-700">
@@ -545,7 +545,7 @@ export default function AIProductivityPage() {
                           <strong>사내하도급 근로자 보호</strong> [전문형]
                         </li>
                         <li className="bg-teal-100 p-3 rounded-lg mt-3">
-                          <strong className="text-teal-800 text-xs">⚖️ 공정성 확보:</strong>
+                          <strong className="text-teal-800 text-xs">공정성 확보:</strong>
                           <div className="text-xs text-teal-700 mt-1 space-y-1">
                             <div>• 차별 실태 진단</div>
                             <div>• 임금격차 해소</div>
@@ -558,7 +558,7 @@ export default function AIProductivityPage() {
 
                   <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-cyan-50 to-blue-50">
                     <CardHeader className="p-0 pb-4">
-                      <CardTitle className="text-lg text-cyan-600">8️⃣ 공정채용 분야</CardTitle>
+                      <CardTitle className="text-lg text-cyan-600">8. 공정채용 분야</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
                       <ul className="space-y-2 text-sm text-gray-700">
@@ -571,7 +571,7 @@ export default function AIProductivityPage() {
                           <strong>채용제도 마련 및 운영</strong> [심화형]
                         </li>
                         <li className="bg-cyan-100 p-3 rounded-lg mt-3">
-                          <strong className="text-cyan-800 text-xs">🔍 AI 채용 시스템:</strong>
+                          <strong className="text-cyan-800 text-xs">AI 채용 시스템:</strong>
                           <div className="text-xs text-cyan-700 mt-1 space-y-1">
                             <div>• AI 기반 서류심사</div>
                             <div>• 블라인드 채용</div>
@@ -584,7 +584,7 @@ export default function AIProductivityPage() {
 
                   <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-pink-50 to-rose-50 border-2 border-pink-200">
                     <CardHeader className="p-0 pb-4">
-                      <CardTitle className="text-lg text-pink-600">9️⃣ 장년친화 분야 ⭐</CardTitle>
+                      <CardTitle className="text-lg text-pink-600">9. 장년친화 분야 ★</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
                       <ul className="space-y-2 text-sm text-gray-700">
@@ -593,7 +593,7 @@ export default function AIProductivityPage() {
                           <strong>장년친화 인사제도</strong> [심화형/특화]
                         </li>
                         <li className="bg-pink-100 p-3 rounded-lg mt-3">
-                          <strong className="text-pink-800 text-xs">👥 2025년 특화 과제:</strong>
+                          <strong className="text-pink-800 text-xs">2025년 특화 과제:</strong>
                           <div className="text-xs text-pink-700 mt-1 space-y-1">
                             <div>• 고령화 대응 계속 고용</div>
                             <div>• 장년 적합 직무 개발</div>
@@ -614,7 +614,7 @@ export default function AIProductivityPage() {
               <Card className="p-8 border-0 shadow-lg bg-gradient-to-r from-yellow-50 to-orange-50">
                 <CardHeader className="pb-6">
                   <CardTitle className="text-2xl text-orange-600 text-center">
-                    ✨ (주)AAA에너지관리IT기업 적용 성과
+                    (주)AAA에너지관리IT기업 적용 성과
                   </CardTitle>
                   <p className="text-center text-gray-600">
                     에너지 DX 분야 AI 기술 개발 기업 | 특허 28건, 인증 25건 보유

@@ -360,7 +360,7 @@ export default function TechStartupPage() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4">
-                  {/* 🔥 개선된 무료 상담 신청 버튼 */}
+                  {/* 개선된 무료 상담 신청 버튼 */}
                   <Button 
                     size="lg"
                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 shadow-xl hover:shadow-2xl transform hover:scale-[1.05] active:scale-[0.95] transition-all duration-200 relative overflow-hidden group"
@@ -374,7 +374,7 @@ export default function TechStartupPage() {
                     </span>
                   </Button>
                   
-                  {/* 🔥 개선된 기술사업화 적합성 진단 버튼 */}
+                  {/* 개선된 기술사업화 적합성 진단 버튼 */}
                   <Button 
                     variant="outline"
                     size="lg"

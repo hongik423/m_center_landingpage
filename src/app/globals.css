@@ -767,6 +767,33 @@
     hyphens: auto;
   }
   
+  /* 텍스트 그림자 효과 - 어두운 배경 대응 */
+  .text-shadow-sm {
+    text-shadow: 
+      0 1px 2px rgba(0, 0, 0, 0.3),
+      0 0 4px rgba(255, 255, 255, 0.8),
+      0 0 8px rgba(255, 255, 255, 0.6);
+  }
+
+  .text-shadow-md {
+    text-shadow: 
+      0 2px 4px rgba(0, 0, 0, 0.4),
+      0 0 6px rgba(255, 255, 255, 0.9),
+      0 0 12px rgba(255, 255, 255, 0.7);
+  }
+
+  .text-shadow-lg {
+    text-shadow: 
+      0 4px 8px rgba(0, 0, 0, 0.5),
+      0 0 8px rgba(255, 255, 255, 1),
+      0 0 16px rgba(255, 255, 255, 0.8);
+  }
+
+  /* 드롭 섀도우 효과 */
+  .drop-shadow-text {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  }
+  
   .link-text-wrap {
     word-break: keep-all;
     white-space: nowrap;

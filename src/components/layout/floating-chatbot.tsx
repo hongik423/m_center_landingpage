@@ -335,7 +335,7 @@ export default function FloatingChatbot() {
           right: `${position.x}px`,
           width: isMobile ? '64px' : '70px',
           height: isMobile ? '64px' : '70px',
-          backgroundColor: isDragging ? '#9C27B0' : '#4285F4',
+          backgroundColor: isDragging ? '#7B1FA2' : '#1976D2',
           borderRadius: '50%',
           cursor: isDragging ? 'grabbing' : 'grab',
           zIndex: 999999,
@@ -343,8 +343,8 @@ export default function FloatingChatbot() {
           alignItems: 'center',
           justifyContent: 'center',
           boxShadow: isDragging 
-            ? '0 8px 32px rgba(156, 39, 176, 0.6), 0 0 0 4px rgba(156, 39, 176, 0.2)' 
-            : '0 4px 20px rgba(66, 133, 244, 0.4)',
+            ? '0 8px 32px rgba(123, 31, 162, 0.6), 0 0 0 4px rgba(123, 31, 162, 0.2)' 
+            : '0 4px 20px rgba(25, 118, 210, 0.4)',
           border: '3px solid white',
           transition: isDragging ? 'none' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           userSelect: 'none',
@@ -368,13 +368,13 @@ export default function FloatingChatbot() {
         onMouseEnter={(e) => {
           if (!isDragging && !isMobile) {
             e.currentTarget.style.transform = 'scale(1.1)';
-            e.currentTarget.style.backgroundColor = '#9C27B0';
+            e.currentTarget.style.backgroundColor = '#7B1FA2';
           }
         }}
         onMouseLeave={(e) => {
           if (!isDragging && !isMobile) {
             e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.backgroundColor = '#4285F4';
+            e.currentTarget.style.backgroundColor = '#1976D2';
           }
         }}
         data-floating-chatbot="true"
@@ -415,7 +415,7 @@ export default function FloatingChatbot() {
               position: 'absolute',
               inset: '-8px',
               borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(66, 133, 244, 0.3) 0%, transparent 70%)',
+              background: 'radial-gradient(circle, rgba(25, 118, 210, 0.3) 0%, transparent 70%)',
               animation: 'pulse 3s infinite',
               pointerEvents: 'none'
             }}
@@ -488,17 +488,18 @@ export default function FloatingChatbot() {
             border: '1px solid #e2e8f0'
           }}
         >
-          {/* 헤더 */}
+          {/* 헤더 - 시인성 개선 */}
           <div
             style={{
-              background: 'linear-gradient(135deg, #4285F4 0%, #9C27B0 100%)',
+              background: 'linear-gradient(135deg, #1976D2 0%, #7B1FA2 100%)',
               color: 'white',
               padding: isMobile ? '20px 16px' : '16px',
               borderRadius: isMobile ? '16px 16px 0 0' : '12px 12px 0 0',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              minHeight: isMobile ? '70px' : '60px'
+              minHeight: isMobile ? '70px' : '60px',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -565,7 +566,7 @@ export default function FloatingChatbot() {
             </button>
           </div>
 
-          {/* 메시지 영역 */}
+          {/* 메시지 영역 - 시인성 개선 */}
           <div
             style={{
               flex: 1,
@@ -574,7 +575,8 @@ export default function FloatingChatbot() {
               display: 'flex',
               flexDirection: 'column',
               gap: '12px',
-              backgroundColor: '#f8fafc'
+              backgroundColor: '#ffffff',
+              backgroundImage: 'linear-gradient(to bottom, #f8f9ff 0%, #ffffff 100%)'
             }}
           >
             {messages.map((message) => (
@@ -588,14 +590,22 @@ export default function FloatingChatbot() {
                 <div
                   style={{
                     maxWidth: '80%',
-                    padding: '12px',
-                    borderRadius: '12px',
-                    backgroundColor: message.sender === 'user' ? '#4285F4' : 'white',
-                    color: message.sender === 'user' ? 'white' : '#333',
+                    padding: '14px 16px',
+                    borderRadius: '16px',
+                    backgroundColor: message.sender === 'user' 
+                      ? 'linear-gradient(135deg, #1976D2 0%, #1565C0 100%)' 
+                      : '#ffffff',
+                    background: message.sender === 'user' 
+                      ? 'linear-gradient(135deg, #1976D2 0%, #1565C0 100%)' 
+                      : '#ffffff',
+                    color: message.sender === 'user' ? '#ffffff' : '#1a1a1a',
                     fontSize: '14px',
-                    lineHeight: '1.4',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                    border: message.sender === 'bot' ? '1px solid #e2e8f0' : 'none'
+                    fontWeight: message.sender === 'user' ? '500' : '400',
+                    lineHeight: '1.5',
+                    boxShadow: message.sender === 'user' 
+                      ? '0 4px 12px rgba(25, 118, 210, 0.3)' 
+                      : '0 2px 12px rgba(0, 0, 0, 0.08)',
+                    border: message.sender === 'bot' ? '2px solid #f0f0f0' : 'none'
                   }}
                 >
                   <div style={{ whiteSpace: 'pre-line' }}>
@@ -605,7 +615,8 @@ export default function FloatingChatbot() {
                     style={{
                       fontSize: '11px',
                       marginTop: '8px',
-                      opacity: 0.7
+                      opacity: message.sender === 'user' ? 0.8 : 0.6,
+                      fontWeight: '400'
                     }}
                   >
                     {message.timestamp.toLocaleTimeString('ko-KR', { 
@@ -621,32 +632,32 @@ export default function FloatingChatbot() {
               <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                 <div
                   style={{
-                    padding: '12px',
-                    backgroundColor: 'white',
-                    borderRadius: '12px',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                    border: '1px solid #e2e8f0'
+                    padding: '16px',
+                    backgroundColor: '#ffffff',
+                    borderRadius: '16px',
+                    boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)',
+                    border: '2px solid #f0f0f0'
                   }}
                 >
-                  <div style={{ display: 'flex', gap: '4px' }}>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                     <div style={{ 
-                      width: '8px', 
-                      height: '8px', 
-                      backgroundColor: '#4285F4', 
+                      width: '10px', 
+                      height: '10px', 
+                      backgroundColor: '#1976D2', 
                       borderRadius: '50%',
                       animation: 'bounce 1.4s infinite'
                     }}></div>
                     <div style={{ 
-                      width: '8px', 
-                      height: '8px', 
-                      backgroundColor: '#4285F4', 
+                      width: '10px', 
+                      height: '10px', 
+                      backgroundColor: '#1976D2', 
                       borderRadius: '50%',
                       animation: 'bounce 1.4s infinite 0.2s'
                     }}></div>
                     <div style={{ 
-                      width: '8px', 
-                      height: '8px', 
-                      backgroundColor: '#4285F4', 
+                      width: '10px', 
+                      height: '10px', 
+                      backgroundColor: '#1976D2', 
                       borderRadius: '50%',
                       animation: 'bounce 1.4s infinite 0.4s'
                     }}></div>
@@ -657,12 +668,12 @@ export default function FloatingChatbot() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* 입력 영역 */}
+          {/* 입력 영역 - 시인성 개선 */}
           <div
             style={{
               padding: isMobile ? '20px 16px' : '16px',
-              borderTop: '1px solid #e2e8f0',
-              backgroundColor: 'white',
+              borderTop: '2px solid #f0f0f0',
+              backgroundColor: '#fafafa',
               borderRadius: isMobile ? '0 0 16px 16px' : '0 0 12px 12px',
               minHeight: isMobile ? '80px' : '60px'
             }}
@@ -675,12 +686,16 @@ export default function FloatingChatbot() {
                 placeholder={isMobile ? "메시지 입력..." : "메시지를 입력하세요..."}
                 style={{
                   flex: 1,
-                  padding: isMobile ? '16px' : '12px',
-                  border: '2px solid #e2e8f0',
-                  borderRadius: '24px',
+                  padding: isMobile ? '16px 20px' : '14px 18px',
+                  border: '2px solid #e8e8e8',
+                  borderRadius: '25px',
                   fontSize: isMobile ? '16px' : '14px',
                   outline: 'none',
-                  minHeight: isMobile ? '48px' : '40px'
+                  minHeight: isMobile ? '48px' : '44px',
+                  backgroundColor: '#ffffff',
+                  color: '#1a1a1a',
+                  fontWeight: '400',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
                 }}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
@@ -691,10 +706,12 @@ export default function FloatingChatbot() {
                   }
                 }}
                 onFocus={(e) => {
-                  e.target.style.borderColor = '#4285F4';
+                  e.target.style.borderColor = '#1976D2';
+                  e.target.style.boxShadow = '0 2px 12px rgba(25, 118, 210, 0.15)';
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = '#e2e8f0';
+                  e.target.style.borderColor = '#e8e8e8';
+                  e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.05)';
                 }}
                 disabled={isTyping}
               />
@@ -706,9 +723,9 @@ export default function FloatingChatbot() {
                 }}
                 disabled={!inputValue.trim() || isTyping}
                 style={{
-                  width: isMobile ? '52px' : '45px',
-                  height: isMobile ? '52px' : '45px',
-                  backgroundColor: inputValue.trim() && !isTyping ? '#4285F4' : '#ccc',
+                  width: isMobile ? '52px' : '48px',
+                  height: isMobile ? '52px' : '48px',
+                  backgroundColor: inputValue.trim() && !isTyping ? '#1976D2' : '#d0d0d0',
                   color: 'white',
                   border: 'none',
                   borderRadius: '50%',
@@ -716,8 +733,24 @@ export default function FloatingChatbot() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: isMobile ? '18px' : '16px',
-                  transition: 'all 0.2s ease'
+                  fontSize: isMobile ? '20px' : '18px',
+                  fontWeight: 'bold',
+                  transition: 'all 0.2s ease',
+                  boxShadow: inputValue.trim() && !isTyping 
+                    ? '0 4px 12px rgba(25, 118, 210, 0.3)' 
+                    : '0 2px 6px rgba(0, 0, 0, 0.1)'
+                }}
+                onMouseEnter={(e) => {
+                  if (inputValue.trim() && !isTyping) {
+                    e.currentTarget.style.backgroundColor = '#1565C0';
+                    e.currentTarget.style.transform = 'scale(1.05)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (inputValue.trim() && !isTyping) {
+                    e.currentTarget.style.backgroundColor = '#1976D2';
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }
                 }}
                 title="메시지 전송"
               >

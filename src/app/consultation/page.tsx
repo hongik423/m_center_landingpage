@@ -84,7 +84,7 @@ export default function ConsultationPage() {
     setSubmitAttempts(prev => prev + 1);
 
     toast({
-      title: "✨ 상담 신청 처리 중...",
+              title: "상담 신청 처리 중...",
       description: "잠시만 기다려 주세요.",
       duration: 2000,
     });
@@ -107,7 +107,7 @@ export default function ConsultationPage() {
         console.log('개인정보 동의 상태 확인 실패:', formData.privacyConsent);
         toast({
           variant: "destructive",
-          title: "⚠️ 개인정보 동의 필요",
+          title: "개인정보 동의 필요",
           description: "개인정보 수집 및 이용에 동의해주세요. 이는 필수 사항입니다.",
           duration: 5000,
         });
@@ -155,10 +155,10 @@ export default function ConsultationPage() {
 
         if (response.ok) {
           const responseText = await response.text();
-          console.log('📥 Google Apps Script 응답:', responseText);
+          console.log('Google Apps Script 응답:', responseText);
           
           toast({
-            title: "🎉 상담 신청이 완료되었습니다!",
+            title: "상담 신청이 완료되었습니다!",
             description: "24시간 내에 담당자가 연락드리겠습니다.",
             duration: 5000,
           });
@@ -168,7 +168,7 @@ export default function ConsultationPage() {
           return;
         }
       } catch (error) {
-        console.warn('⚠️ Google Apps Script 실패, 백업 시스템 시도:', error);
+        console.warn('Google Apps Script 실패, 백업 시스템 시도:', error);
       }
 
       // 메일 발송 시도 2: API Route 백업
@@ -181,7 +181,7 @@ export default function ConsultationPage() {
 
         if (apiResponse.ok) {
           toast({
-            title: "🎉 상담 신청이 완료되었습니다!",
+            title: "상담 신청이 완료되었습니다!",
             description: "24시간 내에 담당자가 연락드리겠습니다.",
             duration: 5000,
           });

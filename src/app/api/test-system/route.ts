@@ -47,11 +47,11 @@ export async function GET() {
       
       // 연동 가능한 기능들 (Google Apps Script 기반)
       availableFeatures: [
-        '✅ AI 진단신청 → 구글시트 자동 저장',
-        '✅ 상담신청 → 구글시트 자동 저장', 
-        '✅ 접수확인 이메일 실시간 발송 (Google Apps Script)',
-        '✅ 관리자 알림 이메일 자동 발송',
-        '✅ 통합 데이터 관리 시스템'
+        'AI 진단신청 → 구글시트 자동 저장',
+        '상담신청 → 구글시트 자동 저장', 
+        '접수확인 이메일 실시간 발송 (Google Apps Script)',
+        '관리자 알림 이메일 자동 발송',
+        '통합 데이터 관리 시스템'
       ]
     };
 

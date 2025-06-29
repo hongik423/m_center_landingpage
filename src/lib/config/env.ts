@@ -83,8 +83,8 @@ export const appConfig = {
   // 회사 정보
   company: {
     name: 'M-CENTER',
-    email: 'mcenter@company.com', // 관리자 이메일
-    phone: '02-1234-5678',
+    email: 'hongik423@gmail.com', // 관리자 이메일
+    phone: '010-9251-9743',
   },
   
   // 기본 URL

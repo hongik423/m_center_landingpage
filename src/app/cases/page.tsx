@@ -514,11 +514,11 @@ export default function CasesPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
             {[
-              { step: '1단계', title: '가치 발견', desc: 'AI 역량 진단', icon: '🔍', color: 'from-blue-400 to-blue-600' },
-              { step: '2단계', title: '가치 창출', desc: '맞춤 전략 설계', icon: '💡', color: 'from-green-400 to-green-600' },
-              { step: '3단계', title: '가치 제공', desc: '실무 적용', icon: '🚀', color: 'from-purple-400 to-purple-600' },
-              { step: '4단계', title: '가치 포착', desc: '성과 측정', icon: '💰', color: 'from-orange-400 to-orange-600' },
-              { step: '5단계', title: '가치 교정', desc: '지속 발전', icon: '🔄', color: 'from-pink-400 to-pink-600' }
+                              { step: '1단계', title: '가치 발견', desc: 'AI 역량 진단', icon: '1', color: 'from-blue-400 to-blue-600' },
+                  { step: '2단계', title: '가치 창출', desc: '맞춤 전략 설계', icon: '2', color: 'from-green-400 to-green-600' },
+    { step: '3단계', title: '가치 제공', desc: '실무 적용', icon: '3', color: 'from-purple-400 to-purple-600' },
+    { step: '4단계', title: '가치 포착', desc: '성과 측정', icon: '4', color: 'from-orange-400 to-orange-600' },
+                              { step: '5단계', title: '가치 교정', desc: '지속 발전', icon: '5', color: 'from-pink-400 to-pink-600' }
             ].map((phase, index) => (
               <Card key={index} className="text-center hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
