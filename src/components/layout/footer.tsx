@@ -185,11 +185,8 @@ export default function Footer() {
         <div className="border-t border-gray-800 mt-10 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-center md:text-left">
-              <p className="text-gray-400 text-sm mb-2">
+              <p className="text-gray-400 text-sm">
                 © 2025 M-CENTER (경영지도센터). All rights reserved.
-              </p>
-              <p className="text-xs text-gray-500">
-                사업자등록번호: 123-45-67890 | 대표자: 이후경 | 통신판매업신고번호: 제2024-서울강남-1234호
               </p>
             </div>
             
