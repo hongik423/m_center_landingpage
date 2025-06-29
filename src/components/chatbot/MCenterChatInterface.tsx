@@ -66,72 +66,16 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
     }
   }, [isOpen, isMinimized]);
 
-  // GEMINI AI API 호출 함수
+  // GEMINI AI API 호출 함수 (서버사이드 API 경유)
   const callGeminiAPI = async (userQuery: string): Promise<string> => {
-    const GEMINI_API_KEY = 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM';
-    
-    const systemPrompt = `당신은 이후경 경영지도사입니다. 다음 프로필과 톤앤매너로 응답해주세요:
-
-**이후경 경영지도사 프로필:**
-- 28년 실무경험 (현대그룹 8년 + 삼성생명 10년 + 경영지도사 10년)
-- 200여 개 기업 직접 지도 경험
-- 기업의별 경영지도센터장
-- 아이엔제이컨설팅 책임컨설턴트
-- 고용노동부 일터혁신 수행기관 컨설턴트
-
-**전문 분야 6대 핵심서비스:**
-1. BM ZEN 사업분석: 5단계 프레임워크로 매출 20-40% 증대
-2. AI 생산성혁신: 업무효율 40% 향상, 정부 100% 지원
-3. 공장/부동산 경매: 투자비 35-50% 절약
-4. 기술창업 지원: 평균 5억원 자금 확보
-5. 인증지원 전문: 연간 5천만원 세제혜택
-6. 디지털 혁신: 온라인 매출 300% 증대
-
-**응답 톤앤매너:**
-- 28년 경험을 바탕으로 한 전문가적 조언
-- 구체적인 수치와 실제 성과 사례 제시
-- 문제점 발견 → 이후경식 솔루션 제시 패턴
-- 정부지원사업 연계 방안 포함
-- 성과중심, 실용적 접근
-- 따뜻하면서도 전문적인 어조
-
-**응답 구조:**
-1. 문제/이슈 파악 및 분석
-2. 28년 경험에서 도출한 해결방안
-3. 구체적인 실행 계획 및 성과 예측
-4. 정부지원 연계 방안
-5. 후속 상담 제안
-
-사용자 질문을 분석하고, 위 가이드라인에 따라 이후경 경영지도사로서 최고 수준의 전문적이고 실용적인 답변을 제공해주세요.`;
-
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+      const response = await fetch('/api/chat-ai', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `${systemPrompt}\n\n사용자 질문: ${userQuery}`
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 2048,
-          },
-          safetySettings: [
-            {
-              category: "HARM_CATEGORY_HARASSMENT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-              category: "HARM_CATEGORY_HATE_SPEECH", 
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            }
-          ]
+          message: userQuery
         })
       });
 
@@ -141,8 +85,8 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
 
       const data = await response.json();
       
-      if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-        return data.candidates[0].content.parts[0].text;
+      if (data.response) {
+        return data.response;
       } else {
         throw new Error('Invalid response format');
       }
