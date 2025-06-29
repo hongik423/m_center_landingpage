@@ -500,29 +500,7 @@ export default function ConsultationPage() {
                           <SelectItem value="website">🌐 웹사이트 구축</SelectItem>
                           <SelectItem value="comprehensive">📋 종합 컨설팅</SelectItem>
                           <SelectItem value="diagnosis">🔍 진단 결과 상담</SelectItem>
-                          <SelectItem value="other">💬 기타</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* 희망 시간 */}
-                    <div className="space-y-4">
-                      <label className="flex items-center gap-3 text-base font-semibold text-gray-900">
-                        <Calendar className="w-5 h-5 text-indigo-500" />
-                        희망 시간
-                      </label>
-                      <Select 
-                        value={formData.preferredTime}
-                        onValueChange={(value) => handleInputChange('preferredTime', value)}
-                      >
-                        <SelectTrigger className="h-16 border-2 border-gray-200 rounded-2xl hover:border-blue-400 focus:border-blue-500 transition-all bg-gray-50/50 text-base font-medium">
-                          <SelectValue placeholder="편한 시간대를 선택해주세요" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-2xl border-gray-200 shadow-2xl bg-white/95 backdrop-blur-sm">
-                          <SelectItem value="morning">🌅 오전 (09:00-12:00)</SelectItem>
-                          <SelectItem value="afternoon">☀️ 오후 (13:00-17:00)</SelectItem>
-                          <SelectItem value="evening">🌆 저녁 (18:00-20:00)</SelectItem>
-                          <SelectItem value="flexible">⏰ 시간 조정 가능</SelectItem>
+                          <SelectItem value="other">💬 기타 문의</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -530,204 +508,275 @@ export default function ConsultationPage() {
                     {/* 문의 내용 */}
                     <div className="space-y-4">
                       <label className="flex items-center gap-3 text-base font-semibold text-gray-900">
-                        <MessageSquare className="w-5 h-5 text-cyan-500" />
+                        <MessageSquare className="w-5 h-5 text-indigo-500" />
                         문의 내용
                       </label>
                       <Textarea
                         value={formData.inquiryContent}
                         onChange={(e) => handleInputChange('inquiryContent', e.target.value)}
-                        placeholder="상담받고 싶은 내용을 자세히 적어주세요.&#10;&#10;예시:&#10;• 우리 회사 매출을 20% 늘리고 싶어요&#10;• 현재 직원 10명, 연매출 5억원 규모입니다&#10;• AI 도입으로 업무 효율성을 높이고 싶습니다"
-                        className="min-h-[160px] border-2 border-gray-200 rounded-2xl hover:border-blue-400 focus:border-blue-500 transition-all bg-gray-50/50 resize-none p-6 text-base font-medium"
-                        rows={6}
+                        placeholder="상세한 문의 내용을 입력해주세요&#10;(현재 상황, 목표, 예산 등)"
+                        className="min-h-32 border-2 border-gray-200 rounded-2xl hover:border-blue-400 focus:border-blue-500 transition-all bg-gray-50/50 text-base font-medium px-6 py-4 resize-none"
+                        rows={4}
                       />
                     </div>
 
-                    {/* 🍎 개인정보 동의 (개인정보보호법 준수) */}
-                    <PrivacyConsent
-                      checked={formData.privacyConsent}
-                      onCheckedChange={(checked) => handleInputChange('privacyConsent', checked)}
-                      required={true}
-                    />
+                    {/* 희망 상담 시간 */}
+                    <div className="space-y-4">
+                      <label className="flex items-center gap-3 text-base font-semibold text-gray-900">
+                        <Calendar className="w-5 h-5 text-rose-500" />
+                        희망 상담 시간
+                      </label>
+                      <Select 
+                        value={formData.preferredTime}
+                        onValueChange={(value) => handleInputChange('preferredTime', value)}
+                      >
+                        <SelectTrigger className="h-16 border-2 border-gray-200 rounded-2xl hover:border-blue-400 focus:border-blue-500 transition-all bg-gray-50/50 text-base font-medium">
+                          <SelectValue placeholder="편리한 시간대를 선택해주세요" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-2xl border-gray-200 shadow-2xl bg-white/95 backdrop-blur-sm">
+                          <SelectItem value="morning">🌅 오전 (09:00-12:00)</SelectItem>
+                          <SelectItem value="afternoon">☀️ 오후 (13:00-18:00)</SelectItem>
+                          <SelectItem value="evening">🌆 저녁 (18:00-21:00)</SelectItem>
+                          <SelectItem value="flexible">⏰ 시간 협의</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                    {/* 🍎 제출 버튼 (애플스토어 스타일) */}
-                    <div className="pt-8">
-                      <Button
+                    {/* 🍎 애플스토어 스타일 개인정보 동의 */}
+                    <div className="apple-card bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200/50">
+                      <PrivacyConsent
+                        checked={formData.privacyConsent}
+                        onCheckedChange={(checked) => handleInputChange('privacyConsent', checked)}
+                        required={true}
+                        className="apple-form-group"
+                      />
+                    </div>
+
+                    {/* 🍎 애플스토어 스타일 제출 버튼 */}
+                    <div className="pt-4">
+                      <button
                         type="submit"
                         disabled={!isFormValid || isSubmitting || !isOnline}
-                        className="w-full h-20 bg-gradient-to-r from-blue-600 via-blue-600 to-purple-600 hover:from-blue-700 hover:via-blue-700 hover:to-purple-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold text-xl rounded-3xl shadow-2xl shadow-blue-500/25 hover:shadow-3xl hover:shadow-blue-500/40 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:hover:scale-100 disabled:cursor-not-allowed group"
+                        className={`
+                          apple-button w-full h-20 text-lg font-semibold transition-all duration-300
+                          ${isFormValid && !isSubmitting && isOnline
+                            ? 'apple-button-primary hover:scale-[1.02] active:scale-[0.98] shadow-xl hover:shadow-2xl'
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          }
+                        `}
                       >
                         {isSubmitting ? (
-                          <div className="flex items-center justify-center gap-4">
-                            <Loader2 className="w-7 h-7 animate-spin" />
-                            <span>상담 신청 처리 중...</span>
+                          <div className="flex items-center gap-3">
+                            <Loader2 className="w-6 h-6 animate-spin" />
+                            상담 신청 처리 중...
+                          </div>
+                        ) : !isOnline ? (
+                          <div className="flex items-center gap-3">
+                            <WifiOff className="w-6 h-6" />
+                            네트워크 연결을 확인해주세요
+                          </div>
+                        ) : !isFormValid ? (
+                          <div className="flex items-center gap-3">
+                            <AlertCircle className="w-6 h-6" />
+                            필수 정보를 입력해주세요
                           </div>
                         ) : (
-                          <div className="flex items-center justify-center gap-4">
-                            <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center">
-                              <MessageSquare className="w-6 h-6" />
-                            </div>
-                            <span>무료 상담 신청하기</span>
-                            <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                          <div className="flex items-center gap-3">
+                            <CheckCircle className="w-6 h-6" />
+                            상담 신청하기
+                            <ArrowRight className="w-6 h-6" />
                           </div>
                         )}
-                      </Button>
-                      
-                      {!isFormValid && (
-                        <div className="mt-6 p-6 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-4">
-                          <AlertCircle className="w-6 h-6 text-red-500 flex-shrink-0" />
-                          <p className="text-base text-red-700">
-                            <span className="font-bold">필수 항목 누락:</span> * 표시된 항목을 모두 입력해주세요
-                          </p>
-                        </div>
-                      )}
-                      
-                      {submitAttempts >= 2 && (
-                        <div className="mt-6 p-6 bg-amber-50 border border-amber-200 rounded-2xl">
-                          <div className="flex items-center gap-4">
-                            <Phone className="w-6 h-6 text-amber-600 flex-shrink-0" />
-                            <div>
-                              <p className="text-base font-bold text-amber-800">문제가 지속되시나요?</p>
-                              <p className="text-sm text-amber-700">직접 연락주세요: 010-9251-9743</p>
-                            </div>
+                      </button>
+
+                      {/* 재시도 안내 */}
+                      {submitAttempts > 0 && !isSubmitting && (
+                        <div className="apple-card bg-orange-50 border-orange-200 mt-6">
+                          <div className="text-center">
+                            <AlertCircle className="w-6 h-6 text-orange-600 mx-auto mb-2" />
+                            <p className="text-orange-800 font-medium mb-1">
+                              {submitAttempts === 1 ? '문제가 발생했습니다' : '계속해서 문제가 발생합니다'}
+                            </p>
+                            <p className="text-orange-600 text-sm">
+                              {submitAttempts >= 2 
+                                ? '직접 연락을 권장드립니다: 010-9251-9743'
+                                : '다시 시도하거나 직접 연락해 주세요'
+                              }
+                            </p>
                           </div>
                         </div>
                       )}
                     </div>
+
                   </form>
                 </div>
               </div>
             </div>
 
-            {/* 🍎 사이드바 (애플스토어 스타일) */}
-            <div className="lg:col-span-2 space-y-8">
+            {/* 🍎 애플스토어 스타일 사이드바 */}
+            <div className="lg:col-span-2 apple-spacing-lg">
               
-              {/* 상담 프로세스 */}
-              <div className="bg-white rounded-3xl shadow-2xl shadow-gray-200/50 border border-gray-200/30 overflow-hidden">
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-8 py-6 border-b border-gray-100">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
-                      <CheckCircle className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900">상담 프로세스</h3>
+              {/* 빠른 연락 */}
+              <div className="apple-card-large">
+                <div className="text-center mb-8">
+                  <div className="apple-icon-large bg-gradient-to-br from-green-500 to-emerald-600 mx-auto mb-6">
+                    <Phone className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="apple-subtitle">빠른 연락</h3>
+                  <p className="apple-caption">즉시 상담이 필요하시면</p>
+                </div>
+                
+                <div className="apple-spacing-sm">
+                  <a href="tel:010-9251-9743">
+                    <button className="apple-button-secondary mobile-full-width">
+                      <Phone className="w-5 h-5 mr-2" />
+                      전화 상담 (010-9251-9743)
+                    </button>
+                  </a>
+                  
+                  <a href="mailto:hongik423@gmail.com">
+                    <button className="apple-button-outline mobile-full-width">
+                      <Mail className="w-5 h-5 mr-2" />
+                      이메일 문의
+                    </button>
+                  </a>
+                </div>
+
+                <div className="apple-card bg-gray-50 mt-6">
+                  <div className="text-center">
+                    <Clock className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+                    <p className="font-semibold text-gray-900 mb-1">상담 시간</p>
+                    <p className="text-sm text-gray-600">평일 09:00 ~ 18:00</p>
+                    <p className="text-xs text-gray-500 mt-1">주말/공휴일 상담 가능</p>
                   </div>
                 </div>
-                <div className="p-8 space-y-8">
+              </div>
+
+              {/* 전문가 프로필 */}
+              <div className="apple-card-large">
+                <div className="text-center mb-6">
+                  <div className="w-20 h-20 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <User className="w-10 h-10 text-white" />
+                  </div>
+                  <h3 className="font-bold text-xl text-gray-900 mb-1">이후경 M센터장</h3>
+                  <p className="text-gray-600 font-medium">25년 경험 전문가</p>
+                </div>
+
+                <div className="apple-spacing-xs text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <Star className="w-4 h-4 text-yellow-500" />
+                    <span>중소벤처기업부 경영지도사</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Star className="w-4 h-4 text-yellow-500" />
+                    <span>500+ 기업 성장 지원</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Star className="w-4 h-4 text-yellow-500" />
+                    <span>95% 고객 만족도</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 서비스 안내 */}
+              <div className="apple-card-large">
+                <h3 className="apple-subtitle mb-6">핵심 서비스</h3>
+                <div className="apple-spacing-xs">
                   {[
-                    { step: '01', title: '상담 신청', desc: '온라인 신청서 작성', emoji: '📝' },
-                    { step: '02', title: '일정 조율', desc: '24시간 내 연락드림', emoji: '📞' },
-                    { step: '03', title: '전문가 상담', desc: '맞춤형 솔루션 제안', emoji: '💡' }
-                  ].map((process, index) => (
-                    <div key={index} className="flex items-center gap-6 group cursor-pointer">
-                      <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-xl group-hover:scale-110 transition-transform duration-300">
-                        <span className="text-lg font-bold text-white">{process.step}</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className="text-2xl">{process.emoji}</span>
-                          <h4 className="font-bold text-gray-900 text-lg">{process.title}</h4>
+                    { title: 'BM ZEN 사업분석', desc: '혁신 프레임워크', color: 'text-blue-600' },
+                    { title: 'AI 생산성 향상', desc: '정부 100% 지원', color: 'text-purple-600' },
+                    { title: '공장구매 절약', desc: '40% 비용절감', color: 'text-orange-600' },
+                    { title: '기술창업 지원', desc: '5억원 자금확보', color: 'text-green-600' }
+                  ].map((service, index) => (
+                    <div key={index} className="apple-card bg-gray-50 hover:bg-gray-100 transition-colors duration-200">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full ${service.color.replace('text-', 'bg-')}`}></div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-gray-900 text-overflow-safe">{service.title}</p>
+                          <p className="text-sm text-gray-600 text-overflow-safe">{service.desc}</p>
                         </div>
-                        <p className="text-gray-600 font-medium">{process.desc}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* 🍎 직접 연락 (애플스토어 스타일) */}
-              <div className="bg-white rounded-3xl shadow-2xl shadow-gray-200/50 border border-gray-200/30 overflow-hidden">
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-100">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-                      <Phone className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900">직접 연락</h3>
-                  </div>
-                </div>
-                <div className="p-8 space-y-6">
-                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-200/50 rounded-3xl p-6">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
-                        <Phone className="w-6 h-6 text-white" />
+              {/* 고객 후기 */}
+              <div className="apple-card-large">
+                <h3 className="apple-subtitle mb-6">고객 후기</h3>
+                <div className="apple-spacing-sm">
+                  {[
+                    {
+                      name: '김대표',
+                      company: '제조업',
+                      review: '전문적인 분석으로 매출이 300% 증가했습니다.',
+                      rating: 5
+                    },
+                    {
+                      name: '이사장',
+                      company: 'IT업',
+                      review: 'AI 도입으로 업무 효율성이 크게 향상되었어요.',
+                      rating: 5
+                    }
+                  ].map((review, index) => (
+                    <div key={index} className="apple-card bg-gradient-to-r from-blue-50 to-purple-50">
+                      <div className="flex items-center gap-1 mb-2">
+                        {[...Array(review.rating)].map((_, i) => (
+                          <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        ))}
                       </div>
-                      <div className="flex-1">
-                        <p className="font-bold text-gray-900 text-lg">이후경 책임컨설턴트</p>
-                        <p className="text-sm text-gray-600">디지털혁신센터장</p>
-                      </div>
-                    </div>
-                    <a 
-                      href="tel:010-9251-9743" 
-                      className="block w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-center py-4 rounded-2xl font-bold text-lg transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-xl"
-                    >
-                      📞 010-9251-9743 전화걸기
-                    </a>
-                  </div>
-
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-100 border-2 border-green-200/50 rounded-3xl p-6">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center shadow-lg">
-                        <Mail className="w-6 h-6 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-bold text-gray-900 text-lg">이메일 문의</p>
-                        <p className="text-sm text-gray-600">24시간 접수 가능</p>
-                      </div>
-                    </div>
-                    <a 
-                      href="mailto:hongik423@gmail.com" 
-                      className="block w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-center py-4 rounded-2xl font-bold text-lg transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-xl"
-                    >
-                      📧 hongik423@gmail.com
-                    </a>
-                  </div>
-
-                  <div className="bg-gray-50 border border-gray-200 rounded-3xl p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gray-500 rounded-2xl flex items-center justify-center shadow-lg">
-                        <Clock className="w-6 h-6 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-bold text-gray-900 text-lg mb-2">상담 시간</p>
-                        <p className="text-gray-700 font-medium">평일 09:00 - 18:00</p>
-                        <p className="text-sm text-gray-500">주말·공휴일 이메일 접수</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 🍎 신뢰성 통계 (애플스토어 스타일) */}
-              <div className="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 rounded-3xl shadow-2xl shadow-gray-400/30 overflow-hidden text-white">
-                <div className="bg-gradient-to-r from-white/10 to-white/5 px-8 py-6 border-b border-white/10">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-white/20 to-white/10 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                      <Star className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold">Professional Expert</h3>
-                  </div>
-                </div>
-                <div className="p-8">
-                  <div className="grid grid-cols-2 gap-8">
-                    {[
-                      { number: '25년', label: '전문 경험', emoji: '🎓' },
-                      { number: '500+', label: '성공 프로젝트', emoji: '🏆' },
-                      { number: '95%', label: '고객 만족도', emoji: '⭐' },
-                      { number: '300%', label: '평균 성과', emoji: '📈' }
-                    ].map((stat, index) => (
-                      <div key={index} className="text-center group cursor-pointer">
-                        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-white/20 to-white/10 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
-                          <span className="text-2xl">{stat.emoji}</span>
+                      <p className="text-gray-700 text-sm mb-3 text-overflow-safe">"{review.review}"</p>
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                          <User className="w-4 h-4 text-gray-600" />
                         </div>
-                        <div className="text-3xl font-bold mb-2">{stat.number}</div>
-                        <p className="text-sm font-medium text-white/80">{stat.label}</p>
+                        <div>
+                          <p className="font-semibold text-gray-900 text-sm">{review.name}</p>
+                          <p className="text-xs text-gray-600">{review.company}</p>
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
               </div>
+
             </div>
           </div>
         </div>
       </main>
+
+      {/* 🍎 애플스토어 스타일 푸터 CTA */}
+      <section className="bg-gray-900 text-white py-20">
+        <div className="mobile-container text-center">
+          <h2 className="apple-title text-white mb-6">
+            성장의 기회를
+            <br />
+            놓치지 마세요
+          </h2>
+          <p className="apple-body text-gray-300 max-w-2xl mx-auto mb-8">
+            지금 상담 신청하시면 24시간 내에
+            <br />
+            전문가가 직접 연락드립니다
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
+            <a href="tel:010-9251-9743">
+              <button className="apple-button bg-white text-gray-900 hover:bg-gray-100 mobile-full-width">
+                <Phone className="w-5 h-5 mr-2" />
+                즉시 전화상담
+              </button>
+            </a>
+            <button 
+              className="apple-button bg-blue-600 hover:bg-blue-700 text-white mobile-full-width"
+              onClick={() => {
+                document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              <ArrowRight className="w-5 h-5 mr-2" />
+              상담신청하기
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 } 

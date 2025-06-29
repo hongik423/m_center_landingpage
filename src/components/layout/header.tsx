@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { 
@@ -19,282 +19,373 @@ import {
   Mail,
   Target,
   User,
-  Users
+  Users,
+  Calculator,
+  MessageCircle,
+  ChevronDown,
+  Zap,
+  Star
 } from 'lucide-react';
 import { getImagePath } from '@/lib/utils';
 
-export default function Header() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+const Header = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isServicesOpen, setIsServicesOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
+  // 스크롤 감지
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // 모바일 메뉴 토글
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+    setIsServicesOpen(false);
+  };
+
+  // 페이지 이동 핸들러
   const handleNavigation = (path: string) => {
-    if (typeof window !== 'undefined') {
-      router.push(path);
-    }
+    router.push(path);
+    setIsMenuOpen(false);
+    setIsServicesOpen(false);
   };
 
-  const handleMobileNavigation = (path: string) => {
-    if (typeof window !== 'undefined') {
-      setIsMobileMenuOpen(false);
-      setTimeout(() => {
-        router.push(path);
-      }, 100);
+  // 서비스 메뉴 데이터
+  const services = [
+    {
+      title: '사업분석',
+      desc: '혁신 프레임워크',
+      href: '/services/business-analysis',
+      icon: <Brain className="w-5 h-5 text-blue-600" />
+    },
+    {
+      title: 'AI 생산성',
+      desc: '정부 100% 지원',
+      href: '/services/ai-productivity',
+      icon: <Bot className="w-5 h-5 text-purple-600" />
+    },
+    {
+      title: '공장구매',
+      desc: '40% 비용절감',
+      href: '/services/factory-auction',
+      icon: <Factory className="w-5 h-5 text-orange-600" />
+    },
+    {
+      title: '기술창업',
+      desc: '5억원 자금확보',
+      href: '/services/tech-startup',
+      icon: <Rocket className="w-5 h-5 text-green-600" />
+    },
+    {
+      title: '인증지원',
+      desc: '5천만원 혜택',
+      href: '/services/certification',
+      icon: <Award className="w-5 h-5 text-cyan-600" />
+    },
+    {
+      title: '웹사이트',
+      desc: '매출 30% 증대',
+      href: '/services/website',
+      icon: <Globe className="w-5 h-5 text-indigo-600" />
     }
-  };
+  ];
 
   return (
     <>
-      {/* 완전한 애플 스타일 헤더 */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-200/30">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <nav className="flex items-center justify-between h-16">
-            {/* 브랜드 로고 - SVG 로고로 교체 */}
-            <div className="flex items-center">
-              <button onClick={() => handleNavigation('/')} className="flex items-center space-x-3 hover:opacity-70 transition-opacity duration-200">
-                <div className="w-10 h-10 flex items-center justify-center">
-                  <img 
-                    src="/LOGO.svg" 
-                    alt="M-CENTER 로고" 
-                    className="w-8 h-8 object-contain"
-                  />
+      {/* 🍎 애플스토어 스타일 헤더 */}
+      <header className={`mobile-nav-improved transition-all duration-300 ${
+        isScrolled ? 'shadow-lg' : ''
+      }`}>
+        <div className="mobile-container">
+          <div className="flex items-center justify-between h-16">
+            {/* 🍎 애플스토어 스타일 브랜드 로고 */}
+            <Link 
+              href="/"
+              className="flex items-center space-x-3 group touch-target"
+              aria-label="M-CENTER 홈페이지로 이동"
+            >
+              <div className="apple-icon bg-gradient-to-br from-blue-500 to-purple-600 group-hover:scale-110 transition-transform duration-200">
+                <img 
+                  src={getImagePath('/LOGO.JPG')}
+                  alt="M-CENTER 로고" 
+                  className="w-8 h-8 object-contain"
+                />
+              </div>
+              <div className="hidden sm:block">
+                <span className="font-bold text-xl text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                  M-CENTER
+                </span>
+                <div className="apple-badge bg-blue-100 text-blue-800 text-xs ml-2 px-2 py-0.5">
+                  프리미엄
                 </div>
-                <div className="text-left">
-                  <div className="font-medium text-gray-900 text-sm leading-tight">
-                    M-CENTER
-                  </div>
-                </div>
-              </button>
-            </div>
+              </div>
+            </Link>
 
-            {/* 데스크톱 네비게이션 - 완전한 애플 스타일 */}
-            <div className="hidden lg:flex items-center space-x-10">
-              <Link 
-                href="/" 
-                className="text-gray-600 hover:text-gray-900 text-sm font-normal transition-colors duration-200"
-              >
-                홈
-              </Link>
-              
-              <button 
-                className="text-gray-600 hover:text-gray-900 text-sm font-normal transition-colors duration-200"
-                onClick={() => handleNavigation('/services/business-analysis')}
-              >
-                사업분석
-              </button>
-              
-              <button 
-                className="text-gray-600 hover:text-gray-900 text-sm font-normal transition-colors duration-200"
-                onClick={() => handleNavigation('/services/ai-productivity')}
-              >
-                AI생산성
-              </button>
-              
-              <button 
-                className="text-gray-600 hover:text-gray-900 text-sm font-normal transition-colors duration-200 hidden xl:flex"
-                onClick={() => handleNavigation('/diagnosis')}
-              >
-                진단
-              </button>
-              
-              <button 
-                className="text-gray-600 hover:text-gray-900 text-sm font-normal transition-colors duration-200 hidden xl:flex"
-                onClick={() => handleNavigation('/services/factory-auction')}
-              >
-                공장구매
-              </button>
-              
-              <button 
-                className="text-gray-600 hover:text-gray-900 text-sm font-normal transition-colors duration-200 hidden xl:flex"
-                onClick={() => handleNavigation('/services/tech-startup')}
-              >
-                기술창업
-              </button>
-              
-              <button 
-                className="text-gray-600 hover:text-gray-900 text-sm font-normal transition-colors duration-200"
-                onClick={() => handleNavigation('/services/certification')}
-              >
-                인증지원
-              </button>
-              
-              <button 
-                className="text-gray-600 hover:text-gray-900 text-sm font-normal transition-colors duration-200"
-                onClick={() => handleNavigation('/services/website')}
-              >
-                웹사이트
-              </button>
-              
-              <Link 
-                href="/center-leader" 
-                className="text-gray-600 hover:text-gray-900 text-sm font-normal transition-colors duration-200 whitespace-nowrap"
-              >
-                센터장
-              </Link>
-              
-              <Link 
-                href="/cases" 
-                className="text-gray-600 hover:text-gray-900 text-sm font-normal transition-colors duration-200 whitespace-nowrap"
+            {/* 🍎 데스크탑 네비게이션 */}
+            <nav className="hidden lg:flex items-center space-x-1">
+              {/* 서비스 드롭다운 */}
+              <div className="relative">
+                <button
+                  className="apple-button-ghost flex items-center gap-1"
+                  onMouseEnter={() => setIsServicesOpen(true)}
+                  onMouseLeave={() => setIsServicesOpen(false)}
+                  onClick={() => setIsServicesOpen(!isServicesOpen)}
+                >
+                  <span>서비스</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${
+                    isServicesOpen ? 'rotate-180' : ''
+                  }`} />
+                </button>
+
+                {/* 🍎 서비스 드롭다운 메뉴 */}
+                {isServicesOpen && (
+                  <div 
+                    className="absolute top-full left-0 w-96 mt-2 bg-white/95 backdrop-blur-xl 
+                               border border-gray-100/50 shadow-2xl rounded-3xl p-6 z-50"
+                    onMouseEnter={() => setIsServicesOpen(true)}
+                    onMouseLeave={() => setIsServicesOpen(false)}
+                  >
+                    <div className="apple-grid-2">
+                      {services.map((service, index) => (
+                        <Link
+                          key={index}
+                          href={service.href}
+                          className="apple-card p-4 hover:scale-[1.02] transition-all duration-200"
+                          onClick={() => setIsServicesOpen(false)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="apple-icon bg-gray-100">
+                              {service.icon}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-900 text-sm text-overflow-safe">
+                                {service.title}
+                              </h3>
+                              <p className="text-xs text-gray-500 text-overflow-safe">
+                                {service.desc}
+                              </p>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <button
+                className="apple-button-ghost"
+                onClick={() => handleNavigation('/cases')}
               >
                 성공사례
-              </Link>
-            </div>
+              </button>
 
-            {/* 액션 버튼들 - 애플 스타일 아이콘 */}
-            <div className="hidden md:flex lg:flex items-center space-x-4">
-              <Button 
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+              <button
+                className="apple-button-ghost"
+                onClick={() => handleNavigation('/center-leader')}
+              >
+                센터장
+              </button>
+
+              <button
+                className="apple-button-ghost"
+                onClick={() => handleNavigation('/support')}
+              >
+                고객지원
+              </button>
+            </nav>
+
+            {/* 🍎 액션 버튼들 - 애플스토어 스타일 */}
+            <div className="hidden lg:flex items-center space-x-3">
+              <button 
+                className="apple-button bg-blue-600 hover:bg-blue-700 text-white px-4 py-2"
                 onClick={() => handleNavigation('/tax-calculator')}
               >
                 세금계산
-              </Button>
+              </button>
               
-              <Button 
-                className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+              <button 
+                className="apple-button bg-black hover:bg-gray-800 text-white px-4 py-2"
                 onClick={() => handleNavigation('/diagnosis')}
               >
                 무료진단
-              </Button>
+              </button>
               
-              <Button 
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+              <button 
+                className="apple-button bg-green-600 hover:bg-green-700 text-white px-4 py-2"
                 onClick={() => handleNavigation('/consultation')}
               >
                 상담신청
-              </Button>
+              </button>
             </div>
 
-            {/* 모바일 햄버거 메뉴 */}
-            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="md:hidden w-10 h-10 rounded-md hover:bg-gray-100 transition-colors duration-200"
-                >
-                  <Menu className="w-5 h-5 text-gray-700" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent 
-                side="right" 
-                className="w-full sm:w-80 bg-white/95 backdrop-blur-xl border-l border-gray-200"
-              >
-                {/* 모바일 메뉴 헤더 - SVG 로고로 교체 */}
-                <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-200">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 flex items-center justify-center">
-                      <img 
-                        src="/LOGO.svg" 
-                        alt="M-CENTER 로고" 
-                        className="w-8 h-8 object-contain"
-                      />
-                    </div>
-                    <div>
-                      <h2 className="font-medium text-gray-900">M-CENTER</h2>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="w-8 h-8 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <X className="w-4 h-4 text-gray-600" />
-                  </Button>
-                </div>
-
-                <div className="space-y-6">
-                  {/* 주요 서비스 메뉴 - 완전한 애플 스타일 */}
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-4">
-                      서비스
-                    </h3>
-                    <div className="space-y-1">
-                      {[
-                        { href: '/services/business-analysis', label: 'BM ZEN 사업분석' },
-                        { href: '/services/ai-productivity', label: 'AI 생산성향상' },
-                        { href: '/diagnosis', label: '3분 AI 진단' },
-                        { href: '/services/factory-auction', label: '공장구매 절약' },
-                        { href: '/services/tech-startup', label: '기술창업' },
-                        { href: '/services/certification', label: '인증지원' },
-                        { href: '/services/website', label: '웹사이트 구축' }
-                      ].map((item) => (
-                        <button
-                          key={item.href}
-                          className="w-full text-left py-3 text-gray-600 hover:text-gray-900 text-sm transition-colors duration-200"
-                          onClick={() => handleMobileNavigation(item.href)}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="border-t border-gray-200"></div>
-                  
-                  {/* 페이지 메뉴 */}
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-4">정보</h3>
-                    <div className="space-y-1">
-                      {[
-                        { href: '/', label: '홈' },
-                        { href: '/center-leader', label: '센터장' },
-                        { href: '/cases', label: '성공사례' },
-                        { href: '/tax-calculator', label: '세금계산기' }
-                      ].map((item) => (
-                        <button
-                          key={item.href}
-                          className="w-full text-left py-3 text-gray-600 hover:text-gray-900 text-sm transition-colors duration-200"
-                          onClick={() => handleMobileNavigation(item.href)}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="border-t border-gray-200"></div>
-
-                  {/* 연락처 */}
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-4">문의</h3>
-                    <div className="space-y-3">
-                      <div>
-                        <div className="font-medium text-gray-900 text-sm">010-9251-9743</div>
-                        <div className="text-xs text-gray-500">이후경 경영지도사</div>
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900 text-sm">hongik423@gmail.com</div>
-                        <div className="text-xs text-gray-500">24시간 이메일 접수</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* 모바일 액션 버튼들 */}
-                  <div className="flex space-x-3 pt-4">
-                    <Button 
-                      className="flex-1 bg-black hover:bg-gray-800 text-white transition-colors duration-200 rounded-lg"
-                      onClick={() => handleMobileNavigation('/diagnosis')}
-                    >
-                      무료 진단
-                    </Button>
-                    
-                    <Button 
-                      variant="outline"
-                      className="flex-1 border-gray-300 hover:border-gray-400 text-gray-900 hover:bg-gray-50 transition-all duration-200 rounded-lg"
-                      onClick={() => handleMobileNavigation('/consultation')}
-                    >
-                      전문가 상담
-                    </Button>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </nav>
+            {/* 🍎 모바일 메뉴 버튼 */}
+            <button
+              className="lg:hidden apple-button-ghost p-2"
+              onClick={toggleMenu}
+              aria-label="메뉴 열기"
+            >
+              {isMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
         </div>
       </header>
-      
-      {/* 헤더 공간 확보 */}
-      <div className="h-16" />
+
+      {/* 🍎 모바일 메뉴 오버레이 */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* 배경 오버레이 */}
+          <div 
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setIsMenuOpen(false)}
+          />
+          
+          {/* 🍎 애플스토어 스타일 모바일 메뉴 */}
+          <div className="absolute top-0 right-0 w-full max-w-sm h-full bg-white/95 backdrop-blur-xl 
+                          border-l border-gray-100/50 shadow-2xl overflow-y-auto">
+            <div className="p-6">
+              {/* 메뉴 헤더 */}
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="apple-icon bg-gradient-to-br from-blue-500 to-purple-600">
+                    <img 
+                      src={getImagePath('/LOGO.JPG')}
+                      alt="M-CENTER 로고" 
+                      className="w-6 h-6 object-contain"
+                    />
+                  </div>
+                  <span className="font-bold text-lg text-gray-900">M-CENTER</span>
+                </div>
+                <button
+                  className="apple-button-ghost p-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* 🍎 주요 액션 버튼들 */}
+              <div className="apple-spacing-sm mb-8">
+                <button 
+                  className="apple-button-primary mobile-full-width"
+                  onClick={() => handleNavigation('/diagnosis')}
+                >
+                  <Zap className="w-5 h-5 mr-2" />
+                  무료진단
+                </button>
+                
+                <button 
+                  className="apple-button-secondary mobile-full-width"
+                  onClick={() => handleNavigation('/consultation')}
+                >
+                  <Users className="w-5 h-5 mr-2" />
+                  상담신청
+                </button>
+                
+                <button 
+                  className="apple-button-outline mobile-full-width"
+                  onClick={() => handleNavigation('/tax-calculator')}
+                >
+                  <Calculator className="w-5 h-5 mr-2" />
+                  세금계산
+                </button>
+              </div>
+
+              {/* 🍎 서비스 섹션 */}
+              <div className="mb-8">
+                <h3 className="font-semibold text-gray-900 mb-4 text-overflow-safe">핵심 서비스</h3>
+                <div className="apple-spacing-xs">
+                  {services.map((service, index) => (
+                    <button
+                      key={index}
+                      className="apple-card w-full p-4 text-left hover:scale-[1.02] transition-all duration-200"
+                      onClick={() => handleNavigation(service.href)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="apple-icon bg-gray-100">
+                          {service.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-gray-900 text-overflow-safe">
+                            {service.title}
+                          </h4>
+                          <p className="text-sm text-gray-500 text-overflow-safe">
+                            {service.desc}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 🍎 기타 메뉴 */}
+              <div className="mb-8">
+                <h3 className="font-semibold text-gray-900 mb-4 text-overflow-safe">더 알아보기</h3>
+                <div className="apple-spacing-xs">
+                  {[
+                    { title: '성공사례', href: '/cases', icon: <Star className="w-5 h-5 text-yellow-500" /> },
+                    { title: '센터장 소개', href: '/center-leader', icon: <User className="w-5 h-5 text-blue-500" /> },
+                    { title: '고객지원', href: '/support', icon: <MessageCircle className="w-5 h-5 text-green-500" /> },
+                    { title: '챗봇상담', href: '/chatbot', icon: <Bot className="w-5 h-5 text-purple-500" /> }
+                  ].map((item, index) => (
+                    <button
+                      key={index}
+                      className="apple-card w-full p-4 text-left hover:scale-[1.02] transition-all duration-200"
+                      onClick={() => handleNavigation(item.href)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="apple-icon bg-gray-100">
+                          {item.icon}
+                        </div>
+                        <span className="font-medium text-gray-900 text-overflow-safe">
+                          {item.title}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 🍎 연락처 */}
+              <div className="apple-card bg-gradient-to-r from-blue-50 to-purple-50">
+                <div className="text-center">
+                  <h4 className="font-semibold text-gray-900 mb-2 text-overflow-safe">전문가 직접 상담</h4>
+                  <p className="text-sm text-gray-600 mb-4 text-overflow-safe">이후경 M센터장</p>
+                  <div className="apple-spacing-xs">
+                    <a href="tel:010-9251-9743">
+                      <button className="apple-button-primary mobile-full-width">
+                        <Phone className="w-4 h-4 mr-2" />
+                        010-9251-9743
+                      </button>
+                    </a>
+                    <a href="mailto:hongik423@gmail.com">
+                      <button className="apple-button-outline mobile-full-width">
+                        <Mail className="w-4 h-4 mr-2" />
+                        이메일 문의
+                      </button>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
-} 
+};
+
+export default Header; 

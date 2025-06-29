@@ -669,6 +669,368 @@
       margin-bottom: 8px !important;
     }
   }
+
+  /* 🍎 Apple Store Style Mobile UI Classes */
+  .mobile-container {
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .apple-section {
+    @apply py-16 sm:py-20 lg:py-24;
+  }
+  
+  .apple-card {
+    @apply bg-white/95 backdrop-blur-sm rounded-3xl shadow-sm;
+    @apply border border-gray-100/50 p-6 sm:p-8;
+    @apply transition-all duration-300 ease-out;
+    @apply hover:shadow-lg hover:shadow-black/5 hover:-translate-y-1;
+  }
+  
+  .apple-card-large {
+    @apply bg-white/95 backdrop-blur-sm rounded-3xl shadow-sm;
+    @apply border border-gray-100/50 p-8 sm:p-10 lg:p-12;
+    @apply transition-all duration-300 ease-out;
+    @apply hover:shadow-lg hover:shadow-black/5 hover:-translate-y-1;
+  }
+  
+  .apple-button {
+    @apply inline-flex items-center justify-center;
+    @apply px-6 py-3 text-base font-semibold;
+    @apply rounded-full transition-all duration-300;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  .apple-button-primary {
+    @apply apple-button bg-blue-600 text-white;
+    @apply hover:bg-blue-700 focus:ring-blue-500;
+    @apply shadow-lg hover:shadow-xl hover:shadow-blue-500/25;
+    @apply transform hover:-translate-y-0.5 active:translate-y-0;
+  }
+  
+  .apple-button-secondary {
+    @apply apple-button bg-green-600 text-white;
+    @apply hover:bg-green-700 focus:ring-green-500;
+    @apply shadow-lg hover:shadow-xl hover:shadow-green-500/25;
+    @apply transform hover:-translate-y-0.5 active:translate-y-0;
+  }
+  
+  .apple-button-outline {
+    @apply apple-button bg-transparent text-gray-900;
+    @apply border-2 border-gray-300 hover:border-blue-500;
+    @apply hover:text-blue-600 focus:ring-gray-500;
+    @apply hover:bg-blue-50/50;
+  }
+  
+  .apple-button-ghost {
+    @apply apple-button bg-gray-100/80 text-gray-700;
+    @apply hover:bg-gray-200/80 hover:text-gray-900;
+    @apply focus:ring-gray-500;
+  }
+  
+  .apple-title {
+    @apply text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold;
+    @apply leading-tight tracking-tight text-gray-900;
+    @apply mb-6 lg:mb-8;
+  }
+  
+  .apple-subtitle {
+    @apply text-xl sm:text-2xl lg:text-3xl font-semibold;
+    @apply leading-tight text-gray-900;
+    @apply mb-4 lg:mb-6;
+  }
+  
+  .apple-body {
+    @apply text-lg sm:text-xl leading-relaxed text-gray-600;
+    @apply mb-6 lg:mb-8;
+  }
+  
+  .apple-caption {
+    @apply text-sm sm:text-base text-gray-500;
+    @apply leading-relaxed;
+  }
+  
+  .mobile-text {
+    @apply text-base sm:text-lg leading-relaxed;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  
+  .mobile-centered {
+    @apply text-center sm:text-left;
+  }
+  
+  .text-overflow-safe {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+  }
+  
+  .link-text-wrap {
+    word-break: keep-all;
+    white-space: nowrap;
+  }
+  
+  .service-card-mobile {
+    @apply apple-card hover:scale-[1.02];
+    @apply transition-all duration-300 ease-out;
+  }
+  
+  .apple-icon {
+    @apply w-12 h-12 rounded-2xl flex items-center justify-center;
+    @apply bg-gradient-to-br shadow-sm;
+  }
+  
+  .apple-icon-large {
+    @apply w-16 h-16 rounded-3xl flex items-center justify-center;
+    @apply bg-gradient-to-br shadow-md;
+  }
+  
+  .apple-badge {
+    @apply inline-flex items-center px-3 py-1;
+    @apply text-sm font-medium rounded-full;
+    @apply bg-gray-100 text-gray-800;
+    @apply border border-gray-200/50;
+  }
+  
+  .apple-badge-primary {
+    @apply apple-badge bg-blue-100 text-blue-800;
+    @apply border-blue-200/50;
+  }
+  
+  .apple-badge-success {
+    @apply apple-badge bg-green-100 text-green-800;
+    @apply border-green-200/50;
+  }
+  
+  .apple-grid {
+    @apply grid gap-6 sm:gap-8 lg:gap-10;
+  }
+  
+  .apple-grid-2 {
+    @apply apple-grid grid-cols-1 sm:grid-cols-2;
+  }
+  
+  .apple-grid-3 {
+    @apply apple-grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  
+  .apple-grid-4 {
+    @apply apple-grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
+  }
+  
+  .apple-animation-fadeIn {
+    animation: appleeFadeIn 0.6s ease-out forwards;
+  }
+  
+  .apple-animation-slideUp {
+    animation: appleSlideUp 0.8s ease-out forwards;
+  }
+  
+  .apple-animation-scale {
+    animation: appleScale 0.4s ease-out forwards;
+  }
+  
+  .mobile-nav-improved {
+    @apply fixed inset-x-0 top-0 z-50;
+    @apply bg-white/95 backdrop-blur-xl;
+    @apply border-b border-gray-200/50;
+    @apply shadow-sm;
+  }
+  
+  .floating-action-button {
+    @apply fixed bottom-6 right-6 z-50;
+    @apply w-14 h-14 rounded-full;
+    @apply bg-blue-600 text-white;
+    @apply shadow-lg hover:shadow-xl;
+    @apply transition-all duration-300;
+    @apply flex items-center justify-center;
+    @apply hover:scale-110 active:scale-95;
+  }
+  
+  .apple-form-group {
+    @apply space-y-2 mb-6;
+  }
+  
+  .apple-input {
+    @apply w-full px-4 py-4 text-base;
+    @apply bg-gray-50 border border-gray-200;
+    @apply rounded-2xl transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500;
+    @apply focus:border-transparent focus:bg-white;
+    @apply placeholder-gray-400;
+    @apply min-h-[52px];
+  }
+  
+  .apple-textarea {
+    @apply apple-input resize-none min-h-[120px];
+  }
+  
+  .apple-select {
+    @apply apple-input appearance-none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 1rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 3rem;
+  }
+  
+  .apple-spacing-xs {
+    @apply space-y-4 sm:space-y-6;
+  }
+  
+  .apple-spacing-sm {
+    @apply space-y-6 sm:space-y-8;
+  }
+  
+  .apple-spacing-md {
+    @apply space-y-8 sm:space-y-10 lg:space-y-12;
+  }
+  
+  .apple-spacing-lg {
+    @apply space-y-12 sm:space-y-16 lg:space-y-20;
+  }
+  
+  @media (max-width: 640px) {
+    .mobile-hide {
+      @apply hidden;
+    }
+    
+    .mobile-show {
+      @apply block;
+    }
+    
+    .mobile-full-width {
+      @apply w-full;
+    }
+    
+    .mobile-text-center {
+      @apply text-center;
+    }
+    
+    .mobile-px-4 {
+      @apply px-4;
+    }
+    
+    .mobile-py-6 {
+      @apply py-6;
+    }
+  }
+  
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .tablet-grid-2 {
+      @apply grid-cols-2;
+    }
+    
+    .tablet-text-center {
+      @apply text-center;
+    }
+  }
+  
+  @media (min-width: 1025px) {
+    .desktop-grid-3 {
+      @apply grid-cols-3;
+    }
+    
+    .desktop-grid-4 {
+      @apply grid-cols-4;
+    }
+  }
+}
+
+/* 애플스토어 스타일 키프레임 애니메이션 */
+@keyframes appleFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes appleSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes appleScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 부드러운 스크롤 */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 애플스토어 스타일 스크롤바 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+  .apple-animation-fadeIn,
+  .apple-animation-slideUp,
+  .apple-animation-scale {
+    animation: none;
+  }
+  
+  .apple-button,
+  .apple-card,
+  .service-card-mobile {
+    transition: none;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .apple-card,
+  .apple-card-large {
+    @apply bg-gray-900/95 border-gray-700/50 text-white;
+  }
+  
+  .apple-input,
+  .apple-textarea,
+  .apple-select {
+    @apply bg-gray-800 border-gray-600 text-white;
+    @apply focus:bg-gray-700;
+  }
+  
+  .apple-badge {
+    @apply bg-gray-700 text-gray-200 border-gray-600/50;
+  }
 }
 
 /* 전역 버튼 최적화 */

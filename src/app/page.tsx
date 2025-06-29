@@ -22,13 +22,14 @@ import {
   Zap,
   Shield,
   Sparkles,
-  CheckCircle2
+  CheckCircle2,
+  Phone
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-// 서비스 데이터 - 프리미엄하고 신비로운 표현
+// 서비스 데이터 - 애플스토어 스타일로 업데이트
 const services = [
   {
     id: 'business-analysis',
@@ -36,8 +37,8 @@ const services = [
     subtitle: '신규사업 성공률 95%',
     description: '차세대 비즈니스 혁신 솔루션',
     icon: Cpu,
-    color: 'bg-gradient-to-br from-blue-500 to-purple-600 text-white',
-    bgColor: 'from-blue-50 to-purple-50',
+    color: 'from-blue-500 to-purple-600',
+    textColor: 'text-white',
     href: '/services/business-analysis',
     benefits: ['95% 성공률 보장', '매출 4배 증가', '5단계 전략 프레임워크'],
     badge: '⭐ 추천',
@@ -49,8 +50,8 @@ const services = [
     subtitle: '업무 효율성 40% 향상',
     description: '20주 프로그램으로 디지털 혁신 완성',
     icon: Zap,
-    color: 'bg-purple-100 text-purple-600',
-    bgColor: 'from-purple-50 to-pink-50',
+    color: 'from-purple-500 to-pink-600',
+    textColor: 'text-white',
     href: '/services/ai-productivity',
     benefits: ['정부 100% 지원', '20주 집중 프로그램', '업무 효율성 40% 향상'],
     badge: '🎯 정부지원'
@@ -61,8 +62,8 @@ const services = [
     subtitle: '시장가 대비 40% 절약',
     description: '경매 활용 지능형 투자 전략',
     icon: Factory,
-    color: 'bg-orange-100 text-orange-600',
-    bgColor: 'from-orange-50 to-red-50',
+    color: 'from-orange-500 to-red-600',
+    textColor: 'text-white',
     href: '/services/factory-auction',
     benefits: ['투자비 40% 절약', '전문가 동행', '완전 위탁 진행'],
     badge: '💰 절약'
@@ -73,8 +74,8 @@ const services = [
     subtitle: '평균 5억원 자금 확보',
     description: '정부지원 연계 기술사업화',
     icon: Rocket,
-    color: 'bg-green-100 text-green-600',
-    bgColor: 'from-green-50 to-emerald-50',
+    color: 'from-green-500 to-emerald-600',
+    textColor: 'text-white',
     href: '/services/tech-startup',
     benefits: ['평균 5억원 확보', '성공률 85%', '3년 사후관리'],
     badge: '🚀 성장'
@@ -85,8 +86,8 @@ const services = [
     subtitle: '연간 5천만원 세제혜택',
     description: '벤처·ISO·ESG 통합 인증',
     icon: Award,
-    color: 'bg-blue-100 text-blue-600',
-    bgColor: 'from-blue-50 to-cyan-50',
+    color: 'from-blue-500 to-cyan-600',
+    textColor: 'text-white',
     href: '/services/certification',
     benefits: ['5천만원 세제혜택', '통합 인증 관리', '100% 취득 보장'],
     badge: '🏆 인증'
@@ -97,15 +98,15 @@ const services = [
     subtitle: '온라인 매출 30% 증대',
     description: '차세대 디지털 솔루션',
     icon: Globe,
-    color: 'bg-indigo-100 text-indigo-600',
-    bgColor: 'from-indigo-50 to-violet-50',
+    color: 'from-indigo-500 to-violet-600',
+    textColor: 'text-white',
     href: '/services/website',
     benefits: ['매출 30% 증대', '지능형 최적화', '무료 1년 관리'],
     badge: '🌐 디지털'
   }
 ];
 
-// 성장 단계 데이터 - 신비롭고 고급스러운 표현
+// 성장 단계 데이터 - 애플스토어 스타일로 업데이트
 const growthStages = [
   {
     step: '1단계',
@@ -113,7 +114,8 @@ const growthStages = [
     title: '기반 구축',
     description: '창업 초기 필수 요소 완성',
     features: ['창업 자금 확보', '기본 인증 취득', '신뢰도 구축'],
-    color: 'border-green-200 bg-gradient-to-br from-green-50 to-emerald-50',
+    color: 'from-green-50 to-emerald-50',
+    borderColor: 'border-green-200',
     icon: '🌱'
   },
   {
@@ -122,7 +124,8 @@ const growthStages = [
     title: '성장 가속화',
     description: '조직 확장과 시스템 구축',
     features: ['조직 확장', '기술 고도화', '매출 확대'],
-    color: 'border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50',
+    color: 'from-blue-50 to-cyan-50',
+    borderColor: 'border-blue-200',
     icon: '🚀'
   },
   {
@@ -131,7 +134,8 @@ const growthStages = [
     title: '시장 지배력',
     description: '혁신 도입과 글로벌 진출',
     features: ['혁신 도입', '글로벌 진출', '생태계 구축'],
-    color: 'border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50',
+    color: 'from-purple-50 to-pink-50',
+    borderColor: 'border-purple-200',
     icon: '🏆'
   },
   {
@@ -140,12 +144,13 @@ const growthStages = [
     title: '지속가능 혁신',
     description: '미래 지향적 기업 전환',
     features: ['디지털 전환', '사회적 책임', '미래 준비'],
-    color: 'border-orange-200 bg-gradient-to-br from-orange-50 to-yellow-50',
+    color: 'from-orange-50 to-yellow-50',
+    borderColor: 'border-orange-200',
     icon: '⭐'
   }
 ];
 
-// 실시간 지표 데이터 - 업데이트
+// 실시간 지표 데이터
 const performanceMetrics = [
   { label: '완료된 진단', value: '1,247', suffix: '건', icon: BarChart3, color: 'text-blue-600' },
   { label: '성공 프로젝트', value: '324', suffix: '건', icon: Target, color: 'text-green-600' },
@@ -153,7 +158,7 @@ const performanceMetrics = [
   { label: '고객 만족도', value: '94.2', suffix: '%', icon: Star, color: 'text-orange-600' }
 ];
 
-// 고객 후기 데이터 - 업데이트
+// 고객 후기 데이터
 const testimonials = [
   {
     name: '김세무',
@@ -181,7 +186,7 @@ const testimonials = [
   }
 ];
 
-// 숫자 카운트업 애니메이션 훅 - 개선
+// 숫자 카운트업 애니메이션 훅
 function useCountUp(end: number, duration: number = 2000) {
   const [count, setCount] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
@@ -218,7 +223,7 @@ function useCountUp(end: number, duration: number = 2000) {
   return count;
 }
 
-// 메트릭 카드 컴포넌트 - 토스 스타일 적용
+// 애플스토어 스타일 메트릭 카드 컴포넌트
 function MetricCard({ metric }: { metric: typeof performanceMetrics[0] }) {
   const count = useCountUp(parseInt(metric.value.replace('.', '')));
   const displayValue = metric.label === '고객 만족도' 
@@ -226,20 +231,19 @@ function MetricCard({ metric }: { metric: typeof performanceMetrics[0] }) {
     : count.toLocaleString();
 
   return (
-    <Card className="service-card-mobile group cursor-pointer animate-scale-in">
-      <CardContent className="p-6 text-center">
-        <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl 
-                        flex items-center justify-center mx-auto mb-4 
-                        group-hover:scale-110 transition-transform duration-300">
+    <div className="apple-card apple-animation-scale touch-target">
+      <div className="text-center">
+        <div className={`apple-icon-large bg-gradient-to-br from-blue-100 to-purple-100 mx-auto mb-4 
+                        group-hover:scale-110 transition-transform duration-300`}>
           <metric.icon className={`w-8 h-8 ${metric.color}`} />
         </div>
-        <div className={`text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 ${metric.color} font-mono mobile-centered`}>
+        <div className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 ${metric.color} font-mono`}>
           <span className="text-overflow-safe">{displayValue}</span>
           <span className="text-lg ml-1 text-gray-500">{metric.suffix}</span>
         </div>
-        <p className="text-gray-600 font-medium text-sm mobile-text text-overflow-safe">{metric.label}</p>
-      </CardContent>
-    </Card>
+        <p className="apple-caption text-overflow-safe">{metric.label}</p>
+      </div>
+    </div>
   );
 }
 
@@ -248,8 +252,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section - 신비롭고 고급스러운 표현 */}
-      <section className="gradient-bg-hero section-padding relative overflow-hidden">
+      {/* 🍎 애플스토어 스타일 Hero Section */}
+      <section className="apple-section bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
         {/* 배경 패턴 */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-10 left-10 w-32 h-32 bg-blue-400 rounded-full blur-xl"></div>
@@ -260,242 +264,233 @@ export default function Home() {
         <div className="mobile-container relative z-10">
           <div className="max-w-5xl mx-auto text-center">
             {/* 상단 배지 */}
-            <div className="inline-flex items-center gap-2 badge-primary mb-6 animate-bounce-gentle">
-              <Sparkles className="w-4 h-4" />
+            <div className="apple-badge-primary mb-8 apple-animation-fadeIn">
+              <Sparkles className="w-4 h-4 mr-2" />
               <span className="font-semibold text-overflow-safe">프리미엄 비즈니스 혁신 프레임워크</span>
             </div>
             
-            <h1 className="text-hero text-gray-900 mb-6 leading-tight animate-slide-in mobile-centered">
+            <h1 className="apple-title apple-animation-slideUp mobile-centered">
               <span className="block text-overflow-safe">기업 성장의 새로운 차원을</span>
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent text-overflow-safe">
                 경험하세요
               </span>
             </h1>
             
-            <p className="text-body-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed px-4 animate-slide-in mobile-text" 
+            <p className="apple-body max-w-3xl mx-auto apple-animation-slideUp mobile-text" 
                style={{ animationDelay: '0.2s' }}>
               <strong className="text-gray-800">혁신 AI, 스마트 투자, 기술창업, 프리미엄 인증, 디지털 혁신</strong> - 
               6대 영역 통합 솔루션으로 차원이 다른 비즈니스 성과를 만나보세요
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center px-4 animate-slide-in"
+            <div className="apple-spacing-xs apple-animation-slideUp"
                  style={{ animationDelay: '0.4s' }}>
-              <Link href="/services">
-                <Button 
-                  className="mobile-button btn-hero bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 
-                            text-white shadow-xl hover:shadow-2xl w-full sm:w-auto"
-                >
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  <span className="text-overflow-safe">프리미엄 사업분석 시작하기</span>
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-              
-              <Link href="/diagnosis">
-                <Button 
-                  className="mobile-button btn-primary bg-green-500 hover:bg-green-600 w-full sm:w-auto"
-                >
-                  <Zap className="w-5 h-5 mr-2" />
-                  <span className="text-overflow-safe">무료 전문가 진단</span>
-                </Button>
-              </Link>
-              
-              <Link href="/consultation">
-                <Button 
-                  className="mobile-button btn-secondary w-full sm:w-auto"
-                >
-                  <Users className="w-5 h-5 mr-2" />
-                  <span className="text-overflow-safe">전문가 상담 신청</span>
-                </Button>
-              </Link>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/services">
+                  <button className="apple-button-primary mobile-full-width">
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    <span className="text-overflow-safe">프리미엄 사업분석 시작하기</span>
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </button>
+                </Link>
+                
+                <Link href="/diagnosis">
+                  <button className="apple-button-secondary mobile-full-width">
+                    <Zap className="w-5 h-5 mr-2" />
+                    <span className="text-overflow-safe">무료 전문가 진단</span>
+                  </button>
+                </Link>
+                
+                <Link href="/consultation">
+                  <button className="apple-button-outline mobile-full-width">
+                    <Users className="w-5 h-5 mr-2" />
+                    <span className="text-overflow-safe">전문가 상담 신청</span>
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* AI 상담사 섹션 - 신비롭고 고급스러운 표현으로 변경 */}
-      <section className="section-padding bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative">
+      {/* 🍎 애플스토어 스타일 AI 상담사 섹션 */}
+      <section className="apple-section bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
         <div className="mobile-container">
           <div className="text-center mb-16">
-            <div className="badge-primary mb-6 animate-bounce-gentle">
-              <Cpu className="w-5 h-5 mr-2 animate-pulse" />
+            <div className="apple-badge-primary mb-8 apple-animation-fadeIn">
+              <Cpu className="w-5 h-5 mr-2" />
               <span className="font-semibold text-overflow-safe">차세대 지능형 상담 시스템</span>
             </div>
             
-            <h2 className="text-h1 text-gray-900 mb-4 animate-slide-in mobile-centered">
+            <h2 className="apple-subtitle apple-animation-slideUp mobile-centered">
               <span className="text-4xl mr-3">🤖</span>
-              <span className="text-overflow-safe">AI 전문 상담사와 바로 대화하기</span>
+              <span className="text-overflow-safe">M센터장과 바로 대화하기</span>
             </h2>
             
-            <p className="text-body-lg text-gray-600 max-w-4xl mx-auto mobile-text">
+            <p className="apple-body max-w-4xl mx-auto mobile-text">
               <strong className="text-blue-600">최첨단 AI 기술</strong>로 무장한 전문 상담사가 24시간 대기 중입니다.<br />
               기업 성장에 관한 모든 궁금증을 지금 바로 해결해보세요!
             </p>
           </div>
           
           <div className="max-w-6xl mx-auto">
-            <Card className="service-card-mobile bg-white/90 backdrop-blur-sm">
-              <CardContent className="p-4 sm:p-6 lg:p-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
-                  {/* 좌측: AI 상담사 소개 */}
-                  <div className="animate-slide-in">
-                    <div className="flex flex-col sm:flex-row items-center sm:items-start mb-6 lg:mb-8">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-indigo-500 to-purple-600 
-                                      rounded-3xl flex items-center justify-center mb-4 sm:mb-0 sm:mr-6 shadow-lg">
-                        <Cpu className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-                      </div>
-                      <div className="text-center sm:text-left">
-                        <h3 className="text-h3 text-gray-900 mb-1 text-overflow-safe">M-CENTER 전문 AI 상담사</h3>
-                        <div className="flex flex-col sm:flex-row items-center gap-2">
-                          <span className="badge-primary">Advanced AI</span>
-                          <span className="badge-success">24시간 상담</span>
-                        </div>
-                      </div>
+            <div className="apple-card-large">
+              <div className="apple-grid-2 items-center">
+                {/* 좌측: AI 상담사 소개 */}
+                <div className="apple-animation-slideUp">
+                  <div className="flex flex-col sm:flex-row items-center sm:items-start mb-8">
+                    <div className="apple-icon-large bg-gradient-to-br from-indigo-500 to-purple-600 mb-4 sm:mb-0 sm:mr-6">
+                      <Cpu className="w-10 h-10 text-white" />
                     </div>
-                    
-                    <div className="space-y-4 mb-6 lg:mb-8">
-                      {[
-                        {
-                          title: '전문 분야별 맞춤 상담',
-                          desc: null, // 별도 처리
-                          links: [
-                            { name: '사업분석', href: '/services/business-analysis', color: 'text-blue-600 hover:text-blue-800' },
-                            { name: 'AI혁신', href: '/services/ai-productivity', color: 'text-purple-600 hover:text-purple-800' },
-                            { name: '공장구매', href: '/services/factory-auction', color: 'text-orange-600 hover:text-orange-800' },
-                            { name: '기술창업', href: '/services/tech-startup', color: 'text-green-600 hover:text-green-800' },
-                            { name: '인증', href: '/services/certification', color: 'text-cyan-600 hover:text-cyan-800' },
-                            { name: '웹사이트', href: '/services/website', color: 'text-indigo-600 hover:text-indigo-800' }
-                          ]
-                        },
-                        {
-                          title: '즉시 응답 및 정확한 분석',
-                          desc: '25년 전문가 경험 + 차세대 AI 기술 융합'
-                        },
-                        {
-                          title: '전문가 연결 및 후속 상담',
-                          desc: '필요시 경영지도사 직접 상담 (010-9251-9743)'
-                        }
-                      ].map((item, index) => (
-                        <div key={index} className="flex items-start gap-4">
-                          <CheckCircle2 className="w-6 h-6 text-green-500 mt-0.5 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-gray-900 mb-2 text-overflow-safe">{item.title}</p>
-                            {item.desc && (
-                              <p className="text-sm text-gray-600 mobile-text">{item.desc}</p>
-                            )}
-                            {item.links && (
-                              <div className="flex flex-wrap gap-1 mt-2">
-                                {item.links.map((link, linkIndex) => (
-                                  <span key={linkIndex} className="text-sm">
-                                    <Link 
-                                      href={link.href} 
-                                      className={`${link.color} font-medium hover:underline transition-colors duration-200 link-text-wrap`}
-                                    >
-                                      {link.name}
-                                    </Link>
-                                    {linkIndex < item.links.length - 1 && (
-                                      <span className="text-gray-400 mx-1">•</span>
-                                    )}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 sm:p-6 rounded-2xl">
-                      <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                        <span className="text-xl">💬</span>
-                        <span className="text-overflow-safe">상담 예시 질문:</span>
-                      </h4>
-                      <ul className="text-sm text-gray-700 space-y-2">
-                        {[
-                          "우리 회사 매출을 늘리려면 어떻게 해야 하나요?",
-                          "혁신적인 기술 도입으로 경쟁력을 높이고 싶어요",
-                          "공장 구매를 저렴하게 하는 방법이 있나요?",
-                          "정부지원 사업은 어떤 것들이 있나요?"
-                        ].map((question, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <span className="text-blue-500 font-bold flex-shrink-0">•</span>
-                            <span className="text-overflow-safe">"{question}"</span>
-                          </li>
-                        ))}
-                      </ul>
+                    <div className="mobile-text-center sm:text-left">
+                      <h3 className="apple-subtitle text-overflow-safe">M-CENTER 전문 상담사</h3>
+                      <div className="flex flex-col sm:flex-row items-center gap-2 mt-2">
+                        <span className="apple-badge-primary">Advanced AI</span>
+                        <span className="apple-badge-success">24시간 상담</span>
+                      </div>
                     </div>
                   </div>
+                  
+                  <div className="apple-spacing-sm">
+                    {[
+                      {
+                        title: '전문 분야별 맞춤 상담',
+                        desc: null,
+                        links: [
+                          { name: '사업분석', href: '/services/business-analysis', color: 'text-blue-600 hover:text-blue-800' },
+                          { name: 'AI혁신', href: '/services/ai-productivity', color: 'text-purple-600 hover:text-purple-800' },
+                          { name: '공장구매', href: '/services/factory-auction', color: 'text-orange-600 hover:text-orange-800' },
+                          { name: '기술창업', href: '/services/tech-startup', color: 'text-green-600 hover:text-green-800' },
+                          { name: '인증', href: '/services/certification', color: 'text-cyan-600 hover:text-cyan-800' },
+                          { name: '웹사이트', href: '/services/website', color: 'text-indigo-600 hover:text-indigo-800' }
+                        ]
+                      },
+                      {
+                        title: '즉시 응답 및 정확한 분석',
+                        desc: '25년 전문가 경험 + 차세대 AI 기술 융합'
+                      },
+                      {
+                        title: '전문가 연결 및 후속 상담',
+                        desc: '필요시 이후경 M센터장 직접 상담 (010-9251-9743)'
+                      }
+                    ].map((item, index) => (
+                      <div key={index} className="flex items-start gap-4">
+                        <CheckCircle2 className="w-6 h-6 text-green-500 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-gray-900 mb-2 text-overflow-safe">{item.title}</p>
+                          {item.desc && (
+                            <p className="mobile-text text-gray-600">{item.desc}</p>
+                          )}
+                          {item.links && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {item.links.map((link, linkIndex) => (
+                                <span key={linkIndex} className="text-sm">
+                                  <Link 
+                                    href={link.href} 
+                                    className={`${link.color} font-medium hover:underline transition-colors duration-200 link-text-wrap`}
+                                  >
+                                    {link.name}
+                                  </Link>
+                                  {linkIndex < item.links.length - 1 && (
+                                    <span className="text-gray-400 mx-1">•</span>
+                                  )}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
 
-                  {/* 우측: 즉시 채팅 시작 */}
-                  <div className="bg-gradient-to-br from-gray-50 to-indigo-50 p-6 sm:p-8 rounded-3xl animate-scale-in"
-                       style={{ animationDelay: '0.3s' }}>
-                    <div className="text-center mb-6 lg:mb-8">
-                      <h4 className="text-h4 text-gray-900 mb-3 text-overflow-safe">지금 바로 시작하세요!</h4>
-                      <p className="text-gray-600 mobile-text">우측 하단 채팅 아이콘을 클릭하거나<br />아래 버튼을 눌러 상담을 시작하세요</p>
-                    </div>
+                  <div className="apple-card bg-gradient-to-r from-indigo-50 to-purple-50">
+                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      <span className="text-xl">💬</span>
+                      <span className="text-overflow-safe">상담 예시 질문:</span>
+                    </h4>
+                    <ul className="mobile-text text-gray-700 apple-spacing-xs">
+                      {[
+                        "우리 회사 매출을 늘리려면 어떻게 해야 하나요?",
+                        "혁신적인 기술 도입으로 경쟁력을 높이고 싶어요",
+                        "공장 구매를 저렴하게 하는 방법이 있나요?",
+                        "정부지원 사업은 어떤 것들이 있나요?"
+                      ].map((question, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="text-blue-500 font-bold flex-shrink-0">•</span>
+                          <span className="text-overflow-safe">"{question}"</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
 
-                    <div className="space-y-4 mb-6 lg:mb-8">
-                      {/* 🔥 개선된 AI상담사와 채팅 버튼 */}
-                      <Button 
-                        className="mobile-button w-full btn-hero bg-gradient-to-r from-indigo-500 to-purple-600 
-                                  hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl relative overflow-hidden group touch-target"
-                        onClick={() => {
-                          if (typeof window !== 'undefined') {
-                            const chatbot = document.querySelector('[data-floating-chatbot]') as HTMLElement;
-                            if (chatbot) {
-                              chatbot.click();
-                            } else {
-                              // 플로팅 챗봇이 없으면 챗봇 페이지로 이동
-                              router.push('/chatbot');
-                            }
-                            // 모바일 진동 피드백
-                            if (navigator.vibrate) {
-                              navigator.vibrate(100);
-                            }
+                {/* 우측: 즉시 채팅 시작 */}
+                <div className="apple-card bg-gradient-to-br from-gray-50 to-indigo-50 apple-animation-scale"
+                     style={{ animationDelay: '0.3s' }}>
+                  <div className="text-center mb-8">
+                    <h4 className="apple-subtitle text-overflow-safe">지금 바로 시작하세요!</h4>
+                    <p className="mobile-text text-gray-600">우측 하단 채팅 아이콘을 클릭하거나<br />아래 버튼을 눌러 상담을 시작하세요</p>
+                  </div>
+
+                  <div className="apple-spacing-sm">
+                    {/* AI상담사와 채팅 버튼 */}
+                    <button 
+                      className="apple-button-primary mobile-full-width relative overflow-hidden group"
+                      onClick={() => {
+                        if (typeof window !== 'undefined') {
+                          const chatbot = document.querySelector('[data-floating-chatbot]') as HTMLElement;
+                          if (chatbot) {
+                            chatbot.click();
+                          } else {
+                            router.push('/chatbot');
                           }
-                        }}
-                      >
-                        <span className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
-                        <span className="relative flex items-center">
-                          <Sparkles className="w-5 h-5 mr-2 text-yellow-400 group-hover:animate-spin transition-transform duration-200" />
-                          <span className="text-overflow-safe">AI상담사와 채팅</span>
-                        </span>
-                      </Button>
-                      
-                      {/* 🔥 개선된 상담신청 버튼 */}
-                      <Link href="/consultation">
-                        <Button 
-                          className="mobile-button w-full btn-secondary transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] hover:shadow-md relative overflow-hidden group"
-                        >
-                          <span className="absolute inset-0 bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
-                          <span className="relative flex items-center">
-                            <Users className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" />
-                            <span className="text-overflow-safe">상담신청</span>
-                          </span>
-                        </Button>
-                      </Link>
-                    </div>
+                          if (navigator.vibrate) {
+                            navigator.vibrate(100);
+                          }
+                        }
+                      }}
+                    >
+                      <span className="relative flex items-center">
+                        <Sparkles className="w-5 h-5 mr-2 text-yellow-400 group-hover:animate-spin transition-transform duration-200" />
+                        <span className="text-overflow-safe">M센터장과 채팅</span>
+                      </span>
+                    </button>
+                    
+                    {/* 상담신청 버튼 */}
+                    <Link href="/consultation">
+                      <button className="apple-button-outline mobile-full-width">
+                        <Users className="w-5 h-5 mr-2" />
+                        <span className="text-overflow-safe">상담신청</span>
+                      </button>
+                    </Link>
+                    
+                    {/* 전화상담 버튼 */}
+                    <a href="tel:010-9251-9743">
+                      <button className="apple-button-secondary mobile-full-width">
+                        <Phone className="w-5 h-5 mr-2" />
+                        <span className="text-overflow-safe">전화상담 (010-9251-9743)</span>
+                      </button>
+                    </a>
+                  </div>
 
-                    <div className="bg-white/90 p-4 rounded-2xl border border-indigo-200">
-                      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-sm text-gray-600">
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-green-500" />
-                          <span className="font-medium">24시간</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Shield className="w-4 h-4 text-green-500" />
-                          <span className="font-medium">무료</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Zap className="w-4 h-4 text-green-500" />
-                          <span className="font-medium">즉시 응답</span>
-                        </div>
+                  <div className="apple-card bg-white/90 border border-indigo-200">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mobile-text text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-green-500" />
+                        <span className="font-medium">24시간</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Shield className="w-4 h-4 text-green-500" />
+                        <span className="font-medium">무료</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-green-500" />
+                        <span className="font-medium">즉시 응답</span>
                       </div>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </section>
