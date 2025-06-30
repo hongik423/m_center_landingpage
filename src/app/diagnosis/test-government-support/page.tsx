@@ -27,7 +27,7 @@ export default function TestGovernmentSupportPage() {
     mainConcerns: '정책자금을 활용한 AI 도입으로 생산성을 향상시키고 싶습니다',
     expectedBenefits: '정부지원을 받아 효율성을 높이고 매출을 증대시키고 싶습니다',
     contactName: '김대표',
-    contactPhone: '010-1234-5678',
+    contactPhone: '010-9251-9743',
     contactEmail: 'ceo@innovtech.com',
     privacyConsent: true
   });

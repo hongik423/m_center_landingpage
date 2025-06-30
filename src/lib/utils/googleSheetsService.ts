@@ -774,7 +774,7 @@ export async function saveTestDataToGoogleSheets(testType: 'diagnosis' | 'consul
       expectedBenefits: '효율성 향상 및 경쟁력 강화',
       businessLocation: '서울특별시',
       contactName: '테스트 담당자',
-      contactPhone: '010-1234-5678',
+      contactPhone: '010-9251-9743',
       contactEmail: `test_diagnosis_${timestamp}@mcenter.test`,
       privacyConsent: true
     };
@@ -784,7 +784,7 @@ export async function saveTestDataToGoogleSheets(testType: 'diagnosis' | 'consul
     const testData = {
       consultationType: 'phone',
       name: '테스트 상담자',
-      phone: '010-9876-5432',
+      phone: '010-9251-9743',
       email: `test_consultation_${timestamp}@mcenter.test`,
       company: `테스트 상담기업_${timestamp}`,
       position: '대표이사',

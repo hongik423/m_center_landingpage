@@ -146,7 +146,7 @@ export default function GoogleSheetsTestPage() {
         const consultationData = {
           consultationType: 'phone',
           name: '진단연계 테스트',
-          phone: '010-0000-0000',
+          phone: '010-9251-9743',
           email: `linked_test_${Date.now()}@mcenter.test`,
           company: '연계테스트 기업',
           position: '대표이사',

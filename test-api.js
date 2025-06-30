@@ -10,7 +10,7 @@ const testData = {
   mainConcerns: "디지털 전환 지연, 생산성 향상 필요",
   expectedBenefits: "자동화를 통한 효율성 개선, 디지털 혁신",
   contactName: "홍길동",
-  contactPhone: "010-1234-5678",
+      contactPhone: "010-9251-9743",
   contactEmail: "test@example.com",
   privacyConsent: true
 };

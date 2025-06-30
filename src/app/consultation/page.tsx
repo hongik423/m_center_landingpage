@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Header from '@/components/layout/header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -418,17 +419,13 @@ export default function ConsultationPage() {
                         />
                       </div>
                       <div className="space-y-4">
-                        <label className="flex items-center gap-3 text-base font-semibold text-gray-900">
-                          <Phone className="w-5 h-5 text-green-500" />
-                          연락처 <span className="text-red-500">*</span>
-                        </label>
-                        <Input
-                          type="tel"
+                        <PhoneInput
+                          label="연락처"
                           value={formData.phone}
-                          onChange={(e) => handleInputChange('phone', e.target.value)}
+                          onChange={(value) => handleInputChange('phone', value)}
                           placeholder="010-1234-5678"
-                          className="h-16 border-2 border-gray-200 rounded-2xl hover:border-blue-400 focus:border-blue-500 transition-all bg-gray-50/50 text-base font-medium px-6"
                           required
+                          className="h-16 border-2 border-gray-200 rounded-2xl hover:border-blue-400 focus:border-blue-500 transition-all bg-gray-50/50 text-base font-medium px-6"
                         />
                       </div>
                     </div>

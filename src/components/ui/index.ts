@@ -17,6 +17,7 @@ export * from './input-guide';
 export * from './label';
 export * from './loading';
 export * from './number-input';
+export * from './phone-input';
 export * from './progress';
 export * from './select';
 export * from './separator';

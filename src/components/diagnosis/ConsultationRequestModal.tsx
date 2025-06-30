@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -337,14 +338,10 @@ export default function ConsultationRequestModal({
                 />
               </div>
               <div>
-                <Label htmlFor="phone" className="text-sm font-semibold text-gray-700 mb-2 block">
-                  <Phone className="w-4 h-4 inline mr-1" />
-                  연락처 *
-                </Label>
-                <Input
-                  id="phone"
+                <PhoneInput
+                  label="연락처"
                   value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  onChange={(value) => handleInputChange('phone', value)}
                   placeholder="010-1234-5678"
                   required
                 />

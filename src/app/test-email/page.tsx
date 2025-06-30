@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -17,7 +18,7 @@ export default function EmailTestPage() {
   const [testData, setTestData] = useState({
     name: '홍길동',
     email: 'test@example.com',
-    phone: '010-1234-5678',
+    phone: '010-9251-9743',
     company: '테스트회사',
     consultationType: 'phone'
   });
@@ -301,11 +302,11 @@ export default function EmailTestPage() {
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700">연락처</label>
-                  <Input
+                  <PhoneInput
+                    label="연락처"
                     value={testData.phone}
-                    onChange={(e) => setTestData(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="010-1234-5678"
+                    onChange={(value) => setTestData(prev => ({ ...prev, phone: value }))}
+                    placeholder="010-9251-9743"
                   />
                 </div>
                 <div>

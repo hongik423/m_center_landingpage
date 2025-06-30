@@ -115,7 +115,7 @@ async function testDiagnosisData(apiUrl) {
     예상혜택: '효율성 향상 및 경쟁력 강화',
     진행사업장: '서울특별시',
     담당자명: '테스트 담당자',
-    연락처: '010-1234-5678',
+    연락처: '010-9251-9743',
     이메일: `test_diagnosis_${Date.now()}@mcenter.test`,
     개인정보동의: '동의'
   };
@@ -149,7 +149,7 @@ async function testConsultationData(apiUrl) {
     폼타입: '상담신청',
     상담유형: 'phone',
     성명: '홍길동',
-    연락처: '010-9876-5432',
+    연락처: '010-9251-9743',
     이메일: `test_consultation_${Date.now()}@mcenter.test`,
     회사명: `테스트상담기업_${Date.now()}`,
     직책: '대표이사',
@@ -202,7 +202,7 @@ async function testLinkedData(apiUrl) {
     폼타입: '상담신청',
     상담유형: 'phone',
     성명: '진단연계 테스트',
-    연락처: '010-0000-0000',
+    연락처: '010-9251-9743',
     이메일: `linked_test_${Date.now()}@mcenter.test`,
     회사명: '연계테스트 기업',
     직책: '대표이사',

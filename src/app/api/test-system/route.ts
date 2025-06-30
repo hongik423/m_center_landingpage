@@ -229,7 +229,7 @@ async function testConsultationEmail(testData: any) {
     const consultationData = {
       name: testData.name || '테스트사용자',
       email: testData.email || 'test@example.com',
-      phone: testData.phone || '010-0000-0000',
+      phone: testData.phone || '010-9251-9743',
       company: testData.company || '테스트회사',
       consultationType: testData.consultationType || 'phone',
       consultationArea: 'test',
@@ -286,7 +286,7 @@ async function testDiagnosisEmail(testData: any) {
       companyName: testData.company || '테스트회사',
       contactName: testData.name || '테스트사용자',
       contactEmail: testData.email || 'test@example.com',
-      contactPhone: testData.phone || '010-0000-0000',
+      contactPhone: testData.phone || '010-9251-9743',
       industry: 'technology',
       employeeCount: '10-30',
       mainConcerns: '매출 증대',
