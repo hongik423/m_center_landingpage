@@ -15,13 +15,30 @@ class QuestionAnalyzer {
   // 단순 질문 감지
   static isSimpleQuestion(message: string): boolean {
     const lowerMessage = message.toLowerCase();
+    
+    // 🔥 먼저 컨설팅 관련 키워드가 있으면 단순 질문이 아님
+    const consultingKeywords = [
+      /ai.*생산성|생산성.*ai|일터혁신/i,
+      /bm zen|사업분석|비즈니스모델/i,
+      /경매|공장구매/i,
+      /기술사업화|창업/i,
+      /인증|iso/i,
+      /웹사이트|홈페이지/i,
+      /세금계산기|세무/i,
+      /컨설팅|상담|매출|마케팅|전략/i
+    ];
+    
+    if (consultingKeywords.some(pattern => pattern.test(lowerMessage))) {
+      return false; // 컨설팅 관련이면 단순 질문이 아님
+    }
+    
     const simplePatterns = [
-      /^(안녕|hi|hello|처음|시작)/i,
-      /^(이름|누구|who)/i,
-      /^(시간|몇시|when)/i,
-      /^(어디|where)/i,
-      /^(감사|고마워|thank)/i,
-      /.{1,20}$/  // 20자 이하 짧은 질문
+      /^(안녕|hi|hello|처음|시작)$/i,
+      /^(이름|누구|who)$/i,
+      /^(시간|몇시|when)$/i,
+      /^(어디|where)$/i,
+      /^(감사|고마워|thank)$/i,
+      /^.{1,15}$/  // 15자 이하 짧은 질문 (더 엄격하게)
     ];
     return simplePatterns.some(pattern => pattern.test(message));
   }
@@ -281,6 +298,89 @@ M-CENTER에서 어떤 도움이 필요하신지 편하게 말씀해 주세요!`;
   }
 }
 
+// 🧠 AI 연계 하이브리드 응답 생성 함수
+async function generateAIEnhancedResponse(origin: string, message: string, complexity: QuestionComplexity): Promise<string> {
+  try {
+    // 🎭 이후경 경영지도사 페르소나 프롬프트 생성
+    const leeHukyungPersona = `당신은 이후경 경영지도사입니다. 25년간 500개 이상 기업과 함께 성장해온 현장 경험이 풍부한 경영 전문가입니다.
+
+🎯 당신의 정체성:
+- 이름: 이후경 경영지도사
+- 경험: 25년 현장 경험, 500개 기업 지도
+- 전문 분야: BM ZEN 사업분석, AI 생산성향상, 경매활용 공장구매, 기술사업화, 인증지원, 웹사이트 구축
+- 톤앤매너: 친근하고 전문적이며, 실무 중심의 구체적 조언 제공
+
+💼 응답 스타일:
+- "28년 경험상...", "실제로 제가 도운 기업에서는..." 같은 경험담 포함
+- 구체적인 수치와 사례 제시 (예: "생산성 42% 향상", "매출 300% 증대")
+- 실행 가능한 솔루션 중심
+- 정부지원 프로그램 연계 안내
+- 마지막에 전화번호 010-9251-9743 안내
+
+📏 응답 길이 제한:
+- ${complexity === 'single-consulting' ? '최대 2000자 이내' : '최대 4000자 이내'}
+- 핵심 내용 우선, 구체적 실행 방안 포함
+
+질문: "${message}"
+
+위 질문에 대해 이후경 경영지도사로서 전문적이고 실용적인 답변을 해주세요.`;
+
+    console.log('🤖 AI 연계 호출 시작:', { complexity, messageLength: message.length });
+
+    // 실제 AI API 호출
+    const aiResponse = await fetch(`${origin}/api/chat-ai`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        message: leeHukyungPersona,
+        context: `이후경 경영지도사 25년 경험 전문 상담`
+      }),
+    });
+
+    if (aiResponse.ok) {
+      const aiData = await aiResponse.json();
+      let response = aiData.response || '';
+      
+      console.log('✅ AI 연계 응답 성공:', { 
+        originalLength: response.length,
+        complexity 
+      });
+      
+      // 📏 글자수 제한 적용
+      const maxLength = complexity === 'single-consulting' ? 2000 : 4000;
+      if (response.length > maxLength) {
+        response = response.slice(0, maxLength - 100) + '\n\n더 자세한 상담은 직접 연락 주세요.\n📞 010-9251-9743';
+      }
+      
+      // 🎭 이후경 경영지도사 톤앤매너 후처리
+      if (!response.includes('이후경')) {
+        response = `안녕하세요! 이후경입니다.\n\n${response}`;
+      }
+      
+      if (!response.includes('010-9251-9743')) {
+        response += '\n\n📞 직접 상담: 010-9251-9743';
+      }
+      
+      console.log('🎭 톤앤매너 후처리 완료:', { finalLength: response.length });
+      
+      return response;
+      
+    } else {
+      throw new Error(`AI API 응답 실패: ${aiResponse.status}`);
+    }
+    
+  } catch (error) {
+    console.error('❌ AI 연계 오류:', error);
+    
+    // 폴백: 정적 응답 사용
+    if (complexity === 'single-consulting') {
+      return LeeHukyungResponseGenerator.generateSingleConsultingResponse(message);
+    } else {
+      return LeeHukyungResponseGenerator.generateComplexConsultingResponse(message);
+    }
+  }
+}
+
 // 🎯 상담신청 버튼 생성
 function generateConsultationButtons(): { buttons: Array<{ text: string; url: string; style: string; icon: string }> } | null {
   return {
@@ -323,7 +423,7 @@ export async function POST(request: NextRequest) {
     let response: string;
     let buttons = null;
     
-    // 📊 복잡도별 응답 생성
+    // 📊 복잡도별 응답 생성 (🧠 AI 연계 하이브리드 시스템)
     switch (complexity) {
       case 'consultation':
         // 상담신청 관련 → 기존 /api/chat 활용
@@ -348,15 +448,17 @@ export async function POST(request: NextRequest) {
         break;
         
       case 'single-consulting':
-        response = LeeHukyungResponseGenerator.generateSingleConsultingResponse(message.trim());
+        // 🧠 단일 컨설팅 → AI 연계 + 이후경 톤앤매너
+        response = await generateAIEnhancedResponse(request.nextUrl.origin, message.trim(), complexity);
         break;
         
       case 'complex-consulting':
-        response = LeeHukyungResponseGenerator.generateComplexConsultingResponse(message.trim());
+        // 🧠 복합 컨설팅 → AI 연계 + 이후경 톤앤매너
+        response = await generateAIEnhancedResponse(request.nextUrl.origin, message.trim(), complexity);
         break;
         
       default:
-        response = LeeHukyungResponseGenerator.generateSingleConsultingResponse(message.trim());
+        response = await generateAIEnhancedResponse(request.nextUrl.origin, message.trim(), 'single-consulting');
     }
     
     console.log('✅ 이후경 경영지도사 AI 응답 완료:', { 
