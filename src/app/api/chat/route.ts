@@ -551,7 +551,8 @@ export async function POST(request: NextRequest) {
       source: 'lee_hukyung_direct_response',
       timestamp: new Date().toISOString(),
       consultant: '이후경 경영지도사',
-      experience: '25년 현장 경험'
+      experience: '25년 현장 경험',
+      timestamp_force_update: new Date().toISOString()
     }, {
       headers: getCorsHeaders()
     });
