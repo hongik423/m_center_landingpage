@@ -318,6 +318,11 @@ function identifyQuestionType(message: string): string {
     return 'greeting';
   }
   
+  // 🔥 상담신청 관련 키워드 감지 (우선순위 높음)
+  if (/상담|문의|도움|컨설팅|도와|해결|필요|신청|연락|전화|상세|자세히|알고싶|궁금|어떻게|방법|진단|점검|검토|분석|가능한지|할 수 있는지|해줄 수 있|처리|해결|지원|추천|제안/i.test(lowerMessage)) {
+    return 'consultation';
+  }
+  
   // 서비스별 키워드 매칭
   if (/bm zen|사업분석|비즈니스모델|생산성향상|품질개선|경영컨설팅/i.test(lowerMessage)) {
     return 'business-analysis';
@@ -358,43 +363,108 @@ function identifyQuestionType(message: string): string {
   return 'general';
 }
 
+// 🔥 상담신청 버튼 생성 함수
+function generateConsultationButtons(questionType: string, message: string): { buttons: Array<{ text: string; url: string; style: string; icon: string }> } | null {
+  
+  // 상담 관련 키워드나 특정 서비스 문의일 때 버튼 생성
+  if (questionType === 'consultation' || 
+      ['business-analysis', 'ai-productivity', 'factory-auction', 'tech-startup', 'certification', 'website', 'pricing', 'government'].includes(questionType)) {
+    
+    return {
+      buttons: [
+        {
+          text: '📞 상담신청',
+          url: '/consultation',
+          style: 'primary',
+          icon: '📞'
+        },
+        {
+          text: '🎯 무료진단',
+          url: '/diagnosis',
+          style: 'secondary',
+          icon: '🎯'
+        }
+      ]
+    };
+  }
+  
+  return null;
+}
+
 // 이후경 경영지도사 직접 작성 응답 생성
-function generateDirectResponse(message: string): string {
+function generateDirectResponse(message: string): { response: string; buttons?: Array<{ text: string; url: string; style: string; icon: string }> } {
   const questionType = identifyQuestionType(message);
+  const consultationButtons = generateConsultationButtons(questionType, message);
+  
+  let responseText: string;
   
   switch (questionType) {
+    case 'consultation':
+      responseText = `안녕하세요! 이후경 경영지도사입니다.
+
+      "${message}"에 대해 상담 문의해주셔서 감사합니다! 💪
+      
+      25년간 500개 이상 기업의 성장을 함께해온 경영지도사로서 정확하고 실용적인 솔루션을 제공해드리겠습니다.
+      
+      🎯 전문 상담 분야:
+      • BM ZEN 사업분석 (신규사업 성공률 95%)
+      • AI 생산성향상 (20-99인 기업 100% 무료)
+      • 경매활용 공장구매 (30-50% 절감)
+      • 기술사업화/창업 (평균 5억원 지원)
+      • 인증지원 (연간 5천만원 세제혜택)
+      • 웹사이트 구축 (매출 300-500% 증대)
+      
+      💡 **즉시 상담을 원하신다면:**
+      아래 버튼을 클릭하여 상담신청하시거나, 전화로 바로 연결하세요!
+      
+      📞 **긴급 상담:** 010-9251-9743 (이후경 경영지도사)
+      ⏰ **상담시간:** 평일 09:00-18:00 (토요일 예약 가능)
+      
+      25년 현장 경험을 바탕으로 구체적이고 실행 가능한 해답을 드리겠습니다! 🚀`;
+      break;
+      
     case 'greeting':
-      return LEE_HUKYUNG_RESPONSES.greetings[0];
+      responseText = LEE_HUKYUNG_RESPONSES.greetings[0];
+      break;
       
     case 'business-analysis':
-      return LEE_HUKYUNG_RESPONSES['business-analysis'].responses[0];
+      responseText = LEE_HUKYUNG_RESPONSES['business-analysis'].responses[0];
+      break;
       
     case 'ai-productivity':
-      return LEE_HUKYUNG_RESPONSES['ai-productivity'].responses[0];
+      responseText = LEE_HUKYUNG_RESPONSES['ai-productivity'].responses[0];
+      break;
       
     case 'factory-auction':
-      return LEE_HUKYUNG_RESPONSES['factory-auction'].responses[0];
+      responseText = LEE_HUKYUNG_RESPONSES['factory-auction'].responses[0];
+      break;
       
     case 'tech-startup':
-      return LEE_HUKYUNG_RESPONSES['tech-startup'].responses[0];
+      responseText = LEE_HUKYUNG_RESPONSES['tech-startup'].responses[0];
+      break;
       
     case 'certification':
-      return LEE_HUKYUNG_RESPONSES['certification'].responses[0];
+      responseText = LEE_HUKYUNG_RESPONSES['certification'].responses[0];
+      break;
       
     case 'website':
-      return LEE_HUKYUNG_RESPONSES['website'].responses[0];
+      responseText = LEE_HUKYUNG_RESPONSES['website'].responses[0];
+      break;
       
     case 'tax-calculator':
-      return LEE_HUKYUNG_RESPONSES['tax-calculator'].responses[0];
+      responseText = LEE_HUKYUNG_RESPONSES['tax-calculator'].responses[0];
+      break;
       
     case 'pricing':
-      return LEE_HUKYUNG_RESPONSES.pricing[0];
+      responseText = LEE_HUKYUNG_RESPONSES.pricing[0];
+      break;
       
     case 'government':
-      return LEE_HUKYUNG_RESPONSES.government[0];
+      responseText = LEE_HUKYUNG_RESPONSES.government[0];
+      break;
       
     default:
-      return `안녕하세요! 이후경 경영지도사입니다.
+      responseText = `안녕하세요! 이후경 경영지도사입니다.
 
       "${message}"에 대해 문의해주셔서 감사합니다.
       
@@ -414,6 +484,16 @@ function generateDirectResponse(message: string): string {
       
       📞 직접 상담: 010-9251-9743 (이후경 경영지도사)`;
   }
+  
+  // 버튼이 있는 경우 포함해서 반환
+  if (consultationButtons) {
+    return {
+      response: responseText,
+      buttons: consultationButtons.buttons
+    };
+  }
+  
+  return { response: responseText };
 }
 
 interface ChatMessage {
@@ -461,15 +541,17 @@ export async function POST(request: NextRequest) {
     const directResponse = generateDirectResponse(message);
 
     console.log('이후경 경영지도사 직접 응답 완료:', { 
-      responseLength: directResponse.length 
+      responseLength: directResponse.response.length,
+      hasButtons: !!directResponse.buttons
     });
     
     return NextResponse.json({
-      response: directResponse,
+      response: directResponse.response,
+      buttons: directResponse.buttons || [],
       source: 'lee_hukyung_direct_response',
       timestamp: new Date().toISOString(),
       consultant: '이후경 경영지도사',
-      experience: '28년 현장 경험'
+      experience: '25년 현장 경험'
     }, {
       headers: getCorsHeaders()
     });
@@ -481,7 +563,7 @@ export async function POST(request: NextRequest) {
     const fallbackMessage = body?.message || '일반 상담';
     
     return NextResponse.json({
-      response: generateDirectResponse(fallbackMessage),
+      response: generateDirectResponse(fallbackMessage).response,
       source: 'lee_hukyung_fallback',
       error: error instanceof Error ? error.message : '알 수 없는 오류',
       timestamp: new Date().toISOString(),

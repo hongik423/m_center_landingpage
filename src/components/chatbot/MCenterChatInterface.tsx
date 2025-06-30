@@ -25,6 +25,12 @@ interface Message {
   sender: 'user' | 'ai';
   timestamp: Date;
   isTyping?: boolean;
+  buttons?: Array<{
+    text: string;
+    url: string;
+    style: string;
+    icon: string;
+  }>;
 }
 
 interface MCenterChatInterfaceProps {
@@ -66,16 +72,22 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
     }
   }, [isOpen, isMinimized]);
 
-  // GEMINI AI API 호출 함수 (서버사이드 API 경유)
-  const callGeminiAPI = async (userQuery: string): Promise<string> => {
+  // 🔥 이후경 경영지도사 직접 응답 API 호출 함수
+  const callMCenterAPI = async (userQuery: string): Promise<{ response: string; buttons?: Array<{ text: string; url: string; style: string; icon: string }> }> => {
     try {
-      const response = await fetch('/api/chat-ai', {
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: userQuery
+          message: userQuery,
+          history: messages.map(msg => ({
+            id: msg.id,
+            content: msg.content,
+            sender: msg.sender === 'user' ? 'user' : 'bot',
+            timestamp: msg.timestamp
+          }))
         })
       });
 
@@ -86,13 +98,19 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
       const data = await response.json();
       
       if (data.response) {
-        return data.response;
+        return {
+          response: data.response,
+          buttons: data.buttons || []
+        };
       } else {
         throw new Error('Invalid response format');
       }
     } catch (error) {
-      console.error('GEMINI API Error:', error);
-      return generateFallbackResponse(userQuery);
+      console.error('M-CENTER API Error:', error);
+      return {
+        response: generateFallbackResponse(userQuery),
+        buttons: []
+      };
     }
   };
 
@@ -177,25 +195,27 @@ M-CENTER에서는 6가지 핵심서비스로 기업들을 도와드리고 있어
     setIsLoading(true);
 
     try {
-      // GEMINI AI API 호출
-      const aiResponse = await callGeminiAPI(currentInput);
+      // 🔥 이후경 경영지도사 직접 응답 API 호출
+      const aiResponseData = await callMCenterAPI(currentInput);
       
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: aiResponse,
+        content: aiResponseData.response,
         sender: 'ai',
-        timestamp: new Date()
+        timestamp: new Date(),
+        buttons: aiResponseData.buttons || []
       };
 
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
-      console.error('AI Response Error:', error);
+      console.error('M-CENTER Response Error:', error);
       // 에러 발생시 폴백 응답
       const fallbackMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: generateFallbackResponse(currentInput),
         sender: 'ai',
-        timestamp: new Date()
+        timestamp: new Date(),
+        buttons: []
       };
       setMessages(prev => [...prev, fallbackMessage]);
     } finally {
@@ -236,11 +256,11 @@ M-CENTER에서는 6가지 핵심서비스로 기업들을 도와드리고 있어
               />
             </div>
             <div>
-              <h3 className="font-semibold text-lg">M센터장 AI</h3>
+              <h3 className="font-semibold text-lg">이후경 경영지도사</h3>
               <div className="flex items-center space-x-1 text-sm text-blue-100">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span>AI 검색 활성화</span>
-                <Search className="w-3 h-3 ml-1" />
+                <span>25년 경험 상담 중</span>
+                <CheckCircle className="w-3 h-3 ml-1" />
               </div>
             </div>
           </div>
@@ -297,19 +317,47 @@ M-CENTER에서는 6가지 핵심서비스로 기업들을 도와드리고 있어
                     </div>
                     
                     {/* 메시지 버블 */}
-                    <div className={`rounded-2xl px-4 py-3 ${
-                      message.sender === 'user'
-                        ? 'bg-blue-600 text-white rounded-br-md'
-                        : 'bg-gray-100 text-gray-900 rounded-bl-md'
-                    }`}>
-                      <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                        {message.content}
-                      </p>
-                      <p className={`text-xs mt-2 ${
-                        message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
+                    <div className={`space-y-3 ${message.sender === 'user' ? 'items-end' : 'items-start'} flex flex-col`}>
+                      <div className={`rounded-2xl px-4 py-3 ${
+                        message.sender === 'user'
+                          ? 'bg-blue-600 text-white rounded-br-md'
+                          : 'bg-gray-100 text-gray-900 rounded-bl-md'
                       }`}>
-                        {formatTime(message.timestamp)}
-                      </p>
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                          {message.content}
+                        </p>
+                        <p className={`text-xs mt-2 ${
+                          message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
+                        }`}>
+                          {formatTime(message.timestamp)}
+                        </p>
+                      </div>
+                      
+                      {/* 🔥 상담신청 버튼들 렌더링 */}
+                      {message.sender === 'ai' && message.buttons && message.buttons.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {message.buttons.map((button, index) => (
+                            <a
+                              key={index}
+                              href={button.url}
+                              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 ${
+                                button.style === 'primary' 
+                                  ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg'
+                                  : 'bg-green-600 text-white hover:bg-green-700 shadow-md hover:shadow-lg'
+                              }`}
+                              onClick={(e) => {
+                                // 진동 피드백 (모바일)
+                                if (navigator.vibrate) {
+                                  navigator.vibrate(50);
+                                }
+                              }}
+                            >
+                              <span className="text-base">{button.icon}</span>
+                              <span>{button.text}</span>
+                            </a>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -334,7 +382,7 @@ M-CENTER에서는 6가지 핵심서비스로 기업들을 도와드리고 있어
                           <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                         </div>
                         <Search className="w-4 h-4 text-blue-500 animate-spin" />
-                        <span className="text-sm text-gray-500">AI 검색 및 분석 중...</span>
+                        <span className="text-sm text-gray-500">이후경 경영지도사 분석 중...</span>
                       </div>
                     </div>
                   </div>
@@ -354,7 +402,7 @@ M-CENTER에서는 6가지 핵심서비스로 기업들을 도와드리고 있어
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="M센터장 AI에게 메시지를 보내세요... (AI 검색 활성화)"
+                    placeholder="이후경 경영지도사에게 상담 문의하세요... (25년 경험)"
                     className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
                     disabled={isLoading}
                   />
@@ -394,10 +442,10 @@ M-CENTER에서는 6가지 핵심서비스로 기업들을 도와드리고 있어
                 ))}
               </div>
               
-              {/* AI 상태 표시 */}
+              {/* 🔥 이후경 경영지도사 상태 표시 */}
               <div className="flex items-center justify-center mt-2 text-xs text-gray-500">
-                <Brain className="w-3 h-3 mr-1" />
-                <span>GEMINI AI 검색 기술로 최고 수준의 답변을 제공합니다</span>
+                <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
+                <span>이후경 경영지도사 25년 경험 + AI 기술 융합 상담</span>
               </div>
             </div>
           </>
