@@ -26,14 +26,16 @@ export const COMPANY_INFO = {
 // 👨‍💼 담당자 정보
 export const CONSULTANT_INFO = {
   name: '이후경',
-  title: '책임 경영지도사',
+  title: '경영지도사',
+  fullTitle: '이후경 경영지도사',
   phone: '010-9251-9743',
-  email: 'lhk@injc.kr',
+  email: 'hongik423@gmail.com',
   experience: '25년',
   specialization: '기업 경영 혁신 및 성장 전략',
-  certification: '경영지도사, 기술지도사',
+  certification: '중소벤처기업부 경영지도사',
   company: '기업의별 M-CENTER',
-  description: '25년간 500개 이상 기업의 경영 혁신을 이끌어온 경영 전문가'
+  description: '25년간 500개 이상 기업의 경영 혁신을 이끌어온 경영지도사',
+  background: '현대그룹, 삼성생명 대기업 실무 경험 + 200개사 컨설팅 노하우'
 } as const;
 
 // 📞 연락처 정보
@@ -109,14 +111,21 @@ ${COMPANY_INFO.slogan}
 // 🎯 M센터장 설정
 export const CHATBOT_CONFIG = {
   name: `M센터장`,
-  greeting: `안녕하세요! 🎯 ${COMPANY_INFO.name} M센터장입니다.`,
+  greeting: `안녕하세요! 🎯 ${CONSULTANT_INFO.fullTitle}입니다.`,
   
-  systemMessage: `저는 ${COMPANY_INFO.name}의 M센터장으로, ${CONSULTANT_INFO.name} 경영지도사를 대표하여 28년 현장 경험을 바탕으로 전문적인 상담을 진행합니다.`,
+  systemMessage: `저는 ${CONSULTANT_INFO.fullTitle}로, 25년간 현대그룹과 삼성생명에서 쌓은 대기업 실무 경험과 500개 기업 컨설팅 노하우를 바탕으로 전문 상담을 진행합니다.`,
   
   contactInfo: {
-    consultant: CONSULTANT_INFO.name,
+    consultant: CONSULTANT_INFO.fullTitle,
     phone: CONTACT_INFO.mainPhone,
     email: CONTACT_INFO.mainEmail
+  },
+  
+  character: {
+    identity: '이후경 경영지도사',
+    expertise: '25년 경영 컨설팅 전문가',
+    tone: '전문적이면서도 친근한',
+    focus: '실무 중심의 구체적 솔루션 제시'
   }
 } as const;
 
