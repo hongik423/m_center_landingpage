@@ -40,8 +40,8 @@ const Header = () => {
           ? 'bg-white/80 backdrop-blur-xl border-b border-gray-200/20' 
           : 'bg-white/95 backdrop-blur-xl'
       }`}>
-        <div className="max-w-7xl mx-auto">
-          <nav className="flex items-center justify-between h-11 px-6 lg:px-8">
+        <div className="max-w-screen-2xl mx-auto">
+          <nav className="flex items-center justify-between h-11 px-4 lg:px-6">
             
             {/* 애플 로고 스타일 - 왼쪽 */}
             <Link 
@@ -59,80 +59,87 @@ const Header = () => {
             </Link>
 
             {/* 애플스토어 스타일 메인 네비게이션 - 가운데 */}
-            <div className="hidden lg:flex items-center space-x-3">
+            <div className="hidden lg:flex items-center space-x-1.5">
               <Link
                 href="/"
-                className="px-4 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
+                className="px-3.5 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
               >
                 홈
               </Link>
               
               <Link
                 href="/services/business-analysis"
-                className="px-4 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
+                className="px-3.5 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
               >
                 사업분석
               </Link>
               
               <Link
                 href="/services/ai-productivity"
-                className="px-4 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
+                className="px-3.5 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
               >
                 AI생산성
               </Link>
               
               <Link
                 href="/services/factory-auction"
-                className="px-4 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
+                className="px-3.5 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
               >
                 공장구매
               </Link>
               
               <Link
                 href="/services/tech-startup"
-                className="px-4 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
+                className="px-3.5 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
               >
                 기술창업
               </Link>
               
               <Link
                 href="/services/certification"
-                className="px-4 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
+                className="px-3.5 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
               >
                 인증지원
               </Link>
               
               <Link
                 href="/diagnosis"
-                className="px-4 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
+                className="px-3.5 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
               >
                 무료진단
               </Link>
               
               <Link
                 href="/cases"
-                className="px-4 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
+                className="px-3.5 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
               >
                 성공사례
               </Link>
               
               <Link
                 href="/center-leader"
-                className="px-4 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
+                className="px-3.5 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
               >
                 센터장
               </Link>
               
               <Link
+                href="/seminar"
+                className="px-3.5 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
+              >
+                세미나
+              </Link>
+              
+              <Link
                 href="/support"
-                className="px-4 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
+                className="px-3.5 py-2 text-sm text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-normal"
               >
                 고객지원
               </Link>
             </div>
 
             {/* 애플스토어 스타일 액션 버튼들 - 오른쪽 */}
-            <div className="hidden lg:flex items-center space-x-3">
+            <div className="hidden lg:flex items-center space-x-2">
               <button
                 className="px-3 py-1.5 text-sm text-blue-600 hover:text-white hover:bg-blue-600 bg-blue-50 rounded-full transition-all duration-200 font-medium"
                 onClick={() => handleNavigation('/diagnosis')}
@@ -276,6 +283,14 @@ const Header = () => {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   센터장
+                </Link>
+                
+                <Link
+                  href="/seminar"
+                  className="block px-6 py-4 text-xl text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100 rounded-full transition-all duration-200 font-light text-center"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  세미나
                 </Link>
                 
                 <Link

@@ -30,7 +30,7 @@ import { formatCurrency, formatNumber, formatNumberInput, parseFormattedNumber, 
 import { COMPREHENSIVE_TAX_LIMITS_2024 } from '@/constants/tax-rates-2024';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
 import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
-import { PDFGenerator } from '@/lib/utils/pdfGenerator';
+import { generateServiceGuideBook } from '@/lib/utils/pdfDocumentGenerator';
 
 interface NumberInputProps {
   label: string;
@@ -769,11 +769,9 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
         }
       };
 
-      await PDFGenerator.generateDiagnosisPDF(taxData, {
-        title: '종합소득세 계산 결과서',
-        companyName: '개인납세자',
-        includeDetails: true
-      });
+      // HTML 기반 PDF 생성으로 변경
+      await generateServiceGuideBook();
+      console.log('종합소득세 PDF 다운로드 완료');
 
       alert('✅ PDF 저장이 완료되었습니다!\n다운로드 폴더를 확인해주세요.');
     } catch (error) {

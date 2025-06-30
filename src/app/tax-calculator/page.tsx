@@ -565,6 +565,70 @@ export default function TaxCalculatorPage() {
     }
   };
 
+  // 🚨 URL 파라미터 체크 - 오류신고 자동 활성화
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('error-report') === 'true') {
+      // 페이지 로딩 후 1초 후에 오류신고 폼 자동 열기
+      const timer = setTimeout(() => {
+        console.log('🚨 고객지원에서 연결된 오류신고 요청 - 자동 활성화');
+        scrollToErrorReport();
+        
+        // URL에서 파라미터 제거 (깔끔하게)
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, '', newUrl);
+        
+        // 사용자에게 안내 메시지 표시
+        const welcomeMsg = document.createElement('div');
+        welcomeMsg.innerHTML = `
+          <div style="text-align: center;">
+            <div style="font-size: 24px; margin-bottom: 8px;">🚨</div>
+            <div style="font-weight: bold; margin-bottom: 4px; color: #dc2626;">오류신고 시스템 연결됨</div>
+            <div style="font-size: 14px; color: #6b7280;">고객지원에서 요청하신 오류신고 폼을 준비 중입니다...</div>
+          </div>
+        `;
+        welcomeMsg.style.cssText = `
+          position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+          background: white; border: 2px solid #dc2626; padding: 20px; border-radius: 12px;
+          font-family: inherit; z-index: 9999; box-shadow: 0 8px 24px rgba(220,38,38,0.15);
+          max-width: 90vw; width: 320px; animation: slideIn 0.3s ease-out;
+        `;
+        
+        // CSS 애니메이션 추가
+        const style = document.createElement('style');
+        style.textContent = `
+          @keyframes slideIn {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+          }
+        `;
+        document.head.appendChild(style);
+        
+        document.body.appendChild(welcomeMsg);
+        
+        setTimeout(() => {
+          if (document.body.contains(welcomeMsg)) {
+            welcomeMsg.style.transition = 'opacity 0.3s ease-out';
+            welcomeMsg.style.opacity = '0';
+            setTimeout(() => {
+              if (document.body.contains(welcomeMsg)) {
+                document.body.removeChild(welcomeMsg);
+              }
+            }, 300);
+          }
+        }, 3000);
+        
+        welcomeMsg.addEventListener('click', () => {
+          if (document.body.contains(welcomeMsg)) {
+            document.body.removeChild(welcomeMsg);
+          }
+        });
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   // 🔥 키보드 단축키 처리
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

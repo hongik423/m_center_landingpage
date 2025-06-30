@@ -617,13 +617,13 @@ export default function ConsultationPage() {
             <div className="lg:col-span-2 apple-spacing-lg">
               
               {/* 빠른 연락 */}
-              <div className="apple-card-large">
+              <div className="apple-card-large bg-white border border-gray-200">
                 <div className="text-center mb-8">
-                  <div className="apple-icon-large bg-gradient-to-br from-green-500 to-emerald-600 mx-auto mb-6">
+                  <div className="apple-icon-large bg-gradient-to-br from-green-500 to-emerald-600 mx-auto mb-6 shadow-lg">
                     <Phone className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="apple-subtitle">빠른 연락</h3>
-                  <p className="apple-caption">즉시 상담이 필요하시면</p>
+                  <h3 className="apple-subtitle text-gray-900">빠른 연락</h3>
+                  <p className="apple-caption text-gray-600">즉시 상담이 필요하시면</p>
                 </div>
                 
                 <div className="apple-spacing-sm">
@@ -653,9 +653,9 @@ export default function ConsultationPage() {
               </div>
 
               {/* 전문가 프로필 */}
-              <div className="apple-card-large">
+              <div className="apple-card-large bg-white border border-gray-200">
                 <div className="text-center mb-6">
-                  <div className="w-20 h-20 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
                     <User className="w-10 h-10 text-white" />
                   </div>
                   <h3 className="font-bold text-xl text-gray-900 mb-1">이후경 M센터장</h3>
@@ -679,31 +679,38 @@ export default function ConsultationPage() {
               </div>
 
               {/* 서비스 안내 */}
-              <div className="apple-card-large">
-                <h3 className="apple-subtitle mb-6">핵심 서비스</h3>
+              <div className="apple-card-large bg-white border border-gray-200">
+                <h3 className="apple-subtitle mb-6 text-gray-900">핵심 서비스</h3>
                 <div className="apple-spacing-xs">
                   {[
-                    { title: 'BM ZEN 사업분석', desc: '혁신 프레임워크', color: 'text-blue-600' },
-                    { title: 'AI 생산성 향상', desc: '정부 100% 지원', color: 'text-purple-600' },
-                    { title: '공장구매 절약', desc: '40% 비용절감', color: 'text-orange-600' },
-                    { title: '기술창업 지원', desc: '5억원 자금확보', color: 'text-green-600' }
+                    { title: 'BM ZEN 사업분석', desc: '혁신 프레임워크', color: 'text-blue-600', link: '/services/business-analysis' },
+                    { title: 'AI 생산성 향상', desc: '정부 100% 지원', color: 'text-purple-600', link: '/services/ai-productivity' },
+                    { title: '공장구매 절약', desc: '40% 비용절감', color: 'text-orange-600', link: '/services/factory-auction' },
+                    { title: '기술창업 지원', desc: '5억원 자금확보', color: 'text-green-600', link: '/services/tech-startup' }
                   ].map((service, index) => (
-                    <div key={index} className="apple-card bg-gray-50 hover:bg-gray-100 transition-colors duration-200">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full ${service.color.replace('text-', 'bg-')}`}></div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 text-overflow-safe">{service.title}</p>
-                          <p className="text-sm text-gray-600 text-overflow-safe">{service.desc}</p>
+                    <a 
+                      key={index} 
+                      href={service.link}
+                      className="block group cursor-pointer"
+                    >
+                      <div className="apple-card bg-white border border-gray-100 hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 group-hover:shadow-lg group-hover:scale-[1.02]">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-3 h-3 rounded-full ${service.color.replace('text-', 'bg-')} group-hover:scale-110 transition-transform duration-200`}></div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-gray-900 text-overflow-safe group-hover:text-blue-700 transition-colors duration-200">{service.title}</p>
+                            <p className="text-sm text-gray-600 text-overflow-safe group-hover:text-blue-600 transition-colors duration-200">{service.desc}</p>
+                          </div>
+                          <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all duration-200" />
                         </div>
                       </div>
-                    </div>
+                    </a>
                   ))}
                 </div>
               </div>
 
               {/* 고객 후기 */}
-              <div className="apple-card-large">
-                <h3 className="apple-subtitle mb-6">고객 후기</h3>
+              <div className="apple-card-large bg-white border border-gray-200">
+                <h3 className="apple-subtitle mb-6 text-gray-900">고객 후기</h3>
                 <div className="apple-spacing-sm">
                   {[
                     {
@@ -719,7 +726,7 @@ export default function ConsultationPage() {
                       rating: 5
                     }
                   ].map((review, index) => (
-                    <div key={index} className="apple-card bg-gradient-to-r from-blue-50 to-purple-50">
+                    <div key={index} className="apple-card bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100">
                       <div className="flex items-center gap-1 mb-2">
                         {[...Array(review.rating)].map((_, i) => (
                           <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
@@ -727,8 +734,8 @@ export default function ConsultationPage() {
                       </div>
                       <p className="text-gray-700 text-sm mb-3 text-overflow-safe">"{review.review}"</p>
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                          <User className="w-4 h-4 text-gray-600" />
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                          <User className="w-4 h-4 text-blue-600" />
                         </div>
                         <div>
                           <p className="font-semibold text-gray-900 text-sm">{review.name}</p>
@@ -746,27 +753,27 @@ export default function ConsultationPage() {
       </main>
 
       {/* 🍎 애플스토어 스타일 푸터 CTA */}
-      <section className="bg-gray-900 text-white py-20">
+      <section className="bg-gradient-to-br from-blue-50 via-white to-purple-50 py-20">
         <div className="mobile-container text-center">
-          <h2 className="apple-title text-white mb-6">
+          <h2 className="apple-title text-gray-900 mb-6">
             성장의 기회를
             <br />
             놓치지 마세요
           </h2>
-          <p className="apple-body text-gray-300 max-w-2xl mx-auto mb-8">
+          <p className="apple-body text-gray-600 max-w-2xl mx-auto mb-8">
             지금 상담 신청하시면 24시간 내에
             <br />
             전문가가 직접 연락드립니다
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
             <a href="tel:010-9251-9743">
-              <button className="apple-button bg-white text-gray-900 hover:bg-gray-100 mobile-full-width">
+              <button className="apple-button bg-green-600 text-white hover:bg-green-700 mobile-full-width shadow-lg hover:shadow-xl">
                 <Phone className="w-5 h-5 mr-2" />
                 즉시 전화상담
               </button>
             </a>
             <button 
-              className="apple-button bg-blue-600 hover:bg-blue-700 text-white mobile-full-width"
+              className="apple-button bg-blue-600 hover:bg-blue-700 text-white mobile-full-width shadow-lg hover:shadow-xl"
               onClick={() => {
                 document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' });
               }}

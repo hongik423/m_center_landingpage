@@ -12,7 +12,12 @@ import {
   HelpCircle, 
   FileText,
   Download,
-  Video
+  Video,
+  Bug,
+  AlertTriangle,
+  Youtube,
+  Play,
+  ArrowRight
 } from 'lucide-react';
 import { 
   generateServiceGuideBook, 
@@ -94,15 +99,7 @@ const supportResources = [
     size: '2.1MB',
     downloadAction: generateTaxCalculatorManual
   },
-  {
-    id: 'online-seminar',
-    title: '온라인 세미나 영상',
-    description: 'BM ZEN 프레임워크 소개',
-    icon: Video,
-    type: 'Video',
-    size: '45분',
-    downloadAction: null
-  }
+
 ];
 
 export default function SupportPage() {
@@ -221,6 +218,28 @@ export default function SupportPage() {
                       <span>평일 연장 가능</span>
                     </div>
                   </div>
+                  
+                  {/* 🚨 오류신고 버튼 */}
+                  <div className="mt-6 pt-4 border-t border-gray-200">
+                    <Button
+                      onClick={() => {
+                        // 세금계산기 오류신고 시스템으로 연결
+                        window.open('/tax-calculator?error-report=true', '_self');
+                      }}
+                      className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <Bug className="w-5 h-5" />
+                        <span>오류신고로 연결하기</span>
+                        <AlertTriangle className="w-4 h-4 animate-pulse" />
+                      </div>
+                    </Button>
+                    <div className="text-center mt-2">
+                      <p className="text-xs text-gray-500">
+                        🚨 시스템 오류나 버그 발견 시 즉시 신고해주세요
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -265,7 +284,7 @@ export default function SupportPage() {
               <h2 className="text-2xl font-bold text-gray-900">지원 자료실</h2>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {supportResources.map((resource, index) => (
                 <Card key={index} className="card-hover">
                   <CardContent className="p-6 text-center">
@@ -291,6 +310,124 @@ export default function SupportPage() {
                 </Card>
               ))}
             </div>
+          </div>
+
+          {/* 🎬 세미나 영상 특별 섹션 */}
+          <div className="mt-16">
+            <div className="flex items-center mb-8">
+              <Video className="w-6 h-6 text-red-600 mr-3" />
+              <h2 className="text-2xl font-bold text-gray-900">세미나 영상</h2>
+            </div>
+            
+            {/* 세미나 영상 특별 카드 */}
+            <Card className="relative overflow-hidden bg-gradient-to-r from-red-50 via-purple-50 to-blue-50 border-2 border-gradient-to-r from-red-200 to-blue-200 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 hover:-translate-y-2 group">
+              <CardContent className="p-8">
+                <div className="flex flex-col lg:flex-row items-center gap-8">
+                  
+                  {/* 왼쪽: 아이콘과 정보 */}
+                  <div className="flex-1 text-center lg:text-left">
+                    <div className="inline-flex items-center gap-3 bg-red-100 px-4 py-2 rounded-full mb-6">
+                      <Video className="w-6 h-6 text-red-600" />
+                      <span className="text-red-600 font-semibold">LIVE ON YOUTUBE</span>
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                    </div>
+                    
+                    <h3 className="text-3xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors duration-300">
+                      M-CENTER 세미나 영상
+                    </h3>
+                    
+                    <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                      25년 경험의 전문가가 직접 진행하는 실무 중심 온라인 교육
+                      <br />
+                      <span className="font-semibold text-purple-600">BM ZEN 프레임워크부터 AI 생산성까지</span>
+                    </p>
+                    
+                    {/* 통계 */}
+                    <div className="grid grid-cols-3 gap-4 mb-8">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">85+</div>
+                        <div className="text-sm text-gray-600">영상 수</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">12.5K</div>
+                        <div className="text-sm text-gray-600">구독자</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-purple-600">4.9/5</div>
+                        <div className="text-sm text-gray-600">만족도</div>
+                      </div>
+                    </div>
+                    
+                    {/* 버튼 */}
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <Button 
+                        size="lg" 
+                        className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105"
+                        onClick={() => window.open('/seminar', '_self')}
+                      >
+                        <Video className="w-6 h-6 mr-3" />
+                        세미나 영상 보기
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                      
+                      <Button 
+                        size="lg" 
+                        variant="outline" 
+                        className="border-2 border-red-200 hover:bg-red-50 text-red-600 px-8 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105"
+                        onClick={() => window.open('https://www.youtube.com/channel/UCmCTUihEcCGhI0WJXlRfqRA?sub_confirmation=1', '_blank')}
+                      >
+                        <Youtube className="w-6 h-6 mr-3" />
+                        유튜브 구독
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* 오른쪽: 비주얼 */}
+                  <div className="flex-shrink-0">
+                    <div className="relative">
+                      {/* 메인 비디오 썸네일 */}
+                      <div className="w-80 h-48 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-2xl overflow-hidden group-hover:shadow-3xl transition-shadow duration-500">
+                        <img 
+                          src="https://picsum.photos/400/240?random=seminar" 
+                          alt="세미나 영상"
+                          className="w-full h-full object-cover"
+                        />
+                        
+                        {/* 재생 버튼 오버레이 */}
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                          <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-2xl animate-pulse">
+                            <Play className="w-8 h-8 text-white ml-1" />
+                          </div>
+                        </div>
+                        
+                        {/* LIVE 배지 */}
+                        <div className="absolute top-4 left-4">
+                          <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+                            🔴 LIVE
+                          </div>
+                        </div>
+                        
+                        {/* 시청자 수 */}
+                        <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
+                          👥 2,543명 시청중
+                        </div>
+                      </div>
+                      
+                      {/* 떠다니는 아이콘들 */}
+                      <div className="absolute -top-4 -right-4 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-bounce">
+                        ⭐
+                      </div>
+                      <div className="absolute -bottom-4 -left-4 w-8 h-8 bg-green-400 rounded-full flex items-center justify-center animate-pulse">
+                        💼
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+              
+              {/* 그라데이션 테두리 효과 */}
+              <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+            </Card>
           </div>
 
           {/* 추가 지원 요청 */}
