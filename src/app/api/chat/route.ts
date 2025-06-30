@@ -554,7 +554,12 @@ export async function POST(request: NextRequest) {
       experience: '25년 현장 경험',
       timestamp_force_update: new Date().toISOString()
     }, {
-      headers: getCorsHeaders()
+      headers: {
+        ...getCorsHeaders(),
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
     });
 
   } catch (error) {
