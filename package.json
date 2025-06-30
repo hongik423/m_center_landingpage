@@ -1,6 +1,6 @@
 {
   "name": "m_center_landingpage",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "npx next dev",

@@ -72,10 +72,16 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
     }
   }, [isOpen, isMinimized]);
 
-  // 🔥 이후경 경영지도사 직접 응답 API 호출 함수
+  // 🌟 세계최고 이후경경영지도사 AI 상담 시스템 API 호출 함수
   const callMCenterAPI = async (userQuery: string): Promise<{ response: string; buttons?: Array<{ text: string; url: string; style: string; icon: string }> }> => {
     try {
-      const response = await fetch('/api/chat', {
+      console.log('🧠 세계최고 이후경경영지도사 AI 호출 시작:', { 
+        message: userQuery,
+        messageLength: userQuery.length 
+      });
+      
+      // 🎯 새로운 고도화된 이후경경영지도사 AI API 호출
+      const response = await fetch('/api/chat-lee-hukyung', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -91,11 +97,20 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
         })
       });
 
+      console.log('📡 이후경경영지도사 AI 응답 상태:', { status: response.status, ok: response.ok });
+
       if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`);
+        throw new Error(`이후경경영지도사 AI Error: ${response.status}`);
       }
 
       const data = await response.json();
+      
+      console.log('✅ 이후경경영지도사 AI 응답 성공:', { 
+        complexity: data.complexity,
+        responseLength: data.responseLength || data.response?.length || 0,
+        hasButtons: !!data.buttons,
+        buttonsCount: data.buttons?.length || 0
+      });
       
       if (data.response) {
         return {
@@ -106,7 +121,7 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
         throw new Error('Invalid response format');
       }
     } catch (error) {
-      console.error('M-CENTER API Error:', error);
+      console.error('❌ 이후경경영지도사 AI 오류:', error);
       return {
         response: generateFallbackResponse(userQuery),
         buttons: []
@@ -442,10 +457,10 @@ M-CENTER에서는 6가지 핵심서비스로 기업들을 도와드리고 있어
                 ))}
               </div>
               
-              {/* 🔥 이후경 경영지도사 상태 표시 */}
+              {/* 🌟 세계최고 이후경경영지도사 AI 상태 표시 */}
               <div className="flex items-center justify-center mt-2 text-xs text-gray-500">
-                <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
-                <span>이후경 경영지도사 25년 경험 + AI 기술 융합 상담</span>
+                <Brain className="w-3 h-3 mr-1 text-purple-500 animate-pulse" />
+                <span>세계최고 이후경경영지도사 AI • 25년 경험 + 고도화 분석 시스템</span>
               </div>
             </div>
           </>

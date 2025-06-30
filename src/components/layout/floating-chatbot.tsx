@@ -9,6 +9,12 @@ interface Message {
   content: string;
   sender: 'user' | 'bot';
   timestamp: Date;
+  buttons?: Array<{
+    text: string;
+    url: string;
+    style: string;
+    icon: string;
+  }>;
 }
 
 export default function FloatingChatbot() {
@@ -243,7 +249,7 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
     }
   }, []);
 
-  // AI 메시지 전송
+  // 🌟 세계최고 이후경경영지도사 AI 상담 시스템
   const handleSendMessage = async (message: string) => {
     if (!message.trim()) return;
 
@@ -259,36 +265,42 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
     setIsTyping(true);
 
     try {
-      console.log('🚀 AI API 호출 시작:', { message: message.trim() });
+      console.log('🧠 세계최고 이후경경영지도사 AI 호출 시작:', { 
+        message: message.trim(),
+        messageLength: message.length 
+      });
       
-      const response = await fetch('/api/chat-ai', {
+      // 🎯 새로운 고도화된 이후경경영지도사 AI API 호출
+      const response = await fetch('/api/chat-lee-hukyung', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: message.trim()
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: message.trim() }),
       });
 
-      console.log('📡 API 응답 상태:', { status: response.status, ok: response.ok });
+      console.log('📡 이후경경영지도사 AI 응답 상태:', { status: response.status, ok: response.ok });
 
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ API 응답 성공:', { responseLength: data.response?.length || 0 });
+        console.log('✅ 이후경경영지도사 AI 응답 성공:', { 
+          complexity: data.complexity,
+          responseLength: data.responseLength || data.response?.length || 0,
+          hasButtons: !!data.buttons,
+          buttonsCount: data.buttons?.length || 0
+        });
         
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
           content: data.response || '죄송합니다. 응답을 생성하는데 문제가 발생했습니다.',
           sender: 'bot',
-          timestamp: new Date()
+          timestamp: new Date(),
+          buttons: data.buttons || undefined
         };
         setMessages(prev => [...prev, botMessage]);
       } else {
-        throw new Error(`API 응답 실패: ${response.status}`);
+        throw new Error(`이후경경영지도사 AI 응답 실패: ${response.status}`);
       }
     } catch (error) {
-      console.error('❌ AI 응답 오류:', error);
+      console.error('❌ 이후경경영지도사 AI 오류:', error);
       const fallbackResponse = generateFallbackResponse(message.trim());
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -515,10 +527,10 @@ AI 생산성향상 쪽은 요즘 정말 인기가 많아요. 20-99인 기업은 
               />
               <div>
                 <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                  M센터장
+                  M센터장 AI
                 </div>
                 <div style={{ fontSize: '12px', opacity: 0.9 }}>
-                  GEMINI AI • 온라인
+                  이후경 경영지도사 • 25년 경험
                 </div>
               </div>
             </div>
@@ -611,6 +623,80 @@ AI 생산성향상 쪽은 요즘 정말 인기가 많아요. 20-99인 기업은 
                   <div style={{ whiteSpace: 'pre-line' }}>
                     {message.content}
                   </div>
+                  
+                  {/* 🔥 상담신청/무료진단 버튼 렌더링 */}
+                  {message.sender === 'bot' && message.buttons && message.buttons.length > 0 && (
+                    <div style={{ 
+                      marginTop: '16px', 
+                      display: 'flex', 
+                      gap: isMobile ? '8px' : '12px',
+                      flexWrap: 'wrap',
+                      alignItems: 'center'
+                    }}>
+                      {message.buttons.map((button, index) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            // 모바일 진동 피드백
+                            if (navigator.vibrate) {
+                              navigator.vibrate(100);
+                            }
+                            // 페이지 이동
+                            window.open(button.url, '_self');
+                          }}
+                          style={{
+                            padding: isMobile ? '12px 16px' : '10px 14px',
+                            backgroundColor: button.style === 'primary' ? '#1976D2' : '#28a745',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '20px',
+                            fontSize: isMobile ? '14px' : '13px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            transition: 'all 0.2s ease',
+                            boxShadow: button.style === 'primary' 
+                              ? '0 3px 12px rgba(25, 118, 210, 0.4)' 
+                              : '0 3px 12px rgba(40, 167, 69, 0.4)',
+                            minHeight: isMobile ? '40px' : '36px',
+                            whiteSpace: 'nowrap'
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isMobile) {
+                              e.currentTarget.style.transform = 'scale(1.05)';
+                              e.currentTarget.style.backgroundColor = button.style === 'primary' ? '#1565C0' : '#218838';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isMobile) {
+                              e.currentTarget.style.transform = 'scale(1)';
+                              e.currentTarget.style.backgroundColor = button.style === 'primary' ? '#1976D2' : '#28a745';
+                            }
+                          }}
+                          onTouchStart={(e) => {
+                            e.currentTarget.style.transform = 'scale(0.95)';
+                            // 모바일 진동 피드백
+                            if (navigator.vibrate) {
+                              navigator.vibrate(50);
+                            }
+                          }}
+                          onTouchEnd={(e) => {
+                            setTimeout(() => {
+                              e.currentTarget.style.transform = 'scale(1)';
+                            }, 150);
+                          }}
+                        >
+                          <span style={{ fontSize: isMobile ? '16px' : '14px' }}>
+                            {button.icon}
+                          </span>
+                          <span>{button.text}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  
                   <div
                     style={{
                       fontSize: '11px',
