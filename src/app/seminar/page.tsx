@@ -366,7 +366,7 @@ export default function SeminarPage() {
           {/* 비디오 그리드 */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredVideos.map((video) => (
-              <Card key={video.id} className="group cursor-pointer overflow-hidden bg-white/80 backdrop-blur-sm border-gray-200/50 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 hover:-translate-y-2">
+              <Card key={video.id} interactive={true} touchOptimized={true} className="group cursor-pointer overflow-hidden bg-white/80 backdrop-blur-sm border-gray-200/50 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 hover:-translate-y-2">
                 <div className="relative">
                   {/* 썸네일 */}
                   <div className="relative overflow-hidden rounded-t-lg">

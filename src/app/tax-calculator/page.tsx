@@ -1149,9 +1149,22 @@ export default function TaxCalculatorPage() {
                     className={`group relative bg-white border rounded-2xl p-6 md:p-8 
                               hover:border-gray-300/80 hover:shadow-lg hover:-translate-y-1 
                               transition-all duration-300 cursor-pointer text-left h-auto min-h-[200px] flex flex-col justify-between
+                              touch-manipulation select-none -webkit-tap-highlight-color-transparent
+                              active:scale-95 active:shadow-md
                               ${activeTab === 'personal' 
                                 ? 'border-blue-500/50 shadow-xl bg-blue-50/30' 
                                 : 'border-gray-200/60'}`}
+                    // 🔥 모바일 터치 최적화
+                    onTouchStart={(e) => {
+                      e.currentTarget.style.transform = 'scale(0.95)';
+                      if (navigator.vibrate) navigator.vibrate(30);
+                    }}
+                    onTouchEnd={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                    onTouchCancel={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
                   >
                     <div>
                       <div className="mb-6">
@@ -1177,9 +1190,22 @@ export default function TaxCalculatorPage() {
                     className={`group relative bg-white border rounded-2xl p-6 md:p-8 
                               hover:border-gray-300/80 hover:shadow-lg hover:-translate-y-1 
                               transition-all duration-300 cursor-pointer text-left h-auto min-h-[200px] flex flex-col justify-between
+                              touch-manipulation select-none -webkit-tap-highlight-color-transparent
+                              active:scale-95 active:shadow-md
                               ${activeTab === 'corporate' 
                                 ? 'border-green-500/50 shadow-xl bg-green-50/30' 
                                 : 'border-gray-200/60'}`}
+                    // 🔥 모바일 터치 최적화
+                    onTouchStart={(e) => {
+                      e.currentTarget.style.transform = 'scale(0.95)';
+                      if (navigator.vibrate) navigator.vibrate(30);
+                    }}
+                    onTouchEnd={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                    onTouchCancel={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
                   >
                     <div>
                       <div className="mb-6">
@@ -1205,9 +1231,22 @@ export default function TaxCalculatorPage() {
                     className={`group relative bg-white border rounded-2xl p-6 md:p-8 
                               hover:border-gray-300/80 hover:shadow-lg hover:-translate-y-1 
                               transition-all duration-300 cursor-pointer text-left h-auto min-h-[200px] flex flex-col justify-between
+                              touch-manipulation select-none -webkit-tap-highlight-color-transparent
+                              active:scale-95 active:shadow-md
                               ${activeTab === 'business-inheritance' 
                                 ? 'border-violet-500/50 shadow-xl bg-violet-50/30' 
                                 : 'border-gray-200/60'}`}
+                    // 🔥 모바일 터치 최적화
+                    onTouchStart={(e) => {
+                      e.currentTarget.style.transform = 'scale(0.95)';
+                      if (navigator.vibrate) navigator.vibrate(30);
+                    }}
+                    onTouchEnd={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                    onTouchCancel={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
                   >
                     <div>
                       <div className="mb-6">
@@ -1233,9 +1272,22 @@ export default function TaxCalculatorPage() {
                     className={`group relative bg-white border rounded-2xl p-6 md:p-8 
                               hover:border-gray-300/80 hover:shadow-lg hover:-translate-y-1 
                               transition-all duration-300 cursor-pointer text-left h-auto min-h-[200px] flex flex-col justify-between
+                              touch-manipulation select-none -webkit-tap-highlight-color-transparent
+                              active:scale-95 active:shadow-md
                               ${activeTab === 'stock-transfer' 
                                 ? 'border-rose-500/50 shadow-xl bg-rose-50/30' 
                                 : 'border-gray-200/60'}`}
+                    // 🔥 모바일 터치 최적화
+                    onTouchStart={(e) => {
+                      e.currentTarget.style.transform = 'scale(0.95)';
+                      if (navigator.vibrate) navigator.vibrate(30);
+                    }}
+                    onTouchEnd={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                    onTouchCancel={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
                   >
                     <div>
                       <div className="mb-6">
