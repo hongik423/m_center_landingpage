@@ -552,7 +552,8 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
       consultant: '이후경 경영지도사',
       experience: '25년 현장 경험',
-      timestamp_force_update: new Date().toISOString()
+      timestamp_force_update: new Date().toISOString(),
+      deployment_version: 'v0.1.2_final_fix'
     }, {
       headers: {
         ...getCorsHeaders(),
