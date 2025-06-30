@@ -617,32 +617,32 @@ export default function ConsultationPage() {
             <div className="lg:col-span-2 apple-spacing-lg">
               
               {/* 빠른 연락 */}
-              <div className="apple-card-large bg-white border border-gray-200">
+              <div className="bg-white border border-gray-200 rounded-3xl p-8 md:p-10 lg:p-12 shadow-sm hover:shadow-lg hover:shadow-black/5 hover:-translate-y-1 transition-all duration-300 ease-out">
                 <div className="text-center mb-8">
-                  <div className="apple-icon-large bg-gradient-to-br from-green-500 to-emerald-600 mx-auto mb-6 shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg">
                     <Phone className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="apple-subtitle text-gray-900">빠른 연락</h3>
-                  <p className="apple-caption text-gray-600">즉시 상담이 필요하시면</p>
+                  <h3 className="text-2xl md:text-3xl font-light text-gray-900 tracking-tight mb-2">빠른 연락</h3>
+                  <p className="text-gray-600 text-lg font-light">즉시 상담이 필요하시면</p>
                 </div>
                 
-                <div className="apple-spacing-sm">
+                <div className="space-y-4">
                   <a href="tel:010-9251-9743">
-                    <button className="apple-button-secondary mobile-full-width">
+                    <button className="w-full bg-green-600 text-white hover:bg-green-700 focus:ring-green-500 shadow-lg hover:shadow-xl hover:shadow-green-500/25 transform hover:-translate-y-0.5 active:translate-y-0 inline-flex items-center justify-center px-6 py-3 text-base font-semibold rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px] min-w-[44px]">
                       <Phone className="w-5 h-5 mr-2" />
                       전화 상담 (010-9251-9743)
                     </button>
                   </a>
                   
                   <a href="mailto:hongik423@gmail.com">
-                    <button className="apple-button-outline mobile-full-width">
+                    <button className="w-full bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-500 hover:text-blue-600 font-semibold shadow-md transition-all duration-300 inline-flex items-center justify-center px-6 py-3 text-base rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px] min-w-[44px]">
                       <Mail className="w-5 h-5 mr-2" />
                       이메일 문의
                     </button>
                   </a>
                 </div>
 
-                <div className="apple-card bg-gray-50 mt-6">
+                <div className="bg-gray-50 border border-gray-100 rounded-2xl p-6 mt-6">
                   <div className="text-center">
                     <Clock className="w-6 h-6 text-blue-600 mx-auto mb-2" />
                     <p className="font-semibold text-gray-900 mb-1">상담 시간</p>
@@ -653,7 +653,7 @@ export default function ConsultationPage() {
               </div>
 
               {/* 전문가 프로필 */}
-              <div className="apple-card-large bg-white border border-gray-200">
+              <div className="bg-white border border-gray-200 rounded-3xl p-8 md:p-10 lg:p-12 shadow-sm hover:shadow-lg hover:shadow-black/5 hover:-translate-y-1 transition-all duration-300 ease-out">
                 <div className="text-center mb-6">
                   <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
                     <User className="w-10 h-10 text-white" />
@@ -662,7 +662,7 @@ export default function ConsultationPage() {
                   <p className="text-gray-600 font-medium">25년 경험 전문가</p>
                 </div>
 
-                <div className="apple-spacing-xs text-sm text-gray-600">
+                <div className="space-y-3 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
                     <Star className="w-4 h-4 text-yellow-500" />
                     <span>중소벤처기업부 경영지도사</span>
@@ -679,9 +679,9 @@ export default function ConsultationPage() {
               </div>
 
               {/* 서비스 안내 */}
-              <div className="apple-card-large bg-white border border-gray-200">
-                <h3 className="apple-subtitle mb-6 text-gray-900">핵심 서비스</h3>
-                <div className="apple-spacing-xs">
+              <div className="bg-white border border-gray-200 rounded-3xl p-8 md:p-10 lg:p-12 shadow-sm hover:shadow-lg hover:shadow-black/5 hover:-translate-y-1 transition-all duration-300 ease-out">
+                <h3 className="text-2xl md:text-3xl font-light text-gray-900 tracking-tight mb-6">핵심 서비스</h3>
+                <div className="space-y-3">
                   {[
                     { title: 'BM ZEN 사업분석', desc: '혁신 프레임워크', color: 'text-blue-600', link: '/services/business-analysis' },
                     { title: 'AI 생산성 향상', desc: '정부 100% 지원', color: 'text-purple-600', link: '/services/ai-productivity' },
@@ -693,7 +693,7 @@ export default function ConsultationPage() {
                       href={service.link}
                       className="block group cursor-pointer"
                     >
-                      <div className="apple-card bg-white border border-gray-100 hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 group-hover:shadow-lg group-hover:scale-[1.02]">
+                      <div className="bg-white border border-gray-100 rounded-xl p-4 hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 group-hover:shadow-lg group-hover:scale-[1.02]">
                         <div className="flex items-center gap-3">
                           <div className={`w-3 h-3 rounded-full ${service.color.replace('text-', 'bg-')} group-hover:scale-110 transition-transform duration-200`}></div>
                           <div className="flex-1 min-w-0">
@@ -709,9 +709,9 @@ export default function ConsultationPage() {
               </div>
 
               {/* 고객 후기 */}
-              <div className="apple-card-large bg-white border border-gray-200">
-                <h3 className="apple-subtitle mb-6 text-gray-900">고객 후기</h3>
-                <div className="apple-spacing-sm">
+              <div className="bg-white border border-gray-200 rounded-3xl p-8 md:p-10 lg:p-12 shadow-sm hover:shadow-lg hover:shadow-black/5 hover:-translate-y-1 transition-all duration-300 ease-out">
+                <h3 className="text-2xl md:text-3xl font-light text-gray-900 tracking-tight mb-6">고객 후기</h3>
+                <div className="space-y-4">
                   {[
                     {
                       name: '김대표',
@@ -726,7 +726,7 @@ export default function ConsultationPage() {
                       rating: 5
                     }
                   ].map((review, index) => (
-                    <div key={index} className="apple-card bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100">
+                    <div key={index} className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-xl p-4">
                       <div className="flex items-center gap-1 mb-2">
                         {[...Array(review.rating)].map((_, i) => (
                           <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
