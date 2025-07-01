@@ -65,17 +65,17 @@ const seminarVideos: SeminarVideo[] = [
   {
     id: '1',
     title: 'BM ZEN 프레임워크로 사업 혁신하기',
-    description: '25년 경험의 전문가가 알려주는 사업분석 비법과 성장 전략을 공개합니다.',
-    thumbnailUrl: 'https://picsum.photos/800/450?random=1',
-    videoUrl: '#',
-    youtubeId: 'dQw4w9WgXcQ',
-    duration: '45:32',
+    description: '25년 경험의 전문가가 직접 공개하는 BM ZEN 프레임워크를 활용한 사업혁신 비법! 📺 실제 YouTube 영상으로 연결됩니다.',
+    thumbnailUrl: 'https://img.youtube.com/vi/QuwaRdBDPAY/maxresdefault.jpg',
+    videoUrl: 'https://youtu.be/QuwaRdBDPAY?si=vFuZ8BPDAr93NVdl',
+    youtubeId: 'QuwaRdBDPAY',
+    duration: '영상 확인',
     publishDate: '2024-01-15',
     views: 12500,
     likes: 348,
     category: 'business-analysis',
     level: 'intermediate',
-    tags: ['사업분석', 'BM ZEN', '프레임워크'],
+    tags: ['사업분석', 'BM ZEN', '프레임워크', 'YouTube영상'],
     isNew: true,
     instructor: {
       name: '이후경',
@@ -213,9 +213,14 @@ export default function SeminarPage() {
     return matchesCategory && matchesSearch;
   });
 
-  // 유튜브 비디오 재생
-  const playYouTubeVideo = (youtubeId: string) => {
-    window.open(`https://www.youtube.com/watch?v=${youtubeId}`, '_blank');
+  // 유튜브 비디오 재생 또는 특정 영상 이동
+  const playYouTubeVideo = (youtubeId: string, videoId?: string) => {
+    // BM ZEN 프레임워크 비디오는 특정 YouTube 영상으로 연결
+    if (videoId === '1') {
+      window.open('https://youtu.be/QuwaRdBDPAY?si=vFuZ8BPDAr93NVdl', '_blank');
+    } else {
+      window.open(`https://www.youtube.com/watch?v=${youtubeId}`, '_blank');
+    }
   };
 
   // 구독 토글
@@ -381,7 +386,7 @@ export default function SeminarPage() {
                       <Button
                         size="lg"
                         className="bg-red-600 hover:bg-red-700 text-white rounded-full w-16 h-16 shadow-2xl"
-                        onClick={() => playYouTubeVideo(video.youtubeId)}
+                        onClick={() => playYouTubeVideo(video.youtubeId, video.id)}
                       >
                         <Play className="w-8 h-8 ml-1" />
                       </Button>
@@ -389,6 +394,12 @@ export default function SeminarPage() {
                     
                     {/* 배지들 */}
                     <div className="absolute top-4 left-4 flex gap-2">
+                      {video.id === '1' && (
+                        <Badge className="bg-red-600 text-white flex items-center gap-1">
+                          <Youtube className="w-3 h-3" />
+                          영상
+                        </Badge>
+                      )}
                       {video.isLive && (
                         <Badge className="bg-red-500 text-white animate-pulse">
                           🔴 LIVE
@@ -462,10 +473,19 @@ export default function SeminarPage() {
                       <Button 
                         size="sm" 
                         className="flex-1 bg-red-600 hover:bg-red-700 text-white"
-                        onClick={() => playYouTubeVideo(video.youtubeId)}
+                        onClick={() => playYouTubeVideo(video.youtubeId, video.id)}
                       >
-                        <Play className="w-4 h-4 mr-2" />
-                        재생
+                        {video.id === '1' ? (
+                          <>
+                            <Youtube className="w-4 h-4 mr-2" />
+                            영상 보기
+                          </>
+                        ) : (
+                          <>
+                            <Play className="w-4 h-4 mr-2" />
+                            재생
+                          </>
+                        )}
                       </Button>
                       <Button size="sm" variant="outline" className="px-3">
                         <Heart className="w-4 h-4" />
