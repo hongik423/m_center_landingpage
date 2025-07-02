@@ -67,7 +67,7 @@ const seminarVideos: SeminarVideo[] = [
     title: 'BM ZEN 프레임워크로 사업 혁신하기',
     description: '25년 경험의 전문가가 직접 공개하는 BM ZEN 프레임워크를 활용한 사업혁신 비법! 📺 실제 YouTube 영상으로 연결됩니다.',
     thumbnailUrl: 'https://img.youtube.com/vi/SWkmuibSQ4E/maxresdefault.jpg',
-    videoUrl: 'https://youtu.be/SWkmuibSQ4E',
+    videoUrl: 'https://www.youtube.com/watch?v=SWkmuibSQ4E',
     youtubeId: 'SWkmuibSQ4E',
     duration: '영상 확인',
     publishDate: '2024-01-15',
@@ -219,12 +219,12 @@ export default function SeminarPage() {
     
     // BM ZEN 프레임워크 비디오는 특정 YouTube 영상으로 연결
     if (videoId === '1') {
-      const url = 'https://youtu.be/SWkmuibSQ4E';
+      const url = `https://www.youtube.com/watch?v=${youtubeId}`;
       console.log('BM ZEN 영상 열기:', url);
       const newWindow = window.open(url, '_blank');
       if (!newWindow) {
         console.error('새 창 열기 실패 - 팝업 차단 가능성');
-        alert('팝업이 차단되었을 수 있습니다. 브라우저 설정을 확인해주세요.\n\n직접 링크: https://youtu.be/SWkmuibSQ4E');
+        alert('팝업이 차단되었을 수 있습니다. 브라우저 설정을 확인해주세요.\n\n직접 링크: ' + url);
       }
     } else {
       const url = `https://www.youtube.com/watch?v=${youtubeId}`;
