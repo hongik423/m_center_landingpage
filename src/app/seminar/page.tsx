@@ -87,9 +87,9 @@ const seminarVideos: SeminarVideo[] = [
     id: '2',
     title: 'AI 생산성 향상 실무 가이드',
     description: 'ChatGPT와 AI 도구를 활용한 업무 자동화와 생산성 40% 향상 비법',
-    thumbnailUrl: 'https://picsum.photos/800/450?random=2',
-    videoUrl: '#',
-    youtubeId: 'dQw4w9WgXcQ',
+    thumbnailUrl: 'https://img.youtube.com/vi/SWkmuibSQ4E/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/watch?v=SWkmuibSQ4E',
+    youtubeId: 'SWkmuibSQ4E',
     duration: '52:18',
     publishDate: '2024-01-10',
     views: 8750,
@@ -107,9 +107,9 @@ const seminarVideos: SeminarVideo[] = [
     id: '3',
     title: '공장구매 경매 실전 노하우',
     description: '시장가 대비 40% 절약하는 공장구매 전략과 경매 성공 사례',
-    thumbnailUrl: 'https://picsum.photos/800/450?random=3',
-    videoUrl: '#',
-    youtubeId: 'dQw4w9WgXcQ',
+    thumbnailUrl: 'https://img.youtube.com/vi/SWkmuibSQ4E/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/watch?v=SWkmuibSQ4E',
+    youtubeId: 'SWkmuibSQ4E',
     duration: '38:45',
     publishDate: '2024-01-05',
     views: 6420,
@@ -127,9 +127,9 @@ const seminarVideos: SeminarVideo[] = [
     id: '4',
     title: '정부지원 5억원 확보 전략',
     description: '기술창업과 R&D 과제로 정부지원금 확보하는 실전 방법',
-    thumbnailUrl: 'https://picsum.photos/800/450?random=4',
-    videoUrl: '#',
-    youtubeId: 'dQw4w9WgXcQ',
+    thumbnailUrl: 'https://img.youtube.com/vi/SWkmuibSQ4E/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/watch?v=SWkmuibSQ4E',
+    youtubeId: 'SWkmuibSQ4E',
     duration: '41:27',
     publishDate: '2023-12-28',
     views: 15230,
@@ -148,9 +148,9 @@ const seminarVideos: SeminarVideo[] = [
     id: '5',
     title: '벤처인증으로 세제혜택 5천만원 받기',
     description: '벤처확인, ISO인증, ESG 인증을 통한 세제혜택 완벽 가이드',
-    thumbnailUrl: 'https://picsum.photos/800/450?random=5',
-    videoUrl: '#',
-    youtubeId: 'dQw4w9WgXcQ',
+    thumbnailUrl: 'https://img.youtube.com/vi/SWkmuibSQ4E/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/watch?v=SWkmuibSQ4E',
+    youtubeId: 'SWkmuibSQ4E',
     duration: '35:12',
     publishDate: '2023-12-20',
     views: 9840,
@@ -168,9 +168,9 @@ const seminarVideos: SeminarVideo[] = [
     id: '6',
     title: '디지털 마케팅으로 매출 300% 증대',
     description: '온라인 마케팅과 웹사이트 최적화로 매출 극대화하는 방법',
-    thumbnailUrl: 'https://picsum.photos/800/450?random=6',
-    videoUrl: '#',
-    youtubeId: 'dQw4w9WgXcQ',
+    thumbnailUrl: 'https://img.youtube.com/vi/SWkmuibSQ4E/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/watch?v=SWkmuibSQ4E',
+    youtubeId: 'SWkmuibSQ4E',
     duration: '48:56',
     publishDate: '2023-12-15',
     views: 11750,
@@ -213,27 +213,16 @@ export default function SeminarPage() {
     return matchesCategory && matchesSearch;
   });
 
-  // 유튜브 비디오 재생 또는 특정 영상 이동
+  // 유튜브 비디오 재생
   const playYouTubeVideo = (youtubeId: string, videoId?: string) => {
     console.log('playYouTubeVideo 함수 호출됨:', { youtubeId, videoId });
     
-    // BM ZEN 프레임워크 비디오는 특정 YouTube 영상으로 연결
-    if (videoId === '1') {
-      const url = `https://www.youtube.com/watch?v=${youtubeId}`;
-      console.log('BM ZEN 영상 열기:', url);
-      const newWindow = window.open(url, '_blank');
-      if (!newWindow) {
-        console.error('새 창 열기 실패 - 팝업 차단 가능성');
-        alert('팝업이 차단되었을 수 있습니다. 브라우저 설정을 확인해주세요.\n\n직접 링크: ' + url);
-      }
-    } else {
-      const url = `https://www.youtube.com/watch?v=${youtubeId}`;
-      console.log('일반 영상 열기:', url);
-      const newWindow = window.open(url, '_blank');
-      if (!newWindow) {
-        console.error('새 창 열기 실패 - 팝업 차단 가능성');
-        alert('팝업이 차단되었을 수 있습니다. 브라우저 설정을 확인해주세요.');
-      }
+    const url = `https://www.youtube.com/watch?v=${youtubeId}`;
+    console.log('YouTube 영상 열기:', url);
+    const newWindow = window.open(url, '_blank');
+    if (!newWindow) {
+      console.error('새 창 열기 실패 - 팝업 차단 가능성');
+      alert('팝업이 차단되었을 수 있습니다. 브라우저 설정을 확인해주세요.\n\n직접 링크: ' + url);
     }
   };
 
