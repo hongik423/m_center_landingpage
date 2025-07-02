@@ -66,9 +66,9 @@ const seminarVideos: SeminarVideo[] = [
     id: '1',
     title: 'BM ZEN 프레임워크로 사업 혁신하기',
     description: '25년 경험의 전문가가 직접 공개하는 BM ZEN 프레임워크를 활용한 사업혁신 비법! 📺 실제 YouTube 영상으로 연결됩니다.',
-    thumbnailUrl: 'https://img.youtube.com/vi/pwYbppU_S2U/maxresdefault.jpg',
-    videoUrl: 'https://youtu.be/pwYbppU_S2U',
-    youtubeId: 'pwYbppU_S2U',
+    thumbnailUrl: 'https://img.youtube.com/vi/SWkmuibSQ4E/maxresdefault.jpg',
+    videoUrl: 'https://youtu.be/SWkmuibSQ4E',
+    youtubeId: 'SWkmuibSQ4E',
     duration: '영상 확인',
     publishDate: '2024-01-15',
     views: 12500,
@@ -217,7 +217,7 @@ export default function SeminarPage() {
   const playYouTubeVideo = (youtubeId: string, videoId?: string) => {
     // BM ZEN 프레임워크 비디오는 특정 YouTube 영상으로 연결
     if (videoId === '1') {
-      window.open('https://youtu.be/pwYbppU_S2U', '_blank');
+      window.open('https://youtu.be/SWkmuibSQ4E', '_blank');
     } else {
       window.open(`https://www.youtube.com/watch?v=${youtubeId}`, '_blank');
     }
