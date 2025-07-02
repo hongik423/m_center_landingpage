@@ -215,11 +215,25 @@ export default function SeminarPage() {
 
   // 유튜브 비디오 재생 또는 특정 영상 이동
   const playYouTubeVideo = (youtubeId: string, videoId?: string) => {
+    console.log('playYouTubeVideo 함수 호출됨:', { youtubeId, videoId });
+    
     // BM ZEN 프레임워크 비디오는 특정 YouTube 영상으로 연결
     if (videoId === '1') {
-      window.open('https://youtu.be/SWkmuibSQ4E', '_blank');
+      const url = 'https://youtu.be/SWkmuibSQ4E';
+      console.log('BM ZEN 영상 열기:', url);
+      const newWindow = window.open(url, '_blank');
+      if (!newWindow) {
+        console.error('새 창 열기 실패 - 팝업 차단 가능성');
+        alert('팝업이 차단되었을 수 있습니다. 브라우저 설정을 확인해주세요.\n\n직접 링크: https://youtu.be/SWkmuibSQ4E');
+      }
     } else {
-      window.open(`https://www.youtube.com/watch?v=${youtubeId}`, '_blank');
+      const url = `https://www.youtube.com/watch?v=${youtubeId}`;
+      console.log('일반 영상 열기:', url);
+      const newWindow = window.open(url, '_blank');
+      if (!newWindow) {
+        console.error('새 창 열기 실패 - 팝업 차단 가능성');
+        alert('팝업이 차단되었을 수 있습니다. 브라우저 설정을 확인해주세요.');
+      }
     }
   };
 
@@ -386,7 +400,12 @@ export default function SeminarPage() {
                       <Button
                         size="lg"
                         className="bg-red-600 hover:bg-red-700 text-white rounded-full w-16 h-16 shadow-2xl"
-                        onClick={() => playYouTubeVideo(video.youtubeId, video.id)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log('재생 버튼 클릭:', video.id, video.youtubeId);
+                          playYouTubeVideo(video.youtubeId, video.id);
+                        }}
                       >
                         <Play className="w-8 h-8 ml-1" />
                       </Button>
@@ -473,7 +492,12 @@ export default function SeminarPage() {
                       <Button 
                         size="sm" 
                         className="flex-1 bg-red-600 hover:bg-red-700 text-white"
-                        onClick={() => playYouTubeVideo(video.youtubeId, video.id)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log('영상보기 버튼 클릭:', video.id, video.youtubeId);
+                          playYouTubeVideo(video.youtubeId, video.id);
+                        }}
                       >
                         {video.id === '1' ? (
                           <>
