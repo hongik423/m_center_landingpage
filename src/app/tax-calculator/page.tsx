@@ -679,9 +679,82 @@ export default function TaxCalculatorPage() {
     }
   };
 
-  // 🚨 URL 파라미터 체크 - 오류신고 자동 활성화
+  // 🚨 URL 파라미터 체크 - 오류신고 자동 활성화 & 계산기 선택
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
+    
+    // 🔥 NEW: 계산기 선택 파라미터 처리
+    const calculatorParam = urlParams.get('calculator');
+    if (calculatorParam) {
+      console.log('🎯 URL에서 계산기 선택 파라미터 발견:', calculatorParam);
+      
+      // 유효한 계산기 ID인지 확인
+      const allCalculatorIds = [
+        ...personalTaxCalculators.map(c => c.id),
+        ...corporateTaxCalculators.map(c => c.id),
+        businessInheritanceCalculator.id,
+        stockTransferCalculator.id
+      ];
+      
+      if (allCalculatorIds.includes(calculatorParam)) {
+        console.log('✅ 유효한 계산기 ID - 자동 선택 실행:', calculatorParam);
+        
+        // 페이지 로딩 후 잠시 후에 계산기 선택 (DOM이 준비된 후)
+        setTimeout(() => {
+          handleCalculatorSelect(calculatorParam);
+          
+          // 사용자에게 안내 메시지 표시
+          const welcomeMsg = document.createElement('div');
+          welcomeMsg.innerHTML = `
+            <div style="text-align: center;">
+              <div style="font-size: 24px; margin-bottom: 8px;">🧮</div>
+              <div style="font-weight: bold; margin-bottom: 4px; color: #7c3aed;">계산기 자동 선택됨</div>
+              <div style="font-size: 14px; color: #6b7280;">모바일 메뉴에서 선택하신 계산기를 준비했습니다!</div>
+            </div>
+          `;
+          welcomeMsg.style.cssText = `
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; border: 2px solid #7c3aed; padding: 20px; border-radius: 12px;
+            font-family: inherit; z-index: 9999; box-shadow: 0 8px 24px rgba(124,58,237,0.15);
+            max-width: 90vw; width: 320px; animation: slideIn 0.3s ease-out;
+          `;
+          
+          // CSS 애니메이션 추가
+          const style = document.createElement('style');
+          style.textContent = `
+            @keyframes slideIn {
+              from { opacity: 0; transform: translate(-50%, -60%); }
+              to { opacity: 1; transform: translate(-50%, -50%); }
+            }
+          `;
+          document.head.appendChild(style);
+          
+          document.body.appendChild(welcomeMsg);
+          
+          setTimeout(() => {
+            if (document.body.contains(welcomeMsg)) {
+              welcomeMsg.style.transition = 'opacity 0.3s ease-out';
+              welcomeMsg.style.opacity = '0';
+              setTimeout(() => {
+                if (document.body.contains(welcomeMsg)) {
+                  document.body.removeChild(welcomeMsg);
+                }
+              }, 300);
+            }
+          }, 2500);
+          
+          welcomeMsg.addEventListener('click', () => {
+            if (document.body.contains(welcomeMsg)) {
+              document.body.removeChild(welcomeMsg);
+            }
+          });
+        }, 500);
+      } else {
+        console.log('❌ 유효하지 않은 계산기 ID:', calculatorParam);
+      }
+    }
+    
+    // 오류신고 자동 활성화 처리
     if (urlParams.get('error-report') === 'true') {
       // 페이지 로딩 후 1초 후에 오류신고 폼 자동 열기
       const timer = setTimeout(() => {
