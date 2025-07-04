@@ -251,16 +251,27 @@ function CalculatorSelector({ calculators, onSelect, selectedId }: CalculatorSel
               transform hover:scale-[1.02] active:scale-[0.98] active:shadow-md
               ${selectedId === calc.id ? 'ring-2 ring-blue-500 shadow-lg border-blue-200 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}
             `}
-            onClick={() => onSelect(calc.id)}
-            // 🔥 모바일 터치 최적화
+            onClick={(e) => {
+              console.log('🔥 카드 클릭됨:', calc.id, calc.title);
+              e.preventDefault();
+              onSelect(calc.id);
+            }}
+            // 🔥 개선된 모바일 터치 이벤트 - 클릭과 충돌하지 않도록 수정
             onTouchStart={(e) => {
+              console.log('📱 터치 시작:', calc.id);
               e.currentTarget.style.transform = 'scale(0.98)';
               e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.05)';
               if (navigator.vibrate) navigator.vibrate(15);
             }}
             onTouchEnd={(e) => {
+              console.log('📱 터치 종료:', calc.id);
               e.currentTarget.style.transform = 'scale(1)';
               e.currentTarget.style.backgroundColor = '';
+              // 터치 종료 시 명시적으로 클릭 이벤트 실행
+              setTimeout(() => {
+                console.log('🎯 터치 후 계산기 선택 실행:', calc.id);
+                onSelect(calc.id);
+              }, 50);
             }}
             onTouchCancel={(e) => {
               e.currentTarget.style.transform = 'scale(1)';
@@ -270,6 +281,7 @@ function CalculatorSelector({ calculators, onSelect, selectedId }: CalculatorSel
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
+                console.log('⌨️ 키보드로 계산기 선택:', calc.id);
                 onSelect(calc.id);
               }
             }}
@@ -334,12 +346,22 @@ function CalculatorSelector({ calculators, onSelect, selectedId }: CalculatorSel
                 variant={selectedId === calc.id ? "default" : "outline"}
                 onClick={(e) => {
                   e.stopPropagation(); // 부모 카드 클릭 이벤트 방지
+                  console.log('🔴 버튼 클릭됨:', calc.id, calc.title);
                   onSelect(calc.id);
                 }}
                 // 모바일 터치 피드백
                 onTouchStart={(e) => {
                   e.stopPropagation();
+                  console.log('📱 버튼 터치:', calc.id);
                   if (navigator.vibrate) navigator.vibrate(10);
+                }}
+                onTouchEnd={(e) => {
+                  e.stopPropagation();
+                  // 터치 종료 시 명시적으로 클릭 이벤트 실행
+                  setTimeout(() => {
+                    console.log('🎯 버튼 터치 후 계산기 선택 실행:', calc.id);
+                    onSelect(calc.id);
+                  }, 50);
                 }}
                 aria-label={`${calc.title} 계산기 시작`}
               >
@@ -410,16 +432,27 @@ function SingleCalculatorDisplay({ calculator, onSelect }: { calculator: any, on
 
       <Card 
         className="mobile-card-enhanced transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-2"
-        onClick={() => onSelect(calculator.id)}
-        // 🔥 모바일 터치 최적화
+        onClick={(e) => {
+          console.log('🔥 단일 계산기 카드 클릭됨:', calculator.id, calculator.title);
+          e.preventDefault();
+          onSelect(calculator.id);
+        }}
+        // 🔥 개선된 모바일 터치 최적화
         onTouchStart={(e) => {
+          console.log('📱 단일 계산기 터치 시작:', calculator.id);
           e.currentTarget.style.transform = 'scale(0.98)';
           e.currentTarget.style.backgroundColor = 'rgba(139, 92, 246, 0.05)';
           if (navigator.vibrate) navigator.vibrate(15);
         }}
         onTouchEnd={(e) => {
+          console.log('📱 단일 계산기 터치 종료:', calculator.id);
           e.currentTarget.style.transform = 'scale(1)';
           e.currentTarget.style.backgroundColor = '';
+          // 터치 종료 시 명시적으로 클릭 이벤트 실행
+          setTimeout(() => {
+            console.log('🎯 단일 계산기 터치 후 선택 실행:', calculator.id);
+            onSelect(calculator.id);
+          }, 50);
         }}
         onTouchCancel={(e) => {
           e.currentTarget.style.transform = 'scale(1)';
@@ -429,6 +462,7 @@ function SingleCalculatorDisplay({ calculator, onSelect }: { calculator: any, on
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
+            console.log('⌨️ 키보드로 단일 계산기 선택:', calculator.id);
             onSelect(calculator.id);
           }
         }}
@@ -480,12 +514,22 @@ function SingleCalculatorDisplay({ calculator, onSelect }: { calculator: any, on
             size="lg"
             onClick={(e) => {
               e.stopPropagation(); // 부모 카드 클릭 이벤트 방지
+              console.log('🔴 단일 계산기 버튼 클릭됨:', calculator.id, calculator.title);
               onSelect(calculator.id);
             }}
             // 모바일 터치 피드백
             onTouchStart={(e) => {
               e.stopPropagation();
+              console.log('📱 단일 계산기 버튼 터치:', calculator.id);
               if (navigator.vibrate) navigator.vibrate(10);
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              // 터치 종료 시 명시적으로 클릭 이벤트 실행
+              setTimeout(() => {
+                console.log('🎯 단일 계산기 버튼 터치 후 선택 실행:', calculator.id);
+                onSelect(calculator.id);
+              }, 50);
             }}
             aria-label={`${calculator.title} 계산 시작`}
           >
@@ -817,22 +861,37 @@ export default function TaxCalculatorPage() {
 
   // 🔥 개선된 계산기 선택 핸들러 - 탭 자동 이동 기능
   const handleCalculatorSelect = (calculatorId: string) => {
+    console.log('🚀 handleCalculatorSelect 호출됨:', calculatorId);
+    
     // 계산기 ID에 따라 적절한 탭으로 이동
     const personalIds = personalTaxCalculators.map(c => c.id);
     const corporateIds = corporateTaxCalculators.map(c => c.id);
     
     if (personalIds.includes(calculatorId)) {
+      console.log('📂 개인세금 탭으로 이동:', calculatorId);
       setActiveTab('personal');
     } else if (corporateIds.includes(calculatorId)) {
+      console.log('📂 법인세금 탭으로 이동:', calculatorId);
       setActiveTab('corporate');
     } else if (calculatorId === 'business-inheritance') {
+      console.log('📂 가업상속세 탭으로 이동:', calculatorId);
       setActiveTab('business-inheritance');
     } else if (calculatorId === 'stock-transfer') {
+      console.log('📂 주식이동세 탭으로 이동:', calculatorId);
       setActiveTab('stock-transfer');
     }
     
     // 계산기 선택
+    console.log('✅ setSelectedCalculator 호출:', calculatorId);
     setSelectedCalculator(calculatorId);
+    
+    // 모바일에서 확실히 보이도록 스크롤 추가
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }, 100);
   };
 
   return (
@@ -1225,13 +1284,20 @@ export default function TaxCalculatorPage() {
                                 : 'border-gray-200/60'}`}
                     // 🔥 개선된 모바일 터치 최적화
                     onTouchStart={(e) => {
+                      console.log('📱 개인세금 탭 터치 시작');
                       e.currentTarget.style.transform = 'scale(0.95)';
                       e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.05)';
                       if (navigator.vibrate) navigator.vibrate(20);
                     }}
                     onTouchEnd={(e) => {
+                      console.log('📱 개인세금 탭 터치 종료');
                       e.currentTarget.style.transform = 'scale(1)';
                       e.currentTarget.style.backgroundColor = '';
+                      // 터치 종료 시 명시적으로 탭 변경 실행
+                      setTimeout(() => {
+                        console.log('🎯 개인세금 탭 선택 실행');
+                        setActiveTab('personal');
+                      }, 50);
                     }}
                     onTouchCancel={(e) => {
                       e.currentTarget.style.transform = 'scale(1)';
@@ -1241,6 +1307,7 @@ export default function TaxCalculatorPage() {
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
+                        console.log('⌨️ 키보드로 개인세금 탭 선택');
                         setActiveTab('personal');
                       }
                     }}
