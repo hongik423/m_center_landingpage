@@ -748,6 +748,48 @@
     -webkit-hyphens: auto;
     hyphens: auto;
   }
+
+  /* 🔥 모바일 세금계산기 최적화 클래스 추가 */
+  .mobile-button-enhanced {
+    @apply w-full sm:w-auto px-6 py-3 text-base font-semibold rounded-xl;
+    @apply touch-manipulation select-none;
+    @apply transition-all duration-200 ease-in-out;
+    @apply active:scale-95 active:shadow-md;
+    @apply border-2 border-transparent;
+    min-height: 48px; /* 터치 타겟 최소 크기 */
+    min-width: 120px; /* 최소 너비 */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .mobile-card-enhanced {
+    @apply rounded-xl border border-gray-200 bg-white shadow-sm;
+    @apply touch-manipulation cursor-pointer;
+    @apply transition-all duration-200 ease-in-out;
+    @apply hover:shadow-md hover:border-gray-300;
+    @apply active:scale-[0.98] active:shadow-lg;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .mobile-card-enhanced:active {
+    transform: scale(0.98);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .mobile-touch-feedback {
+    @apply transition-all duration-100 ease-in-out;
+    @apply active:bg-gray-50 active:shadow-inner;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .mobile-safe-click {
+    @apply cursor-pointer select-none;
+    @apply touch-manipulation;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+    min-height: 44px; /* iOS 접근성 가이드라인 */
+    min-width: 44px;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
   
   /* 텍스트 그림자 효과 - 어두운 배경 대응 */
   .text-shadow-sm {

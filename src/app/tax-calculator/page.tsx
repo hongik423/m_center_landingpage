@@ -247,11 +247,35 @@ function CalculatorSelector({ calculators, onSelect, selectedId }: CalculatorSel
         {calculators.map((calc) => (
           <Card 
             key={calc.id}
-            className={`cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1 touch-manipulation border 
+            className={`mobile-card-enhanced transition-all duration-200 hover:shadow-lg hover:-translate-y-1 border 
               transform hover:scale-[1.02] active:scale-[0.98] active:shadow-md
               ${selectedId === calc.id ? 'ring-2 ring-blue-500 shadow-lg border-blue-200 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}
             `}
             onClick={() => onSelect(calc.id)}
+            // 🔥 모바일 터치 최적화
+            onTouchStart={(e) => {
+              e.currentTarget.style.transform = 'scale(0.98)';
+              e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.05)';
+              if (navigator.vibrate) navigator.vibrate(15);
+            }}
+            onTouchEnd={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.backgroundColor = '';
+            }}
+            onTouchCancel={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.backgroundColor = '';
+            }}
+            // 키보드 접근성
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onSelect(calc.id);
+              }
+            }}
+            aria-label={`${calc.title} 선택`}
+            role="button"
+            tabIndex={0}
           >
             <CardHeader className="pb-3 px-4 sm:px-5 pt-4 sm:pt-5">
               <div className="flex items-center justify-between mb-3">
@@ -302,13 +326,22 @@ function CalculatorSelector({ calculators, onSelect, selectedId }: CalculatorSel
               </div>
               
               <Button 
-                className={`w-full text-sm py-3 touch-manipulation font-semibold transition-all duration-200 
-                  transform hover:scale-[1.02] active:scale-[0.98] active:shadow-inner
+                className={`mobile-button-enhanced text-sm py-3 font-semibold 
                   ${selectedId === calc.id 
                     ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg' 
                     : 'border-2 hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50 hover:shadow-md'
                   }`}
                 variant={selectedId === calc.id ? "default" : "outline"}
+                onClick={(e) => {
+                  e.stopPropagation(); // 부모 카드 클릭 이벤트 방지
+                  onSelect(calc.id);
+                }}
+                // 모바일 터치 피드백
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  if (navigator.vibrate) navigator.vibrate(10);
+                }}
+                aria-label={`${calc.title} 계산기 시작`}
               >
                 {selectedId === calc.id ? (
                   <>
@@ -376,8 +409,32 @@ function SingleCalculatorDisplay({ calculator, onSelect }: { calculator: any, on
       </Card>
 
       <Card 
-        className="cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-2"
+        className="mobile-card-enhanced transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-2"
         onClick={() => onSelect(calculator.id)}
+        // 🔥 모바일 터치 최적화
+        onTouchStart={(e) => {
+          e.currentTarget.style.transform = 'scale(0.98)';
+          e.currentTarget.style.backgroundColor = 'rgba(139, 92, 246, 0.05)';
+          if (navigator.vibrate) navigator.vibrate(15);
+        }}
+        onTouchEnd={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.backgroundColor = '';
+        }}
+        onTouchCancel={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.backgroundColor = '';
+        }}
+        // 키보드 접근성
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onSelect(calculator.id);
+          }
+        }}
+        aria-label={`${calculator.title} 선택`}
+        role="button"
+        tabIndex={0}
       >
         <CardHeader className="pb-4 text-center">
           <div className={`w-16 h-16 mx-auto mb-4 bg-${calculator.color}-50 rounded-xl flex items-center justify-center`}>
@@ -418,7 +475,20 @@ function SingleCalculatorDisplay({ calculator, onSelect }: { calculator: any, on
             </div>
           </div>
           
-          <Button className="w-full" size="lg">
+          <Button 
+            className="mobile-button-enhanced" 
+            size="lg"
+            onClick={(e) => {
+              e.stopPropagation(); // 부모 카드 클릭 이벤트 방지
+              onSelect(calculator.id);
+            }}
+            // 모바일 터치 피드백
+            onTouchStart={(e) => {
+              e.stopPropagation();
+              if (navigator.vibrate) navigator.vibrate(10);
+            }}
+            aria-label={`${calculator.title} 계산 시작`}
+          >
             <Calculator className="w-5 h-5 mr-2" />
             전문 계산 시작하기
           </Button>
@@ -1149,22 +1219,34 @@ export default function TaxCalculatorPage() {
                     className={`group relative bg-white border rounded-2xl p-6 md:p-8 
                               hover:border-gray-300/80 hover:shadow-lg hover:-translate-y-1 
                               transition-all duration-300 cursor-pointer text-left h-auto min-h-[200px] flex flex-col justify-between
-                              touch-manipulation select-none -webkit-tap-highlight-color-transparent
-                              active:scale-95 active:shadow-md
+                              mobile-safe-click mobile-touch-feedback
                               ${activeTab === 'personal' 
                                 ? 'border-blue-500/50 shadow-xl bg-blue-50/30' 
                                 : 'border-gray-200/60'}`}
-                    // 🔥 모바일 터치 최적화
+                    // 🔥 개선된 모바일 터치 최적화
                     onTouchStart={(e) => {
                       e.currentTarget.style.transform = 'scale(0.95)';
-                      if (navigator.vibrate) navigator.vibrate(30);
+                      e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.05)';
+                      if (navigator.vibrate) navigator.vibrate(20);
                     }}
                     onTouchEnd={(e) => {
                       e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.backgroundColor = '';
                     }}
                     onTouchCancel={(e) => {
                       e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.backgroundColor = '';
                     }}
+                    // 키보드 접근성
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setActiveTab('personal');
+                      }
+                    }}
+                    aria-label="개인세금 계산기 탭 선택"
+                    role="button"
+                    tabIndex={0}
                   >
                     <div>
                       <div className="mb-6">
@@ -1190,22 +1272,34 @@ export default function TaxCalculatorPage() {
                     className={`group relative bg-white border rounded-2xl p-6 md:p-8 
                               hover:border-gray-300/80 hover:shadow-lg hover:-translate-y-1 
                               transition-all duration-300 cursor-pointer text-left h-auto min-h-[200px] flex flex-col justify-between
-                              touch-manipulation select-none -webkit-tap-highlight-color-transparent
-                              active:scale-95 active:shadow-md
+                              mobile-safe-click mobile-touch-feedback
                               ${activeTab === 'corporate' 
                                 ? 'border-green-500/50 shadow-xl bg-green-50/30' 
                                 : 'border-gray-200/60'}`}
-                    // 🔥 모바일 터치 최적화
+                    // 🔥 개선된 모바일 터치 최적화
                     onTouchStart={(e) => {
                       e.currentTarget.style.transform = 'scale(0.95)';
-                      if (navigator.vibrate) navigator.vibrate(30);
+                      e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.05)';
+                      if (navigator.vibrate) navigator.vibrate(20);
                     }}
                     onTouchEnd={(e) => {
                       e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.backgroundColor = '';
                     }}
                     onTouchCancel={(e) => {
                       e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.backgroundColor = '';
                     }}
+                    // 키보드 접근성
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setActiveTab('corporate');
+                      }
+                    }}
+                    aria-label="법인세금 계산기 탭 선택"
+                    role="button"
+                    tabIndex={0}
                   >
                     <div>
                       <div className="mb-6">
@@ -1231,22 +1325,34 @@ export default function TaxCalculatorPage() {
                     className={`group relative bg-white border rounded-2xl p-6 md:p-8 
                               hover:border-gray-300/80 hover:shadow-lg hover:-translate-y-1 
                               transition-all duration-300 cursor-pointer text-left h-auto min-h-[200px] flex flex-col justify-between
-                              touch-manipulation select-none -webkit-tap-highlight-color-transparent
-                              active:scale-95 active:shadow-md
+                              mobile-safe-click mobile-touch-feedback
                               ${activeTab === 'business-inheritance' 
                                 ? 'border-violet-500/50 shadow-xl bg-violet-50/30' 
                                 : 'border-gray-200/60'}`}
-                    // 🔥 모바일 터치 최적화
+                    // 🔥 개선된 모바일 터치 최적화
                     onTouchStart={(e) => {
                       e.currentTarget.style.transform = 'scale(0.95)';
-                      if (navigator.vibrate) navigator.vibrate(30);
+                      e.currentTarget.style.backgroundColor = 'rgba(139, 92, 246, 0.05)';
+                      if (navigator.vibrate) navigator.vibrate(20);
                     }}
                     onTouchEnd={(e) => {
                       e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.backgroundColor = '';
                     }}
                     onTouchCancel={(e) => {
                       e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.backgroundColor = '';
                     }}
+                    // 키보드 접근성
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setActiveTab('business-inheritance');
+                      }
+                    }}
+                    aria-label="가업상속세 계산기 탭 선택"
+                    role="button"
+                    tabIndex={0}
                   >
                     <div>
                       <div className="mb-6">
@@ -1272,22 +1378,34 @@ export default function TaxCalculatorPage() {
                     className={`group relative bg-white border rounded-2xl p-6 md:p-8 
                               hover:border-gray-300/80 hover:shadow-lg hover:-translate-y-1 
                               transition-all duration-300 cursor-pointer text-left h-auto min-h-[200px] flex flex-col justify-between
-                              touch-manipulation select-none -webkit-tap-highlight-color-transparent
-                              active:scale-95 active:shadow-md
+                              mobile-safe-click mobile-touch-feedback
                               ${activeTab === 'stock-transfer' 
                                 ? 'border-rose-500/50 shadow-xl bg-rose-50/30' 
                                 : 'border-gray-200/60'}`}
-                    // 🔥 모바일 터치 최적화
+                    // 🔥 개선된 모바일 터치 최적화
                     onTouchStart={(e) => {
                       e.currentTarget.style.transform = 'scale(0.95)';
-                      if (navigator.vibrate) navigator.vibrate(30);
+                      e.currentTarget.style.backgroundColor = 'rgba(244, 63, 94, 0.05)';
+                      if (navigator.vibrate) navigator.vibrate(20);
                     }}
                     onTouchEnd={(e) => {
                       e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.backgroundColor = '';
                     }}
                     onTouchCancel={(e) => {
                       e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.backgroundColor = '';
                     }}
+                    // 키보드 접근성
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setActiveTab('stock-transfer');
+                      }
+                    }}
+                    aria-label="주식이동세 계산기 탭 선택"
+                    role="button"
+                    tabIndex={0}
                   >
                     <div>
                       <div className="mb-6">
