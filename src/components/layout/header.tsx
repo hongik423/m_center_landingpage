@@ -24,30 +24,30 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // 메뉴 클릭 시 닫기
+  const handleMenuClose = () => {
+    setIsMenuOpen(false);
+  };
+
   const mainNavItems = [
     { href: '/', label: 'HOME' },
     { href: '/services/business-analysis', label: '사업분석' },
-    { href: '/services/ai-productivity', label: 'AI일터혁신' },
+    { href: '/services/ai-productivity', label: 'AI혁신' },
     { href: '/services/policy-funding', label: '정책자금' },
     { href: '/services/tech-startup', label: '기술경영' },
-    { href: '/services/certification', label: '벤처/ISO/인증' },
-    { href: '/services/website', label: '매출증대웹사이트' },
+    { href: '/services/certification', label: '인증지원' },
+    { href: '/services/website', label: '웹사이트' },
     { href: '/cases', label: '성공사례' },
     { href: '/center-leader', label: '센터장' },
     { href: '/seminar', label: '세미나' },
     { href: '/support', label: '고객지원' },
   ];
 
-  const actionItems: Array<{
-    href: string;
-    label: string;
-    highlight?: boolean;
-    special?: boolean;
-  }> = [
+  const actionItems = [
     { href: '/diagnosis', label: '무료진단', highlight: true },
     { href: '/consultation', label: '상담신청', highlight: true },
-    { href: '/tax-calculator', label: '세금계산기', highlight: false, special: true },
-    { href: '/services/policy-funding', label: '정책자금투자타당성분석기', highlight: false, special: true },
+    { href: '/tax-calculator', label: '세금계산기', special: true },
+    { href: '/services/policy-funding', label: '정책자금투자타당성분석기', special: true },
   ];
 
   return (
@@ -59,7 +59,7 @@ export default function Header() {
       <div className="w-full px-1 lg:px-2">
         <div className="flex items-center justify-between h-12">
           {/* Logo */}
-          <Link href="/" className="flex-shrink-0">
+          <Link href="/" className="flex-shrink-0" onClick={handleMenuClose}>
             <img 
               src={getImagePath('/LOGO.svg')} 
               alt="M-Center Logo" 
@@ -67,7 +67,7 @@ export default function Header() {
             />
           </Link>
 
-          {/* Desktop Navigation - Enhanced Apple Store Style */}
+          {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center justify-center flex-1 mx-2">
             <div className="flex items-center space-x-3">
               {mainNavItems.map((item) => {
@@ -90,7 +90,7 @@ export default function Header() {
             </div>
           </nav>
 
-          {/* Desktop Action Items - Right Aligned with Enhanced Visibility */}
+          {/* Desktop Action Items */}
           <div className="hidden lg:flex items-center space-x-2 flex-shrink-0">
             {actionItems.map((item) => {
               const isActive = pathname === item.href;
@@ -119,31 +119,35 @@ export default function Header() {
             })}
           </div>
 
-          {/* Mobile Menu Button - Enhanced for touch */}
+          {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="lg:hidden touch-target-enhanced ios-touch-feedback mobile-menu-button p-2 -mr-1 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-            aria-label="메뉴 열기"
-            style={{ minWidth: '40px', minHeight: '40px' }}
+            className="lg:hidden p-2 -mr-1 rounded-lg hover:bg-gray-100 transition-colors duration-200 touch-manipulation"
+            aria-label={isMenuOpen ? "메뉴 닫기" : "메뉴 열기"}
+            style={{ 
+              minWidth: '44px', 
+              minHeight: '44px',
+              WebkitTapHighlightColor: 'transparent'
+            }}
           >
             {isMenuOpen ? (
-              <X className="h-5 w-5 text-gray-700" />
+              <X className="h-6 w-6 text-gray-700" />
             ) : (
-              <Menu className="h-5 w-5 text-gray-700" />
+              <Menu className="h-6 w-6 text-gray-700" />
             )}
           </button>
         </div>
 
-        {/* Mobile Navigation - Enhanced with touch optimization */}
+        {/* Mobile Navigation */}
         {isMenuOpen && (
-          <nav className="lg:hidden mobile-menu-overlay absolute top-full left-0 right-0 bg-white border-t border-gray-200 shadow-xl smooth-scroll-ios">
-            <div className="mobile-menu-content max-h-[calc(100vh-3.5rem)] overflow-y-auto">
-              <div className="py-2">
-                {/* Main Navigation Items */}
-                <div className="mobile-menu-section px-4 py-2">
-                  <div className="mobile-menu-section-title text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                    서비스
-                  </div>
+          <div className="lg:hidden fixed top-12 left-0 right-0 bg-white border-t border-gray-200 shadow-xl z-40 max-h-[calc(100vh-3rem)] overflow-y-auto">
+            <div className="px-4 py-4">
+              {/* Main Navigation Items */}
+              <div className="mb-6">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                  서비스
+                </h3>
+                <div className="space-y-1">
                   {mainNavItems.map((item) => {
                     const isActive = pathname === item.href;
                     
@@ -151,25 +155,32 @@ export default function Header() {
                       <Link
                         key={item.href}
                         href={item.href}
-                        onClick={() => setIsMenuOpen(false)}
-                        className={`mobile-menu-item-enhanced ios-touch-feedback block py-4 px-2 text-base transition-all duration-300 rounded-lg ${
+                        onClick={handleMenuClose}
+                        className={`block py-3 px-3 text-base font-medium transition-all duration-200 rounded-lg touch-manipulation ${
                           isActive
-                            ? 'text-gray-900 font-semibold bg-blue-50'
-                            : 'text-gray-700 active:text-gray-900'
+                            ? 'text-blue-600 bg-blue-50 border-l-4 border-blue-500'
+                            : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50 active:bg-gray-100'
                         }`}
-                        style={{ minHeight: '48px', display: 'flex', alignItems: 'center' }}
+                        style={{ 
+                          minHeight: '48px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          WebkitTapHighlightColor: 'transparent'
+                        }}
                       >
                         {item.label}
                       </Link>
                     );
                   })}
                 </div>
+              </div>
 
-                {/* Action Items */}
-                <div className="mobile-menu-section px-4 py-2 border-t border-gray-200">
-                  <div className="mobile-menu-section-title text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 mt-2">
-                    바로가기
-                  </div>
+              {/* Action Items */}
+              <div className="border-t border-gray-200 pt-4">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                  바로가기
+                </h3>
+                <div className="space-y-2">
                   {actionItems.map((item) => {
                     const isActive = pathname === item.href;
                     
@@ -177,19 +188,22 @@ export default function Header() {
                       <Link
                         key={item.href}
                         href={item.href}
-                        onClick={() => setIsMenuOpen(false)}
-                        className={`mobile-menu-item-enhanced ios-touch-feedback block py-4 px-2 text-base transition-all duration-300 rounded-lg ${
+                        onClick={handleMenuClose}
+                        className={`block py-3 px-3 text-base font-semibold transition-all duration-200 rounded-lg touch-manipulation ${
                           item.highlight
-                            ? 'text-blue-700 font-semibold bg-blue-50 border-l-4 border-blue-500'
+                            ? 'text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow-md'
                             : item.special
-                              ? isActive
-                                ? 'text-white font-bold bg-orange-500 border-l-4 border-orange-600 shadow-md'
-                                : 'text-white font-semibold bg-orange-500 border-l-4 border-orange-600 shadow-sm hover:shadow-md'
+                              ? 'text-white bg-orange-500 hover:bg-orange-600 active:bg-orange-700 shadow-md'
                               : isActive
-                                ? 'text-gray-900 font-semibold bg-gray-50'
-                                : 'text-gray-700 active:text-gray-900'
+                                ? 'text-gray-900 bg-gray-100'
+                                : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50 active:bg-gray-100'
                         }`}
-                        style={{ minHeight: '48px', display: 'flex', alignItems: 'center' }}
+                        style={{ 
+                          minHeight: '48px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          WebkitTapHighlightColor: 'transparent'
+                        }}
                       >
                         {item.label}
                       </Link>
@@ -198,7 +212,7 @@ export default function Header() {
                 </div>
               </div>
             </div>
-          </nav>
+          </div>
         )}
       </div>
     </header>
