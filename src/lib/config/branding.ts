@@ -7,18 +7,21 @@
 
 // 🏢 기업 정보
 export const COMPANY_INFO = {
-  name: '기업의별 M-CENTER',
-  fullName: '기업의별 경영지도센터',
-  slogan: '기업의 별이 되어드립니다',
-  mission: '기업의 지속가능한 성장과 혁신을 지원합니다',
-  vision: '대한민국 모든 기업이 글로벌 경쟁력을 갖춘 별이 되는 세상',
+  name: '기업의별 경영지도센터',
+  shortName: 'M-CENTER',
+  businessNumber: '123-45-67890',
+  ceoName: '이후경',
+  address: '서울특별시 강남구 테헤란로 123',
+  foundedYear: '2020',
+  description: 'AI 기반 비즈니스 혁신 전문 컨설팅',
+  slogan: 'AI 시대의 성장 파트너',
+  vision: '모든 기업이 AI로 성장하는 세상',
   coreValues: [
     '💫 혁신 (Innovation)',
     '🤝 신뢰 (Trust)', 
     '🎯 성과 (Performance)',
     '🌟 탁월함 (Excellence)'
   ],
-  address: '서울특별시 강남구',
   website: 'https://m-center-landingpage.vercel.app',
   email: 'hongik423@gmail.com'
 } as const;
@@ -42,12 +45,14 @@ export const CONSULTANT_INFO = {
 export const CONTACT_INFO = {
   mainPhone: '010-9251-9743',
   emergencyPhone: '010-9251-9743',
+  mainEmail: 'hongik423@gmail.com',
   email: 'hongik423@gmail.com',
   kakaoTalk: '@mcenter',
   businessHours: '평일 09:00-18:00',
   consultationHours: '평일/주말 09:00-21:00',
   responseTime: '24시간 이내 연락',
   visitConsultation: '무료 현장 방문 상담 가능',
+  websiteUrl: 'https://m-center.vercel.app',
   
   // 상담 관련 정보 (하위 호환성)
   consultationInfo: {

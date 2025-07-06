@@ -158,14 +158,6 @@ const growthStages = [
   }
 ];
 
-// 실시간 지표 데이터
-const performanceMetrics = [
-  { label: '완료된 진단', value: '1,247', suffix: '건', icon: BarChart3, color: 'text-blue-600' },
-  { label: '성공 프로젝트', value: '324', suffix: '건', icon: Target, color: 'text-green-600' },
-  { label: '고객 절약 효과', value: '127', suffix: '억원', icon: TrendingUp, color: 'text-purple-600' },
-  { label: '고객 만족도', value: '94.2', suffix: '%', icon: Star, color: 'text-orange-600' }
-];
-
 // 고객 후기 데이터
 const testimonials = [
   {
@@ -177,10 +169,10 @@ const testimonials = [
     avatar: 'K'
   },
   {
-    name: '이창업',
+    name: '이재원',
     title: '대표이사',
-    company: '스마트제조(주)',
-    content: '공장구매 컨설팅으로 40% 이상 투자비를 절약했습니다. 전문가의 체계적인 지원이 정말 도움이 되었습니다.',
+    company: '(주)스마트팩토리',
+    content: '정책자금 컨설팅으로 10억원의 자금을 확보했습니다. 투자분석까지 체계적으로 지원해주셔서 감사합니다.',
     rating: 5,
     avatar: 'L'
   },
@@ -193,67 +185,6 @@ const testimonials = [
     avatar: 'P'
   }
 ];
-
-// 숫자 카운트업 애니메이션 훅
-function useCountUp(end: number, duration: number = 2000) {
-  const [count, setCount] = useState(0);
-  const [hasStarted, setHasStarted] = useState(false);
-
-  useEffect(() => {
-    if (!hasStarted) return;
-    
-    let startTime: number;
-    let animationFrame: number;
-
-    const animate = (currentTime: number) => {
-      if (!startTime) startTime = currentTime;
-      const progress = Math.min((currentTime - startTime) / duration, 1);
-      
-      // easeOutQuart 이징 적용
-      const easeProgress = 1 - Math.pow(1 - progress, 4);
-      setCount(Math.floor(easeProgress * end));
-      
-      if (progress < 1) {
-        animationFrame = requestAnimationFrame(animate);
-      }
-    };
-
-    animationFrame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrame);
-  }, [end, duration, hasStarted]);
-
-  // 교차 관찰자로 화면에 보일 때 애니메이션 시작
-  useEffect(() => {
-    const timer = setTimeout(() => setHasStarted(true), 300);
-    return () => clearTimeout(timer);
-  }, []);
-
-  return count;
-}
-
-// 애플스토어 스타일 메트릭 카드 컴포넌트
-function MetricCard({ metric }: { metric: typeof performanceMetrics[0] }) {
-  const count = useCountUp(parseInt(metric.value.replace('.', '')));
-  const displayValue = metric.label === '고객 만족도' 
-    ? (count / 10).toFixed(1) 
-    : count.toLocaleString();
-
-  return (
-    <div className="apple-card apple-animation-scale touch-target">
-      <div className="text-center">
-        <div className={`apple-icon-large bg-gradient-to-br from-blue-100 to-purple-100 mx-auto mb-4 
-                        group-hover:scale-110 transition-transform duration-300`}>
-          <metric.icon className={`w-8 h-8 ${metric.color}`} />
-        </div>
-        <div className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 ${metric.color} font-mono`}>
-          <span className="text-overflow-safe">{displayValue}</span>
-          <span className="text-lg ml-1 text-gray-500">{metric.suffix}</span>
-        </div>
-        <p className="apple-caption text-overflow-safe">{metric.label}</p>
-      </div>
-    </div>
-  );
-}
 
 export default function Home() {
   const router = useRouter();
@@ -298,15 +229,14 @@ export default function Home() {
             
             <p className="apple-body max-w-3xl mx-auto apple-animation-slideUp mobile-text" 
                style={{ animationDelay: '0.2s' }}>
-              <strong className="text-gray-800">혁신 AI, 스마트 투자, 기술창업, 프리미엄 인증, 디지털 혁신</strong> - 
-              6대 영역 통합 솔루션으로 차원이 다른 비즈니스 성과를 만나보세요
+              <strong className="text-gray-800">혁신 AI, 스마트 투자, 기술창업, 프리미엄 인증, 디지털 혁신</strong> - 6대 영역 통합 솔루션으로 차원이 다른 비즈니스 성과를 만나보세요
             </p>
             
             <div className="apple-spacing-xs apple-animation-slideUp"
                  style={{ animationDelay: '0.4s' }}>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/services">
-                  <button className="apple-button-primary mobile-full-width">
+                  <button className="apple-button-primary mobile-full-width touch-target-enhanced ios-touch-feedback mobile-button-enhanced">
                     <Sparkles className="w-5 h-5 mr-2" />
                     <span className="text-overflow-safe">프리미엄 사업분석 시작하기</span>
                     <ArrowRight className="ml-2 w-5 h-5" />
@@ -314,14 +244,14 @@ export default function Home() {
                 </Link>
                 
                 <Link href="/diagnosis">
-                  <button className="apple-button-secondary mobile-full-width">
+                  <button className="apple-button-secondary mobile-full-width touch-target-enhanced ios-touch-feedback mobile-button-enhanced">
                     <Zap className="w-5 h-5 mr-2" />
                     <span className="text-overflow-safe">무료 전문가 진단</span>
                   </button>
                 </Link>
                 
                 <Link href="/consultation">
-                  <button className="apple-button-outline mobile-full-width">
+                  <button className="apple-button-outline mobile-full-width touch-target-enhanced ios-touch-feedback mobile-button-enhanced">
                     <Users className="w-5 h-5 mr-2" />
                     <span className="text-overflow-safe">전문가 상담 신청</span>
                   </button>
@@ -381,7 +311,7 @@ export default function Home() {
                       통합적 솔루션에 AI 기술을 접목하여 실무에서 전략까지 
                       폭발적인 일터혁신을 이끌어내는 성과중심 컨설팅을 제공합니다. 
                       <br /><br />
-                      BM ZEN 사업분석, AI 생산성혁신, 공장경매, 기술창업, 인증지원, 
+                      BM ZEN 사업분석, AI 생산성혁신, 정책자금, 기술창업, 인증지원, 
                       웹사이트구축 등 6대 핵심서비스를 통해 귀하의 기업이 
                       차원이 다른 성장을 경험할 수 있도록 직접 지도해드리겠습니다.
                     </p>
@@ -390,9 +320,10 @@ export default function Home() {
                   {/* 애플 스타일 버튼 */}
                   <div className="text-center lg:text-left">
                     <button 
-                      className="inline-flex items-center justify-center px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white text-lg font-medium rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+                      className="touch-target-enhanced ios-touch-feedback mobile-button-enhanced inline-flex items-center justify-center px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white text-lg font-medium rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
                       onClick={handleChatbotConnect}
                       disabled={isConnecting || isChatOpen}
+                      style={{ minHeight: '48px', touchAction: 'manipulation' }}
                     >
                       {isConnecting ? (
                         <>
@@ -495,7 +426,7 @@ export default function Home() {
                     </div>
                     <h3 className="text-xl font-semibold text-gray-900">전문 분야별 맞춤 상담</h3>
                     <p className="text-gray-600 leading-relaxed">
-                      사업분석, AI혁신, 공장구매, 기술창업, 인증, 웹사이트 등 6개 전문 분야
+                      사업분석, AI혁신, 정책자금, 기술창업, 인증, 웹사이트 등 6개 전문 분야
                     </p>
                   </div>
                   
@@ -774,26 +705,6 @@ export default function Home() {
                   </ul>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 실시간 성과 지표 - 토스 스타일 */}
-      <section className="section-padding bg-gradient-to-br from-blue-50 to-purple-50">
-        <div className="mobile-container">
-          <div className="text-center mb-16">
-            <h2 className="text-h1 text-gray-900 mb-4 mobile-centered">
-              <span className="text-overflow-safe">실시간 성과 지표</span>
-            </h2>
-            <p className="text-body-lg text-gray-600 max-w-3xl mx-auto mobile-text">
-              M-CENTER와 함께한 기업들의 실제 성과를 확인하세요
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {performanceMetrics.map((metric, index) => (
-              <MetricCard key={index} metric={metric} />
             ))}
           </div>
         </div>

@@ -47,7 +47,7 @@ export default function FloatingChatbot() {
 
 BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성한 케이스들이 많아요. AI 생산성향상은 20-99인 기업이라면 정부에서 100% 지원해주니까 완전 무료로 받으실 수 있어요.
 
-경매 활용해서 공장구매하는 건 25년 노하우로 30-50% 절감해드리고, 기술사업화나 창업 지원으로는 평균 5억원 정도 정부지원을 확보해드리고 있어요.
+정책자금 활용으로는 투자분석과 함께 평균 10억원의 자금을 확보해드리고, 기술사업화나 창업 지원으로는 평균 5억원 정도 정부지원을 확보해드리고 있어요.
 
 인증지원 쪽은 ISO, 벤처, 연구소 등을 통해 연간 5천만원 세제혜택을 받을 수 있게 도와드리고, 웹사이트 구축으로는 온라인 매출을 300-500% 증대시켜드려요.
 
@@ -55,7 +55,7 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
 
 궁금한 것 있으시면 자유롭게 물어보세요! 직접 상담받으시려면 010-9251-9743으로 전화주셔도 돼요.
 
-예를 들어 "BM ZEN 사업분석은 어떻게 진행되나요?", "일터혁신 상생컨설팅이 정말 무료인가요?", "경매로 공장을 안전하게 구매하는 방법은?" 이런 질문들 언제든 환영해요.`,
+예를 들어 "BM ZEN 사업분석은 어떻게 진행되나요?", "일터혁신 상생컨설팅이 정말 무료인가요?", "정책자금으로 10억원 확보하는 방법은?" 이런 질문들 언제든 환영해요.`,
         sender: 'bot',
         timestamp: new Date()
       };
@@ -316,23 +316,21 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
 
   // 폴백 응답 생성
   const generateFallbackResponse = (message: string): string => {
-    return `안녕하세요! 이후경입니다.
+    return `이후경 센터장님은 M-Center의 대표이자 28년 경력의 경영컨설팅 전문가예요.
 
-28년간 500개 이상 기업과 함께 일해온 경험을 바탕으로 답변드리겠습니다.
+주요 경력:
+- 전) 두산그룹 정보전략팀
+- 전) 한국능률협회컨설팅 수석컨설턴트
+- 현) 성균관대학교 초빙교수
+- 현) 고용노동부 일터혁신 컨설턴트
 
-지금 AI 시스템에 일시적인 문제가 있지만, 괜찮아요. 제가 현장에서 직접 쌓은 노하우로 도와드릴 수 있거든요.
+전문 분야:
+- BM ZEN 프레임워크 개발자
+- AI 생산성향상 전문가
+- 정책자금 및 투자분석 전문가
+- 800개 이상 기업 컨설팅 수행
 
-저희 M-CENTER에서 검증된 솔루션들이 있어요. BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성한 케이스들이 많아요. 
-
-AI 생산성향상 쪽은 요즘 정말 인기가 많아요. 20-99인 기업은 정부에서 100% 지원해주거든요. 기업 입장에서는 완전 무료로 받을 수 있어요.
-
-25년 넘게 해온 경매 활용 공장구매는 투자비를 30-50% 절감할 수 있어서 많은 분들이 찾아오시죠.
-
-기술사업화나 창업 지원도 평균 5억원 정도 정부지원을 확보해드리고 있어요.
-
-더 구체적인 상담이 필요하시면 010-9251-9743으로 직접 전화주세요. 또는 저희 홈페이지에서 무료 진단을 받아보시는 것도 좋을 것 같아요.
-
-28년 현장 경험으로 확실한 성과를 만들어드릴 자신 있어요!`;
+이후경 센터장님과의 상담을 원하시면 상담신청을 도와드릴게요!`;
   };
 
   return (
@@ -371,10 +369,11 @@ AI 생산성향상 쪽은 요즘 정말 인기가 많아요. 20-99인 기업은 
             setIsOpen(true);
             // 모바일 진동 피드백
             if (navigator.vibrate) {
-              navigator.vibrate(100);
+              navigator.vibrate([50, 30, 50]); // 더 정교한 진동 패턴
             }
           }
         }}
+        className="touch-target-enhanced ios-touch-feedback"
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         onMouseEnter={(e) => {
@@ -770,18 +769,21 @@ AI 생산성향상 쪽은 요즘 정말 인기가 많아요. 20-99인 기업은 
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder={isMobile ? "메시지 입력..." : "메시지를 입력하세요..."}
+                className="mobile-input-enhanced ios-touch-feedback"
                 style={{
                   flex: 1,
                   padding: isMobile ? '16px 20px' : '14px 18px',
                   border: '2px solid #e8e8e8',
                   borderRadius: '25px',
-                  fontSize: isMobile ? '16px' : '14px',
+                  fontSize: '16px', // iOS 줌 방지를 위해 16px 고정
                   outline: 'none',
                   minHeight: isMobile ? '48px' : '44px',
                   backgroundColor: '#ffffff',
                   color: '#1a1a1a',
                   fontWeight: '400',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                  WebkitAppearance: 'none',
+                  appearance: 'none'
                 }}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
@@ -805,12 +807,19 @@ AI 생산성향상 쪽은 요즘 정말 인기가 많아요. 20-99인 기업은 
                 onClick={() => {
                   if (inputValue.trim()) {
                     handleSendMessage(inputValue);
+                    // 모바일 진동 피드백
+                    if (navigator.vibrate) {
+                      navigator.vibrate(50);
+                    }
                   }
                 }}
                 disabled={!inputValue.trim() || isTyping}
+                className="touch-target-enhanced ios-touch-feedback"
                 style={{
                   width: isMobile ? '52px' : '48px',
                   height: isMobile ? '52px' : '48px',
+                  minWidth: '48px',
+                  minHeight: '48px',
                   backgroundColor: inputValue.trim() && !isTyping ? '#1976D2' : '#d0d0d0',
                   color: 'white',
                   border: 'none',
@@ -824,7 +833,8 @@ AI 생산성향상 쪽은 요즘 정말 인기가 많아요. 20-99인 기업은 
                   transition: 'all 0.2s ease',
                   boxShadow: inputValue.trim() && !isTyping 
                     ? '0 4px 12px rgba(25, 118, 210, 0.3)' 
-                    : '0 2px 6px rgba(0, 0, 0, 0.1)'
+                    : '0 2px 6px rgba(0, 0, 0, 0.1)',
+                  touchAction: 'manipulation'
                 }}
                 onMouseEnter={(e) => {
                   if (inputValue.trim() && !isTyping) {

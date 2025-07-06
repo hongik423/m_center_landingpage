@@ -148,6 +148,37 @@ export default function ChatbotPage() {
     "웹사이트로 매출을 늘릴 수 있나요?"
   ];
 
+  const services = [
+    {
+      title: '사업타당성분석',
+      description: 'BM ZEN 프레임워크를 활용한 체계적인 사업 분석',
+      icon: '📊',
+      gradient: 'from-blue-500 to-purple-600',
+      features: ['시장 분석', '수익성 검토', '리스크 평가']
+    },
+    {
+      title: 'AI 생산성향상',
+      description: 'ChatGPT와 AI 도구를 활용한 업무 효율성 극대화',
+      icon: '🤖',
+      gradient: 'from-purple-500 to-pink-600',
+      features: ['AI 활용법 교육', '자동화 구축', '맞춤형 솔루션']
+    },
+    {
+      title: '기술창업 지원',
+      description: 'R&D 정부지원사업 연계 및 기술사업화 전문 컨설팅',
+      icon: '🚀',
+      gradient: 'from-green-500 to-emerald-600',
+      features: ['정부과제 기획', '투자유치', '사업화 전략']
+    },
+    {
+      title: '인증 지원',
+      description: '벤처기업, ISO, ESG 등 각종 인증 취득 지원',
+      icon: '🏆',
+      gradient: 'from-yellow-500 to-orange-600',
+      features: ['벤처인증', 'ISO 인증', 'ESG 경영']
+    }
+  ];
+
   return (
     <div className="min-h-screen gradient-bg-hero">
       <Header />
@@ -353,9 +384,9 @@ export default function ChatbotPage() {
                       <span>즉시 응답</span>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-400">
-                    💡 **팁**: "매출 증대", "AI 활용", "공장구매", "기술창업" 등에 대해 물어보세요!
-                  </p>
+                  <div className="flex items-center justify-center text-sm text-gray-500 mb-2">
+                    💡 **팁**: "매출 증대", "AI 활용", "기술창업" 등에 대해 물어보세요!
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -399,45 +430,8 @@ export default function ChatbotPage() {
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {[
-                    {
-                      icon: '📈',
-                      title: 'BM ZEN 사업분석',
-                      features: ['성공률 95%', '매출 4배 증가', '전문 컨설팅'],
-                      color: 'bg-gradient-to-br from-blue-50 to-cyan-50'
-                    },
-                    {
-                      icon: '🤖',
-                      title: 'AI 생산성향상',
-                      features: ['업무효율 40% 향상', '정부 100% 지원', '20주 프로그램'],
-                      color: 'bg-gradient-to-br from-purple-50 to-pink-50'
-                    },
-                    {
-                      icon: '🏭',
-                      title: '공장구매 컨설팅',
-                      features: ['투자비 40% 절약', '전문가 동행', '리스크 관리'],
-                      color: 'bg-gradient-to-br from-orange-50 to-red-50'
-                    },
-                    {
-                      icon: '🚀',
-                      title: '기술창업 지원',
-                      features: ['평균 5억원 확보', '성공률 85%', '3년 사후관리'],
-                      color: 'bg-gradient-to-br from-green-50 to-emerald-50'
-                    },
-                    {
-                      icon: '🏆',
-                      title: '인증지원 서비스',
-                      features: ['5천만원 세제혜택', '100% 취득 보장', '통합 관리'],
-                      color: 'bg-gradient-to-br from-indigo-50 to-blue-50'
-                    },
-                    {
-                      icon: '🌐',
-                      title: '웹사이트 구축',
-                      features: ['매출 300% 증가', 'SEO 최적화', '1년 무료관리'],
-                      color: 'bg-gradient-to-br from-violet-50 to-purple-50'
-                    }
-                  ].map((service, index) => (
-                    <div key={index} className={`${service.color} p-6 rounded-3xl hover:shadow-lg transition-all duration-300 group`}>
+                  {services.map((service, index) => (
+                    <div key={index} className={`${service.gradient} p-6 rounded-3xl hover:shadow-lg transition-all duration-300 group`}>
                       <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
                         {service.icon}
                       </div>

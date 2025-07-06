@@ -6,26 +6,25 @@ import { ExternalLink } from 'lucide-react';
 
 const siteMapData = [
   {
-    category: '메인 서비스',
+    category: '주요 페이지',
     links: [
-      { title: '홈페이지', url: '/' },
-      { title: '무료 AI 진단', url: '/diagnosis' },
-      { title: '챗봇', url: '/chatbot' },
-      { title: '상담 신청', url: '/consultation' },
-      { title: '회사 소개', url: '/about' },
-      { title: '성공사례', url: '/cases' }
+      { title: '홈', url: '/' },
+      { title: '회사소개', url: '/about' },
+      { title: '서비스', url: '/services' },
+      { title: '성공사례', url: '/cases' },
+      { title: '상담신청', url: '/consultation' },
     ]
   },
   {
-    category: '핵심 서비스',
+    category: '서비스',
     links: [
-      { title: 'BM ZEN 사업분석', url: '/services/business-analysis' },
-      { title: 'AI 활용 생산성향상', url: '/services/ai-productivity' },
-      { title: '경매활용 공장구매', url: '/services/factory-auction' },
-      { title: '기술사업화/기술창업', url: '/services/tech-startup' },
+      { title: '사업타당성분석', url: '/services/business-analysis' },
+      { title: 'AI 생산성향상', url: '/services/ai-productivity' },
+      { title: '기술창업 컨설팅', url: '/services/tech-startup' },
       { title: '인증지원', url: '/services/certification' },
       { title: '웹사이트 구축', url: '/services/website' },
-      { title: '무료 진단', url: '/services/diagnosis' }
+      { title: '정책자금 활용', url: '/services/policy-funding' },
+      { title: '무료 AI 진단', url: '/diagnosis' },
     ]
   },
   {

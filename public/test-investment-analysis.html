@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정책자금 투자분석 테스트</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563eb;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+        .result-box {
+            margin: 10px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #e5e7eb;
+        }
+        .result-box.success {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        .result-box.warning {
+            border-color: #f59e0b;
+            background-color: #fffbeb;
+        }
+        .result-box.error {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+        }
+        .metric {
+            display: inline-block;
+            margin: 5px 10px;
+            padding: 8px 15px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .metric.secondary {
+            background: #6b7280;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 8px;
+            text-align: right;
+        }
+        th {
+            background: #f3f4f6;
+            font-weight: bold;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        .cashflow-table {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>정책자금 투자분석 도구 테스트</h1>
+        
+        <div class="test-section">
+            <h2>기본 테스트 케이스</h2>
+            <button onclick="runBasicTest()">기본 테스트 실행</button>
+            <button onclick="runEdgeCaseTest()">극한 상황 테스트</button>
+            <button onclick="runAccuracyTest()">정확도 검증 테스트</button>
+            <div id="basic-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>현금흐름 분석</h2>
+            <div id="cashflow-analysis"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>회수기간 상세 분석</h2>
+            <div id="payback-analysis"></div>
+        </div>
+    </div>
+
+    <script>
+        // 투자분석 핵심 함수들
+        function calculateNPV(cashFlows, discountRate) {
+            const rate = discountRate / 100;
+            return cashFlows.reduce((npv, cashFlow, year) => {
+                if (year === 0) return npv + cashFlow;
+                return npv + cashFlow / Math.pow(1 + rate, year);
+            }, 0);
+        }
+
+        function calculateIRR(cashFlows, initialGuess = 10) {
+            const maxIterations = 100;
+            const tolerance = 0.00001;
+            let rate = initialGuess / 100;
+            
+            for (let i = 0; i < maxIterations; i++) {
+                let npv = 0;
+                let dnpv = 0;
+                
+                for (let j = 0; j < cashFlows.length; j++) {
+                    const pv = cashFlows[j] / Math.pow(1 + rate, j);
+                    npv += pv;
+                    if (j > 0) {
+                        dnpv -= j * pv / (1 + rate);
+                    }
+                }
+                
+                if (Math.abs(npv) < tolerance) {
+                    return rate * 100;
+                }
+                
+                if (Math.abs(dnpv) < tolerance) break;
+                
+                const newRate = rate - npv / dnpv;
+                
+                if (Math.abs(newRate - rate) < tolerance) {
+                    return newRate * 100;
+                }
+                
+                rate = Math.max(-0.99, Math.min(10, newRate));
+            }
+            
+            return rate * 100;
+        }
+
+        function calculateSimplePaybackPeriod(cashFlows) {
+            let cumulative = 0;
+            
+            for (let i = 0; i < cashFlows.length; i++) {
+                cumulative += cashFlows[i].netCashFlow;
+                
+                if (cumulative >= 0) {
+                    if (i === 0) return cashFlows[0].year;
+                    
+                    const previousCumulative = cumulative - cashFlows[i].netCashFlow;
+                    const fraction = -previousCumulative / cashFlows[i].netCashFlow;
+                    return cashFlows[i - 1].year + fraction;
+                }
+            }
+            
+            return -1;
+        }
+
+        // 개정된 할인회수기간 계산 (정책자금 특성 반영)
+        function calculateDiscountedPaybackPeriod(
+            cashFlows, 
+            totalInitialInvestment, 
+            policyFundAmount = 0, 
+            discountRate = 10
+        ) {
+            console.log('\n🔍 개정된 할인회수기간 계산');
+            console.log(`총 투자금액: ${formatMoney(totalInitialInvestment)}`);
+            console.log(`정책자금: ${formatMoney(policyFundAmount)}`);
+            console.log(`실제 투자금액: ${formatMoney(totalInitialInvestment - policyFundAmount)}`);
+            
+            const rate = discountRate / 100;
+            
+            // 정책자금의 현재가치 계산 (상환스케줄 고려)
+            let policyFundPV = 0;
+            if (policyFundAmount > 0) {
+                // 정책자금 상환액의 현재가치 계산 (간소화)
+                // 실제로는 이자율이 다르지만, 테스트용으로 할인율 사용
+                const totalPayments = policyFundAmount * 1.1; // 10% 이자 가정
+                const avgYears = 3; // 평균 상환기간 가정
+                const discountedPayments = totalPayments / Math.pow(1 + rate, avgYears);
+                
+                policyFundPV = policyFundAmount - discountedPayments;
+                console.log(`정책자금 순현재가치: ${formatMoney(policyFundPV)}`);
+            }
+            
+            // 개정된 초기 투자 기준점
+            const adjustedInitialInvestment = totalInitialInvestment - policyFundPV;
+            console.log(`개정된 초기투자 기준: ${formatMoney(adjustedInitialInvestment)}`);
+            
+            // 누적 현재가치 재계산
+            let cumulativePV = -adjustedInitialInvestment;
+            
+            for (let i = 0; i < cashFlows.length; i++) {
+                const cf = cashFlows[i];
+                cumulativePV += cf.presentValue;
+                
+                console.log(`${cf.year}년: 누적PV = ${formatMoney(cumulativePV)}`);
+                
+                if (cumulativePV >= 0) {
+                    if (i === 0) return cf.year;
+                    
+                    const previousPV = cumulativePV - cf.presentValue;
+                    const currentPV = cumulativePV;
+                    
+                    if (previousPV < 0 && currentPV >= 0) {
+                        const fraction = -previousPV / (currentPV - previousPV);
+                        const paybackPeriod = cashFlows[i - 1].year + fraction;
+                        console.log(`개정된 회수기간: ${paybackPeriod.toFixed(3)}년`);
+                        return paybackPeriod;
+                    }
+                    
+                    return cf.year;
+                }
+            }
+            
+            return -1;
+        }
+
+        function performSimpleAnalysis(input) {
+            const actualInvestment = input.initialInvestment - input.policyFundAmount;
+            const cashFlows = [];
+            const netCashFlows = [-actualInvestment];
+            
+            let cumulativeCashFlow = -actualInvestment;
+            let cumulativePV = -actualInvestment;
+            
+            // 초기 투자
+            cashFlows.push({
+                year: 0,
+                netCashFlow: -actualInvestment,
+                cumulativeCashFlow: -actualInvestment,
+                presentValue: -actualInvestment,
+                cumulativePV: -actualInvestment
+            });
+            
+            // 연도별 현금흐름
+            for (let year = 1; year <= input.analysisYears; year++) {
+                const revenue = input.annualRevenue[year - 1] || input.annualRevenue[0];
+                const operatingProfit = revenue * (input.operatingProfitRate / 100);
+                const tax = operatingProfit * (input.taxRate / 100);
+                const netIncome = operatingProfit - tax;
+                
+                // 간소화된 현금흐름 (대출 상환 제외)
+                const netCashFlow = netIncome;
+                
+                cumulativeCashFlow += netCashFlow;
+                
+                const presentValue = netCashFlow / Math.pow(1 + input.discountRate / 100, year);
+                cumulativePV += presentValue;
+                
+                cashFlows.push({
+                    year,
+                    revenue,
+                    operatingProfit,
+                    netIncome,
+                    netCashFlow,
+                    cumulativeCashFlow,
+                    presentValue,
+                    cumulativePV
+                });
+                
+                netCashFlows.push(netCashFlow);
+            }
+            
+            const npv = calculateNPV(netCashFlows, input.discountRate);
+            const irr = calculateIRR(netCashFlows);
+            const simplePayback = calculateSimplePaybackPeriod(cashFlows.slice(1));
+            const discountedPayback = calculateDiscountedPaybackPeriod(
+                cashFlows, 
+                input.initialInvestment, 
+                input.policyFundAmount || 0, 
+                input.discountRate
+            );
+            
+            return {
+                npv,
+                irr,
+                simplePayback,
+                discountedPayback,
+                cashFlows,
+                netCashFlows
+            };
+        }
+
+        function formatMoney(amount) {
+            return (amount / 100000000).toFixed(2) + '억원';
+        }
+
+        function runBasicTest() {
+            const testCase = {
+                initialInvestment: 10000000000, // 100억
+                policyFundAmount: 5000000000,   // 50억
+                annualRevenue: [8000000000, 10000000000, 12000000000, 14000000000, 16000000000],
+                operatingProfitRate: 20,
+                taxRate: 22,
+                discountRate: 10,
+                analysisYears: 5
+            };
+            
+            const result = performSimpleAnalysis(testCase);
+            
+            let html = '<h3>기본 테스트 결과</h3>';
+            html += '<div class="result-box success">';
+            html += '<h4>투자 조건</h4>';
+            html += `<p>초기 투자: ${formatMoney(testCase.initialInvestment)}</p>`;
+            html += `<p>정책자금: ${formatMoney(testCase.policyFundAmount)}</p>`;
+            html += `<p>실제 투자: ${formatMoney(testCase.initialInvestment - testCase.policyFundAmount)}</p>`;
+            html += `<p>영업이익률: ${testCase.operatingProfitRate}%</p>`;
+            html += `<p>할인율: ${testCase.discountRate}%</p>`;
+            html += '</div>';
+            
+            html += '<div class="result-box">';
+            html += '<h4>분석 결과</h4>';
+            html += `<span class="metric">NPV: ${formatMoney(result.npv)}</span>`;
+            html += `<span class="metric">IRR: ${result.irr.toFixed(2)}%</span>`;
+            html += `<span class="metric secondary">개정 할인회수기간: ${result.discountedPayback > 0 ? result.discountedPayback.toFixed(2) + '년' : '미회수'}</span>`;
+            html += '</div>';
+            
+            // 현금흐름 테이블
+            html += '<div class="cashflow-table">';
+            html += '<table>';
+            html += '<tr><th>연도</th><th>매출</th><th>영업이익</th><th>순이익</th><th>현금흐름</th><th>누적현금흐름</th><th>현재가치</th><th>누적현재가치</th></tr>';
+            
+            result.cashFlows.forEach(cf => {
+                const rowClass = cf.cumulativeCashFlow >= 0 ? 'style="background-color: #f0fdf4;"' : '';
+                html += `<tr ${rowClass}>`;
+                html += `<td>${cf.year}</td>`;
+                html += `<td>${cf.revenue ? formatMoney(cf.revenue) : '-'}</td>`;
+                html += `<td>${cf.operatingProfit ? formatMoney(cf.operatingProfit) : '-'}</td>`;
+                html += `<td>${cf.netIncome ? formatMoney(cf.netIncome) : '-'}</td>`;
+                html += `<td>${formatMoney(cf.netCashFlow)}</td>`;
+                html += `<td>${formatMoney(cf.cumulativeCashFlow)}</td>`;
+                html += `<td>${formatMoney(cf.presentValue)}</td>`;
+                html += `<td>${formatMoney(cf.cumulativePV)}</td>`;
+                html += '</tr>';
+            });
+            
+            html += '</table>';
+            html += '</div>';
+            
+            document.getElementById('basic-results').innerHTML = html;
+            
+            // 할인 회수기간 상세 분석
+            analyzeDiscountedPaybackPeriod(result);
+        }
+
+        function analyzeDiscountedPaybackPeriod(result) {
+            let html = '<h3>개정된 할인 회수기간 상세 분석</h3>';
+            
+            html += '<div class="result-box">';
+            html += '<h4>개정된 할인 회수기간 계산 원리</h4>';
+            html += '<p><strong>기존 방식:</strong> 실제투자금액(총투자-정책자금) 기준</p>';
+            html += '<p><strong>개정 방식:</strong> 정책자금을 부채로 인식한 총투자금액 기준</p>';
+            html += '<p><strong>개정 공식:</strong> -조정된초기투자 + PV₁ + PV₂ + ... + PVₙ = 0</p>';
+            html += '<p><strong>조정된초기투자:</strong> 총투자금액 - 정책자금순현재가치</p>';
+            html += '<p><strong>정책자금순현재가치:</strong> 정책자금 - 상환액현재가치</p>';
+            html += '<p><strong>장점:</strong> 정책자금의 실질적 혜택을 정확히 반영</p>';
+            html += '</div>';
+            
+            // 할인 회수기간 분석
+            html += '<div class="result-box">';
+            html += '<h4>할인 회수기간 계산 결과</h4>';
+            
+            const discountedPaybackYear = Math.floor(result.discountedPayback);
+            const discountedPaybackFraction = result.discountedPayback - discountedPaybackYear;
+            
+            if (result.discountedPayback > 0) {
+                html += `<p><strong>회수 완료:</strong> ${discountedPaybackYear}년 + ${(discountedPaybackFraction * 12).toFixed(0)}개월</p>`;
+                html += `<p><strong>정확한 기간:</strong> ${result.discountedPayback.toFixed(3)}년</p>`;
+                
+                const relevantCashFlows = result.cashFlows.filter(cf => cf.year <= discountedPaybackYear + 1);
+                html += '<table>';
+                html += '<tr><th>연도</th><th>현금흐름</th><th>현재가치</th><th>누적현재가치</th><th>상태</th></tr>';
+                relevantCashFlows.forEach(cf => {
+                    const status = cf.cumulativePV >= 0 ? '✅ 회수완료' : '❌ 미회수';
+                    const statusColor = cf.cumulativePV >= 0 ? 'style="background-color: #f0fdf4;"' : '';
+                    html += `<tr ${statusColor}>`;
+                    html += `<td>${cf.year}년</td>`;
+                    html += `<td>${formatMoney(cf.netCashFlow)}</td>`;
+                    html += `<td>${formatMoney(cf.presentValue)}</td>`;
+                    html += `<td>${formatMoney(cf.cumulativePV)}</td>`;
+                    html += `<td>${status}</td>`;
+                    html += '</tr>';
+                });
+                html += '</table>';
+                
+                // 회수 과정 설명
+                html += '<h5>회수 과정 분석</h5>';
+                const breakEvenCF = relevantCashFlows.find(cf => cf.cumulativePV >= 0);
+                if (breakEvenCF && breakEvenCF.year > 1) {
+                    const prevCF = relevantCashFlows[breakEvenCF.year - 2];
+                    if (prevCF) {
+                        html += `<p>• ${prevCF.year}년 말: 누적PV ${formatMoney(prevCF.cumulativePV)} (아직 미회수)</p>`;
+                        html += `<p>• ${breakEvenCF.year}년 말: 누적PV ${formatMoney(breakEvenCF.cumulativePV)} (회수완료)</p>`;
+                        html += `<p>• 따라서 ${prevCF.year}년과 ${breakEvenCF.year}년 사이에 투자금 회수</p>`;
+                    }
+                }
+            } else {
+                html += '<p class="error"><strong>결과:</strong> 분석 기간 내 투자금 회수 불가능</p>';
+                html += '<p>누적현재가치가 양수가 되지 않음 → 투자 부적합</p>';
+            }
+            html += '</div>';
+            
+            // 개정수식 효과 분석
+            html += '<div class="result-box warning">';
+            html += '<h4>개정수식 효과 분석</h4>';
+            html += `<p><strong>적용 할인율:</strong> 10%</p>`;
+            html += '<p><strong>개정수식의 장점:</strong></p>';
+            html += '<ul>';
+            html += '<li>정책자금을 부채로 정확히 인식</li>';
+            html += '<li>상환스케줄의 현재가치 반영</li>';
+            html += '<li>총투자금액 기준의 일관된 분석</li>';
+            html += '<li>정책자금 혜택의 정량적 측정</li>';
+            html += '</ul>';
+            
+            if (result.discountedPayback > 0) {
+                html += `<p><strong>개정효과:</strong> 정책자금의 실질적 혜택이 회수기간에 반영됨</p>`;
+                html += `<p><strong>의미:</strong> 기존 방식보다 더 정확한 투자 타당성 평가</p>`;
+            }
+            html += '</div>';
+            
+            document.getElementById('payback-analysis').innerHTML = html;
+        }
+
+        function runAccuracyTest() {
+            const simpleCase = {
+                initialInvestment: 1000000000, // 10억
+                policyFundAmount: 0,
+                annualRevenue: [500000000, 500000000, 500000000], // 매년 5억
+                operatingProfitRate: 40, // 40%
+                taxRate: 0, // 단순화를 위해 세금 없음
+                discountRate: 10,
+                analysisYears: 3
+            };
+            
+            const result = performSimpleAnalysis(simpleCase);
+            
+            // 수동 계산
+            const annualCashFlow = 200000000; // 5억 * 40% = 2억
+            const manualNPV = -1000000000 + 
+                              annualCashFlow / 1.1 + 
+                              annualCashFlow / (1.1 * 1.1) + 
+                              annualCashFlow / (1.1 * 1.1 * 1.1);
+            
+            let html = '<h3>정확도 검증 결과</h3>';
+            html += '<div class="result-box">';
+            html += '<h4>NPV 검증</h4>';
+            html += `<p>시스템 계산: ${formatMoney(result.npv)}</p>`;
+            html += `<p>수동 계산: ${formatMoney(manualNPV)}</p>`;
+            html += `<p>차이: ${formatMoney(Math.abs(result.npv - manualNPV))}</p>`;
+            
+            const npvAccurate = Math.abs(result.npv - manualNPV) < 1000000;
+            html += `<p>정확도: ${npvAccurate ? '✅ 정확' : '❌ 오류'}</p>`;
+            html += '</div>';
+            
+            // IRR 검증
+            html += '<div class="result-box">';
+            html += '<h4>IRR 검증</h4>';
+            html += `<p>계산된 IRR: ${result.irr.toFixed(4)}%</p>`;
+            
+            // IRR로 NPV 재계산
+            const irrRate = result.irr / 100;
+            const npvAtIRR = -1000000000 + 
+                             annualCashFlow / (1 + irrRate) + 
+                             annualCashFlow / Math.pow(1 + irrRate, 2) + 
+                             annualCashFlow / Math.pow(1 + irrRate, 3);
+            
+            html += `<p>IRR에서의 NPV: ${formatMoney(npvAtIRR)}</p>`;
+            const irrAccurate = Math.abs(npvAtIRR) < 1000000;
+            html += `<p>정확도: ${irrAccurate ? '✅ 정확 (NPV ≈ 0)' : '❌ 오류'}</p>`;
+            html += '</div>';
+            
+            document.getElementById('basic-results').innerHTML = html;
+        }
+
+        function runEdgeCaseTest() {
+            const edgeCases = [
+                {
+                    name: '손실 프로젝트',
+                    input: {
+                        initialInvestment: 10000000000,
+                        policyFundAmount: 0,
+                        annualRevenue: [1000000000, 1000000000, 1000000000],
+                        operatingProfitRate: 5,
+                        taxRate: 22,
+                        discountRate: 10,
+                        analysisYears: 3
+                    }
+                },
+                {
+                    name: '높은 할인율',
+                    input: {
+                        initialInvestment: 10000000000,
+                        policyFundAmount: 5000000000,
+                        annualRevenue: [8000000000, 10000000000, 12000000000],
+                        operatingProfitRate: 20,
+                        taxRate: 22,
+                        discountRate: 50,
+                        analysisYears: 3
+                    }
+                },
+                {
+                    name: '음의 영업이익률',
+                    input: {
+                        initialInvestment: 5000000000,
+                        policyFundAmount: 2000000000,
+                        annualRevenue: [3000000000, 3000000000, 3000000000],
+                        operatingProfitRate: -10,
+                        taxRate: 22,
+                        discountRate: 10,
+                        analysisYears: 3
+                    }
+                }
+            ];
+            
+            let html = '<h3>극한 상황 테스트</h3>';
+            
+            edgeCases.forEach(testCase => {
+                const result = performSimpleAnalysis(testCase.input);
+                
+                const resultClass = result.npv > 0 ? 'success' : 'error';
+                html += `<div class="result-box ${resultClass}">`;
+                html += `<h4>${testCase.name}</h4>`;
+                html += `<p>영업이익률: ${testCase.input.operatingProfitRate}%, 할인율: ${testCase.input.discountRate}%</p>`;
+                html += `<span class="metric">NPV: ${formatMoney(result.npv)}</span>`;
+                html += `<span class="metric">IRR: ${result.irr.toFixed(2)}%</span>`;
+                html += `<span class="metric secondary">개정 할인회수기간: ${result.discountedPayback > 0 ? result.discountedPayback.toFixed(2) + '년' : '미회수'}</span>`;
+                html += '</div>';
+            });
+            
+            document.getElementById('basic-results').innerHTML = html;
+        }
+
+        // 페이지 로드 시 기본 테스트 실행
+        window.onload = function() {
+            runBasicTest();
+        };
+    </script>
+</body>
+</html> 

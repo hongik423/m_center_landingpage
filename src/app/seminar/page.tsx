@@ -33,7 +33,11 @@ import {
   CheckCircle,
   ArrowRight,
   ExternalLink,
-  Phone
+  Phone,
+  Grid,
+  Cpu,
+  Rocket,
+  DollarSign
 } from 'lucide-react';
 
 // 세미나 데이터 타입 정의
@@ -64,18 +68,18 @@ interface SeminarVideo {
 const seminarVideos: SeminarVideo[] = [
   {
     id: '1',
-    title: 'BM ZEN 프레임워크로 사업 혁신하기',
-    description: '25년 경험의 전문가가 직접 공개하는 BM ZEN 프레임워크를 활용한 사업혁신 비법! 📺 실제 YouTube 영상으로 연결됩니다.',
+    title: 'BM ZEN 프레임워크로 신규사업 95% 성공시키기',
+    description: '25년 경험의 이후경 센터장이 직접 전수하는 BM ZEN 사업분석 방법론',
     thumbnailUrl: 'https://img.youtube.com/vi/SWkmuibSQ4E/maxresdefault.jpg',
     videoUrl: 'https://www.youtube.com/watch?v=SWkmuibSQ4E',
     youtubeId: 'SWkmuibSQ4E',
-    duration: '영상 확인',
+    duration: '45:32',
     publishDate: '2024-01-15',
     views: 12500,
-    likes: 348,
-    category: 'business-analysis',
+    likes: 456,
+    category: 'business',
     level: 'intermediate',
-    tags: ['사업분석', 'BM ZEN', '프레임워크', 'YouTube영상'],
+    tags: ['BM ZEN', '사업분석', '신규사업', '세무사'],
     isNew: true,
     instructor: {
       name: '이후경',
@@ -85,16 +89,16 @@ const seminarVideos: SeminarVideo[] = [
   },
   {
     id: '2',
-    title: 'AI 생산성 향상 실무 가이드',
-    description: 'ChatGPT와 AI 도구를 활용한 업무 자동화와 생산성 40% 향상 비법',
+    title: 'ChatGPT로 업무 생산성 40% 높이기',
+    description: '실무에 바로 적용하는 ChatGPT & Copilot 활용 전략',
     thumbnailUrl: 'https://img.youtube.com/vi/SWkmuibSQ4E/maxresdefault.jpg',
     videoUrl: 'https://www.youtube.com/watch?v=SWkmuibSQ4E',
     youtubeId: 'SWkmuibSQ4E',
     duration: '52:18',
     publishDate: '2024-01-10',
-    views: 8750,
+    views: 8900,
     likes: 267,
-    category: 'ai-productivity',
+    category: 'ai',
     level: 'beginner',
     tags: ['AI', '생산성', 'ChatGPT', '자동화'],
     instructor: {
@@ -105,8 +109,8 @@ const seminarVideos: SeminarVideo[] = [
   },
   {
     id: '3',
-    title: '공장구매 경매 실전 노하우',
-    description: '시장가 대비 40% 절약하는 공장구매 전략과 경매 성공 사례',
+    title: '정책자금 10억원 확보 전략',
+    description: '투자분석과 함께하는 정책자금 신청 성공 노하우',
     thumbnailUrl: 'https://img.youtube.com/vi/SWkmuibSQ4E/maxresdefault.jpg',
     videoUrl: 'https://www.youtube.com/watch?v=SWkmuibSQ4E',
     youtubeId: 'SWkmuibSQ4E',
@@ -114,9 +118,9 @@ const seminarVideos: SeminarVideo[] = [
     publishDate: '2024-01-05',
     views: 6420,
     likes: 189,
-    category: 'factory-auction',
+    category: 'policy',
     level: 'advanced',
-    tags: ['공장구매', '경매', '부동산', '투자'],
+    tags: ['정책자금', '투자분석', 'NPV', 'IRR'],
     instructor: {
       name: '이후경',
       title: 'M-CENTER 센터장',
@@ -134,7 +138,7 @@ const seminarVideos: SeminarVideo[] = [
     publishDate: '2023-12-28',
     views: 15230,
     likes: 456,
-    category: 'tech-startup',
+    category: 'startup',
     level: 'intermediate',
     tags: ['정부지원', '창업', 'R&D', '자금조달'],
     isLive: true,
@@ -175,7 +179,7 @@ const seminarVideos: SeminarVideo[] = [
     publishDate: '2023-12-15',
     views: 11750,
     likes: 367,
-    category: 'digital-marketing',
+    category: 'marketing',
     level: 'intermediate',
     tags: ['디지털마케팅', '웹사이트', '매출증대', 'SEO'],
     instructor: {
@@ -188,13 +192,95 @@ const seminarVideos: SeminarVideo[] = [
 
 // 카테고리 정의
 const categories = [
-  { id: 'all', name: '전체', icon: Globe },
-  { id: 'business-analysis', name: '사업분석', icon: Target },
-  { id: 'ai-productivity', name: 'AI생산성', icon: Zap },
-  { id: 'factory-auction', name: '공장구매', icon: Award },
-  { id: 'tech-startup', name: '기술창업', icon: TrendingUp },
-  { id: 'certification', name: '인증지원', icon: CheckCircle },
-  { id: 'digital-marketing', name: '디지털마케팅', icon: Lightbulb }
+  { id: 'all', name: '전체', icon: Grid },
+  { id: 'business', name: '사업분석', icon: TrendingUp },
+  { id: 'ai', name: 'AI활용', icon: Cpu },
+  { id: 'startup', name: '기술창업', icon: Rocket },
+  { id: 'policy', name: '정책자금', icon: DollarSign },
+  { id: 'certification', name: '인증', icon: Award },
+];
+
+const seminars = [
+  {
+    id: 1,
+    title: 'BM ZEN 사업분석 마스터클래스',
+    description: '세무사를 위한 신규사업 성공률 95% 달성 전략',
+    date: '2024년 2월 15일',
+    time: '14:00 - 17:00',
+    location: '서울 강남 M-Center 교육장',
+    instructor: '이후경 센터장',
+    category: 'business',
+    level: '중급',
+    capacity: 30,
+    enrolled: 24,
+    price: '무료',
+    tags: ['BM ZEN', '사업분석', '수익모델', '세무사'],
+    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=400&fit=crop'
+  },
+  {
+    id: 2,
+    title: 'ChatGPT 실무 활용 워크샵',
+    description: '업무 생산성 40% 향상을 위한 AI 도구 활용법',
+    date: '2024년 2월 20일',
+    time: '10:00 - 12:00',
+    location: '온라인 (Zoom)',
+    instructor: 'AI 전문가팀',
+    category: 'ai',
+    level: '초급',
+    capacity: 100,
+    enrolled: 87,
+    price: '무료',
+    tags: ['ChatGPT', 'AI', '생산성', '자동화'],
+    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop'
+  },
+  {
+    id: 3,
+    title: '정책자금 활용 전략 세미나',
+    description: '투자분석과 함께하는 정책자금 확보 노하우',
+    date: '2024년 2월 22일',
+    time: '15:00 - 18:00',
+    location: '서울 강남 M-Center 세미나실',
+    instructor: '정책자금 전문가',
+    category: 'policy',
+    level: '중급',
+    capacity: 40,
+    enrolled: 35,
+    price: '무료',
+    tags: ['정책자금', '투자분석', 'NPV', 'IRR'],
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=400&fit=crop'
+  },
+  {
+    id: 4,
+    title: 'R&D 정부지원사업 성공전략',
+    description: '평균 5억원 정부지원금 확보 방법론',
+    date: '2024년 2월 25일',
+    time: '14:00 - 17:00',
+    location: '온라인 (Zoom)',
+    instructor: '기술창업 전문가',
+    category: 'startup',
+    level: '고급',
+    capacity: 50,
+    enrolled: 42,
+    price: '50,000원',
+    tags: ['R&D', '정부지원', '기술사업화', '창업'],
+    image: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&h=400&fit=crop'
+  },
+  {
+    id: 5,
+    title: '벤처기업 인증 취득 가이드',
+    description: '세제혜택 5천만원을 위한 인증 전략',
+    date: '2024년 3월 5일',
+    time: '10:00 - 12:00',
+    location: '서울 강남 M-Center 교육장',
+    instructor: '인증 전문가',
+    category: 'certification',
+    level: '초급',
+    capacity: 40,
+    enrolled: 28,
+    price: '무료',
+    tags: ['벤처인증', 'ISO', 'ESG', '세제혜택'],
+    image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&h=400&fit=crop'
+  }
 ];
 
 export default function SeminarPage() {

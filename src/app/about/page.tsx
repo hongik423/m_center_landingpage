@@ -88,7 +88,7 @@ export default function AboutPage() {
                       5대 핵심 서비스 런칭
                     </h3>
                     <p className="text-gray-600">
-                      AI 생산성향상, 기술창업, 공장구매, 인증지원, 웹사이트 구축 서비스 시작
+                      AI 생산성향상, 기술창업, 정책자금, 인증지원, 웹사이트 구축 서비스 시작
                     </p>
                   </div>
                 </div>

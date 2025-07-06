@@ -489,15 +489,13 @@ export default function ConsultationPage() {
                           <SelectValue placeholder="관심 있는 서비스를 선택해주세요" />
                         </SelectTrigger>
                         <SelectContent className="rounded-2xl border-gray-200 shadow-2xl bg-white/95 backdrop-blur-sm">
-                          <SelectItem value="business-analysis">📊 BM ZEN 사업분석</SelectItem>
-                          <SelectItem value="ai-productivity">🤖 AI실무활용 생산성향상</SelectItem>
-                          <SelectItem value="factory-auction">🏭 경매활용 공장구매</SelectItem>
-                          <SelectItem value="tech-startup">🚀 기술사업화/기술창업</SelectItem>
+                          <SelectItem value="business-analysis">📊 사업타당성분석</SelectItem>
+                          <SelectItem value="ai-productivity">🤖 AI 생산성향상</SelectItem>
+                          <SelectItem value="tech-startup">🚀 기술창업 컨설팅</SelectItem>
                           <SelectItem value="certification">🏆 인증지원</SelectItem>
                           <SelectItem value="website">🌐 웹사이트 구축</SelectItem>
-                          <SelectItem value="comprehensive">📋 종합 컨설팅</SelectItem>
-                          <SelectItem value="diagnosis">🔍 진단 결과 상담</SelectItem>
-                          <SelectItem value="other">💬 기타 문의</SelectItem>
+                          <SelectItem value="policy-funding">💰 정책자금 활용</SelectItem>
+                          <SelectItem value="other">🔍 기타 문의</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -680,10 +678,10 @@ export default function ConsultationPage() {
                 <h3 className="text-2xl md:text-3xl font-light text-gray-900 tracking-tight mb-6">핵심 서비스</h3>
                 <div className="space-y-3">
                   {[
-                    { title: 'BM ZEN 사업분석', desc: '혁신 프레임워크', color: 'text-blue-600', link: '/services/business-analysis' },
-                    { title: 'AI 생산성 향상', desc: '정부 100% 지원', color: 'text-purple-600', link: '/services/ai-productivity' },
-                    { title: '공장구매 절약', desc: '40% 비용절감', color: 'text-orange-600', link: '/services/factory-auction' },
-                    { title: '기술창업 지원', desc: '5억원 자금확보', color: 'text-green-600', link: '/services/tech-startup' }
+                    { title: '사업분석', desc: 'BM ZEN 프레임워크', color: 'text-blue-600', link: '/services/business-analysis' },
+                    { title: 'AI 활용', desc: '생산성 40% 향상', color: 'text-purple-600', link: '/services/ai-productivity' },
+                    { title: '기술창업', desc: '평균 5억원 확보', color: 'text-green-600', link: '/services/tech-startup' },
+                    { title: '인증지원', desc: '벤처/ISO/ESG', color: 'text-blue-600', link: '/services/certification' },
                   ].map((service, index) => (
                     <a 
                       key={index} 
