@@ -461,25 +461,25 @@ export default function DSCRDetailedAnalysis({
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b-2 border-gray-200">
-                    <th className="text-left py-3 px-2 font-semibold">연도</th>
-                    <th className="text-right py-3 px-2 font-semibold">매출액</th>
-                    <th className="text-right py-3 px-2 font-semibold">영업이익</th>
-                    <th className="text-right py-3 px-2 font-semibold">정책자금<br/>이자</th>
-                    <th className="text-right py-3 px-2 font-semibold">정책자금<br/>원금</th>
-                    <th className="text-right py-3 px-2 font-semibold">기타채무<br/>이자</th>
-                    <th className="text-right py-3 px-2 font-semibold">기타채무<br/>원금</th>
-                    <th className="text-right py-3 px-2 font-semibold">총상환액</th>
-                    <th className="text-right py-3 px-2 font-semibold">DSCR</th>
-                    <th className="text-center py-3 px-2 font-semibold">평가</th>
+                  <tr className="border-b-2 border-gray-200 bg-gray-50">
+                    <th className="text-center py-3 px-2 font-semibold text-gray-800">연도</th>
+                    <th className="text-right py-3 px-2 font-semibold text-gray-800">매출액</th>
+                    <th className="text-right py-3 px-2 font-semibold text-gray-800">영업이익</th>
+                    <th className="text-right py-3 px-2 font-semibold text-gray-800">정책자금<br/>이자</th>
+                    <th className="text-right py-3 px-2 font-semibold text-gray-800">정책자금<br/>원금</th>
+                    <th className="text-right py-3 px-2 font-semibold text-gray-800">기타채무<br/>이자</th>
+                    <th className="text-right py-3 px-2 font-semibold text-gray-800">기타채무<br/>원금</th>
+                    <th className="text-right py-3 px-2 font-semibold text-gray-800">총상환액</th>
+                    <th className="text-right py-3 px-2 font-semibold text-gray-800">DSCR</th>
+                    <th className="text-center py-3 px-2 font-semibold text-gray-800">평가</th>
                   </tr>
                 </thead>
                 <tbody>
                   {dscrDataByYear.map((data, index) => {
                     const yearGrade = getDSCRGrade(data.dscr);
                     return (
-                      <tr key={index} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-2 font-medium">{data.year}년차</td>
+                      <tr key={index} className="border-b hover:bg-blue-50">
+                        <td className="py-3 px-2 text-center font-medium">{data.year}년차</td>
                         <td className="py-3 px-2 text-right">{(data.revenue / 100000000).toFixed(1)}억</td>
                         <td className="py-3 px-2 text-right text-green-600 font-medium">
                           {(data.operatingProfit / 100000000).toFixed(1)}억

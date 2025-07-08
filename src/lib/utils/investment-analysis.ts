@@ -810,10 +810,8 @@ export function calculateDetailedDSCR(input: {
     // 연도별 매출 성장 반영
     const yearRevenue = annualRevenue * Math.pow(1 + settings.revenueGrowthRate / 100, year - 1);
     
-    // 영업이익 계산 (비용 상승률 반영)
-    const baseCost = annualRevenue * (1 - operatingProfitRate / 100);
-    const adjustedCost = baseCost * Math.pow(1 + settings.costInflationRate / 100, year - 1);
-    const operatingProfit = Math.max(0, yearRevenue - adjustedCost);
+    // 📊 영업이익 계산 (첨부 이미지 기준 통일: 매출액 × 영업이익률)
+    const operatingProfit = yearRevenue * (operatingProfitRate / 100);
     
     // 🔥 거치기간/상환기간을 고려한 정책자금 상환 계산
     let policyLoanPrincipal = 0;
@@ -838,27 +836,40 @@ export function calculateDetailedDSCR(input: {
       remainingPolicyLoan = 0;
     }
     
-    // 기타채무 관련 계산 (기존 방식 유지)
-    const otherDebtPrincipal = otherDebtAmount / analysisYears;
-    const remainingOtherDebt = otherDebtAmount - (otherDebtPrincipal * (year - 1));
-    const otherDebtInterest = remainingOtherDebt * (otherDebtRate / 100);
+    // 🏦 기타채무 상환 계산 (정책자금과 동일한 거치/상환 구조)
+    let otherDebtPrincipal = 0;
+    let otherDebtInterest = 0;
+    let remainingOtherDebt = otherDebtAmount;
+    
+    if (year <= gracePeriod) {
+      // 거치기간: 이자만 납부, 원금 상환 없음
+      otherDebtPrincipal = 0;
+      otherDebtInterest = otherDebtAmount * (otherDebtRate / 100);
+      remainingOtherDebt = otherDebtAmount;
+    } else if (year <= gracePeriod + repaymentPeriod) {
+      // 상환기간: 원금 균등분할 + 잔액 기준 이자
+      const repaymentYear = year - gracePeriod;
+      otherDebtPrincipal = otherDebtAmount / repaymentPeriod;
+      remainingOtherDebt = otherDebtAmount - (otherDebtPrincipal * (repaymentYear - 1));
+      otherDebtInterest = remainingOtherDebt * (otherDebtRate / 100);
+    } else {
+      // 상환 완료 후: 상환액 없음
+      otherDebtPrincipal = 0;
+      otherDebtInterest = 0;
+      remainingOtherDebt = 0;
+    }
     
     // 총 부채상환액
     const totalDebtService = policyLoanInterest + policyLoanPrincipal + otherDebtInterest + otherDebtPrincipal;
     
-    // DSCR 계산 (정확한 공식 적용)
+    // 📈 DSCR 계산 (첨부 이미지 기준 통일: 영업이익 ÷ 총상환액)
     let dscr = 0;
     if (totalDebtService > 0) {
-      const taxRate = 0.22; // 법인세율 22%
-      const netIncome = operatingProfit * (1 - taxRate);
-      const depreciation = yearRevenue * 0.05; // 매출의 5%를 감가상각비로 추정
-      const operatingCashFlow = netIncome + depreciation;
-      
-      dscr = operatingCashFlow > 0 ? operatingCashFlow / totalDebtService : 0;
+      dscr = operatingProfit / totalDebtService;
       
       // DSCR 유효성 검사
       if (!isFinite(dscr) || dscr < 0) dscr = 0;
-      if (dscr > 10) dscr = 10; // 비현실적으로 높은 값 제한
+      if (dscr > 50) dscr = 50; // 비현실적으로 높은 값 제한
     }
     
     results.push({
