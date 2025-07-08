@@ -1215,29 +1215,7 @@ export default function TaxCalculatorPage() {
                       </div>
                     </div>
                     
-                    <div className="bg-gradient-to-br from-red-50 to-orange-50 p-6 rounded-xl border border-red-200">
-                      <h3 className="font-bold text-gray-900 mb-4 text-center">
-                        <span className="text-overflow-safe">🔧 오류 신고 방법</span>
-                      </h3>
-                      
-                      <div className="space-y-3 text-sm">
-                        <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
-                          <span className="text-overflow-safe">우측 하단 빨간색 플로팅 버튼 클릭</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
-                          <span className="text-overflow-safe">화면 하단 오류신고 섹션 이용</span>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                        <div className="flex items-center gap-2 text-blue-700">
-                          <Clock className="w-4 h-4" />
-                          <span className="text-sm font-medium text-overflow-safe">처리 절차: 24시간 접수 → 1-2일 검토 → 이메일 회신</span>
-                        </div>
-                      </div>
-                    </div>
+
                   </div>
                   
 
@@ -1780,15 +1758,18 @@ export default function TaxCalculatorPage() {
           </Card>
         </div>
         
-        {/* 연락처 정보 */}
+        {/* 연락처 정보 및 처리 절차 */}
         <div className="mt-6 p-4 bg-white/60 rounded-lg border border-gray-200">
           <div className="text-center text-sm text-gray-600">
+            <p className="mb-3">
+              <strong>📋 처리 절차:</strong> 24시간 내 접수 → 1-2일 검토 → 이메일로 결과 회신
+            </p>
             <p className="mb-2">
               <strong>긴급 문의:</strong> 심각한 오류나 즉시 해결이 필요한 문제는
             </p>
             <p>
-              📧 <strong>mcenter.support@example.com</strong> 또는 
-              📞 <strong>1588-0000</strong>으로 연락주세요
+              📧 <strong>hongik423@gmail.com</strong> 또는 
+              📞 <strong>010-9251-9743</strong>으로 연락주세요
             </p>
           </div>
         </div>
