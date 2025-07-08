@@ -1217,21 +1217,17 @@ export default function TaxCalculatorPage() {
                     
                     <div className="bg-gradient-to-br from-red-50 to-orange-50 p-6 rounded-xl border border-red-200">
                       <h3 className="font-bold text-gray-900 mb-4 text-center">
-                        <span className="text-overflow-safe">🔧 오류 신고 방법 (3가지)</span>
+                        <span className="text-overflow-safe">🔧 오류 신고 방법</span>
                       </h3>
                       
                       <div className="space-y-3 text-sm">
                         <div className="flex items-center gap-2">
                           <span className="w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
-                          <span className="text-overflow-safe">아래 "🚨 지금 바로 오류신고하기" 버튼 클릭</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
                           <span className="text-overflow-safe">우측 하단 빨간색 플로팅 버튼 클릭</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 bg-yellow-500 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
-                          <span className="text-overflow-safe">각 계산기 하단의 오류신고 폼 이용</span>
+                          <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                          <span className="text-overflow-safe">화면 하단 오류신고 섹션 이용</span>
                         </div>
                       </div>
                       
@@ -1244,17 +1240,7 @@ export default function TaxCalculatorPage() {
                     </div>
                   </div>
                   
-                  {/* 상단 오류신고 버튼 */}
-                  <div className="text-center mt-6">
-                    <Button 
-                      onClick={scrollToErrorReport}
-                      className="mobile-button bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 
-                               text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-                    >
-                      <Bug className="w-5 h-5 mr-2" />
-                      <span className="text-overflow-safe">🚨 지금 바로 오류신고하기</span>
-                    </Button>
-                  </div>
+
                 </div>
               </div>
             </div>
