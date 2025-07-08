@@ -754,4 +754,7 @@ const EnhancedSmartInput = forwardRef<HTMLInputElement, EnhancedSmartInputProps>
 
 EnhancedSmartInput.displayName = 'EnhancedSmartInput';
 
+// Named export 추가 (기존 코드와의 호환성을 위해)
+export { EnhancedSmartInput };
+
 export default EnhancedSmartInput; 
