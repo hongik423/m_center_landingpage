@@ -92,7 +92,7 @@ const EnhancedSmartInput = forwardRef<HTMLInputElement, EnhancedSmartInputProps>
     value = '',
     onChange,
     onValueChange,
-    placeholder = '0',
+    placeholder = '',
     suffix = '',
     prefix = '',
     maxValue = Number.MAX_SAFE_INTEGER,
@@ -386,7 +386,7 @@ const EnhancedSmartInput = forwardRef<HTMLInputElement, EnhancedSmartInputProps>
     // 숫자 유효성 검사 및 포맷팅
     const formatNumber = (inputValue: string): { formatted: string; numeric: number } => {
       if (!inputValue || inputValue === '') {
-        return { formatted: '0', numeric: 0 };
+        return { formatted: '', numeric: 0 };
       }
 
       // 숫자와 소수점, 음수 기호만 허용
@@ -429,12 +429,12 @@ const EnhancedSmartInput = forwardRef<HTMLInputElement, EnhancedSmartInputProps>
 
     // 초기값 설정
     useEffect(() => {
-      if (value !== undefined && value !== '') {
+      if (value !== undefined && value !== '' && value !== 0) {
         const numValue = typeof value === 'string' ? parseFloat(removeCommas(value)) || 0 : value;
         const { formatted } = formatNumber(numValue.toString());
         setDisplayValue(formatted);
       } else {
-        setDisplayValue('0');
+        setDisplayValue('');
       }
     }, [value, autoComma, decimalPlaces]);
 
@@ -494,9 +494,9 @@ const EnhancedSmartInput = forwardRef<HTMLInputElement, EnhancedSmartInputProps>
       setIsFocused(false);
       setIsKeyboardOpen(false);
       
-      // 빈 값 처리
+      // 빈 값 처리 - 빈 값으로 유지
       if (!displayValue || displayValue === '') {
-        setDisplayValue('0');
+        setDisplayValue('');
         if (onChange) onChange(0);
       }
       
