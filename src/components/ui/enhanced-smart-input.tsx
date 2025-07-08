@@ -84,6 +84,7 @@ export interface EnhancedSmartInputProps extends Omit<React.InputHTMLAttributes<
   accessibilityLabel?: string;
   tutorial?: boolean;
   shortcuts?: Record<string, () => void>;
+  disabled?: boolean;
 }
 
 const EnhancedSmartInput = forwardRef<HTMLInputElement, EnhancedSmartInputProps>(
@@ -120,7 +121,8 @@ const EnhancedSmartInput = forwardRef<HTMLInputElement, EnhancedSmartInputProps>
     suggestions,
     accessibilityLabel,
     tutorial = false,
-    shortcuts = {}
+    shortcuts = {},
+    disabled = false
   }, ref) => {
     const [displayValue, setDisplayValue] = useState('');
     const [isFocused, setIsFocused] = useState(false);
