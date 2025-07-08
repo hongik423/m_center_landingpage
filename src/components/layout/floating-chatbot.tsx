@@ -645,7 +645,7 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
                           }}
                           style={{
                             padding: isMobile ? '12px 16px' : '10px 14px',
-                            backgroundColor: button.style === 'primary' ? '#1976D2' : '#28a745',
+                            backgroundColor: button.style === 'primary' ? '#22c55e' : '#22c55e',
                             color: 'white',
                             border: 'none',
                             borderRadius: '20px',
@@ -657,21 +657,21 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
                             gap: '6px',
                             transition: 'all 0.2s ease',
                             boxShadow: button.style === 'primary' 
-                              ? '0 3px 12px rgba(25, 118, 210, 0.4)' 
-                              : '0 3px 12px rgba(40, 167, 69, 0.4)',
+                              ? '0 3px 12px rgba(34, 197, 94, 0.4)' 
+                              : '0 3px 12px rgba(34, 197, 94, 0.4)',
                             minHeight: isMobile ? '40px' : '36px',
                             whiteSpace: 'nowrap'
                           }}
                           onMouseEnter={(e) => {
                             if (!isMobile) {
                               e.currentTarget.style.transform = 'scale(1.05)';
-                              e.currentTarget.style.backgroundColor = button.style === 'primary' ? '#1565C0' : '#218838';
+                              e.currentTarget.style.backgroundColor = '#16a34a'; // green-600
                             }
                           }}
                           onMouseLeave={(e) => {
                             if (!isMobile) {
                               e.currentTarget.style.transform = 'scale(1)';
-                              e.currentTarget.style.backgroundColor = button.style === 'primary' ? '#1976D2' : '#28a745';
+                              e.currentTarget.style.backgroundColor = '#22c55e'; // green-500
                             }
                           }}
                           onTouchStart={(e) => {

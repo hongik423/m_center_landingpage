@@ -514,6 +514,46 @@
       left: 100%;
     }
   }
+
+  /* 🔥 모바일 입력 도움말 애니메이션 */
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      transform: translateY(10px) scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+  
+  /* 🔥 모바일 최적화 터치 피드백 */
+  .touch-feedback {
+    -webkit-tap-highlight-color: rgba(59, 130, 246, 0.1);
+    tap-highlight-color: rgba(59, 130, 246, 0.1);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  
+  /* 🔥 모바일 입력 필드 최적화 */
+  input[inputmode="numeric"],
+  input[inputmode="decimal"] {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.05em;
+  }
+  
+  /* iOS 스타일 제거 */
+  input[type="text"],
+  input[type="number"] {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 8px;
+  }
   
   /* 모든 터치 요소에 대한 성능 최적화 */
   .touch-optimized {

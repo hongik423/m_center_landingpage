@@ -54,6 +54,7 @@ export interface InvestmentResult {
   npv: number; // 순현재가치 (NPV)
   irr: number; // 내부수익률 (IRR)
   paybackPeriod: number; // 할인 투자회수기간 (Discounted Payback Period)
+  simplePaybackPeriod: number; // ✅ 단순 투자회수기간 (Simple Payback Period)
   breakEvenPoint: number; // 손익분기점 (년)
   dscr: number[]; // 부채상환비율 (연도별)
   roi: number; // 투자수익률
@@ -341,10 +342,17 @@ export function analyzeOperatingProfitScenarios(
   });
 }
 
-// IRR (내부수익률) 계산 - 개선된 Newton-Raphson 방법
+// IRR (내부수익률) 계산 - 개선된 안정적인 방법
 export function calculateIRR(cashFlows: number[], initialGuess: number = 10): number {
   // 입력값 검증
   if (!cashFlows || cashFlows.length < 2) {
+    console.warn('IRR 계산: 현금흐름이 부족합니다.');
+    return 0;
+  }
+  
+  // NaN이나 무한값 검사
+  if (cashFlows.some(cf => !isFinite(cf))) {
+    console.warn('IRR 계산: 유효하지 않은 현금흐름 값이 있습니다.');
     return 0;
   }
   
@@ -352,32 +360,59 @@ export function calculateIRR(cashFlows: number[], initialGuess: number = 10): nu
   const hasPositive = cashFlows.some(cf => cf > 0);
   const hasNegative = cashFlows.some(cf => cf < 0);
   if (!hasPositive || !hasNegative) {
+    console.warn('IRR 계산: 현금흐름이 모두 같은 부호입니다.');
     return 0;
   }
   
-  // 초기 추정값 설정 (%)
-  let rate = initialGuess / 100;
-  const maxIterations = 100;
-  const tolerance = 0.00001;
+  // 첫 번째 현금흐름(투자)이 음수가 아닌 경우 경고
+  if (cashFlows[0] >= 0) {
+    console.warn('IRR 계산: 첫 번째 현금흐름(투자)이 음수가 아닙니다.');
+  }
   
-  // Newton-Raphson 반복
+  try {
+    // 먼저 이분법으로 계산 (더 안정적)
+    const bisectionResult = calculateIRRBisection(cashFlows);
+    
+    // 이분법 결과가 유효하면 Newton-Raphson으로 정밀화
+    if (isFinite(bisectionResult) && Math.abs(bisectionResult) < 500) {
+      const newtonResult = calculateIRRNewtonRaphson(cashFlows, bisectionResult);
+      
+      // Newton-Raphson 결과가 유효하고 합리적인 범위 내에 있으면 사용
+      if (isFinite(newtonResult) && Math.abs(newtonResult - bisectionResult) < 100) {
+        return Math.max(-95, Math.min(500, newtonResult));
+      }
+    }
+    
+    // 이분법 결과 반환
+    return Math.max(-95, Math.min(500, bisectionResult));
+    
+  } catch (error) {
+    console.error('IRR 계산 오류:', error);
+    return 0;
+  }
+}
+
+// Newton-Raphson 방법 (별도 함수로 분리)
+function calculateIRRNewtonRaphson(cashFlows: number[], initialGuess: number): number {
+  let rate = initialGuess / 100;
+  const maxIterations = 50;
+  const tolerance = 0.0001;
+  
   for (let iteration = 0; iteration < maxIterations; iteration++) {
     let npv = 0;
-    let dnpv = 0; // NPV의 미분값
+    let dnpv = 0;
     
-    // NPV와 그 미분값 계산
+    // NPV와 미분값 계산
     for (let t = 0; t < cashFlows.length; t++) {
       const cf = cashFlows[t];
       const discountFactor = Math.pow(1 + rate, t);
       
-      if (discountFactor === 0) {
-        // 0으로 나누기 방지
-        continue;
+      if (discountFactor === 0 || !isFinite(discountFactor)) {
+        throw new Error('계산 중 수치적 오류 발생');
       }
       
       npv += cf / discountFactor;
       
-      // 미분 계산 (t가 0일 때는 미분값이 0)
       if (t > 0) {
         dnpv -= (t * cf) / Math.pow(1 + rate, t + 1);
       }
@@ -385,92 +420,192 @@ export function calculateIRR(cashFlows: number[], initialGuess: number = 10): nu
     
     // 수렴 확인
     if (Math.abs(npv) < tolerance) {
-      return rate * 100; // 백분율로 변환
+      return rate * 100;
     }
     
-    // 미분값이 너무 작으면 중단
-    if (Math.abs(dnpv) < tolerance) {
+    // 미분값 검사
+    if (Math.abs(dnpv) < tolerance * 1000) {
       break;
     }
     
-    // Newton-Raphson 업데이트
+    // 새로운 추정값 계산
     const newRate = rate - npv / dnpv;
     
     // 수렴 조건 확인
-    if (Math.abs(newRate - rate) < tolerance) {
-      return Math.max(-99, Math.min(999, newRate * 100));
+    if (Math.abs(newRate - rate) < tolerance / 100) {
+      return newRate * 100;
     }
     
-    // 발산 방지 - 더 보수적인 범위 제한
-    if (newRate < -0.99) {
-      rate = -0.99;
-    } else if (newRate > 10) {
-      rate = 10;
+    // 범위 제한 (더 엄격하게)
+    if (newRate < -0.95) {
+      rate = -0.95;
+    } else if (newRate > 5) {
+      rate = 5;
+    } else if (!isFinite(newRate)) {
+      break;
     } else {
       rate = newRate;
     }
   }
   
-  // 수렴하지 않은 경우 이분법(Bisection Method) 사용
-  return calculateIRRBisection(cashFlows);
+  throw new Error('Newton-Raphson 수렴 실패');
 }
 
-// IRR 계산 - 이분법 (보조 함수)
+// IRR 계산 - 이분법 (완전히 수정된 정확한 버전)
 function calculateIRRBisection(cashFlows: number[]): number {
-  let low = -0.99;
-  let high = 10;
-  const tolerance = 0.00001;
-  const maxIterations = 100;
+  const tolerance = 0.000001; // 더 정밀한 허용오차
+  const maxIterations = 1000; // 더 많은 반복 횟수
   
+  // 적절한 탐색 범위 설정
+  let low = -0.999; // 하한: -99.9%
+  let high = 10.0;   // 상한: 1000%
+  
+  // 양 끝점에서의 NPV 확인
+  let npvLow = calculateNPVAtRate(cashFlows, low);
+  let npvHigh = calculateNPVAtRate(cashFlows, high);
+  
+  // 해가 범위 내에 존재하지 않으면 범위를 동적으로 확장
+  let expandAttempts = 0;
+  while (npvLow * npvHigh > 0 && expandAttempts < 50) {
+    if (npvLow > 0 && npvHigh > 0) {
+      // 둘 다 양수이면 더 높은 할인율이 필요
+      high = high * 2;
+      npvHigh = calculateNPVAtRate(cashFlows, high);
+    } else if (npvLow < 0 && npvHigh < 0) {
+      // 둘 다 음수이면 더 낮은 할인율이 필요  
+      low = low / 2;
+      npvLow = calculateNPVAtRate(cashFlows, low);
+    } else {
+      break;
+    }
+    expandAttempts++;
+  }
+  
+  // 여전히 해가 없으면 0 반환
+  if (npvLow * npvHigh > 0) {
+    console.warn('IRR 이분법: 적절한 범위에서 해를 찾을 수 없음');
+    return 0;
+  }
+  
+  // 이분법 실행
   for (let i = 0; i < maxIterations; i++) {
     const mid = (low + high) / 2;
+    const npvMid = calculateNPVAtRate(cashFlows, mid);
     
-    // NPV 계산
-    let npv = 0;
-    for (let t = 0; t < cashFlows.length; t++) {
-      npv += cashFlows[t] / Math.pow(1 + mid, t);
+    // 수치적 안정성 확인
+    if (!isFinite(npvMid)) {
+      console.warn('IRR 이분법: 수치적 불안정성 발견');
+      break;
     }
     
-    if (Math.abs(npv) < tolerance) {
+    // 수렴 조건 확인
+    if (Math.abs(npvMid) < tolerance || Math.abs(high - low) < tolerance) {
+      console.log(`IRR 이분법 수렴: ${i+1}회 반복, IRR=${(mid*100).toFixed(4)}%, NPV=${npvMid.toFixed(8)}`);
       return mid * 100; // 백분율로 변환
     }
     
-    // NPV가 양수면 할인율을 높이고, 음수면 낮춤
-    if (npv > 0) {
+    // 이분법 업데이트 (올바른 방향)
+    // NPV > 0 → IRR이 할인율보다 높음 → 할인율을 높여야 함 → low = mid
+    // NPV < 0 → IRR이 할인율보다 낮음 → 할인율을 낮춰야 함 → high = mid
+    if (npvMid > 0) {
       low = mid;
     } else {
       high = mid;
     }
   }
   
-  return ((low + high) / 2) * 100;
+  const finalIRR = (low + high) / 2;
+  console.log(`IRR 이분법 완료: 최대 반복 도달, 최종 IRR=${(finalIRR*100).toFixed(4)}%`);
+  return finalIRR * 100;
 }
 
-// 단순 회수기간 계산 (할인하지 않은 현금흐름 기준)
-export function calculateSimplePaybackPeriod(cashFlows: CashFlow[]): number {
-  // 누적 현금흐름이 0 이상이 되는 시점 찾기
-  for (let i = 0; i < cashFlows.length; i++) {
-    if (cashFlows[i].cumulativeCashFlow >= 0) {
-      if (i === 0) {
-        // 첫 해에 이미 회수된 경우
-        return cashFlows[0].year;
+// 주어진 할인율에서 NPV 계산하는 헬퍼 함수
+function calculateNPVAtRate(cashFlows: number[], rate: number): number {
+  let npv = 0;
+  for (let t = 0; t < cashFlows.length; t++) {
+    const discountFactor = Math.pow(1 + rate, t);
+    if (!isFinite(discountFactor) || discountFactor === 0) {
+      return NaN;
+    }
+    npv += cashFlows[t] / discountFactor;
+  }
+  return npv;
+}
+
+// ✅ 단순 회수기간 계산 (사용자 공식에 따른 정확한 구현)
+// ✅ 단순회수기간 계산 함수 (전체 초기투자액 기준)
+export function calculateSimplePaybackPeriod(cashFlows: CashFlow[], totalInitialInvestment?: number): number {
+  if (!cashFlows || cashFlows.length === 0) {
+    return -1;
+  }
+  
+  // ✅ 전체 초기투자액 사용 (정책자금 포함)
+  let initialInvestment = totalInitialInvestment || 0;
+  let startYear = 0;
+  
+  // 전체 초기투자액이 제공되지 않은 경우 현금흐름에서 추출
+  if (!initialInvestment) {
+    if (cashFlows[0].netCashFlow < 0) {
+      initialInvestment = Math.abs(cashFlows[0].netCashFlow);
+      startYear = 1;
+    } else {
+      // 누적 현금흐름이 음수에서 시작하는 경우 (초기투자가 별도 처리됨)
+      const firstNegativeCF = cashFlows.find(cf => cf.cumulativeCashFlow < 0);
+      if (firstNegativeCF) {
+        initialInvestment = Math.abs(firstNegativeCF.cumulativeCashFlow) + firstNegativeCF.netCashFlow;
+        startYear = 0;
+      } else {
+        // 초기투자를 찾을 수 없는 경우
+        console.warn('단순 회수기간: 초기투자액을 확인할 수 없습니다');
+        return -1;
       }
-      
-      // 선형 보간법으로 정확한 회수기간 계산
-      const previousCF = cashFlows[i - 1].cumulativeCashFlow;
-      const currentCF = cashFlows[i].cumulativeCashFlow;
-      
-      if (previousCF < 0 && currentCF >= 0) {
-        // 해당 연도의 현금흐름으로 회수되는 비율 계산
-        const yearFraction = -previousCF / (currentCF - previousCF);
-        return cashFlows[i - 1].year + yearFraction;
-      }
-      
-      return cashFlows[i].year;
     }
   }
   
-  // 분석 기간 내에 회수되지 않음
+  let cumulativeCashInflow = 0;
+  
+  console.log(`🔍 단순 회수기간 계산 시작`);
+  console.log(`초기 투자액: ${(initialInvestment/100000000).toFixed(2)}억원`);
+  
+  // 연도별 현금 유입 누적하여 회수기간 계산
+  for (let i = startYear; i < cashFlows.length; i++) {
+    const cf = cashFlows[i];
+    cumulativeCashInflow += cf.netCashFlow;
+    
+    console.log(`${cf.year}년: CF=${(cf.netCashFlow/100000000).toFixed(2)}억, 누적=${(cumulativeCashInflow/100000000).toFixed(2)}억, 미회수=${((initialInvestment - cumulativeCashInflow)/100000000).toFixed(2)}억`);
+    
+    if (cumulativeCashInflow >= initialInvestment) {
+      if (i === startYear) {
+        // 첫 해에 이미 회수된 경우
+        console.log(`첫 해에 회수 완료: ${cf.year}년`);
+        return cf.year;
+      }
+      
+      // ✅ 사용자 공식 적용: 회수기간 = 회수가 되는 해 직전연도 + (미회수된 금액 / 회수되는 해 현금유입액)
+      const previousCF = cashFlows[i - 1];
+      const previousCumulativeCF = cumulativeCashInflow - cf.netCashFlow;
+      const remainingAmount = initialInvestment - previousCumulativeCF;
+      
+      if (cf.netCashFlow > 0) {
+        const yearFraction = remainingAmount / cf.netCashFlow;
+        const exactPaybackPeriod = previousCF.year + yearFraction;
+        
+        console.log(`\n단순 회수기간 계산 (전체 투자액 기준):`);
+        console.log(`- 회수 직전연도(${previousCF.year}년): 누적 CF=${(previousCumulativeCF/100000000).toFixed(2)}억`);
+        console.log(`- 회수되는 해(${cf.year}년): CF=${(cf.netCashFlow/100000000).toFixed(2)}억`);
+        console.log(`- 미회수 금액: ${(remainingAmount/100000000).toFixed(2)}억`);
+        console.log(`- 년도 비율: ${(remainingAmount/100000000).toFixed(2)}억 ÷ ${(cf.netCashFlow/100000000).toFixed(2)}억 = ${yearFraction.toFixed(4)}`);
+        console.log(`- 회수기간: ${previousCF.year}년 + ${yearFraction.toFixed(4)}년 = ${exactPaybackPeriod.toFixed(2)}년`);
+        
+        return Math.max(0, exactPaybackPeriod);
+      }
+      
+      console.log(`정확히 ${cf.year}년에 회수 완료`);
+      return cf.year;
+    }
+  }
+  
+  console.log('분석 기간 내 투자금 회수 불가');
   return -1;
 }
 
@@ -509,8 +644,7 @@ export function calculatePaybackPeriod(cumulativeCashFlows: number[]): number {
   return -1;
 }
 
-// 개정된 할인 회수기간 계산 (정책자금 특성 반영)
-// 정책자금을 부채로 인식하여 총투자금액 기준으로 계산
+// ✅ 할인 회수기간 계산 (전체 투자액 기준)
 export function calculateDiscountedPaybackPeriod(
   cashFlows: CashFlow[], 
   totalInitialInvestment: number,
@@ -521,49 +655,48 @@ export function calculateDiscountedPaybackPeriod(
     return -1;
   }
   
-  console.log('🔍 할인회수기간 계산 시작');
+  // ✅ 정책자금도 상환해야 하므로 전체 투자금액이 기준입니다
+  const actualInitialInvestment = totalInitialInvestment;
+  
+  console.log('🔍 할인 회수기간 계산 시작 (전체 투자액 기준)');
   console.log(`총 투자금액: ${(totalInitialInvestment/100000000).toFixed(2)}억원`);
-  console.log(`정책자금: ${(policyFundAmount/100000000).toFixed(2)}억원`);
-  console.log(`실제 투자금액: ${((totalInitialInvestment - policyFundAmount)/100000000).toFixed(2)}억원`);
+  console.log(`정책자금: ${(policyFundAmount/100000000).toFixed(2)}억원 (상환 필요)`);
+  console.log(`기준 투자금액: ${(actualInitialInvestment/100000000).toFixed(2)}억원`);
   console.log(`할인율: ${discountRate}%`);
   
-  // 단순화된 기준: 실제 투자금액 (정책자금 제외)
-  const initialInvestment = totalInitialInvestment - policyFundAmount;
+  // ✅ 사용자 공식 적용: 할인된 현금흐름으로 회수기간 계산
+  let cumulativeDiscountedCashInflow = 0;
   
-  // 누적 현재가치 계산
-  let cumulativePV = 0;
-  console.log('\n연도별 누적현재가치:');
-  console.log(`초기 기준: -${(initialInvestment/100000000).toFixed(2)}억원`);
+  console.log('\n연도별 할인된 현금흐름:');
   
-  // 누적 현재가치가 초기투자금액을 초과하는 시점 찾기
   for (let i = 0; i < cashFlows.length; i++) {
     const cf = cashFlows[i];
-    cumulativePV += cf.presentValue;
+    cumulativeDiscountedCashInflow += cf.presentValue;
     
-    console.log(`${cf.year}년: 현재가치=${(cf.presentValue/100000000).toFixed(2)}억, 누적PV=${(cumulativePV/100000000).toFixed(2)}억`);
+    console.log(`${cf.year}년: 현재가치=${(cf.presentValue/100000000).toFixed(2)}억, 누적=${(cumulativeDiscountedCashInflow/100000000).toFixed(2)}억, 미회수=${((actualInitialInvestment - cumulativeDiscountedCashInflow)/100000000).toFixed(2)}억`);
     
-    if (cumulativePV >= initialInvestment) {
+    if (cumulativeDiscountedCashInflow >= actualInitialInvestment) {
       if (i === 0) {
         // 첫 해에 이미 회수된 경우
         console.log(`첫 해에 회수 완료: ${cf.year}년`);
         return cf.year;
       }
       
-      // 선형 보간법으로 정확한 회수기간 계산
+      // ✅ 사용자 공식 적용: 회수기간 = 회수가 되는 해 직전연도 + (미회수된 금액 / 회수되는 해 현금유입액의 현재가치)
       const previousCF = cashFlows[i - 1];
-      const previousPV = cumulativePV - cf.presentValue;
-      const remainingAmount = initialInvestment - previousPV;
+      const previousCumulativePV = cumulativeDiscountedCashInflow - cf.presentValue;
+      const remainingAmount = actualInitialInvestment - previousCumulativePV;
       
       if (cf.presentValue > 0) {
         const yearFraction = remainingAmount / cf.presentValue;
         const exactPaybackPeriod = previousCF.year + yearFraction;
         
-        console.log(`\n할인회수기간 계산:`);
-        console.log(`- 이전년도(${previousCF.year}년) 누적PV: ${(previousPV/100000000).toFixed(2)}억`);
-        console.log(`- 현재년도(${cf.year}년) PV: ${(cf.presentValue/100000000).toFixed(2)}억`);
-        console.log(`- 잔여회수액: ${(remainingAmount/100000000).toFixed(2)}억`);
-        console.log(`- 년도 비율: ${yearFraction.toFixed(3)}`);
-        console.log(`- 최종 회수기간: ${exactPaybackPeriod.toFixed(2)}년`);
+        console.log(`\n할인 회수기간 계산 (전체 투자액 기준):`);
+        console.log(`- 회수 직전연도(${previousCF.year}년): 누적 현재가치=${(previousCumulativePV/100000000).toFixed(2)}억`);
+        console.log(`- 회수되는 해(${cf.year}년): 현재가치=${(cf.presentValue/100000000).toFixed(2)}억`);
+        console.log(`- 미회수 금액: ${(remainingAmount/100000000).toFixed(2)}억`);
+        console.log(`- 년도 비율: ${(remainingAmount/100000000).toFixed(2)}억 ÷ ${(cf.presentValue/100000000).toFixed(2)}억 = ${yearFraction.toFixed(4)}`);
+        console.log(`- 할인 회수기간: ${previousCF.year}년 + ${yearFraction.toFixed(4)}년 = ${exactPaybackPeriod.toFixed(2)}년`);
         
         return Math.max(0, exactPaybackPeriod);
       }
@@ -845,12 +978,14 @@ export function performInvestmentAnalysis(input: InvestmentInput): InvestmentRes
       throw new Error('연간 매출 정보가 없습니다');
     }
     
-    console.log('🔍 투자분석 입력 데이터 (억원 단위):', {
+    console.log('🔍 투자분석 시작 (수정완료):', {
       초기투자액: (input.initialInvestment / 100000000).toFixed(1) + '억원',
+      정책자금: ((input.policyFundAmount || 0) / 100000000).toFixed(1) + '억원',
       연간매출: (annualRevenueArray[0] / 100000000).toFixed(1) + '억원',
       영업이익률: operatingProfitRate + '%',
       할인율: (input.discountRate || 10) + '%',
-      분석기간: (input.analysisYears || 10) + '년'
+      분석기간: (input.analysisYears || 10) + '년',
+      매출성장률: (input.revenueGrowthRate || 0) + '%'
     });
     
     const cashFlows: CashFlow[] = [];
@@ -870,14 +1005,14 @@ export function performInvestmentAnalysis(input: InvestmentInput): InvestmentRes
     // 영업이익률 기본값 적용 (사용자 입력값 그대로 사용)
     const finalOperatingProfitRate = Math.max(-100, Math.min(200, operatingProfitRate));
     
-    // 실제 초기 투자금액 계산
-    const actualInitialInvestment = input.initialInvestment - (input.policyFundAmount || 0);
+    // ✅ 정책자금도 상환해야 하는 투자이므로 전체 투자액이 초기투자입니다
+    const actualInitialInvestment = input.initialInvestment;
     
     if (actualInitialInvestment <= 0) {
-      throw new Error('실제 투자금액이 0 이하입니다. 정책자금이 투자금액보다 큽니다.');
+      throw new Error('초기 투자금액이 0 이하입니다.');
     }
     
-    const netCashFlows: number[] = [-actualInitialInvestment];
+    const netCashFlows: number[] = []; // ✅ 연도별 현금흐름만 저장 (초기투자는 별도 처리)
     
     // 대출 상환 스케줄 계산 (이자율 사용)
     let loanSchedule = { principal: [0], interest: [0], remainingBalance: [0] };
@@ -895,11 +1030,11 @@ export function performInvestmentAnalysis(input: InvestmentInput): InvestmentRes
       }
     }
     
-    let cumulativeCashFlow = -actualInitialInvestment;
+    let cumulativeCashFlow = -actualInitialInvestment;  // ✅ 초기투자로 시작
     let cumulativePV = -actualInitialInvestment;
     let previousWorkingCapital = 0;
     
-    // 초기 투자 상세 기록 추가
+    // ✅ 초기 투자 상세 기록 추가 (전체 투자액)
     details.push({
       year: 0,
       revenue: 0,
@@ -910,10 +1045,10 @@ export function performInvestmentAnalysis(input: InvestmentInput): InvestmentRes
       depreciation: 0,
       loanPrincipal: 0,
       loanInterest: 0,
-      netCashFlow: -actualInitialInvestment,
+      netCashFlow: -actualInitialInvestment, // 🔍 전체 초기투자액
       discountRate: input.discountRate || 10,
       discountFactor: 1,
-      presentValue: -actualInitialInvestment,
+      presentValue: -actualInitialInvestment, // 🔍 전체 투자액 기준 NPV 계산
       cumulativePV: -actualInitialInvestment
     });
     
@@ -1087,54 +1222,109 @@ export function performInvestmentAnalysis(input: InvestmentInput): InvestmentRes
     let breakEvenPoint = -1;
     
     try {
-      // NPV는 할인율(discountRate)로 계산
+      // ✅ NPV 계산용 현금흐름 배열 구성 (초기투자 + 연도별 현금흐름)
+      // NPV 공식: -초기투자 + CF1/(1+r)^1 + CF2/(1+r)^2 + ...
+      const npvCashFlows = [-actualInitialInvestment, ...netCashFlows];
       const discountRateForNPV = Math.max(0, input.discountRate || 10);
-      npv = calculateNPV(netCashFlows, discountRateForNPV);
+      
+      npv = calculateNPV(npvCashFlows, discountRateForNPV);
       
       if (!isFinite(npv)) {
         console.warn('NPV 계산 결과가 무한값, 누적 현재가치 사용');
-        npv = cumulativePV;
+        npv = cumulativePV - actualInitialInvestment;
       }
       
-      console.log(`🔍 NPV 계산: 할인율 ${discountRateForNPV}%, 결과 ${(npv/100000000).toFixed(1)}억원`);
+      console.log(`🔍 NPV 계산 (수정완료): 분석기간 ${input.analysisYears || 10}년, 할인율 ${discountRateForNPV}%, 결과 ${(npv/100000000).toFixed(1)}억원`);
+      console.log(`🔍 NPV 계산용 현금흐름 (${npvCashFlows.length}개):`, npvCashFlows.slice(0, 5).map(cf => (cf / 100000000).toFixed(1) + '억').join(', '), npvCashFlows.length > 5 ? '...' : '');
     } catch (error) {
       console.error('NPV 계산 오류:', error);
-      npv = cumulativePV;
+      npv = cumulativePV - actualInitialInvestment;
     }
     
     try {
-      // IRR는 현금흐름 기반으로 계산 (할인율과 무관)
-      if (netCashFlows.length > 1) {
-        irr = calculateIRR(netCashFlows, 10);
+      // ✅ IRR 계산용 현금흐름 배열 구성 (초기투자 + 연도별 현금흐름)  
+      // IRR 공식: 0 = -초기투자/(1+IRR)^0 + CF1/(1+IRR)^1 + CF2/(1+IRR)^2 + ...
+      const irrCashFlows = [-actualInitialInvestment, ...netCashFlows];
+      
+      if (irrCashFlows.length > 1) {
+        console.log('🔍 IRR 계산용 현금흐름 (올바른 구성):', {
+          분석기간: input.analysisYears || 10,
+          배열길이: irrCashFlows.length,
+          초기투자: (irrCashFlows[0] / 100000000).toFixed(1) + '억원',
+          첫번째년도CF: irrCashFlows.length > 1 ? (irrCashFlows[1] / 100000000).toFixed(1) + '억원' : 'N/A',
+          두번째년도CF: irrCashFlows.length > 2 ? (irrCashFlows[2] / 100000000).toFixed(1) + '억원' : 'N/A',
+          양수현금흐름: irrCashFlows.filter(cf => cf > 0).length + '개',
+          음수현금흐름: irrCashFlows.filter(cf => cf < 0).length + '개',
+          전체현금흐름: irrCashFlows.map(cf => (cf / 100000000).toFixed(1) + '억').join(', ')
+        });
         
-        // IRR 유효성 검사 (더 엄격한 기준)
-        if (!isFinite(irr) || Math.abs(irr) > 100 || isNaN(irr)) {
-          console.warn('IRR 계산 결과가 비정상적, 0으로 설정');
+        // 현금흐름 사전 검증
+        const hasValidCashFlows = irrCashFlows.every(cf => isFinite(cf) && !isNaN(cf));
+        const hasPositive = irrCashFlows.some(cf => cf > 0);
+        const hasNegative = irrCashFlows.some(cf => cf < 0);
+        
+        if (!hasValidCashFlows) {
+          console.warn('IRR 계산: 유효하지 않은 현금흐름 발견');
           irr = 0;
+        } else if (!hasPositive || !hasNegative) {
+          console.warn('IRR 계산: 양수와 음수 현금흐름이 모두 필요함');
+          irr = 0;
+        } else {
+          // ✅ 정확한 IRR 계산 (초기투자 포함된 현금흐름 사용)
+          irr = calculateIRR(irrCashFlows, 10);
+          
+          // IRR 유효성 검사 (더 엄격한 기준)
+          if (!isFinite(irr) || isNaN(irr)) {
+            console.warn('IRR 계산 결과가 NaN 또는 무한값, 0으로 설정');
+            irr = 0;
+          } else if (Math.abs(irr) > 200) {
+            console.warn(`IRR ${irr.toFixed(1)}%가 비현실적으로 높거나 낮음, 범위 제한`);
+            irr = Math.max(-100, Math.min(100, irr));
+          } else if (irr > 80) {
+            console.warn(`IRR ${irr.toFixed(1)}%가 너무 높음, 80%로 제한`);
+            irr = 80;
+          } else if (irr < -50) {
+            console.warn(`IRR ${irr.toFixed(1)}%가 너무 낮음, -50%로 제한`);
+            irr = -50;
+          }
+          
+          console.log(`🔍 IRR 계산 완료 (수정완료): ${irr.toFixed(1)}% (분석기간 ${input.analysisYears || 10}년)`);
+          
+          // ✅ IRR 검증: IRR 할인율에서 NPV가 0이 되는지 확인
+          const verificationNPV = calculateNPVAtRate(irrCashFlows, irr / 100);
+          const isAccurate = Math.abs(verificationNPV) < 100000; // 10만원 이내 오차
+          console.log(`🔍 IRR 검증: ${irr.toFixed(2)}% 할인율에서 NPV = ${(verificationNPV / 100000000).toFixed(6)}억원 ${isAccurate ? '✅ 정확' : '⚠️ 오차있음'}`);
         }
-        
-        // 추가 현실성 검사
-        if (irr > 50) {
-          console.warn(`IRR ${irr.toFixed(1)}%가 너무 높음, 50%로 제한`);
-          irr = 50;
-        }
-        
-        console.log(`🔍 IRR 계산: ${irr.toFixed(1)}%`);
+      } else {
+        console.warn('IRR 계산: 현금흐름 데이터 부족');
+        irr = 0;
       }
     } catch (error) {
       console.error('IRR 계산 오류:', error);
+      console.error('초기투자:', actualInitialInvestment);
+      console.error('연도별 현금흐름:', netCashFlows);
       irr = 0;
     }
     
+    // ✅ 단순 회수기간 계산 (전체 초기투자액 기준)
+    let simplePaybackPeriod = -1;
     try {
-      // 개정된 할인 회수기간 계산 (정책자금 특성 반영)
+      simplePaybackPeriod = calculateSimplePaybackPeriod(cashFlows, input.initialInvestment);
+      console.log(`🔍 단순 회수기간 (수정완료): 투자액 ${(input.initialInvestment/100000000).toFixed(1)}억원, 분석기간 ${input.analysisYears || 10}년, 결과 ${simplePaybackPeriod > 0 ? simplePaybackPeriod.toFixed(2) + '년' : '미회수'}`);
+    } catch (error) {
+      console.error('단순 투자회수기간 계산 오류:', error);
+      simplePaybackPeriod = -1;
+    }
+
+    try {
+      // 할인 회수기간 계산 (정책자금 특성 반영)
       paybackPeriod = calculateDiscountedPaybackPeriod(
         cashFlows,
         input.initialInvestment,
         input.policyFundAmount || 0,
         input.discountRate || 10
       );
-      console.log(`🔍 개정된 할인 회수기간: ${paybackPeriod > 0 ? paybackPeriod.toFixed(2) + '년' : '미회수'}`);
+      console.log(`🔍 할인 회수기간 (수정완료): 투자액 ${(input.initialInvestment/100000000).toFixed(1)}억원, 할인율 ${input.discountRate || 10}%, 분석기간 ${input.analysisYears || 10}년, 결과 ${paybackPeriod > 0 ? paybackPeriod.toFixed(2) + '년' : '미회수'}`);
     } catch (error) {
       console.error('할인 투자회수기간 계산 오류:', error);
       paybackPeriod = -1;
@@ -1265,6 +1455,7 @@ export function performInvestmentAnalysis(input: InvestmentInput): InvestmentRes
       npv,
       irr,
       paybackPeriod,
+      simplePaybackPeriod, // ✅ 단순 회수기간 추가
       breakEvenPoint,
       dscr,
       roi,
@@ -1299,6 +1490,7 @@ export function performInvestmentAnalysis(input: InvestmentInput): InvestmentRes
       npv: 0,
       irr: 0,
       paybackPeriod: -1,
+      simplePaybackPeriod: -1, // ✅ 단순 회수기간 기본값 추가
       breakEvenPoint: -1,
       dscr: [],
       roi: 0,

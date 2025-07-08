@@ -44,6 +44,7 @@ import {
 } from '@/components/ui/tooltip';
 import { Separator } from '@/components/ui/separator';
 import { InvestmentInput } from '@/lib/utils/investment-analysis';
+import MobileNumberInput from '@/components/ui/mobile-number-input';
 
 const formSchema = z.object({
   initialInvestment: z.number().min(0, '초기 투자금은 0 이상이어야 합니다'),
@@ -82,6 +83,49 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
   ]);
   const [calculatedCosts, setCalculatedCosts] = useState<number[]>([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   const [showAdvancedInputs, setShowAdvancedInputs] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+
+  // 🔥 모바일 디바이스 감지
+  useEffect(() => {
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent;
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+      const isSmallScreen = window.innerWidth <= 768;
+      setIsMobile(isMobileDevice || isSmallScreen);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // 🔥 모바일 키보드 감지 및 뷰포트 조정
+  useEffect(() => {
+    if (!isMobile) return;
+
+    const initialViewportHeight = window.innerHeight;
+    
+    const handleResize = () => {
+      const currentHeight = window.innerHeight;
+      const heightDifference = initialViewportHeight - currentHeight;
+      const threshold = 150; // 키보드가 올라왔다고 판단하는 기준
+
+      if (heightDifference > threshold) {
+        setKeyboardOpen(true);
+        document.body.classList.add('keyboard-open');
+      } else {
+        setKeyboardOpen(false);
+        document.body.classList.remove('keyboard-open');
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      document.body.classList.remove('keyboard-open');
+    };
+  }, [isMobile]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -173,9 +217,9 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
 
   // 개선된 숫자 입력 처리 함수
   const handleNumberInput = (value: string, onChange: (value: number) => void) => {
-    // 빈 문자열인 경우 0으로 처리
+    // 빈 문자열인 경우 그대로 유지 (0으로 강제 변환하지 않음)
     if (value === '' || value === undefined || value === null) {
-      onChange(0);
+      // 빈 값은 사용자가 입력할 수 있도록 그대로 두고, 최종적으로만 0으로 처리
       return;
     }
     
@@ -188,7 +232,11 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
     // 유효한 숫자인 경우에만 업데이트
     if (!isNaN(numValue) && isFinite(numValue)) {
       onChange(numValue);
-    } else if (cleanValue === '' || cleanValue === '-') {
+    } else if (cleanValue === '-') {
+      // 음수 입력 중인 경우 그대로 유지
+      return;
+    } else if (cleanValue === '') {
+      // 완전히 삭제된 경우만 0으로 설정
       onChange(0);
     }
   };
@@ -212,10 +260,81 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
 
   return (
     <TooltipProvider>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-          {/* 핵심 분석 조건 - 맨 위로 이동 */}
-          <div className="bg-blue-50 p-6 rounded-lg border-2 border-blue-200">
+      <div className={`${isMobile ? 'mobile-optimized' : ''} ${keyboardOpen ? 'keyboard-active' : ''}`}>
+        <style jsx global>{`
+          .mobile-optimized {
+            /* 모바일 최적화 전역 스타일 */
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+          }
+          
+          .keyboard-active {
+            /* 키보드 활성화 시 스크롤 최적화 */
+            height: 100vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+          }
+          
+          .mobile-touch-area {
+            min-height: 48px;
+            min-width: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          
+          .mobile-input-field {
+            font-size: 16px !important; /* iOS 줌 방지 */
+            border-radius: 12px;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.2s ease;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          }
+          
+          .mobile-input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: scale(1.02);
+          }
+          
+          .mobile-button {
+            min-height: 56px;
+            padding: 16px 24px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          }
+          
+          .mobile-button:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+          }
+          
+          .mobile-card {
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            border: 1px solid #e2e8f0;
+          }
+          
+          @media (max-width: 768px) {
+            .mobile-card {
+              margin: 16px;
+              padding: 20px;
+            }
+          }
+        `}</style>
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className={`space-y-6 ${isMobile ? 'px-4' : ''}`}>
+            {/* 🔥 모바일 최적화된 핵심 분석 조건 */}
+            <div className={`mobile-card bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 ${isMobile ? 'mx-2' : ''}`}>
             <div className="flex items-center gap-2 mb-4">
               <Calculator className="w-5 h-5 text-blue-600" />
               <h3 className="text-lg font-semibold text-blue-800">🔥 핵심 NPV/IRR 분석 조건</h3>
@@ -224,17 +343,17 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                 <span>투자 성과에 가장 큰 영향을 미치는 핵심 변수들</span>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className={`grid ${isMobile ? 'grid-cols-1 gap-8' : 'grid-cols-1 md:grid-cols-3 gap-6'}`}>
               <FormField
                 control={form.control}
                 name="analysisYears"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center font-semibold text-blue-700">
+                  <FormItem className={isMobile ? 'mb-6' : ''}>
+                    <FormLabel className={`flex items-center font-semibold text-blue-700 ${isMobile ? 'text-lg mb-3' : ''}`}>
                       📅 분석 기간 (NPV/IRR 계산)
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Info className="w-4 h-4 ml-1 text-blue-400" />
+                          <Info className={`${isMobile ? 'w-5 h-5 ml-2' : 'w-4 h-4 ml-1'} text-blue-400 mobile-touch-area`} />
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>NPV와 IRR을 계산할 전체 기간 (연도별 매출 데이터가 자동 조정됩니다)</p>
@@ -242,20 +361,25 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                       </Tooltip>
                     </FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          placeholder="10"
-                          value={field.value || ''}
-                          onChange={(e) => handleNumberInput(e.target.value, field.onChange)}
-                          className="pr-10 font-semibold text-blue-700 border-2 border-blue-300"
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-blue-500">
-                          년
-                        </span>
-                      </div>
+                      <MobileNumberInput
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        placeholder="9"
+                        suffix="년"
+                        autoComma={false}
+                        minValue={1}
+                        maxValue={30}
+                        className={`${isMobile ? 'mobile-input-field text-xl' : ''} font-semibold text-blue-700 border-2 border-blue-300`}
+                        mobileOptimized={true}
+                        style={isMobile ? {
+                          fontSize: '18px',
+                          minHeight: '56px',
+                          padding: '16px',
+                          borderRadius: '12px'
+                        } : undefined}
+                      />
                     </FormControl>
-                    <FormDescription className="text-blue-600">
+                    <FormDescription className={`text-blue-600 ${isMobile ? 'text-base mt-3' : ''}`}>
                       현재 설정: {field.value}년간 분석 ({field.value}년 매출 데이터 필요)
                     </FormDescription>
                     <FormMessage />
@@ -267,12 +391,12 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                 control={form.control}
                 name="discountRate"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center font-semibold text-blue-700">
+                  <FormItem className={isMobile ? 'mb-6' : ''}>
+                    <FormLabel className={`flex items-center font-semibold text-blue-700 ${isMobile ? 'text-lg mb-3' : ''}`}>
                       📊 할인율 (WACC)
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Info className="w-4 h-4 ml-1 text-blue-400" />
+                          <Info className={`${isMobile ? 'w-5 h-5 ml-2' : 'w-4 h-4 ml-1'} text-blue-400 mobile-touch-area`} />
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>NPV 계산에 사용되는 할인율 (가중평균자본비용)</p>
@@ -280,21 +404,26 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                       </Tooltip>
                     </FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          step="0.1"
-                          placeholder="8"
-                          value={field.value || ''}
-                          onChange={(e) => handleNumberInput(e.target.value, field.onChange)}
-                          className="pr-10 font-semibold text-blue-700 border-2 border-blue-300"
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-blue-500">
-                          %
-                        </span>
-                      </div>
+                      <MobileNumberInput
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        placeholder="10"
+                        suffix="%"
+                        allowDecimals={true}
+                        autoComma={false}
+                        minValue={0}
+                        maxValue={50}
+                        className={`${isMobile ? 'mobile-input-field text-xl' : ''} font-semibold text-blue-700 border-2 border-blue-300`}
+                        mobileOptimized={true}
+                        style={isMobile ? {
+                          fontSize: '18px',
+                          minHeight: '56px',
+                          padding: '16px',
+                          borderRadius: '12px'
+                        } : undefined}
+                      />
                     </FormControl>
-                    <FormDescription className="text-blue-600">
+                    <FormDescription className={`text-blue-600 ${isMobile ? 'text-base mt-3' : ''}`}>
                       현재 설정: {formatPercent(field.value)}
                     </FormDescription>
                     <FormMessage />
@@ -306,12 +435,12 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                 control={form.control}
                 name="operatingProfitRate"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center font-semibold text-blue-700">
+                  <FormItem className={isMobile ? 'mb-6' : ''}>
+                    <FormLabel className={`flex items-center font-semibold text-blue-700 ${isMobile ? 'text-lg mb-3' : ''}`}>
                       💰 영업이익률 (핵심)
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Info className="w-4 h-4 ml-1 text-blue-400" />
+                          <Info className={`${isMobile ? 'w-5 h-5 ml-2' : 'w-4 h-4 ml-1'} text-blue-400 mobile-touch-area`} />
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>매출 대비 영업이익 비율 (연간비용 자동계산에 사용)</p>
@@ -319,22 +448,27 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                       </Tooltip>
                     </FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          step="0.1"
-                          placeholder="15"
-                          value={field.value || ''}
-                          onChange={(e) => handleNumberInput(e.target.value, field.onChange)}
-                          className="pr-10 font-semibold text-blue-700 border-2 border-blue-300"
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-blue-500">
-                          %
-                        </span>
-                      </div>
+                      <MobileNumberInput
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        placeholder="14"
+                        suffix="%"
+                        allowDecimals={true}
+                        autoComma={false}
+                        minValue={-100}
+                        maxValue={200}
+                        className={`${isMobile ? 'mobile-input-field text-xl' : ''} font-semibold text-blue-700 border-2 border-blue-300`}
+                        mobileOptimized={true}
+                        style={isMobile ? {
+                          fontSize: '18px',
+                          minHeight: '56px',
+                          padding: '16px',
+                          borderRadius: '12px'
+                        } : undefined}
+                      />
                     </FormControl>
-                    <FormDescription className="text-blue-600">
-                      현재 설정: {formatPercent(field.value)} (높은 성장 기업은 200% 이상도 가능)
+                    <FormDescription className={`text-blue-600 ${isMobile ? 'text-base mt-3 font-medium' : ''}`}>
+                      현재 설정: {formatPercent(field.value)} {isMobile && '(높은 성장 기업은 200% 이상도 가능)'}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -345,23 +479,23 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
 
           <Separator />
 
-          {/* 초기 투자 정보 */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4 flex items-center">
-              <DollarSign className="w-5 h-5 mr-2" />
-              초기 투자 정보
+          {/* 🔥 모바일 최적화된 초기 투자 정보 */}
+          <div className={`mobile-card ${isMobile ? 'mx-2' : ''}`}>
+            <h3 className={`${isMobile ? 'text-xl' : 'text-lg'} font-semibold mb-6 flex items-center text-gray-800`}>
+              <DollarSign className={`${isMobile ? 'w-6 h-6 mr-3' : 'w-5 h-5 mr-2'}`} />
+              💎 초기 투자 정보
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className={`grid ${isMobile ? 'grid-cols-1 gap-8' : 'grid-cols-1 md:grid-cols-3 gap-6'}`}>
               <FormField
                 control={form.control}
                 name="initialInvestment"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center">
-                      초기 투자금 💎
+                  <FormItem className={isMobile ? 'mb-8' : ''}>
+                    <FormLabel className={`flex items-center ${isMobile ? 'text-lg mb-3 font-bold text-green-700' : ''}`}>
+                      💎 초기 투자금
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Info className="w-4 h-4 ml-1 text-gray-400" />
+                          <Info className={`${isMobile ? 'w-5 h-5 ml-2' : 'w-4 h-4 ml-1'} text-gray-400 mobile-touch-area`} />
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>사업 시작에 필요한 자기자본 투자금액 (NPV 계산의 기준점)</p>
@@ -369,22 +503,32 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                       </Tooltip>
                     </FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          placeholder="500000000"
-                          value={field.value || ''}
-                          onChange={(e) => handleNumberInput(e.target.value, field.onChange)}
-                          className="pr-20 text-lg font-semibold border-2 border-green-300 focus:border-green-500"
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 font-medium">
-                          원
-                        </span>
-                      </div>
+                      <MobileNumberInput
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        placeholder="9,500,000,000"
+                        suffix="원"
+                        displayUnit="억원"
+                        unitDivider={100000000}
+                        className={`${isMobile ? 'mobile-input-field' : ''} text-lg font-semibold border-2 border-green-300 focus:border-green-500`}
+                        mobileOptimized={true}
+                        autoComma={true}
+                        style={isMobile ? {
+                          fontSize: '20px',
+                          minHeight: '64px',
+                          padding: '20px',
+                          borderRadius: '16px',
+                          fontWeight: 'bold'
+                        } : undefined}
+                      />
                     </FormControl>
-                    <FormDescription className="text-green-600 font-medium">
-                      💰 {field.value ? formatCurrency(field.value) : '0원'} ({field.value ? formatToEokWon(field.value) : '0억원'})
-                    </FormDescription>
+                    {isMobile && (
+                      <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                        <p className="text-green-700 text-sm font-medium">
+                          💡 억원 단위로 자동 변환됩니다
+                        </p>
+                      </div>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -394,12 +538,12 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                 control={form.control}
                 name="policyFundAmount"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center">
-                      정책자금 규모
+                  <FormItem className={isMobile ? 'mb-8' : ''}>
+                    <FormLabel className={`flex items-center ${isMobile ? 'text-lg mb-3 font-bold text-blue-700' : ''}`}>
+                      🏛️ 정책자금 규모
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Info className="w-4 h-4 ml-1 text-gray-400" />
+                          <Info className={`${isMobile ? 'w-5 h-5 ml-2' : 'w-4 h-4 ml-1'} text-gray-400 mobile-touch-area`} />
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>정부 또는 공공기관에서 지원받는 정책자금 (현금흐름 계산에 반영)</p>
@@ -407,22 +551,32 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                       </Tooltip>
                     </FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          placeholder="3000000000"
-                          value={field.value || ''}
-                          onChange={(e) => handleNumberInput(e.target.value, field.onChange)}
-                          className="pr-20"
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
-                          원
-                        </span>
-                      </div>
+                      <MobileNumberInput
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        placeholder="8,000,000,000"
+                        suffix="원"
+                        displayUnit="억원"
+                        unitDivider={100000000}
+                        className={`${isMobile ? 'mobile-input-field' : ''} border-2 border-blue-300 focus:border-blue-500`}
+                        mobileOptimized={true}
+                        autoComma={true}
+                        style={isMobile ? {
+                          fontSize: '20px',
+                          minHeight: '64px',
+                          padding: '20px',
+                          borderRadius: '16px',
+                          fontWeight: 'bold'
+                        } : undefined}
+                      />
                     </FormControl>
-                    <FormDescription>
-                      {field.value ? formatCurrency(field.value) : '0원'} ({field.value ? formatToEokWon(field.value) : '0억원'})
-                    </FormDescription>
+                    {isMobile && (
+                      <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <p className="text-blue-700 text-sm font-medium">
+                          🏛️ 정부 지원 정책자금 금액
+                        </p>
+                      </div>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -447,10 +601,12 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                     <FormControl>
                       <div className="relative">
                         <Input
-                          type="number"
+                          type="text"
+                          inputMode="numeric"
                           placeholder="10"
-                          value={field.value || ''}
+                          value={field.value === 0 ? '0' : field.value || ''}
                           onChange={(e) => handleNumberInput(e.target.value, field.onChange)}
+                          onFocus={(e) => e.target.select()}
                           className="pr-10 text-lg font-bold border-2 border-red-300 focus:border-red-500 bg-red-50"
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-red-500 font-bold">
@@ -494,19 +650,16 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                       </Tooltip>
                     </FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          step="0.1"
-                          placeholder="2.5"
-                          value={field.value || ''}
-                          onChange={(e) => handleNumberInput(e.target.value, field.onChange)}
-                          className="pr-10"
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
-                          %
-                        </span>
-                      </div>
+                      <MobileNumberInput
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        placeholder="5.6"
+                        suffix="%"
+                        allowDecimals={true}
+                        autoComma={false}
+                        className="border-2 border-orange-300 focus:border-orange-500"
+                        mobileOptimized={true}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -520,18 +673,17 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                   <FormItem>
                     <FormLabel>대출 기간</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          placeholder="10"
-                          value={field.value || ''}
-                          onChange={(e) => handleNumberInput(e.target.value, field.onChange)}
-                          className="pr-10"
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
-                          년
-                        </span>
-                      </div>
+                      <MobileNumberInput
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        placeholder="7"
+                        suffix="년"
+                        autoComma={false}
+                        minValue={1}
+                        maxValue={30}
+                        className="border-2 border-orange-300 focus:border-orange-500"
+                        mobileOptimized={true}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -545,18 +697,17 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                   <FormItem>
                     <FormLabel>거치 기간</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          placeholder="2"
-                          value={field.value || ''}
-                          onChange={(e) => handleNumberInput(e.target.value, field.onChange)}
-                          className="pr-10"
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
-                          년
-                        </span>
-                      </div>
+                      <MobileNumberInput
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        placeholder="2"
+                        suffix="년"
+                        autoComma={false}
+                        minValue={0}
+                        maxValue={10}
+                        className="border-2 border-orange-300 focus:border-orange-500"
+                        mobileOptimized={true}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -593,19 +744,18 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                       </Tooltip>
                     </FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          step="1"
-                          placeholder="20"
-                          value={field.value || ''}
-                          onChange={(e) => handleNumberInput(e.target.value, field.onChange)}
-                          className="pr-10"
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
-                          %
-                        </span>
-                      </div>
+                      <MobileNumberInput
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        placeholder="10"
+                        suffix="%"
+                        allowDecimals={true}
+                        autoComma={false}
+                        minValue={-50}
+                        maxValue={100}
+                        className="border-2 border-purple-300 focus:border-purple-500"
+                        mobileOptimized={true}
+                      />
                     </FormControl>
                     <FormDescription>
                       매출 CAGR증가율: 일반 기업 5-15%, 급성장 기업 20-100%
@@ -622,19 +772,18 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                   <FormItem>
                     <FormLabel>법인세율</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          step="1"
-                          placeholder="22"
-                          value={field.value || ''}
-                          onChange={(e) => handleNumberInput(e.target.value, field.onChange)}
-                          className="pr-10"
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
-                          %
-                        </span>
-                      </div>
+                      <MobileNumberInput
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        placeholder="22"
+                        suffix="%"
+                        allowDecimals={true}
+                        autoComma={false}
+                        minValue={0}
+                        maxValue={50}
+                        className="border-2 border-gray-300 focus:border-gray-500"
+                        mobileOptimized={true}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -663,24 +812,17 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                       <span className="text-sm font-medium w-12">{index + 1}년차</span>
                       <Label className="text-sm">매출액</Label>
                     </div>
-                    <div className="relative">
-                      <Input
-                        type="number"
-                        value={revenue || ''}
-                        onChange={(e) => {
-                          const value = e.target.value === '' ? 0 : Number(e.target.value);
-                          updateRevenue(index, value);
-                        }}
-                        placeholder="0"
-                        className="pr-20"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
-                        원
-                      </span>
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {revenue ? formatCurrency(revenue) : '0원'}
-                    </div>
+                    <MobileNumberInput
+                      value={revenue || ''}
+                      onChange={(value) => updateRevenue(index, value)}
+                      placeholder="12,500,000,000"
+                      suffix="원"
+                      displayUnit="억원"
+                      unitDivider={100000000}
+                      className="border-2 border-gray-300 focus:border-blue-500"
+                      mobileOptimized={true}
+                      autoComma={true}
+                    />
                   </div>
                   
                   <div className="space-y-2">
@@ -742,11 +884,12 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                       <FormControl>
                         <div className="relative">
                           <Input
-                            type="number"
-                            step="0.1"
+                            type="text"
+                            inputMode="numeric"
                             placeholder="5"
-                            value={field.value || ''}
+                            value={field.value === 0 ? '0' : field.value || ''}
                             onChange={(e) => handleNumberInput(e.target.value, field.onChange)}
+                            onFocus={(e) => e.target.select()}
                             className="pr-10"
                           />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
@@ -778,11 +921,12 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                       <FormControl>
                         <div className="relative">
                           <Input
-                            type="number"
-                            step="1"
+                            type="text"
+                            inputMode="numeric"
                             placeholder="85"
-                            value={field.value || ''}
+                            value={field.value === 0 ? '0' : field.value || ''}
                             onChange={(e) => handleNumberInput(e.target.value, field.onChange)}
+                            onFocus={(e) => e.target.select()}
                             className="pr-10"
                           />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
@@ -859,11 +1003,12 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                     <FormControl>
                       <div className="relative">
                         <Input
-                          type="number"
-                          step="0.1"
+                          type="text"
+                          inputMode="numeric"
                           placeholder="0"
-                          value={field.value || ''}
+                          value={field.value === 0 ? '0' : field.value || ''}
                           onChange={(e) => handleNumberInput(e.target.value, field.onChange)}
+                          onFocus={(e) => e.target.select()}
                           className="pr-10"
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
@@ -909,11 +1054,12 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                     <FormControl>
                       <div className="relative">
                         <Input
-                          type="number"
-                          step="0.1"
+                          type="text"
+                          inputMode="numeric"
                           placeholder="0"
-                          value={field.value || ''}
+                          value={field.value === 0 ? '0' : field.value || ''}
                           onChange={(e) => handleNumberInput(e.target.value, field.onChange)}
+                          onFocus={(e) => e.target.select()}
                           className="pr-10"
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
@@ -948,11 +1094,12 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
                     <FormControl>
                       <div className="relative">
                         <Input
-                          type="number"
-                          step="0.1"
+                          type="text"
+                          inputMode="numeric"
                           placeholder="5"
-                          value={field.value || ''}
+                          value={field.value === 0 ? '0' : field.value || ''}
                           onChange={(e) => handleNumberInput(e.target.value, field.onChange)}
+                          onFocus={(e) => e.target.select()}
                           className="pr-10"
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
@@ -970,21 +1117,43 @@ export default function InvestmentInputForm({ onSubmit, isLoading }: InvestmentI
             </div>
           </div>
 
-          <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Calculator className="w-4 h-4 mr-2 animate-spin" />
-                {analysisYears}년간 NPV/IRR 분석 중...
-              </>
-            ) : (
-              <>
-                <Calculator className="w-4 h-4 mr-2" />
-                {analysisYears}년간 NPV/IRR 투자 분석 시작
-              </>
-            )}
-          </Button>
+          {/* 🔥 모바일 최적화된 제출 버튼 */}
+          <div className={`${isMobile ? 'fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-lg z-50' : ''}`}>
+            <Button 
+              type="submit" 
+              className={`w-full ${isMobile ? 'mobile-button h-16 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700' : ''}`} 
+              size="lg" 
+              disabled={isLoading}
+              style={isMobile ? {
+                borderRadius: '16px',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                minHeight: '64px',
+                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+              } : undefined}
+            >
+              {isLoading ? (
+                <>
+                  <Calculator className={`${isMobile ? 'w-6 h-6' : 'w-4 h-4'} mr-3 animate-spin`} />
+                  {isMobile ? '분석 중...' : `${analysisYears}년간 NPV/IRR 분석 중...`}
+                </>
+              ) : (
+                <>
+                  <Calculator className={`${isMobile ? 'w-6 h-6' : 'w-4 h-4'} mr-3`} />
+                  {isMobile ? '투자분석 시작 🚀' : `${analysisYears}년간 NPV/IRR 투자 분석 시작`}
+                </>
+              )}
+            </Button>
+            
+            {/* 모바일 하단 여백 (Safe Area) */}
+            {isMobile && <div className="h-4"></div>}
+          </div>
+          
+          {/* 모바일에서 하단 버튼 공간 확보 */}
+          {isMobile && <div className="h-24"></div>}
         </form>
       </Form>
+      </div>
     </TooltipProvider>
   );
 } 

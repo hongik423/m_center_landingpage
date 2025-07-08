@@ -467,9 +467,9 @@ export default function InvestmentResultDisplay({
           </Card>
         </motion.div>
 
-        {/* 핵심지표 4개 */}
+        {/* 핵심지표 5개 */}
         <div className="lg:col-span-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -534,16 +534,48 @@ export default function InvestmentResultDisplay({
                       </TooltipTrigger>
                       <TooltipContent>
                         <div className="space-y-1">
-                          <p className="font-semibold">개정된 할인 회수기간</p>
-                          <p>정책자금 특성을 반영한 개선된 계산방식</p>
-                          <p>• 정책자금을 부채로 인식</p>
-                          <p>• 상환스케줄의 현재가치 반영</p>
-                          <p>• 총투자금액 기준 회수기간 산정</p>
+                          <p className="font-semibold">할인 회수기간</p>
+                          <p>할인율을 적용한 현재가치 기준 회수기간</p>
+                          <p>• 정책자금 특성 반영</p>
+                          <p>• 시간가치 고려</p>
+                          <p>• 투자 위험도 반영</p>
                         </div>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
-                  <p className="text-xs text-orange-600 font-medium mt-1">개정 할인회수기간</p>
+                  <p className="text-xs text-orange-600 font-medium mt-1">할인 회수기간</p>
+                </div>
+              </Card>
+            </motion.div>
+
+            {/* ✅ 단순 회수기간 추가 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
+              <Card className="p-4 bg-teal-50">
+                <div className="text-center">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <p className="text-3xl font-bold text-teal-600 cursor-help">
+                          {result.simplePaybackPeriod > 0 ? result.simplePaybackPeriod.toFixed(1) : '미회수'}
+                          {result.simplePaybackPeriod > 0 && '년'}
+                        </p>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="space-y-1">
+                          <p className="font-semibold">단순 회수기간</p>
+                          <p>사용자 제시 공식에 따른 정확한 계산</p>
+                          <p>• 할인율 적용하지 않음</p>
+                          <p>• 실제 현금흐름 기준</p>
+                          <p>• 누적 현금유입으로 회수시점 산정</p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <p className="text-xs text-teal-600 font-medium mt-1">단순 회수기간</p>
                 </div>
               </Card>
             </motion.div>

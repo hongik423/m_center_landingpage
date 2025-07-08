@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Calculator, TrendingUp, CheckCircle, Building2, ChevronDown, ChevronUp, Target, Award, Clock, Star, Zap, Shield, Users, ArrowRight, Play, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +14,21 @@ import type { InvestmentResult } from '@/lib/utils/investment-analysis';
 
 export default function PolicyFundingPage() {
   const { toast } = useToast();
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // 🔥 모바일 디바이스 감지
+  useEffect(() => {
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent;
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+      const isSmallScreen = window.innerWidth <= 768;
+      setIsMobile(isMobileDevice || isSmallScreen);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // 투자정보 입력 상태 관리
   const [investmentInput, setInvestmentInput] = useState({
@@ -226,8 +242,106 @@ export default function PolicyFundingPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* HERO Section - 이미지 기반 디자인 */}
-      <div className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white overflow-hidden">
+      {/* 🔥 모바일 Sticky 네비게이션 */}
+      {isMobile && (
+        <div className="fixed top-16 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-gray-200 z-40 py-2">
+          <div className="flex justify-center space-x-2 px-4">
+            <button
+              onClick={() => document.getElementById('hero-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-3 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full"
+            >
+              🏠 홈
+            </button>
+            <button
+              onClick={() => document.getElementById('diagnosis-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-3 py-1 text-xs font-medium bg-purple-100 text-purple-700 rounded-full"
+            >
+              💼 분석기
+            </button>
+            <button
+              onClick={() => document.getElementById('ai-features')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-3 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full"
+            >
+              🤖 AI기능
+            </button>
+          </div>
+        </div>
+      )}
+      <style jsx global>{`
+        /* 모바일 최적화 전역 스타일 */
+        .mobile-hero {
+          background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #1d4ed8 100%);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .mobile-hero::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 60%);
+          z-index: 1;
+        }
+        
+        .mobile-cta-button {
+          min-height: 56px;
+          padding: 16px 32px;
+          border-radius: 16px;
+          font-size: 18px;
+          font-weight: 700;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          transform: translateY(0);
+        }
+        
+        .mobile-cta-button:active {
+          transform: translateY(2px) scale(0.98);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+                 @media (max-width: 768px) {
+           .mobile-safe-area {
+             padding-bottom: env(safe-area-inset-bottom);
+           }
+           
+           /* 모바일 터치 최적화 */
+           body {
+             -webkit-font-smoothing: antialiased;
+             -moz-osx-font-smoothing: grayscale;
+           }
+           
+           /* 모바일 스크롤 최적화 */
+           html {
+             scroll-behavior: smooth;
+             -webkit-overflow-scrolling: touch;
+           }
+           
+           /* 모바일 입력 필드 최적화 */
+           input[type="text"], input[type="number"], input[type="tel"] {
+             font-size: 16px !important; /* iOS 줌 방지 */
+             -webkit-appearance: none;
+             border-radius: 12px;
+           }
+           
+           /* 모바일 버튼 최적화 */
+           button {
+             -webkit-tap-highlight-color: transparent;
+             touch-action: manipulation;
+           }
+           
+           /* 모바일 애니메이션 성능 최적화 */
+           .mobile-optimized * {
+             will-change: transform;
+             transform: translateZ(0);
+           }
+         }
+      `}</style>
+      
+             {/* 🔥 모바일 최적화된 HERO Section */}
+       <div id="hero-section" className={`mobile-hero relative ${isMobile ? 'min-h-screen' : ''} text-white overflow-hidden`}>
         {/* 배경 패턴 */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
@@ -235,65 +349,97 @@ export default function PolicyFundingPage() {
           }} />
         </div>
         
-        <div className="relative container mx-auto px-4 py-16 lg:py-24">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl lg:text-6xl font-bold mb-6 leading-tight">
-              중소기업 성장 동력을
-              <br />
-              <span className="text-yellow-300">확실하게 뒷받침</span>
+        <div className={`relative container mx-auto px-4 ${isMobile ? 'py-12 min-h-screen flex flex-col justify-center' : 'py-16 lg:py-24'}`}>
+          <div className={`text-center ${isMobile ? 'space-y-8' : 'mb-12'}`}>
+            <h1 className={`${isMobile ? 'text-3xl' : 'text-4xl lg:text-6xl'} font-bold mb-6 leading-tight z-10 relative`}>
+              {isMobile ? (
+                <>
+                  🚀 중소기업 성장동력<br />
+                  <span className="text-yellow-300 text-4xl">확실한 뒷받침</span>
+                </>
+              ) : (
+                <>
+                  중소기업 성장 동력을<br />
+                  <span className="text-yellow-300">확실하게 뒷받침</span>
+                </>
+              )}
             </h1>
-            <p className="text-xl lg:text-2xl text-blue-100 mb-8 max-w-4xl mx-auto leading-relaxed">
-              Apple Store 수준의 세밀한 검증과 철저한 사후관리 프로세스를 완비한
-              <br />
-              <span className="text-yellow-200 font-semibold">진단까지 한번에 제공됩니다</span>
+            <p className={`${isMobile ? 'text-lg px-4' : 'text-xl lg:text-2xl'} text-blue-100 mb-8 max-w-4xl mx-auto leading-relaxed z-10 relative`}>
+              {isMobile ? (
+                <>
+                  💼 세밀한 검증 + 철저한 사후관리<br />
+                  <span className="text-yellow-200 font-bold text-xl">진단까지 한번에!</span>
+                </>
+              ) : (
+                <>
+                  세밀한 검증과 철저한 사후관리 프로세스를 완비한<br />
+                  <span className="text-yellow-200 font-semibold">진단까지 한번에 제공됩니다</span>
+                </>
+              )}
             </p>
             
-            {/* CTA 버튼들 */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+            {/* 🔥 모바일 최적화된 CTA 버튼들 */}
+            <div className={`${isMobile ? 'space-y-4 px-4' : 'flex flex-col sm:flex-row gap-4 justify-center'} mb-16 z-10 relative`}>
               <Button 
                 size="lg" 
-                className="bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-xl"
+                className={`${isMobile ? 'mobile-cta-button w-full' : ''} bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-xl`}
                 onClick={() => {
                   const diagnosisSection = document.getElementById('diagnosis-section');
                   diagnosisSection?.scrollIntoView({ behavior: 'smooth' });
                 }}
+                style={isMobile ? {
+                  minHeight: '64px',
+                  fontSize: '20px',
+                  fontWeight: '800'
+                } : undefined}
               >
-                <Play className="w-5 h-5 mr-2" />
-                무료 진단 신청하기
+                <Play className={`${isMobile ? 'w-6 h-6' : 'w-5 h-5'} mr-3`} />
+                {isMobile ? '🔥 무료진단 신청' : '무료 진단 신청하기'}
               </Button>
               <Button 
                 size="lg" 
-                variant="outline" 
-                className="border-2 border-white text-white hover:bg-white hover:text-blue-900 font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
+                className={`${isMobile ? 'mobile-cta-button w-full' : ''} bg-white text-blue-900 border-2 border-white hover:bg-blue-50 hover:border-blue-200 font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg`}
                 onClick={() => {
                   const consultationSection = document.getElementById('consultation-section');
                   consultationSection?.scrollIntoView({ behavior: 'smooth' });
                 }}
+                style={isMobile ? {
+                  minHeight: '64px',
+                  fontSize: '20px',
+                  fontWeight: '800'
+                } : undefined}
               >
-                <Users className="w-5 h-5 mr-2" />
-                상담신청 하기
+                <Users className={`${isMobile ? 'w-6 h-6' : 'w-5 h-5'} mr-3`} />
+                {isMobile ? '💬 상담신청' : '상담신청 하기'}
               </Button>
             </div>
             
-            {/* 성과 지표 */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            {/* 🔥 모바일 최적화된 성과 지표 */}
+            <div className={`${isMobile ? 'grid grid-cols-2 gap-4 px-4' : 'grid grid-cols-2 lg:grid-cols-4 gap-6'} max-w-6xl mx-auto z-10 relative`}>
               {performanceMetrics.map((metric, index) => {
                 const IconComponent = metric.icon;
                 return (
-                  <div key={index} className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300">
-                    <div className="flex items-center justify-center mb-4">
-                      <div className="p-3 bg-white/20 rounded-full">
-                        <IconComponent className="w-8 h-8 text-yellow-300" />
+                  <div 
+                    key={index} 
+                    className={`bg-white/10 backdrop-blur-sm ${isMobile ? 'rounded-xl p-4' : 'rounded-2xl p-6'} border border-white/20 hover:bg-white/20 transition-all duration-300 ${isMobile ? 'active:scale-95 touch-manipulation' : ''}`}
+                    style={isMobile ? {
+                      minHeight: '140px',
+                      boxShadow: '0 4px 12px rgba(255, 255, 255, 0.1)'
+                    } : undefined}
+                  >
+                    <div className={`flex items-center justify-center ${isMobile ? 'mb-3' : 'mb-4'}`}>
+                      <div className={`${isMobile ? 'p-2' : 'p-3'} bg-white/20 rounded-full`}>
+                        <IconComponent className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} text-yellow-300`} />
                       </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-3xl lg:text-4xl font-bold mb-2">
+                      <div className={`${isMobile ? 'text-2xl' : 'text-3xl lg:text-4xl'} font-bold mb-2 text-white`}>
                         {metric.value}{metric.unit}
                       </div>
-                      <div className="text-blue-100 text-sm mb-1">
+                      <div className={`text-blue-100 ${isMobile ? 'text-xs' : 'text-sm'} mb-1 font-medium`}>
                         {metric.label}
                       </div>
-                      <div className="text-yellow-300 text-xs font-semibold">
+                      <div className={`text-yellow-300 ${isMobile ? 'text-xs' : 'text-xs'} font-semibold`}>
                         {metric.trend}
                       </div>
                     </div>
@@ -305,33 +451,45 @@ export default function PolicyFundingPage() {
         </div>
       </div>
 
-      {/* AI 기반 분석 시스템 섹션 */}
-      <div className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+      {/* 🔥 모바일 최적화된 AI 기반 분석 시스템 섹션 */}
+      <div id="ai-features" className={`${isMobile ? 'py-8' : 'py-16'} bg-white`}>
+        <div className={`container mx-auto ${isMobile ? 'px-2' : 'px-4'}`}>
+          <div className={`text-center ${isMobile ? 'mb-8' : 'mb-12'}`}>
+            <h2 className={`${isMobile ? 'text-2xl' : 'text-3xl lg:text-4xl'} font-bold text-gray-900 mb-4`}>
               🤖 AI 기반 분석 시스템
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              혁신적 AI 기술로 정확하고 빠른 정책자금 매칭 서비스
+            <p className={`${isMobile ? 'text-base px-4' : 'text-xl'} text-gray-600 max-w-3xl mx-auto`}>
+              {isMobile ? 'AI 기술로 빠른 정책자금 매칭' : '혁신적 AI 기술로 정확하고 빠른 정책자금 매칭 서비스'}
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className={`${isMobile ? 'space-y-6 px-4' : 'grid md:grid-cols-3 gap-8'} max-w-5xl mx-auto`}>
             {aiFeatures.map((feature, index) => {
               const IconComponent = feature.icon;
               return (
-                <div key={index} className={`p-8 rounded-2xl border-2 ${feature.borderColor} ${feature.bgColor} hover:shadow-lg transition-all duration-300 transform hover:scale-105`}>
+                <div 
+                  key={index} 
+                  className={`${isMobile ? 'p-6 rounded-xl active:scale-95 touch-manipulation' : 'p-8 rounded-2xl hover:scale-105'} border-2 ${feature.borderColor} ${feature.bgColor} hover:shadow-lg transition-all duration-300 transform`}
+                  style={isMobile ? {
+                    minHeight: '180px',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)'
+                  } : undefined}
+                >
                   <div className="text-center">
-                    <div className={`inline-flex p-4 rounded-full ${feature.bgColor} mb-6`}>
-                      <IconComponent className={`w-8 h-8 ${feature.color}`} />
+                    <div className={`inline-flex ${isMobile ? 'p-3' : 'p-4'} rounded-full ${feature.bgColor} ${isMobile ? 'mb-4' : 'mb-6'}`}>
+                      <IconComponent className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} ${feature.color}`} />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">
+                    <h3 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold text-gray-900 ${isMobile ? 'mb-3' : 'mb-4'}`}>
                       {feature.title}
                     </h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      {feature.description}
+                    <p className={`text-gray-600 leading-relaxed ${isMobile ? 'text-sm' : ''}`}>
+                      {isMobile ? feature.description.substring(0, 50) + '...' : feature.description}
                     </p>
+                    {isMobile && (
+                      <div className="mt-3">
+                        <span className="text-xs text-blue-600 font-medium">터치하여 자세히 보기</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -435,28 +593,35 @@ export default function PolicyFundingPage() {
         </div>
       </div>
 
-      {/* 기존 투자타당성분석기 섹션 */}
-      <div id="diagnosis-section" className="py-16 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
-        <div className="container mx-auto px-4 max-w-7xl">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 bg-clip-text text-transparent mb-4">
-              💼 정책자금투자타당성분석기
+             {/* 🔥 모바일 최적화된 투자타당성분석기 섹션 */}
+       <div id="diagnosis-section" className={`${isMobile ? 'pt-16 pb-8' : 'py-16'} bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50`}>
+        <div className={`container mx-auto px-4 ${isMobile ? '' : 'max-w-7xl'}`}>
+          <div className={`text-center ${isMobile ? 'mb-6 px-2' : 'mb-8'}`}>
+            <h1 className={`${isMobile ? 'text-2xl' : 'text-4xl md:text-5xl'} font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 bg-clip-text text-transparent mb-4`}>
+              {isMobile ? '💼 투자타당성분석기' : '💼 정책자금투자타당성분석기'}
             </h1>
-            <p className="text-xl text-gray-700 leading-relaxed max-w-4xl mx-auto">
-              전문가급 투자분석 알고리즘으로 연도별 상세 NPV 계산과 영업이익률 연계 투자타당성 검토를 제공합니다
+            <p className={`${isMobile ? 'text-base px-2' : 'text-xl'} text-gray-700 leading-relaxed max-w-4xl mx-auto`}>
+              {isMobile ? (
+                <>
+                  🎯 전문가급 NPV/IRR 계산<br />
+                  📊 연도별 상세 투자타당성 검토
+                </>
+              ) : (
+                '전문가급 투자분석 알고리즘으로 연도별 상세 NPV 계산과 영업이익률 연계 투자타당성 검토를 제공합니다'
+              )}
             </p>
-            <div className="flex flex-wrap justify-center gap-3 mt-6">
-              <span className="px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                📊 연도별 NPV 계산
+            <div className={`${isMobile ? 'grid grid-cols-2 gap-2 mt-4' : 'flex flex-wrap justify-center gap-3 mt-6'}`}>
+              <span className={`${isMobile ? 'px-3 py-2 text-xs' : 'px-4 py-2 text-sm'} bg-blue-100 text-blue-800 rounded-full font-medium`}>
+                📊 NPV 계산
               </span>
-              <span className="px-4 py-2 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
-                💰 억원 단위 자동 변환
+              <span className={`${isMobile ? 'px-3 py-2 text-xs' : 'px-4 py-2 text-sm'} bg-purple-100 text-purple-800 rounded-full font-medium`}>
+                💰 억원 변환
               </span>
-              <span className="px-4 py-2 bg-emerald-100 text-emerald-800 rounded-full text-sm font-medium">
-                📈 영업이익률 연계 분석
+              <span className={`${isMobile ? 'px-3 py-2 text-xs' : 'px-4 py-2 text-sm'} bg-emerald-100 text-emerald-800 rounded-full font-medium`}>
+                📈 이익률 분석
               </span>
-              <span className="px-4 py-2 bg-orange-100 text-orange-800 rounded-full text-sm font-medium">
-                🎯 정책자금 매칭 제안
+              <span className={`${isMobile ? 'px-3 py-2 text-xs' : 'px-4 py-2 text-sm'} bg-orange-100 text-orange-800 rounded-full font-medium`}>
+                🎯 자금 매칭
               </span>
             </div>
           </div>
@@ -1649,29 +1814,25 @@ export default function PolicyFundingPage() {
         {/* CTA 섹션 */}
         <div className="mt-8 text-center">
           <div className="inline-flex flex-col sm:flex-row gap-4">
-            <Button 
-              size="lg" 
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
-              onClick={() => {
-                const diagnosisSection = document.getElementById('diagnosis-section');
-                diagnosisSection?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              <Calculator className="w-5 h-5 mr-2" />
-              투자타당성분석 실시하기
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="border-2 border-purple-500 text-purple-600 hover:bg-purple-50 font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
-              onClick={() => {
-                const consultationSection = document.getElementById('consultation-section');
-                consultationSection?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              <Users className="w-5 h-5 mr-2" />
-              전문가 상담 신청하기
-            </Button>
+            <Link href="/consultation">
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+              >
+                <Calculator className="w-5 h-5 mr-2" />
+                투자타당성분석 실시하기
+              </Button>
+            </Link>
+            <Link href="/consultation">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-2 border-purple-500 text-purple-600 hover:bg-purple-50 font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
+              >
+                <Users className="w-5 h-5 mr-2" />
+                전문가 상담 신청하기
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

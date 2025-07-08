@@ -50,7 +50,7 @@ function InvestmentAnalysisContent() {
                 <Download className="h-4 w-4 mr-2" />
                 PDF 다운로드
               </Button>
-              <Button variant="outline" size="sm">
+              <Button size="sm" className="bg-green-500 hover:bg-green-600 text-white">
                 <FileText className="h-4 w-4 mr-2" />
                 상담 신청
               </Button>
@@ -128,7 +128,7 @@ function InvestmentAnalysisContent() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/consultation">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+              <Button size="lg" className="bg-green-500 hover:bg-green-600 text-white">
                 무료 상담 신청하기
               </Button>
             </Link>

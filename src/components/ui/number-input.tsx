@@ -33,7 +33,7 @@ interface NumberInputProps {
 
 // 🔧 개선된 유틸리티 함수들
 const formatNumberDisplay = (num: number): string => {
-  if (num === 0) return '';
+  if (num === 0) return '0';
   return new Intl.NumberFormat('ko-KR').format(Math.round(num));
 };
 
@@ -174,9 +174,14 @@ export function NumberInput({
     
     // 포커스 시 쉼표 제거하여 편집하기 쉽게 만들기
     const rawNumber = parseNumberInput(displayValue);
-    if (rawNumber > 0) {
-      setDisplayValue(rawNumber.toString());
-    }
+    setDisplayValue(rawNumber.toString());
+    
+    // 전체 텍스트 선택하여 바로 입력 가능하게 함
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.select();
+      }
+    }, 0);
   };
 
   const handleBlur = () => {

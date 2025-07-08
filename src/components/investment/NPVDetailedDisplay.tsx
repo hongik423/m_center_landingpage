@@ -98,46 +98,51 @@ export default function NPVDetailedDisplay({ details, summary }: NPVDetailedDisp
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {details.map((detail, index) => (
-                  <TableRow key={index} className={detail.year === 0 ? 'bg-gray-50' : ''}>
-                    <TableCell className="text-center font-medium">
-                      {detail.year === 0 ? '초기' : `${detail.year}년`}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {detail.year === 0 ? '-' : formatCurrency(detail.revenue)}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {detail.year === 0 ? '-' : `${detail.operatingProfitRate}%`}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {detail.year === 0 ? '-' : formatCurrency(detail.operatingProfit)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {detail.year === 0 ? '-' : formatCurrency(detail.tax)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {detail.year === 0 ? '-' : formatCurrency(detail.netIncome)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {detail.year === 0 ? '-' : formatCurrency(detail.depreciation)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {detail.year === 0 ? '-' : formatCurrency(detail.loanPrincipal + detail.loanInterest)}
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      {formatCurrency(detail.netCashFlow)}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {detail.year === 0 ? '-' : `1/${detail.discountFactor.toFixed(3)}`}
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      {formatCurrency(detail.presentValue)}
-                    </TableCell>
-                    <TableCell className="text-right font-bold">
-                      {formatCurrency(detail.cumulativePV)}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {details.map((detail, index) => {
+                  // ✅ 초기 투자 표시 (정책자금도 투자액에 포함)
+                  if (detail.year === 0) {
+                    return (
+                      <TableRow key={index} className="bg-blue-50">
+                        <TableCell className="text-center font-bold">초기 투자</TableCell>
+                        <TableCell className="text-right">-</TableCell>
+                        <TableCell className="text-center">-</TableCell>
+                        <TableCell className="text-right">-</TableCell>
+                        <TableCell className="text-right">-</TableCell>
+                        <TableCell className="text-right">-</TableCell>
+                        <TableCell className="text-right">-</TableCell>
+                        <TableCell className="text-right">-</TableCell>
+                        <TableCell className="text-right font-bold text-red-600">
+                          {formatCurrency(detail.netCashFlow)}
+                        </TableCell>
+                        <TableCell className="text-center">-</TableCell>
+                        <TableCell className="text-right font-bold text-red-600">
+                          {formatCurrency(detail.presentValue)}
+                        </TableCell>
+                        <TableCell className="text-right font-bold">
+                          {formatCurrency(detail.cumulativePV)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  }
+                  
+                  // 일반 연도 행
+                  return (
+                    <TableRow key={index}>
+                      <TableCell className="text-center font-medium">{`${detail.year}년`}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(detail.revenue)}</TableCell>
+                      <TableCell className="text-center">{`${detail.operatingProfitRate}%`}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(detail.operatingProfit)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(detail.tax)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(detail.netIncome)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(detail.depreciation)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(detail.loanPrincipal + detail.loanInterest)}</TableCell>
+                      <TableCell className="text-right font-medium">{formatCurrency(detail.netCashFlow)}</TableCell>
+                      <TableCell className="text-center">{`1/${detail.discountFactor.toFixed(3)}`}</TableCell>
+                      <TableCell className="text-right font-medium">{formatCurrency(detail.presentValue)}</TableCell>
+                      <TableCell className="text-right font-bold">{formatCurrency(detail.cumulativePV)}</TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
@@ -167,16 +172,32 @@ export default function NPVDetailedDisplay({ details, summary }: NPVDetailedDisp
             </div>
 
             <div className="bg-green-50 p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">9년간 누적 계산:</h4>
+              <h4 className="font-semibold mb-2">💡 NPV 계산 핵심 포인트:</h4>
               <div className="space-y-1 text-sm">
                 <p>• 단순 합계: 17.22억 × 9년 = 154.98억원</p>
                 <p className="text-red-600 font-semibold">
                   • 하지만 시간가치를 고려하면 실제 가치는 더 낮음!
                 </p>
                 <p>• 할인된 현재가치 합계: {formatCurrency(summary.totalPresentValue + summary.initialInvestment)}</p>
-                <p>• 초기투자 차감: -{formatCurrency(summary.initialInvestment)}</p>
+                <p className="text-blue-600 font-semibold">
+                  • <strong>중요:</strong> NPV 계산은 "전체 투자액" 기준으로 계산됩니다
+                </p>
+                <p>• 전체 투자액 차감: -{formatCurrency(summary.initialInvestment)}</p>
                 <p className="font-bold text-lg">
                   • 최종 NPV: {formatCurrency(summary.netPresentValue)}
+                </p>
+              </div>
+            </div>
+            
+            {/* ✅ 정책자금 투자 특성 설명 수정 */}
+            <div className="bg-yellow-50 p-4 rounded-lg">
+              <h4 className="font-semibold mb-2 text-yellow-800">🏛️ 정책자금 투자의 올바른 이해:</h4>
+              <div className="space-y-1 text-sm text-yellow-700">
+                <p>• <strong>정책자금:</strong> 정부/지자체 저금리 융자 (상환 의무 있음)</p>
+                <p>• <strong>투자 책임:</strong> 사업자가 전체 투자금액에 대해 책임집니다</p>
+                <p>• <strong>NPV 계산:</strong> 전체 투자액 기준으로 계산하는 것이 맞습니다</p>
+                <p className="font-medium text-red-700">
+                  ✅ 정책자금도 상환해야 하는 자금이므로 전체 투자액이 NPV 계산 기준입니다.
                 </p>
               </div>
             </div>

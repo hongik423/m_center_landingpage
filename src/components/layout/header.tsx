@@ -30,13 +30,13 @@ export default function Header() {
   };
 
   const mainNavItems = [
-    { href: '/', label: 'HOME' },
+    { href: '/', label: '홈' },
     { href: '/services/business-analysis', label: '사업분석' },
-    { href: '/services/ai-productivity', label: 'AI혁신' },
+    { href: '/services/ai-productivity', label: 'AI일터혁신' },
     { href: '/services/policy-funding', label: '정책자금' },
-    { href: '/services/tech-startup', label: '기술경영' },
-    { href: '/services/certification', label: '인증지원' },
-    { href: '/services/website', label: '웹사이트' },
+    { href: '/services/tech-startup', label: '기술창업' },
+    { href: '/services/certification', label: '벤처/ISO/인증' },
+    { href: '/services/website', label: '매출증대웹페이지' },
     { href: '/cases', label: '성공사례' },
     { href: '/center-leader', label: '센터장' },
     { href: '/seminar', label: '세미나' },
@@ -44,10 +44,11 @@ export default function Header() {
   ];
 
   const actionItems = [
-    { href: '/diagnosis', label: '무료진단', highlight: true },
-    { href: '/consultation', label: '상담신청', highlight: true },
-    { href: '/tax-calculator', label: '세금계산기', special: true },
-    { href: '/services/policy-funding', label: '정책자금투자타당성분석기', special: true },
+    { href: '/diagnosis', label: '무료진단', green: true },
+    { href: '/consultation', label: '상담신청', green: true },
+    { href: '/tax-calculator', label: '세금계산기', orange: true },
+    { href: '/services/policy-funding', label: '재무타당성분석기', orange: true },
+    { href: '/support/error-report', label: '오류신고', gray: true },
   ];
 
   return (
@@ -100,17 +101,21 @@ export default function Header() {
                   key={item.href}
                   href={item.href}
                   className={`text-xs font-semibold transition-all duration-300 whitespace-nowrap px-2 py-1.5 rounded-full border ${
-                    item.highlight
+                    item.green
                       ? isActive
-                        ? 'bg-blue-600 text-white shadow-lg border-blue-600 transform scale-105'
-                        : 'bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white hover:shadow-lg border-blue-200 hover:transform hover:scale-105'
-                      : item.special
+                        ? 'bg-green-600 text-white shadow-lg border-green-600 transform scale-105'
+                        : 'bg-green-500 text-white hover:bg-green-600 border-green-500 shadow-md hover:shadow-lg hover:transform hover:scale-105'
+                      : item.orange
                         ? isActive
                           ? 'bg-orange-600 text-white shadow-lg border-orange-600 transform scale-105'
                           : 'bg-orange-500 text-white hover:bg-orange-600 border-orange-500 shadow-md hover:shadow-lg hover:transform hover:scale-105'
-                        : isActive
-                          ? 'text-gray-900 bg-gray-100 border-gray-200'
-                          : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50 border-gray-200'
+                        : item.gray
+                          ? isActive
+                            ? 'bg-gray-600 text-white shadow-lg border-gray-600 transform scale-105'
+                            : 'bg-gray-500 text-white hover:bg-gray-600 border-gray-500 shadow-md hover:shadow-lg hover:transform hover:scale-105'
+                          : isActive
+                            ? 'text-gray-900 bg-gray-100 border-gray-200'
+                            : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50 border-gray-200'
                   }`}
                 >
                   {item.label}
@@ -190,13 +195,15 @@ export default function Header() {
                         href={item.href}
                         onClick={handleMenuClose}
                         className={`block py-3 px-3 text-base font-semibold transition-all duration-200 rounded-lg touch-manipulation ${
-                          item.highlight
-                            ? 'text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow-md'
-                            : item.special
+                          item.green
+                            ? 'text-white bg-green-500 hover:bg-green-600 active:bg-green-700 shadow-md'
+                            : item.orange
                               ? 'text-white bg-orange-500 hover:bg-orange-600 active:bg-orange-700 shadow-md'
-                              : isActive
-                                ? 'text-gray-900 bg-gray-100'
-                                : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50 active:bg-gray-100'
+                              : item.gray
+                                ? 'text-white bg-gray-500 hover:bg-gray-600 active:bg-gray-700 shadow-md'
+                                : isActive
+                                  ? 'text-gray-900 bg-gray-100'
+                                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50 active:bg-gray-100'
                         }`}
                         style={{ 
                           minHeight: '48px',
