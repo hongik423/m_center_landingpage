@@ -21,31 +21,31 @@ import {
 import { GiftTaxInput, GiftTaxResult } from '@/types/tax-calculator.types';
 import { GIFT_TAX_LIMITS_2024 } from '@/constants/tax-rates-2024';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
-import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
+
 import { formatNumber, formatWon } from '@/lib/utils';
 import { NumberInput } from '@/components/ui/number-input';
 
 export default function GiftTaxCalculatorComponent() {
   const [input, setInput] = useState<GiftTaxInput>({
-    // 기본 증여 정보
+    // 기본 증여 ?�보
     giftAmount: 0,
     giftDate: new Date().toISOString().split('T')[0],
     
-    // 증여자 정보
+    // 증여???�보
     donorAge: 50,
     donorRelation: 'parent',
     
-    // 수증자 정보
+    // ?�증???�보
     recipientAge: 25,
     isRecipientMinor: false,
     isRecipientDisabled: false,
     
-    // 증여 형태
+    // 증여 ?�태
     giftType: 'money',
     isConditionalGift: false,
     giftConditionValue: 0,
     
-    // 재산 분류
+    // ?�산 분류
     cash: 0,
     realEstate: 0,
     stock: 0,
@@ -53,22 +53,22 @@ export default function GiftTaxCalculatorComponent() {
     businessAsset: 0,
     other: 0,
     
-    // 특수 증여
+    // ?�수 증여
     marriageGift: false,
     marriageGiftAmount: 0,
     educationGift: false,
     educationGiftAmount: 0,
     
-    // 10년 내 기존 증여
+    // 10????기존 증여
     previousGifts: [],
     
-    // 공제 및 감면
+    // 공제 �?감면
     familyBusinessDiscount: false,
     farmLandDiscount: false,
     culturalAssetDiscount: false,
     startupDiscount: false,
     
-    // 기타
+    // 기�?
     previousTaxPaid: 0,
     isNonResident: false,
     hasSpecialRelationship: false
@@ -78,16 +78,16 @@ export default function GiftTaxCalculatorComponent() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isCalculating, setIsCalculating] = useState(false);
 
-  // 🔥 고도화된 자동 연계 계산 로직
+  // ?�� 고도?�된 ?�동 ?�계 계산 로직
   
-  // 1. 총 증여액 자동 계산
+  // 1. �?증여???�동 계산
   const totalGiftAmount = useMemo(() => {
     return input.cash + input.realEstate + input.stock + input.bond + 
            input.businessAsset + input.other;
   }, [input.cash, input.realEstate, input.stock, input.bond, 
       input.businessAsset, input.other]);
 
-  // 2. 특수 증여 총액 계산
+  // 2. ?�수 증여 총액 계산
   const specialGiftTotal = useMemo(() => {
     let total = 0;
     if (input.marriageGift) total += input.marriageGiftAmount;
@@ -95,7 +95,7 @@ export default function GiftTaxCalculatorComponent() {
     return total;
   }, [input.marriageGift, input.marriageGiftAmount, input.educationGift, input.educationGiftAmount]);
 
-  // 3. 관계별 공제한도 자동 계산
+  // 3. 관계별 공제?�도 ?�동 계산
   const deductionLimits = useMemo(() => {
     const relationship = input.donorRelation;
     const limits = GIFT_TAX_LIMITS_2024.relationshipLimits;
@@ -111,26 +111,24 @@ export default function GiftTaxCalculatorComponent() {
       case 'grandparent':
         basicDeduction = limits.linealAscendant.annual;
         if (input.recipientAge >= 19) {
-          basicDeduction = limits.linealAscendant.annual; // 5천만원
-        }
+          basicDeduction = limits.linealAscendant.annual; // 5천만??        }
         break;
       case 'child':
       case 'grandchild':
         basicDeduction = limits.linealDescendant.annual;
         if (input.isRecipientMinor) {
-          basicDeduction = limits.linealDescendant.annual; // 2천만원
-        }
+          basicDeduction = limits.linealDescendant.annual; // 2천만??        }
         break;
       default:
         basicDeduction = limits.other.annual;
     }
     
-    // 특수 공제 (혼인, 교육 등)
+    // ?�수 공제 (?�인, 교육 ??
     if (input.marriageGift) {
-      specialDeduction += 100000000; // 혼인증여 1억원 추가
+      specialDeduction += 100000000; // ?�인증여 1?�원 추�?
     }
     if (input.educationGift) {
-      specialDeduction += 30000000; // 교육비 증여 3천만원 추가
+      specialDeduction += 30000000; // 교육�?증여 3천만??추�?
     }
     
     return {
@@ -141,117 +139,116 @@ export default function GiftTaxCalculatorComponent() {
   }, [input.donorRelation, input.recipientAge, input.isRecipientMinor, 
       input.marriageGift, input.educationGift]);
 
-  // 4. 10년 내 기존 증여 합산
+  // 4. 10????기존 증여 ?�산
   const previousGiftTotal = useMemo(() => {
     return input.previousGifts.reduce((sum, gift) => sum + gift.amount, 0);
   }, [input.previousGifts]);
 
-  // 5. 과세표준 자동 계산
+  // 5. 과세?��? ?�동 계산
   const estimatedTaxableIncome = useMemo(() => {
     const currentGift = Math.max(input.giftAmount, totalGiftAmount);
     const totalGiftWithPrevious = currentGift + previousGiftTotal;
     return Math.max(0, totalGiftWithPrevious - deductionLimits.total);
   }, [input.giftAmount, totalGiftAmount, previousGiftTotal, deductionLimits.total]);
 
-  // 6. 예상 세율 구간 계산
+  // 6. ?�상 ?�율 구간 계산
   const expectedTaxBracket = useMemo(() => {
     if (estimatedTaxableIncome <= 0) {
-      return { rate: 0, description: '비과세 (공제액 내)' };
+      return { rate: 0, description: '비과??(공제????' };
     } else if (estimatedTaxableIncome <= 100000000) {
-      return { rate: 10, description: '10% 구간 (1억원 이하)' };
+      return { rate: 10, description: '10% 구간 (1?�원 ?�하)' };
     } else if (estimatedTaxableIncome <= 500000000) {
-      return { rate: 20, description: '20% 구간 (5억원 이하)' };
+      return { rate: 20, description: '20% 구간 (5?�원 ?�하)' };
     } else if (estimatedTaxableIncome <= 1000000000) {
-      return { rate: 30, description: '30% 구간 (10억원 이하)' };
+      return { rate: 30, description: '30% 구간 (10?�원 ?�하)' };
     } else if (estimatedTaxableIncome <= 3000000000) {
-      return { rate: 40, description: '40% 구간 (30억원 이하)' };
+      return { rate: 40, description: '40% 구간 (30?�원 ?�하)' };
     } else {
-      return { rate: 50, description: '50% 구간 (30억원 초과)' };
+      return { rate: 50, description: '50% 구간 (30?�원 초과)' };
     }
   }, [estimatedTaxableIncome]);
 
-  // 7. 논리적 오류 체크
+  // 7. ?�리???�류 체크
   const logicalErrors = useMemo(() => {
     const errors: string[] = [];
     
-    // 증여액 불일치 체크
+    // 증여??불일�?체크
     if (totalGiftAmount > 0 && Math.abs(totalGiftAmount - input.giftAmount) > 100000) {
-      errors.push(`재산별 합계(${formatWon(totalGiftAmount)})와 총 증여액(${formatWon(input.giftAmount)})이 다릅니다.`);
+      errors.push(`?�산�??�계(${formatWon(totalGiftAmount)})?� �?증여??${formatWon(input.giftAmount)})???�릅?�다.`);
     }
     
-    // 미성년자 나이 체크
+    // 미성?�자 ?�이 체크
     if (input.isRecipientMinor && input.recipientAge >= 19) {
-      errors.push('19세 이상은 미성년자가 아닙니다.');
+      errors.push('19???�상?� 미성?�자가 ?�닙?�다.');
     }
     
-    // 미래 날짜 체크
+    // 미래 ?�짜 체크
     const today = new Date();
     const giftDate = new Date(input.giftDate);
     if (giftDate > today) {
-      errors.push('증여일이 미래 날짜로 설정되어 있습니다.');
+      errors.push('증여?�이 미래 ?�짜�??�정?�어 ?�습?�다.');
     }
     
-    // 혼인 증여 조건 체크
+    // ?�인 증여 조건 체크
     if (input.marriageGift && input.marriageGiftAmount === 0) {
-      errors.push('혼인 증여를 체크했지만 금액이 입력되지 않았습니다.');
+      errors.push('?�인 증여�?체크?��?�?금액???�력?��? ?�았?�니??');
     }
     
-    // 교육비 증여 조건 체크
+    // 교육�?증여 조건 체크
     if (input.educationGift && input.educationGiftAmount === 0) {
-      errors.push('교육비 증여를 체크했지만 금액이 입력되지 않았습니다.');
+      errors.push('교육�?증여�?체크?��?�?금액???�력?��? ?�았?�니??');
     }
     
-    // 특수 관계 체크
+    // ?�수 관�?체크
     if (input.hasSpecialRelationship && input.donorRelation === 'spouse') {
-      errors.push('배우자 관계와 특수관계를 동시에 적용할 수 없습니다.');
+      errors.push('배우??관계�? ?�수관계�? ?�시???�용?????�습?�다.');
     }
     
     return errors;
   }, [input, totalGiftAmount]);
 
-  // 8. 절세 추천 로직
+  // 8. ?�세 추천 로직
   const taxSavingRecommendations = useMemo(() => {
     const recommendations: string[] = [];
     
-    // 공제 한도 활용 추천
+    // 공제 ?�도 ?�용 추천
     const remainingDeduction = deductionLimits.total - input.giftAmount;
     if (remainingDeduction > 10000000 && input.giftAmount > 0) {
-      recommendations.push(`관계별 공제한도 ${formatWon(remainingDeduction)} 추가 활용 가능`);
+      recommendations.push(`관계별 공제?�도 ${formatWon(remainingDeduction)} 추�? ?�용 가??);
     }
     
-    // 혼인 증여 추천
+    // ?�인 증여 추천
     if (!input.marriageGift && input.recipientAge >= 18 && input.recipientAge <= 50 && 
         input.donorRelation === 'parent') {
-      recommendations.push('혼인 시 1억원 추가 공제 혜택 활용 검토');
+      recommendations.push('?�인 ??1?�원 추�? 공제 ?�택 ?�용 검??);
     }
     
-    // 교육비 증여 추천
+    // 교육�?증여 추천
     if (!input.educationGift && input.recipientAge <= 30 && 
         (input.donorRelation === 'parent' || input.donorRelation === 'grandparent')) {
-      recommendations.push('교육비 명목 3천만원 추가 공제 검토');
+      recommendations.push('교육�?명목 3천만??추�? 공제 검??);
     }
     
     // 분할 증여 추천
     if (estimatedTaxableIncome > 500000000) {
-      recommendations.push('여러 해에 걸친 분할 증여로 누진세율 부담 완화');
+      recommendations.push('?�러 ?�에 걸친 분할 증여�??�진?�율 부???�화');
     }
     
-    // 가업승계 할인 추천
+    // 가?�승�??�인 추천
     if (!input.familyBusinessDiscount && input.businessAsset > 100000000) {
-      recommendations.push('가업승계 요건 충족 시 30% 할인 혜택');
+      recommendations.push('가?�승�??�건 충족 ??30% ?�인 ?�택');
     }
     
-    // 농지 감면 추천
+    // ?��? 감면 추천
     if (!input.farmLandDiscount && input.realEstate > 50000000) {
-      recommendations.push('농지 증여 시 감면 혜택 검토');
+      recommendations.push('?��? 증여 ??감면 ?�택 검??);
     }
     
     return recommendations;
   }, [input, estimatedTaxableIncome, deductionLimits]);
 
-  // 9. 자동 값 동기화
-  useEffect(() => {
-    // 재산별 합계가 총 증여액과 다르고, 재산별 입력이 있다면 총 증여액 업데이트
+  // 9. ?�동 �??�기??  useEffect(() => {
+    // ?�산�??�계가 �?증여?�과 ?�르�? ?�산�??�력???�다�?�?증여???�데?�트
     if (totalGiftAmount > 0 && input.giftAmount === 0) {
       handleInputChange('giftAmount', totalGiftAmount);
     }
@@ -261,14 +258,13 @@ export default function GiftTaxCalculatorComponent() {
     setInput(prev => {
       const updated = { ...prev, [field]: value };
       
-      // 자동 계산되는 값들
+      // ?�동 계산?�는 값들
       if (field === 'recipientAge') {
         updated.isRecipientMinor = value < 19;
       }
       
       if (field === 'giftAmount' || field === 'marriageGiftAmount' || field === 'educationGiftAmount') {
-        // 총 증여액 업데이트는 컴포넌트에서 자동으로 처리됨
-      }
+        // �?증여???�데?�트??컴포?�트?�서 ?�동?�로 처리??      }
       
       return updated;
     });
@@ -279,25 +275,23 @@ export default function GiftTaxCalculatorComponent() {
     setErrors({});
     
     try {
-      // 입력값 검증
-      const validationErrors = GiftTaxInputValidator.validate(input);
+      // ?�력�?검�?      const validationErrors = GiftTaxInputValidator.validate(input);
       if (Object.keys(validationErrors).length > 0) {
         setErrors(validationErrors);
         setIsCalculating(false);
         return;
       }
 
-      // 입력값 정규화
-      const validatedInput = GiftTaxInputValidator.validateAndApplyLimits(input);
+      // ?�력�??�규??      const validatedInput = GiftTaxInputValidator.validateAndApplyLimits(input);
       
-      // 계산 실행
+      // 계산 ?�행
       const calculator = new GiftTaxCalculator(validatedInput);
       const calculationResult = calculator.calculate();
       
       setResult(calculationResult);
     } catch (error) {
-      console.error('증여세 계산 오류:', error);
-      setErrors({ general: '계산 중 오류가 발생했습니다.' });
+      console.error('증여??계산 ?�류:', error);
+      setErrors({ general: '계산 �??�류가 발생?�습?�다.' });
     } finally {
       setIsCalculating(false);
     }
@@ -305,25 +299,24 @@ export default function GiftTaxCalculatorComponent() {
 
   const loadSampleData = () => {
     setInput({
-      // 기본 증여 정보
-      giftAmount: 80000000, // 8천만원
-      giftDate: '2024-01-15',
+      // 기본 증여 ?�보
+      giftAmount: 80000000, // 8천만??      giftDate: '2024-01-15',
       
-      // 증여자 정보
+      // 증여???�보
       donorAge: 60,
       donorRelation: 'parent',
       
-      // 수증자 정보
+      // ?�증???�보
       recipientAge: 30,
       isRecipientMinor: false,
       isRecipientDisabled: false,
       
-      // 증여 형태
+      // 증여 ?�태
       giftType: 'money',
       isConditionalGift: false,
       giftConditionValue: 0,
       
-      // 재산 분류
+      // ?�산 분류
       cash: 80000000,
       realEstate: 0,
       stock: 0,
@@ -331,13 +324,13 @@ export default function GiftTaxCalculatorComponent() {
       businessAsset: 0,
       other: 0,
       
-      // 특수 증여
+      // ?�수 증여
       marriageGift: false,
       marriageGiftAmount: 0,
       educationGift: false,
       educationGiftAmount: 0,
       
-      // 10년 내 기존 증여
+      // 10????기존 증여
       previousGifts: [
         {
           date: '2022-03-10',
@@ -346,13 +339,13 @@ export default function GiftTaxCalculatorComponent() {
         }
       ],
       
-      // 공제 및 감면
+      // 공제 �?감면
       familyBusinessDiscount: false,
       farmLandDiscount: false,
       culturalAssetDiscount: false,
       startupDiscount: false,
       
-      // 기타
+      // 기�?
       previousTaxPaid: 0,
       isNonResident: false,
       hasSpecialRelationship: false
@@ -394,7 +387,7 @@ export default function GiftTaxCalculatorComponent() {
     setErrors({});
   };
 
-  // 자동 계산 (입력값 변경 시)
+  // ?�동 계산 (?�력�?변�???
   useEffect(() => {
     const timer = setTimeout(() => {
       if (input.giftAmount > 0) {
@@ -407,66 +400,64 @@ export default function GiftTaxCalculatorComponent() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      {/* 헤더 */}
+      {/* ?�더 */}
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-3">
           <Gift className="w-8 h-8 text-purple-600" />
-          <h1 className="text-3xl font-bold text-gray-900">증여세 계산기</h1>
+          <h1 className="text-3xl font-bold text-gray-900">증여??계산�?/h1>
         </div>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          증여재산의 종류와 관계에 따른 정확한 증여세를 계산해보세요. 
-          10년 합산과세와 각종 공제를 반영하여 정밀하게 계산됩니다.
+          증여?�산??종류?� 관계에 ?�른 ?�확??증여?��? 계산?�보?�요. 
+          10???�산과세?� 각종 공제�?반영?�여 ?��??�게 계산?�니??
         </p>
       </div>
 
       {/* 면책 조항 */}
       <TaxCalculatorDisclaimer variant="summary" />
 
-      {/* 🔥 스마트 자동 계산 대시보드 */}
+      {/* ?�� ?�마???�동 계산 ?�?�보??*/}
       <Card className="border-pink-200 bg-pink-50">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-pink-700 text-lg">
             <Gift className="w-5 h-5" />
-            ⚡ 스마트 증여세 자동 계산 대시보드
-          </CardTitle>
+            ???�마??증여???�동 계산 ?�?�보??          </CardTitle>
           <CardDescription className="text-pink-600">
-            입력하는 즉시 관련 값들이 자동으로 연계 계산되고 절세 방안이 제시됩니다
-          </CardDescription>
+            ?�력?�는 즉시 관??값들???�동?�로 ?�계 계산?�고 ?�세 방안???�시?�니??          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* 총 증여액 */}
+            {/* �?증여??*/}
             <div className="bg-white p-3 rounded border border-pink-200">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">총 증여액</span>
-                <Badge className="text-xs bg-green-100 text-green-700 border-green-300">자동</Badge>
+                <span className="text-sm font-medium text-gray-700">�?증여??/span>
+                <Badge className="text-xs bg-green-100 text-green-700 border-green-300">?�동</Badge>
               </div>
               <div className="text-lg font-bold text-pink-700">
                 {formatWon(Math.max(input.giftAmount, totalGiftAmount))}
               </div>
               <div className="text-xs text-gray-500 mt-1">
-                재산별 합계 또는 직접 입력
+                ?�산�??�계 ?�는 직접 ?�력
               </div>
             </div>
 
-            {/* 적용 공제액 */}
+            {/* ?�용 공제??*/}
             <div className="bg-white p-3 rounded border border-pink-200">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">적용 공제액</span>
-                <Badge className="text-xs bg-green-100 text-green-700 border-green-300">자동</Badge>
+                <span className="text-sm font-medium text-gray-700">?�용 공제??/span>
+                <Badge className="text-xs bg-green-100 text-green-700 border-green-300">?�동</Badge>
               </div>
               <div className="text-lg font-bold text-pink-700">
                 {formatWon(deductionLimits.total)}
               </div>
               <div className="text-xs text-gray-500 mt-1">
-                관계별 + 특수공제
+                관계별 + ?�수공제
               </div>
             </div>
 
-            {/* 예상 세율 구간 */}
+            {/* ?�상 ?�율 구간 */}
             <div className="bg-white p-3 rounded border border-pink-200">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">예상 세율</span>
+                <span className="text-sm font-medium text-gray-700">?�상 ?�율</span>
                 <Badge className={`text-xs ${expectedTaxBracket.rate === 0 ? 'bg-green-100 text-green-700' : 
                   expectedTaxBracket.rate <= 20 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
                   {expectedTaxBracket.rate}%
@@ -481,25 +472,25 @@ export default function GiftTaxCalculatorComponent() {
               </div>
             </div>
 
-            {/* 과세표준 */}
+            {/* 과세?��? */}
             <div className="bg-white p-3 rounded border border-pink-200">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">과세표준</span>
-                <Badge className="text-xs bg-green-100 text-green-700 border-green-300">자동</Badge>
+                <span className="text-sm font-medium text-gray-700">과세?��?</span>
+                <Badge className="text-xs bg-green-100 text-green-700 border-green-300">?�동</Badge>
               </div>
               <div className="text-lg font-bold text-pink-700">
                 {formatWon(estimatedTaxableIncome)}
               </div>
               <div className="text-xs text-gray-500 mt-1">
-                (증여액+10년내기존) - 공제
+                (증여??10?�내기존) - 공제
               </div>
             </div>
           </div>
 
-          {/* 공제 세부 내역 */}
+          {/* 공제 ?��? ?�역 */}
           {deductionLimits.total > 0 && (
             <div className="mt-4 p-3 bg-white rounded border border-pink-200">
-              <div className="text-sm font-medium text-gray-700 mb-3">🎁 공제 세부 내역</div>
+              <div className="text-sm font-medium text-gray-700 mb-3">?�� 공제 ?��? ?�역</div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
                 <div className="p-2 rounded bg-green-50 border border-green-200">
                   <div className="font-medium text-green-800">기본공제</div>
@@ -507,10 +498,9 @@ export default function GiftTaxCalculatorComponent() {
                     {formatWon(deductionLimits.basic)}
                   </div>
                   <div className="text-right text-xs text-green-600">
-                    {input.donorRelation === 'spouse' ? '배우자' :
-                     input.donorRelation === 'parent' ? '부모' :
-                     input.donorRelation === 'child' ? '자녀' : '기타'} 관계
-                  </div>
+                    {input.donorRelation === 'spouse' ? '배우?? :
+                     input.donorRelation === 'parent' ? '부�? :
+                     input.donorRelation === 'child' ? '?��?' : '기�?'} 관�?                  </div>
                 </div>
                 
                 {deductionLimits.special > 0 && (
@@ -519,14 +509,13 @@ export default function GiftTaxCalculatorComponent() {
                       <div className="p-2 rounded bg-pink-50 border border-pink-200">
                         <div className="font-medium text-pink-800 flex items-center gap-1">
                           <Heart className="w-3 h-3" />
-                          혼인공제
+                          ?�인공제
                         </div>
                         <div className="font-mono text-right text-pink-700">
                           {formatWon(Math.min(input.marriageGiftAmount, 100000000))}
                         </div>
                         <div className="text-right text-xs text-pink-600">
-                          평생 1회
-                        </div>
+                          ?�생 1??                        </div>
                       </div>
                     )}
                     
@@ -534,13 +523,12 @@ export default function GiftTaxCalculatorComponent() {
                       <div className="p-2 rounded bg-blue-50 border border-blue-200">
                         <div className="font-medium text-blue-800 flex items-center gap-1">
                           <GraduationCap className="w-3 h-3" />
-                          교육비공제
-                        </div>
+                          교육비공??                        </div>
                         <div className="font-mono text-right text-blue-700">
                           {formatWon(Math.min(input.educationGiftAmount, 50000000))}
                         </div>
                         <div className="text-right text-xs text-blue-600">
-                          연간한도
+                          ?�간?�도
                         </div>
                       </div>
                     )}
@@ -550,18 +538,18 @@ export default function GiftTaxCalculatorComponent() {
             </div>
           )}
 
-          {/* 재산 구성 분석 */}
+          {/* ?�산 구성 분석 */}
           {totalGiftAmount > 0 && (
             <div className="mt-4 p-3 bg-white rounded border border-pink-200">
-              <div className="text-sm font-medium text-gray-700 mb-3">📊 증여재산 구성</div>
+              <div className="text-sm font-medium text-gray-700 mb-3">?�� 증여?�산 구성</div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
                 {[
-                  { label: '현금', value: input.cash, color: 'bg-green-100 text-green-700', icon: '💰' },
-                  { label: '부동산', value: input.realEstate, color: 'bg-orange-100 text-orange-700', icon: '🏠' },
-                  { label: '주식', value: input.stock, color: 'bg-blue-100 text-blue-700', icon: '📈' },
-                  { label: '채권', value: input.bond, color: 'bg-purple-100 text-purple-700', icon: '📋' },
-                  { label: '사업자산', value: input.businessAsset, color: 'bg-gray-100 text-gray-700', icon: '🏢' },
-                  { label: '기타', value: input.other, color: 'bg-yellow-100 text-yellow-700', icon: '🎯' }
+                  { label: '?�금', value: input.cash, color: 'bg-green-100 text-green-700', icon: '?��' },
+                  { label: '부?�산', value: input.realEstate, color: 'bg-orange-100 text-orange-700', icon: '?��' },
+                  { label: '주식', value: input.stock, color: 'bg-blue-100 text-blue-700', icon: '?��' },
+                  { label: '채권', value: input.bond, color: 'bg-purple-100 text-purple-700', icon: '?��' },
+                  { label: '?�업?�산', value: input.businessAsset, color: 'bg-gray-100 text-gray-700', icon: '?��' },
+                  { label: '기�?', value: input.other, color: 'bg-yellow-100 text-yellow-700', icon: '?��' }
                 ].filter(item => item.value > 0).map((item, index) => (
                   <div key={index} className={`p-2 rounded ${item.color}`}>
                     <div className="font-medium flex items-center gap-1">
@@ -578,19 +566,19 @@ export default function GiftTaxCalculatorComponent() {
                 ))}
               </div>
               
-              {/* 증여액 검증 */}
+              {/* 증여??검�?*/}
               {Math.abs(totalGiftAmount - input.giftAmount) > 100000 && (
                 <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700">
-                  ⚠️ 재산별 합계({formatWon(totalGiftAmount)})와 총 증여액({formatWon(input.giftAmount)})이 다릅니다.
+                  ?�️ ?�산�??�계({formatWon(totalGiftAmount)})?� �?증여??{formatWon(input.giftAmount)})???�릅?�다.
                 </div>
               )}
             </div>
           )}
 
-          {/* 10년 내 기존 증여 내역 */}
+          {/* 10????기존 증여 ?�역 */}
           {previousGiftTotal > 0 && (
             <div className="mt-4 p-3 bg-white rounded border border-pink-200">
-              <div className="text-sm font-medium text-gray-700 mb-3">📅 10년 내 기존 증여</div>
+              <div className="text-sm font-medium text-gray-700 mb-3">?�� 10????기존 증여</div>
               <div className="space-y-2">
                 {input.previousGifts.map((gift, index) => (
                   <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded text-xs">
@@ -600,26 +588,26 @@ export default function GiftTaxCalculatorComponent() {
                     </div>
                     <div className="text-right">
                       <div className="font-mono">{formatWon(gift.amount)}</div>
-                      <div className="text-gray-500">세액: {formatWon(gift.taxPaid)}</div>
+                      <div className="text-gray-500">?�액: {formatWon(gift.taxPaid)}</div>
                     </div>
                   </div>
                 ))}
                 <div className="p-2 bg-blue-50 border border-blue-200 rounded">
                   <div className="text-sm font-medium text-blue-700">
-                    10년 합산액: {formatWon(previousGiftTotal + Math.max(input.giftAmount, totalGiftAmount))}
+                    10???�산?? {formatWon(previousGiftTotal + Math.max(input.giftAmount, totalGiftAmount))}
                   </div>
                   <div className="text-xs text-blue-600">
-                    누진세율이 적용되어 세부담이 증가할 수 있습니다.
+                    ?�진?�율???�용?�어 ?��??�이 증�??????�습?�다.
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* 논리적 오류 실시간 체크 */}
+          {/* ?�리???�류 ?�시�?체크 */}
           {logicalErrors.length > 0 && (
             <div className="mt-4 p-3 bg-red-50 rounded border border-red-200">
-              <div className="text-sm font-medium text-red-700 mb-2">🚨 논리적 오류 감지</div>
+              <div className="text-sm font-medium text-red-700 mb-2">?�� ?�리???�류 감�?</div>
               <div className="space-y-1">
                 {logicalErrors.map((error, index) => (
                   <div key={index} className="text-xs text-red-600 flex items-start gap-2">
@@ -631,10 +619,10 @@ export default function GiftTaxCalculatorComponent() {
             </div>
           )}
 
-          {/* 절세 추천 */}
+          {/* ?�세 추천 */}
           {taxSavingRecommendations.length > 0 && (
             <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
-              <div className="text-sm font-medium text-green-700 mb-2">💡 절세 추천</div>
+              <div className="text-sm font-medium text-green-700 mb-2">?�� ?�세 추천</div>
               <div className="space-y-1">
                 {taxSavingRecommendations.map((recommendation, index) => (
                   <div key={index} className="text-xs text-green-600 flex items-start gap-2">
@@ -646,12 +634,12 @@ export default function GiftTaxCalculatorComponent() {
             </div>
           )}
 
-          {/* 계산 준비 상태 */}
+          {/* 계산 준�??�태 */}
           {logicalErrors.length === 0 && (input.giftAmount > 0 || totalGiftAmount > 0) && (
             <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
-              <div className="text-sm font-medium text-green-700 mb-2">✅ 계산 준비 완료</div>
+              <div className="text-sm font-medium text-green-700 mb-2">??계산 준�??�료</div>
               <div className="text-xs text-green-600">
-                모든 필수 정보가 올바르게 입력되었습니다. 실시간으로 증여세가 계산되고 있습니다.
+                모든 ?�수 ?�보가 ?�바르게 ?�력?�었?�니?? ?�시간으�?증여?��? 계산?�고 ?�습?�다.
               </div>
             </div>
           )}
@@ -659,19 +647,19 @@ export default function GiftTaxCalculatorComponent() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 입력 영역 */}
+        {/* ?�력 ?�역 */}
         <div className="space-y-6">
-          {/* 컨트롤 버튼 */}
+          {/* 컨트�?버튼 */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calculator className="w-5 h-5" />
-                계산 설정
+                계산 ?�정
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">
-                {/* 🔥 개선된 샘플 데이터 버튼 */}
+                {/* ?�� 개선???�플 ?�이??버튼 */}
                 <Button 
                   onClick={loadSampleData}
                   variant="outline"
@@ -684,11 +672,10 @@ export default function GiftTaxCalculatorComponent() {
                   <span className="absolute inset-0 bg-gradient-to-r from-orange-100 to-yellow-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                   <span className="relative flex items-center gap-2">
                     <FileText className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
-                    샘플 데이터
-                  </span>
+                    ?�플 ?�이??                  </span>
                 </Button>
                 
-                {/* 🔥 개선된 초기화 버튼 */}
+                {/* ?�� 개선??초기??버튼 */}
                 <Button 
                   onClick={resetInputs}
                   variant="outline"
@@ -700,11 +687,10 @@ export default function GiftTaxCalculatorComponent() {
                   <span className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                   <span className="relative flex items-center gap-2">
                     <RefreshCw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300" />
-                    초기화
-                  </span>
+                    초기??                  </span>
                 </Button>
                 
-                {/* 🔥 개선된 계산하기 버튼 */}
+                {/* ?�� 개선??계산?�기 버튼 */}
                 <Button 
                   onClick={handleCalculate}
                   size="sm"
@@ -724,46 +710,46 @@ export default function GiftTaxCalculatorComponent() {
                   ) : (
                     <Calculator className="w-4 h-4" />
                   )}
-                  {isCalculating ? '계산 중...' :
-                   !input.giftAmount ? '증여금액 입력 필요' :
-                   (result ? '재계산하기' : '계산하기')
+                  {isCalculating ? '계산 �?..' :
+                   !input.giftAmount ? '증여금액 ?�력 ?�요' :
+                   (result ? '?�계?�하�? : '계산?�기')
                   }
                 </Button>
               </div>
             </CardContent>
           </Card>
 
-          {/* 입력 탭 */}
+          {/* ?�력 ??*/}
           <Card>
             <CardHeader>
-              <CardTitle>증여 정보 입력</CardTitle>
+              <CardTitle>증여 ?�보 ?�력</CardTitle>
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="basic" className="w-full">
                 <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="basic">기본정보</TabsTrigger>
-                  <TabsTrigger value="parties">당사자</TabsTrigger>
-                  <TabsTrigger value="assets">재산분류</TabsTrigger>
-                  <TabsTrigger value="special">특수사항</TabsTrigger>
+                  <TabsTrigger value="basic">기본?�보</TabsTrigger>
+                  <TabsTrigger value="parties">?�사??/TabsTrigger>
+                  <TabsTrigger value="assets">?�산분류</TabsTrigger>
+                  <TabsTrigger value="special">?�수?�항</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="basic" className="space-y-4">
                   <div className="grid grid-cols-1 gap-4">
                     <NumberInput
-                      label="총 증여재산"
+                      label="�?증여?�산"
                       value={input.giftAmount}
                       onChange={(value) => handleInputChange('giftAmount', value)}
-                      placeholder="증여하는 총 재산가액"
+                      placeholder="증여?�는 �??�산가??
                       limit={GIFT_TAX_LIMITS_2024.maxGiftAmount}
-                      // 기존 계산기 호환성 유지
+                      // 기존 계산�??�환???��?
 
                       helpMessage={GIFT_TAX_LIMITS_2024.messages.relationshipDeduction}
                       required={true}
-                      requiredMessage="증여세 계산을 위해 총 증여재산 입력이 필수입니다"
+                      requiredMessage="증여??계산???�해 �?증여?�산 ?�력???�수?�니??
                       dynamicInfo={(value) => {
                         if (value === 0) return '';
                         
-                        // 관계별 공제 한도 확인
+                        // 관계별 공제 ?�도 ?�인
                         const relationshipLimit = GIFT_TAX_LIMITS_2024.relationshipLimits;
                         let applicableLimit = 0;
                         let relationshipName = '';
@@ -771,7 +757,7 @@ export default function GiftTaxCalculatorComponent() {
                         switch (input.donorRelation) {
                           case 'spouse':
                             applicableLimit = relationshipLimit.spouse.annual;
-                            relationshipName = '배우자';
+                            relationshipName = '배우??;
                             break;
                           case 'parent':
                           case 'grandparent':
@@ -788,25 +774,25 @@ export default function GiftTaxCalculatorComponent() {
                             break;
                           default:
                             applicableLimit = relationshipLimit.other.annual;
-                            relationshipName = '기타';
+                            relationshipName = '기�?';
                         }
                         
                         if (value <= applicableLimit) {
-                          return `${relationshipName} 관계로 ${applicableLimit.toLocaleString()}원까지 공제 가능합니다.`;
+                          return `${relationshipName} 관계로 ${applicableLimit.toLocaleString()}?�까지 공제 가?�합?�다.`;
                         } else if (value <= 100000000) {
-                          return `공제 한도 초과로 증여세 10%가 적용됩니다.`;
+                          return `공제 ?�도 초과�?증여??10%가 ?�용?�니??`;
                         } else if (value <= 500000000) {
-                          return `증여세 20%가 적용됩니다. 분할증여를 고려해보세요.`;
+                          return `증여??20%가 ?�용?�니?? 분할증여�?고려?�보?�요.`;
                         } else if (value <= 1000000000) {
-                          return `증여세 30%가 적용됩니다. 전문가 상담을 권장합니다.`;
+                          return `증여??30%가 ?�용?�니?? ?�문가 ?�담??권장?�니??`;
                         } else {
-                          return `⚠️ 고액 증여로 최대 50% 세율 적용 가능. 반드시 전문가 상담 필요!`;
+                          return `?�️ 고액 증여�?최�? 50% ?�율 ?�용 가?? 반드???�문가 ?�담 ?�요!`;
                         }
                       }}
                     />
                     
                     <div className="space-y-2">
-                      <Label htmlFor="giftDate">증여일</Label>
+                      <Label htmlFor="giftDate">증여??/Label>
                       <Input
                         id="giftDate"
                         type="date"
@@ -815,25 +801,25 @@ export default function GiftTaxCalculatorComponent() {
                         max={new Date().toISOString().split('T')[0]}
                       />
                       <p className="text-sm text-gray-500">
-                        ℹ️ {GIFT_TAX_LIMITS_2024.messages.filingDeadline}
+                        ?�️ {GIFT_TAX_LIMITS_2024.messages.filingDeadline}
                       </p>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="giftType">증여재산 유형</Label>
+                      <Label htmlFor="giftType">증여?�산 ?�형</Label>
                       <Select 
                         value={input.giftType} 
                         onValueChange={(value: any) => handleInputChange('giftType', value)}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="증여재산 유형 선택" />
+                          <SelectValue placeholder="증여?�산 ?�형 ?�택" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="money">현금·예금</SelectItem>
-                          <SelectItem value="realEstate">부동산</SelectItem>
+                          <SelectItem value="money">?�금·?�금</SelectItem>
+                          <SelectItem value="realEstate">부?�산</SelectItem>
                           <SelectItem value="stock">주식·증권</SelectItem>
-                          <SelectItem value="business">사업용자산</SelectItem>
-                          <SelectItem value="other">기타재산</SelectItem>
+                          <SelectItem value="business">?�업?�자??/SelectItem>
+                          <SelectItem value="other">기�??�산</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -844,18 +830,17 @@ export default function GiftTaxCalculatorComponent() {
                         checked={input.isConditionalGift}
                         onCheckedChange={(checked) => handleInputChange('isConditionalGift', checked)}
                       />
-                      <Label htmlFor="isConditionalGift" className="font-medium">부담부증여</Label>
+                      <Label htmlFor="isConditionalGift" className="font-medium">부?��?증여</Label>
                       <Badge variant="outline" className="text-xs text-yellow-700">
-                        채무승계 등
-                      </Badge>
+                        채무?�계 ??                      </Badge>
                     </div>
 
                     {input.isConditionalGift && (
                       <NumberInput
-                        label="부담액"
+                        label="부?�액"
                         value={input.giftConditionValue}
                         onChange={(value) => handleInputChange('giftConditionValue', value)}
-                        placeholder="수증자가 부담하는 채무 등"
+                        placeholder="?�증?��? 부?�하??채무 ??
                         limit={input.giftAmount * 2}
 
                         helpMessage={GIFT_TAX_LIMITS_2024.conditionalGiftLimits.description}
@@ -868,13 +853,13 @@ export default function GiftTaxCalculatorComponent() {
                           const minNetGift = giftAmount * GIFT_TAX_LIMITS_2024.conditionalGiftLimits.minGiftRatio;
                           
                           if (value >= giftAmount) {
-                            return '🚨 부담액이 증여액과 같거나 초과하면 증여로 인정받지 못합니다.';
+                            return '?�� 부?�액??증여?�과 같거??초과?�면 증여�??�정받�? 못합?�다.';
                           } else if (burdenRatio >= 0.8) {
-                            return `⚠️ 부담비율 ${(burdenRatio * 100).toFixed(1)}%로 증여 인정에 문제가 있을 수 있습니다.`;
+                            return `?�️ 부?�비??${(burdenRatio * 100).toFixed(1)}%�?증여 ?�정??문제가 ?�을 ???�습?�다.`;
                           } else if (netGift < minNetGift) {
-                            return `⚠️ 순증여액이 20% 미만입니다. 최소 ${minNetGift.toLocaleString()}원은 순증여되어야 합니다.`;
+                            return `?�️ ?�증?�액??20% 미만?�니?? 최소 ${minNetGift.toLocaleString()}?��? ?�증?�되?�야 ?�니??`;
                           } else {
-                            return `✅ 실질 증여액: ${netGift.toLocaleString()}원 (부담비율: ${(burdenRatio * 100).toFixed(1)}%)`;
+                            return `???�질 증여?? ${netGift.toLocaleString()}??(부?�비?? ${(burdenRatio * 100).toFixed(1)}%)`;
                           }
                         }}
                       />
@@ -886,50 +871,50 @@ export default function GiftTaxCalculatorComponent() {
                   <div className="grid grid-cols-1 gap-4">
                     <div className="grid grid-cols-2 gap-4">
                       <NumberInput
-                        label="증여자 나이"
+                        label="증여???�이"
                         value={input.donorAge}
                         onChange={(value) => handleInputChange('donorAge', value)}
-                        placeholder="증여자 만 나이"
-                        unit="세"
+                        placeholder="증여??�??�이"
+                        unit="??
                         limit={GIFT_TAX_LIMITS_2024.ageRestrictions.maxAge}
-                        helpMessage="증여하는 사람의 만 나이"
+                        helpMessage="증여?�는 ?�람??�??�이"
                         dynamicInfo={(value) => {
                           if (value === 0) return '';
                           if (value >= GIFT_TAX_LIMITS_2024.ageRestrictions.seniorAge) {
-                            return `고령자(${GIFT_TAX_LIMITS_2024.ageRestrictions.seniorAge}세 이상)로 조기 증여 시 절세 효과가 큽니다.`;
+                            return `고령??${GIFT_TAX_LIMITS_2024.ageRestrictions.seniorAge}???�상)�?조기 증여 ???�세 ?�과가 ?�니??`;
                           }
-                          return '증여시기가 빠를수록 미래 가치 상승분에 대한 절세 효과가 있습니다.';
+                          return '증여?�기가 빠�??�록 미래 가�??�승분에 ?�???�세 ?�과가 ?�습?�다.';
                         }}
                       />
 
                       <NumberInput
-                        label="수증자 나이"
+                        label="?�증???�이"
                         value={input.recipientAge}
                         onChange={(value) => handleInputChange('recipientAge', value)}
-                        placeholder="수증자 만 나이"
-                        unit="세"
+                        placeholder="?�증??�??�이"
+                        unit="??
                         limit={GIFT_TAX_LIMITS_2024.ageRestrictions.maxAge}
-                        // 나이 제한 적용
-                        helpMessage="증여받는 사람의 만 나이 (특별공제 조건에 영향)"
+                        // ?�이 ?�한 ?�용
+                        helpMessage="증여받는 ?�람??�??�이 (?�별공제 조건???�향)"
                         dynamicInfo={(value) => {
                           if (value === 0) return '';
                           
                           const messages = [];
                           
-                          // 미성년 여부
+                          // 미성???��?
                           if (value < GIFT_TAX_LIMITS_2024.ageRestrictions.minorAge) {
-                            messages.push(`✅ 미성년자로 추가 ${GIFT_TAX_LIMITS_2024.relationshipLimits.linealDescendant.minorBonus.toLocaleString()}원 공제 가능`);
+                            messages.push(`??미성?�자�?추�? ${GIFT_TAX_LIMITS_2024.relationshipLimits.linealDescendant.minorBonus.toLocaleString()}??공제 가??);
                           } else {
-                            messages.push(`성인으로 기본 공제만 적용`);
+                            messages.push(`?�인?�로 기본 공제�??�용`);
                           }
                           
-                          // 교육비 공제 가능 여부
+                          // 교육�?공제 가???��?
                           if (value <= GIFT_TAX_LIMITS_2024.ageRestrictions.educationMaxAge) {
-                            messages.push(`✅ 교육비공제 가능(${GIFT_TAX_LIMITS_2024.ageRestrictions.educationMaxAge}세 이하)`);
+                            messages.push(`??교육비공??가??${GIFT_TAX_LIMITS_2024.ageRestrictions.educationMaxAge}???�하)`);
                           } else if (value <= GIFT_TAX_LIMITS_2024.ageRestrictions.startupMaxAge) {
-                            messages.push(`⚠️ 교육비공제 불가, 창업자금공제는 가능`);
+                            messages.push(`?�️ 교육비공??불�?, 창업?�금공제??가??);
                           } else {
-                            messages.push(`⚠️ 교육비공제, 창업자금공제 모두 불가`);
+                            messages.push(`?�️ 교육비공?? 창업?�금공제 모두 불�?`);
                           }
                           
                           return messages.join(' | ');
@@ -938,25 +923,25 @@ export default function GiftTaxCalculatorComponent() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="donorRelation">증여자와의 관계</Label>
+                      <Label htmlFor="donorRelation">증여?��???관�?/Label>
                       <Select 
                         value={input.donorRelation} 
                         onValueChange={(value: any) => handleInputChange('donorRelation', value)}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="관계 선택" />
+                          <SelectValue placeholder="관�??�택" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="spouse">배우자 (6억원 공제)</SelectItem>
-                          <SelectItem value="parent">부모 (5천만원 공제)</SelectItem>
-                          <SelectItem value="grandparent">조부모 (5천만원 공제)</SelectItem>
-                          <SelectItem value="child">자녀 (5천만원 공제)</SelectItem>
-                          <SelectItem value="grandchild">손자녀 (5천만원 공제)</SelectItem>
-                          <SelectItem value="other">기타 (1천만원 공제)</SelectItem>
+                          <SelectItem value="spouse">배우??(6?�원 공제)</SelectItem>
+                          <SelectItem value="parent">부�?(5천만??공제)</SelectItem>
+                          <SelectItem value="grandparent">조�?�?(5천만??공제)</SelectItem>
+                          <SelectItem value="child">?��? (5천만??공제)</SelectItem>
+                          <SelectItem value="grandchild">?�자?� (5천만??공제)</SelectItem>
+                          <SelectItem value="other">기�? (1천만??공제)</SelectItem>
                         </SelectContent>
                       </Select>
                       <p className="text-sm text-gray-500">
-                        ℹ️ 관계에 따라 공제액이 달라집니다.
+                        ?�️ 관계에 ?�라 공제?�이 ?�라집니??
                       </p>
                     </div>
 
@@ -967,7 +952,7 @@ export default function GiftTaxCalculatorComponent() {
                           checked={input.isRecipientDisabled}
                           onCheckedChange={(checked) => handleInputChange('isRecipientDisabled', checked)}
                         />
-                        <Label htmlFor="isRecipientDisabled">장애인</Label>
+                        <Label htmlFor="isRecipientDisabled">?�애??/Label>
                       </div>
                       
                       <div className="flex items-center space-x-2">
@@ -985,45 +970,45 @@ export default function GiftTaxCalculatorComponent() {
                 <TabsContent value="assets" className="space-y-4">
                   <div className="grid grid-cols-1 gap-4">
                     <NumberInput
-                      label="현금·예금"
+                      label="?�금·?�금"
                       value={input.cash}
                       onChange={(value) => handleInputChange('cash', value)}
-                      placeholder="현금, 예적금 등"
+                      placeholder="?�금, ?�적�???
                     />
                     
                     <NumberInput
-                      label="부동산"
+                      label="부?�산"
                       value={input.realEstate}
                       onChange={(value) => handleInputChange('realEstate', value)}
-                      placeholder="토지, 건물 등"
+                      placeholder="?��?, 건물 ??
                     />
                     
                     <NumberInput
                       label="주식·증권"
                       value={input.stock}
                       onChange={(value) => handleInputChange('stock', value)}
-                      placeholder="상장주식, 비상장주식 등"
+                      placeholder="?�장주식, 비상?�주????
                     />
                     
                     <NumberInput
                       label="채권"
                       value={input.bond}
                       onChange={(value) => handleInputChange('bond', value)}
-                      placeholder="국공채, 회사채 등"
+                      placeholder="�?���? ?�사�???
                     />
                     
                     <NumberInput
-                      label="사업용자산"
+                      label="?�업?�자??
                       value={input.businessAsset}
                       onChange={(value) => handleInputChange('businessAsset', value)}
-                      placeholder="사업장, 기계설비 등"
+                      placeholder="?�업?? 기계?�비 ??
                     />
                     
                     <NumberInput
-                      label="기타재산"
+                      label="기�??�산"
                       value={input.other}
                       onChange={(value) => handleInputChange('other', value)}
-                      placeholder="골프회원권, 예술품 등"
+                      placeholder="골프?�원�? ?�술????
                     />
                   </div>
                 </TabsContent>
@@ -1036,24 +1021,24 @@ export default function GiftTaxCalculatorComponent() {
                         checked={input.marriageGift}
                         onCheckedChange={(checked) => handleInputChange('marriageGift', checked)}
                       />
-                      <Label htmlFor="marriageGift" className="font-medium">혼인증여</Label>
+                      <Label htmlFor="marriageGift" className="font-medium">?�인증여</Label>
                       <Badge variant="outline" className="text-xs text-pink-700">
-                        최대 1억원 공제
+                        최�? 1?�원 공제
                       </Badge>
                     </div>
 
                     {input.marriageGift && (
                       <NumberInput
-                        label="혼인증여 금액"
+                        label="?�인증여 금액"
                         value={input.marriageGiftAmount}
                         onChange={(value) => handleInputChange('marriageGiftAmount', value)}
-                        placeholder="혼인 시 증여받은 금액"
+                        placeholder="?�인 ??증여받�? 금액"
                         limit={
                           input.donorRelation === 'child' || input.donorRelation === 'grandchild' 
                             ? GIFT_TAX_LIMITS_2024.specialDeductionLimits.marriage.child
                             : GIFT_TAX_LIMITS_2024.specialDeductionLimits.marriage.otherLineal
                         }
-                        // 혼인 증여 특별 공제
+                        // ?�인 증여 ?�별 공제
 
                         helpMessage={GIFT_TAX_LIMITS_2024.specialDeductionLimits.marriage.description}
                         dynamicInfo={(value) => {
@@ -1065,11 +1050,11 @@ export default function GiftTaxCalculatorComponent() {
                             : GIFT_TAX_LIMITS_2024.specialDeductionLimits.marriage.otherLineal;
                           
                           if (value > limit) {
-                            return `⚠️ ${isChild ? '자녀' : '기타 직계비속'} 혼인증여공제 한도(${limit.toLocaleString()}원)를 초과했습니다.`;
+                            return `?�️ ${isChild ? '?��?' : '기�? 직계비속'} ?�인증여공제 ?�도(${limit.toLocaleString()}??�?초과?�습?�다.`;
                           }
                           
                           const remaining = limit - value;
-                          return `${isChild ? '자녀' : '기타 직계비속'} 혼인증여공제 ${remaining.toLocaleString()}원 남음 (평생 1회 한정)`;
+                          return `${isChild ? '?��?' : '기�? 직계비속'} ?�인증여공제 ${remaining.toLocaleString()}???�음 (?�생 1???�정)`;
                         }}
                       />
                     )}
@@ -1080,25 +1065,25 @@ export default function GiftTaxCalculatorComponent() {
                         checked={input.educationGift}
                         onCheckedChange={(checked) => handleInputChange('educationGift', checked)}
                       />
-                      <Label htmlFor="educationGift" className="font-medium">교육비증여</Label>
+                      <Label htmlFor="educationGift" className="font-medium">교육비증??/Label>
                       <Badge variant="outline" className="text-xs text-blue-700">
-                        국내 3천만원, 해외 5천만원 공제
+                        �?�� 3천만?? ?�외 5천만??공제
                       </Badge>
                       {input.recipientAge > GIFT_TAX_LIMITS_2024.ageRestrictions.educationMaxAge && (
                         <Badge variant="destructive" className="text-xs">
-                          나이 제한 초과
+                          ?�이 ?�한 초과
                         </Badge>
                       )}
                     </div>
 
                     {input.educationGift && (
                       <NumberInput
-                        label="교육비 금액"
+                        label="교육�?금액"
                         value={input.educationGiftAmount}
                         onChange={(value) => handleInputChange('educationGiftAmount', value)}
-                        placeholder="교육비로 증여받은 금액"
-                        limit={GIFT_TAX_LIMITS_2024.specialDeductionLimits.education.foreign} // 해외 기준 최대
-                        // 교육비 특별 공제
+                        placeholder="교육비로 증여받�? 금액"
+                        limit={GIFT_TAX_LIMITS_2024.specialDeductionLimits.education.foreign} // ?�외 기�? 최�?
+                        // 교육�??�별 공제
 
                         helpMessage={GIFT_TAX_LIMITS_2024.specialDeductionLimits.education.description}
                         dynamicInfo={(value) => {
@@ -1109,22 +1094,22 @@ export default function GiftTaxCalculatorComponent() {
                           const ageLimit = GIFT_TAX_LIMITS_2024.specialDeductionLimits.education.ageLimit;
                           
                           if (input.recipientAge > ageLimit) {
-                            return `🚨 수증자가 ${ageLimit}세를 초과하여 교육비공제를 받을 수 없습니다.`;
+                            return `?�� ?�증?��? ${ageLimit}?��? 초과?�여 교육비공?��? 받을 ???�습?�다.`;
                           }
                           
                           if (value <= domesticLimit) {
-                            return `✅ 국내 교육비 공제 범위 (${(domesticLimit - value).toLocaleString()}원 남음)`;
+                            return `??�?�� 교육�?공제 범위 (${(domesticLimit - value).toLocaleString()}???�음)`;
                           } else if (value <= foreignLimit) {
-                            return `✅ 해외 교육비 공제 범위 (${(foreignLimit - value).toLocaleString()}원 남음)`;
+                            return `???�외 교육�?공제 범위 (${(foreignLimit - value).toLocaleString()}???�음)`;
                           } else {
-                            return `⚠️ 교육비공제 한도(해외 ${foreignLimit.toLocaleString()}원)를 초과했습니다.`;
+                            return `?�️ 교육비공???�도(?�외 ${foreignLimit.toLocaleString()}??�?초과?�습?�다.`;
                           }
                         }}
                       />
                     )}
 
                     <div className="space-y-3">
-                      <Label className="text-base font-medium">감면 혜택</Label>
+                      <Label className="text-base font-medium">감면 ?�택</Label>
                       <div className="grid grid-cols-2 gap-2">
                         <div className="flex items-center space-x-2">
                           <Checkbox
@@ -1132,7 +1117,7 @@ export default function GiftTaxCalculatorComponent() {
                             checked={input.familyBusinessDiscount}
                             onCheckedChange={(checked) => handleInputChange('familyBusinessDiscount', checked)}
                           />
-                          <Label htmlFor="familyBusinessDiscount">가족기업 감면</Label>
+                          <Label htmlFor="familyBusinessDiscount">가족기??감면</Label>
                         </div>
                         
                         <div className="flex items-center space-x-2">
@@ -1141,7 +1126,7 @@ export default function GiftTaxCalculatorComponent() {
                             checked={input.farmLandDiscount}
                             onCheckedChange={(checked) => handleInputChange('farmLandDiscount', checked)}
                           />
-                          <Label htmlFor="farmLandDiscount">농지 감면</Label>
+                          <Label htmlFor="farmLandDiscount">?��? 감면</Label>
                         </div>
                         
                         <div className="flex items-center space-x-2">
@@ -1150,7 +1135,7 @@ export default function GiftTaxCalculatorComponent() {
                             checked={input.culturalAssetDiscount}
                             onCheckedChange={(checked) => handleInputChange('culturalAssetDiscount', checked)}
                           />
-                          <Label htmlFor="culturalAssetDiscount">문화재 감면</Label>
+                          <Label htmlFor="culturalAssetDiscount">문화??감면</Label>
                         </div>
                         
                         <div className="flex items-center space-x-2">
@@ -1159,17 +1144,17 @@ export default function GiftTaxCalculatorComponent() {
                             checked={input.startupDiscount}
                             onCheckedChange={(checked) => handleInputChange('startupDiscount', checked)}
                           />
-                          <Label htmlFor="startupDiscount">창업자금 감면</Label>
+                          <Label htmlFor="startupDiscount">창업?�금 감면</Label>
                         </div>
                       </div>
                     </div>
 
                     <NumberInput
-                      label="기납부 증여세"
+                      label="기납부 증여??
                       value={input.previousTaxPaid}
                       onChange={(value) => handleInputChange('previousTaxPaid', value)}
-                      placeholder="이전에 납부한 증여세"
-                      helpMessage="동일 증여에 대한 기납부세액"
+                      placeholder="?�전???��???증여??
+                      helpMessage="?�일 증여???�??기납부?�액"
                     />
                   </div>
                 </TabsContent>
@@ -1182,7 +1167,7 @@ export default function GiftTaxCalculatorComponent() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-orange-600">
                 <AlertTriangle className="w-5 h-5" />
-                ⚠️ 중요 주의사항
+                ?�️ 중요 주의?�항
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -1191,7 +1176,7 @@ export default function GiftTaxCalculatorComponent() {
                   <AlertTriangle className="h-4 w-4 text-orange-600" />
                   <AlertDescription className="text-orange-800">
                     <strong>{GIFT_TAX_LIMITS_2024.warnings.excessiveAmount}</strong>
-                    <br />분할증여를 통해 세율 부담을 줄일 수 있습니다.
+                    <br />분할증여�??�해 ?�율 부?�을 줄일 ???�습?�다.
                   </AlertDescription>
                 </Alert>
               )}
@@ -1201,8 +1186,7 @@ export default function GiftTaxCalculatorComponent() {
                   <Info className="h-4 w-4 text-yellow-600" />
                   <AlertDescription className="text-yellow-800">
                     <strong>{GIFT_TAX_LIMITS_2024.warnings.cumulativeRisk}</strong>
-                    <br />10년 내 증여 이력: {input.previousGifts.length}건
-                  </AlertDescription>
+                    <br />10????증여 ?�력: {input.previousGifts.length}�?                  </AlertDescription>
                 </Alert>
               )}
               
@@ -1211,7 +1195,7 @@ export default function GiftTaxCalculatorComponent() {
                   <AlertTriangle className="h-4 w-4 text-red-600" />
                   <AlertDescription className="text-red-800">
                     <strong>{GIFT_TAX_LIMITS_2024.warnings.conditionalGift}</strong>
-                    <br />부담비율: {((input.giftConditionValue / input.giftAmount) * 100).toFixed(1)}%
+                    <br />부?�비?? {((input.giftConditionValue / input.giftAmount) * 100).toFixed(1)}%
                   </AlertDescription>
                 </Alert>
               )}
@@ -1221,7 +1205,7 @@ export default function GiftTaxCalculatorComponent() {
                   <Info className="h-4 w-4 text-purple-600" />
                   <AlertDescription className="text-purple-800">
                     <strong>{GIFT_TAX_LIMITS_2024.warnings.specialRequirements}</strong>
-                    <br />특별공제 신청 시 요건 충족 여부를 사전에 확인하세요.
+                    <br />?�별공제 ?�청 ???�건 충족 ?��?�??�전???�인?�세??
                   </AlertDescription>
                 </Alert>
               )}
@@ -1230,69 +1214,68 @@ export default function GiftTaxCalculatorComponent() {
                 <Clock className="h-4 w-4 text-blue-600" />
                 <AlertDescription className="text-blue-800">
                   <strong>{GIFT_TAX_LIMITS_2024.warnings.filingRequired}</strong>
-                  <br />증여일: {input.giftDate} → 신고기한: {new Date(new Date(input.giftDate).getTime() + 90 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR')}
+                  <br />증여?? {input.giftDate} ???�고기한: {new Date(new Date(input.giftDate).getTime() + 90 * 24 * 60 * 60 * 1000).toLocaleDateString('ko-KR')}
                 </AlertDescription>
               </Alert>
             </CardContent>
           </Card>
 
-          {/* 절세 조언 */}
+          {/* ?�세 조언 */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-green-600">
                 <PiggyBank className="w-5 h-5" />
-                💡 절세 전략 조언
+                ?�� ?�세 ?�략 조언
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                <h4 className="font-medium text-green-800 mb-2">📅 분할증여 전략</h4>
+                <h4 className="font-medium text-green-800 mb-2">?�� 분할증여 ?�략</h4>
                 <p className="text-sm text-green-700">
                   {GIFT_TAX_LIMITS_2024.messages.taxSaving}
                 </p>
                 {input.donorRelation && (
                   <p className="text-xs text-green-600 mt-1">
-                    현재 관계 연간 한도: {
+                    ?�재 관�??�간 ?�도: {
                       input.donorRelation === 'spouse' ? GIFT_TAX_LIMITS_2024.relationshipLimits.spouse.annual :
                       ['parent', 'grandparent'].includes(input.donorRelation) ? GIFT_TAX_LIMITS_2024.relationshipLimits.linealAscendant.annual :
                       ['child', 'grandchild'].includes(input.donorRelation) ? GIFT_TAX_LIMITS_2024.relationshipLimits.linealDescendant.annual :
                       GIFT_TAX_LIMITS_2024.relationshipLimits.other.annual
-                    }원
-                  </p>
+                    }??                  </p>
                 )}
               </div>
               
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <h4 className="font-medium text-blue-800 mb-2">⏰ 증여 타이밍</h4>
+                <h4 className="font-medium text-blue-800 mb-2">??증여 ?�?�밍</h4>
                 <p className="text-sm text-blue-700">
                   {GIFT_TAX_LIMITS_2024.messages.timing}
                 </p>
               </div>
               
               <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                <h4 className="font-medium text-purple-800 mb-2">📈 누진세율 회피</h4>
+                <h4 className="font-medium text-purple-800 mb-2">?�� ?�진?�율 ?�피</h4>
                 <p className="text-sm text-purple-700">
                   {GIFT_TAX_LIMITS_2024.messages.progressiveRate}
                 </p>
                 <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
                   <div className="bg-white p-2 rounded">
-                    <span className="font-medium">1억원 이하:</span> 10%
+                    <span className="font-medium">1?�원 ?�하:</span> 10%
                   </div>
                   <div className="bg-white p-2 rounded">
-                    <span className="font-medium">5억원 이하:</span> 20%
+                    <span className="font-medium">5?�원 ?�하:</span> 20%
                   </div>
                   <div className="bg-white p-2 rounded">
-                    <span className="font-medium">10억원 이하:</span> 30%
+                    <span className="font-medium">10?�원 ?�하:</span> 30%
                   </div>
                   <div className="bg-white p-2 rounded">
-                    <span className="font-medium">30억원 초과:</span> 50%
+                    <span className="font-medium">30?�원 초과:</span> 50%
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* 오류 표시 */}
+          {/* ?�류 ?�시 */}
           {Object.keys(errors).length > 0 && (
             <Alert className="border-red-200 bg-red-50">
               <AlertTriangle className="h-4 w-4 text-red-600" />
@@ -1307,43 +1290,39 @@ export default function GiftTaxCalculatorComponent() {
           )}
         </div>
 
-        {/* 결과 영역 */}
+        {/* 결과 ?�역 */}
         <div className="space-y-6">
           {result && (
             <>
-              {/* 계산 결과 요약 */}
+              {/* 계산 결과 ?�약 */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Calculator className="w-5 h-5 text-purple-600" />
-                    증여세 계산 결과
+                    증여??계산 결과
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <p className="text-sm text-blue-600 mb-1">총 증여재산</p>
+                      <p className="text-sm text-blue-600 mb-1">�?증여?�산</p>
                       <p className="text-xl font-bold text-blue-800">
-                        {result.grossGift.toLocaleString()}원
-                      </p>
+                        {result.grossGift.toLocaleString()}??                      </p>
                     </div>
                     <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <p className="text-sm text-green-600 mb-1">공제액</p>
+                      <p className="text-sm text-green-600 mb-1">공제??/p>
                       <p className="text-xl font-bold text-green-800">
-                        {result.giftDeductions.toLocaleString()}원
-                      </p>
+                        {result.giftDeductions.toLocaleString()}??                      </p>
                     </div>
                     <div className="text-center p-4 bg-orange-50 rounded-lg">
-                      <p className="text-sm text-orange-600 mb-1">과세표준</p>
+                      <p className="text-sm text-orange-600 mb-1">과세?��?</p>
                       <p className="text-xl font-bold text-orange-800">
-                        {result.taxableGift.toLocaleString()}원
-                      </p>
+                        {result.taxableGift.toLocaleString()}??                      </p>
                     </div>
                     <div className="text-center p-4 bg-red-50 rounded-lg">
-                      <p className="text-sm text-red-600 mb-1">최종 납부세액</p>
+                      <p className="text-sm text-red-600 mb-1">최종 ?��??�액</p>
                       <p className="text-2xl font-bold text-red-800">
-                        {result.determinedTax.toLocaleString()}원
-                      </p>
+                        {result.determinedTax.toLocaleString()}??                      </p>
                     </div>
                   </div>
 
@@ -1351,24 +1330,23 @@ export default function GiftTaxCalculatorComponent() {
                     <Alert className="border-yellow-200 bg-yellow-50">
                       <Info className="h-4 w-4 text-yellow-600" />
                       <AlertDescription className="text-yellow-800">
-                        <strong>📊 10년 합산과세 적용:</strong><br />
-                                                  • 기존 증여액: {Math.round(result.cumulativeTaxation.previousGifts).toLocaleString('ko-KR')}원<br />
-                          • 이번 증여액: {Math.round(result.cumulativeTaxation.currentGift).toLocaleString('ko-KR')}원<br />
-                          • 총 합산액: {Math.round(result.cumulativeTaxation.totalGifts).toLocaleString('ko-KR')}원<br />
-                          • 기납부 세액: {Math.round(result.cumulativeTaxation.previousTaxPaid).toLocaleString('ko-KR')}원
-                      </AlertDescription>
+                        <strong>?�� 10???�산과세 ?�용:</strong><br />
+                                                  ??기존 증여?? {Math.round(result.cumulativeTaxation.previousGifts).toLocaleString('ko-KR')}??br />
+                          ???�번 증여?? {Math.round(result.cumulativeTaxation.currentGift).toLocaleString('ko-KR')}??br />
+                          ??�??�산?? {Math.round(result.cumulativeTaxation.totalGifts).toLocaleString('ko-KR')}??br />
+                          ??기납부 ?�액: {Math.round(result.cumulativeTaxation.previousTaxPaid).toLocaleString('ko-KR')}??                      </AlertDescription>
                     </Alert>
                   )}
 
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="font-medium">실효세율</span>
+                      <span className="font-medium">?�효?�율</span>
                       <span className="text-lg font-bold">
                         {(result.effectiveRate * 100).toFixed(2)}%
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="font-medium">적용세율</span>
+                      <span className="font-medium">?�용?�율</span>
                       <span className="text-lg font-bold">
                         {(result.marginalRate * 100).toFixed(2)}%
                       </span>
@@ -1377,75 +1355,70 @@ export default function GiftTaxCalculatorComponent() {
                 </CardContent>
               </Card>
 
-              {/* 공제 상세 */}
+              {/* 공제 ?�세 */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <TrendingDown className="w-5 h-5 text-green-600" />
-                    공제 상세
+                    공제 ?�세
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex justify-between items-center py-2 border-b">
                     <span>{result.relationshipDeduction.type}</span>
                     <span className="font-medium">
-                      {result.relationshipDeduction.amount.toLocaleString()}원
-                    </span>
+                      {result.relationshipDeduction.amount.toLocaleString()}??                    </span>
                   </div>
                   
                   {result.specialDeductions.marriage > 0 && (
                     <div className="flex justify-between items-center py-2 border-b">
-                      <span>혼인증여공제</span>
+                      <span>?�인증여공제</span>
                       <span className="font-medium">
-                        {result.specialDeductions.marriage.toLocaleString()}원
-                      </span>
+                        {result.specialDeductions.marriage.toLocaleString()}??                      </span>
                     </div>
                   )}
                   
                   {result.specialDeductions.education > 0 && (
                     <div className="flex justify-between items-center py-2 border-b">
-                      <span>교육비공제</span>
+                      <span>교육비공??/span>
                       <span className="font-medium">
-                        {result.specialDeductions.education.toLocaleString()}원
-                      </span>
+                        {result.specialDeductions.education.toLocaleString()}??                      </span>
                     </div>
                   )}
                   
                   {result.specialDeductions.startup > 0 && (
                     <div className="flex justify-between items-center py-2 border-b">
-                      <span>창업자금공제</span>
+                      <span>창업?�금공제</span>
                       <span className="font-medium">
-                        {result.specialDeductions.startup.toLocaleString()}원
-                      </span>
+                        {result.specialDeductions.startup.toLocaleString()}??                      </span>
                     </div>
                   )}
                   
                   <div className="flex justify-between items-center pt-2 font-bold text-lg">
-                    <span>총 공제액</span>
+                    <span>�?공제??/span>
                     <span className="text-green-600">
-                      {result.giftDeductions.toLocaleString()}원
-                    </span>
+                      {result.giftDeductions.toLocaleString()}??                    </span>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* 신고 및 납부 안내 */}
+              {/* ?�고 �??��? ?�내 */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Calendar className="w-5 h-5 text-blue-600" />
-                    신고 및 납부 안내
+                    ?�고 �??��? ?�내
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span>신고기한</span>
+                    <span>?�고기한</span>
                     <span className="font-medium">
                       {result.filingDueDate.toLocaleDateString('ko-KR')}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span>납부기한</span>
+                    <span>?��?기한</span>
                     <span className="font-medium">
                       {result.paymentDueDate.toLocaleDateString('ko-KR')}
                     </span>
@@ -1455,24 +1428,24 @@ export default function GiftTaxCalculatorComponent() {
                     <Alert className="border-blue-200 bg-blue-50">
                       <CheckCircle className="h-4 w-4 text-blue-600" />
                       <AlertDescription className="text-blue-800">
-                        <strong>분할납부 가능:</strong> 200만원 이상으로 최대 5회 분할납부가 가능합니다.
+                        <strong>분할?��? 가??</strong> 200만원 ?�상?�로 최�? 5??분할?��?가 가?�합?�다.
                       </AlertDescription>
                     </Alert>
                   )}
                   
                   <p className="text-sm text-gray-500 border-t pt-3">
-                    ℹ️ {GIFT_TAX_LIMITS_2024.messages.filingDeadline}
+                    ?�️ {GIFT_TAX_LIMITS_2024.messages.filingDeadline}
                   </p>
                 </CardContent>
               </Card>
 
-              {/* 절세 조언 */}
+              {/* ?�세 조언 */}
               {result.taxSavingAdvice.length > 0 && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <PiggyBank className="w-5 h-5 text-yellow-600" />
-                      💰 맞춤형 절세 조언
+                      ?�� 맞춤???�세 조언
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
@@ -1480,48 +1453,46 @@ export default function GiftTaxCalculatorComponent() {
                       <Alert key={index} className="border-green-200 bg-green-50">
                         <TrendingUp className="h-4 w-4 text-green-600" />
                         <AlertDescription className="text-green-800">
-                          <strong>🎯 {advice.type}:</strong><br />
+                          <strong>?�� {advice.type}:</strong><br />
                           {advice.description}
                           {advice.expectedSaving > 0 && (
                             <div className="mt-2 p-2 bg-green-100 rounded border">
                               <span className="font-medium text-green-900">
-                                💵 예상 절세액: {advice.expectedSaving.toLocaleString()}원
-                              </span>
+                                ?�� ?�상 ?�세?? {advice.expectedSaving.toLocaleString()}??                              </span>
                             </div>
                           )}
                         </AlertDescription>
                       </Alert>
                     ))}
                     
-                    {/* 추가 절세 전략 */}
+                    {/* 추�? ?�세 ?�략 */}
                     <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4">
-                      <h4 className="font-bold text-blue-900 mb-3">🚀 추가 절세 전략</h4>
+                      <h4 className="font-bold text-blue-900 mb-3">?? 추�? ?�세 ?�략</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="bg-white p-3 rounded border">
-                          <h5 className="font-medium text-blue-800 mb-1">📅 연도별 분할증여</h5>
+                          <h5 className="font-medium text-blue-800 mb-1">?�� ?�도�?분할증여</h5>
                           <p className="text-sm text-blue-700">
-                            {input.donorRelation === 'spouse' ? '매년 6억원씩' :
-                             ['parent', 'grandparent'].includes(input.donorRelation) ? '매년 5천만원씩' :
-                             ['child', 'grandchild'].includes(input.donorRelation) ? '매년 5천만원씩' :
-                             '매년 1천만원씩'} 분할하여 증여세 부담 최소화
-                          </p>
+                            {input.donorRelation === 'spouse' ? '매년 6?�원?? :
+                             ['parent', 'grandparent'].includes(input.donorRelation) ? '매년 5천만?�씩' :
+                             ['child', 'grandchild'].includes(input.donorRelation) ? '매년 5천만?�씩' :
+                             '매년 1천만?�씩'} 분할?�여 증여??부??최소??                          </p>
                         </div>
                         <div className="bg-white p-3 rounded border">
-                          <h5 className="font-medium text-purple-800 mb-1">🎯 타이밍 최적화</h5>
+                          <h5 className="font-medium text-purple-800 mb-1">?�� ?�?�밍 최적??/h5>
                           <p className="text-sm text-purple-700">
-                            재산 가치가 낮은 시점에 증여하여 미래 상승분 절세
+                            ?�산 가치�? ??? ?�점??증여?�여 미래 ?�승�??�세
                           </p>
                         </div>
                         <div className="bg-white p-3 rounded border">
-                          <h5 className="font-medium text-orange-800 mb-1">🏠 부동산 전략</h5>
+                          <h5 className="font-medium text-orange-800 mb-1">?�� 부?�산 ?�략</h5>
                           <p className="text-sm text-orange-700">
-                            토지 먼저 증여 후 건물 신축으로 가치 상승분 회피
+                            ?��? 먼�? 증여 ??건물 ?�축?�로 가�??�승�??�피
                           </p>
                         </div>
                         <div className="bg-white p-3 rounded border">
-                          <h5 className="font-medium text-green-800 mb-1">👥 가족 단위 증여</h5>
+                          <h5 className="font-medium text-green-800 mb-1">?�� 가�??�위 증여</h5>
                           <p className="text-sm text-green-700">
-                            배우자, 자녀 등 다수에게 분산 증여로 전체 세부담 감소
+                            배우?? ?��? ???�수?�게 분산 증여�??�체 ?��???감소
                           </p>
                         </div>
                       </div>
@@ -1537,7 +1508,7 @@ export default function GiftTaxCalculatorComponent() {
               <CardContent className="text-center py-12">
                 <Gift className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <p className="text-gray-500">
-                  증여 정보를 입력하면 계산 결과가 표시됩니다.
+                  증여 ?�보�??�력?�면 계산 결과가 ?�시?�니??
                 </p>
               </CardContent>
             </Card>
@@ -1545,28 +1516,27 @@ export default function GiftTaxCalculatorComponent() {
         </div>
       </div>
 
-      {/* 종합 조언 및 체크리스트 */}
+      {/* 종합 조언 �?체크리스??*/}
       <Card className="mt-8">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-purple-600">
             <CheckCircle className="w-5 h-5" />
-            📋 증여세 신고 체크리스트
-          </CardTitle>
+            ?�� 증여???�고 체크리스??          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* 신고 전 준비사항 */}
+            {/* ?�고 ??준비사??*/}
             <div className="space-y-3">
-              <h4 className="font-bold text-gray-900 mb-3">📝 신고 전 준비사항</h4>
+              <h4 className="font-bold text-gray-900 mb-3">?�� ?�고 ??준비사??/h4>
               <div className="space-y-2">
                 {[
-                  '증여계약서 또는 증여확인서 작성',
-                  '부동산의 경우 등기부등본 및 공시지가 확인',
-                  '주식의 경우 주주명부 및 평가명세서',
-                  '부담부증여시 부담내용 명세서',
-                  '특별공제 요건 충족 증빙서류',
-                  '기존 증여세 신고서류 (10년 내)',
-                  '신분증 및 가족관계증명서'
+                  '증여계약???�는 증여?�인???�성',
+                  '부?�산??경우 ?�기부?�본 �?공시지가 ?�인',
+                  '주식??경우 주주명�? �??��?명세??,
+                  '부?��?증여??부?�내??명세??,
+                  '?�별공제 ?�건 충족 증빙?�류',
+                  '기존 증여???�고?�류 (10????',
+                  '?�분�?�?가족�?계증명서'
                 ].map((item, index) => (
                   <div key={index} className="flex items-start gap-2 text-sm">
                     <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
@@ -1576,18 +1546,18 @@ export default function GiftTaxCalculatorComponent() {
               </div>
             </div>
             
-            {/* 신고 시 주의사항 */}
+            {/* ?�고 ??주의?�항 */}
             <div className="space-y-3">
-              <h4 className="font-bold text-gray-900 mb-3">⚠️ 신고 시 주의사항</h4>
+              <h4 className="font-bold text-gray-900 mb-3">?�️ ?�고 ??주의?�항</h4>
               <div className="space-y-2">
                 {[
-                  '증여일로부터 3개월 이내 신고 필수',
-                  '신고 누락 시 20% 가산세 부과',
-                  '특별공제는 신고해야만 적용',
-                  '부담부증여는 정확한 부담액 산정',
-                  '재산 평가는 증여일 기준 시가',
-                  '세무서 방문 또는 홈택스 온라인 신고',
-                  '납부는 신고와 동시에 완료'
+                  '증여?�로부??3개월 ?�내 ?�고 ?�수',
+                  '?�고 ?�락 ??20% 가?�세 부�?,
+                  '?�별공제???�고?�야�??�용',
+                  '부?��?증여???�확??부?�액 ?�정',
+                  '?�산 ?��???증여??기�? ?��?',
+                  '?�무??방문 ?�는 ?�택???�라???�고',
+                  '?��????�고?� ?�시???�료'
                 ].map((item, index) => (
                   <div key={index} className="flex items-start gap-2 text-sm">
                     <AlertTriangle className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
@@ -1598,48 +1568,46 @@ export default function GiftTaxCalculatorComponent() {
             </div>
           </div>
           
-          {/* 연락처 정보 */}
+          {/* ?�락�??�보 */}
           <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-            <h4 className="font-bold text-blue-900 mb-3">📞 도움받을 수 있는 곳</h4>
+            <h4 className="font-bold text-blue-900 mb-3">?�� ?��?받을 ???�는 �?/h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div className="text-center">
-                <div className="font-medium text-blue-800">국세청 콜센터</div>
+                <div className="font-medium text-blue-800">�?���?콜센??/div>
                 <div className="text-blue-600">126</div>
-                <div className="text-xs text-blue-500">24시간 상담</div>
+                <div className="text-xs text-blue-500">24?�간 ?�담</div>
               </div>
               <div className="text-center">
-                <div className="font-medium text-green-800">홈택스</div>
+                <div className="font-medium text-green-800">?�택??/div>
                 <div className="text-green-600">hometax.go.kr</div>
-                <div className="text-xs text-green-500">온라인 신고</div>
+                <div className="text-xs text-green-500">?�라???�고</div>
               </div>
               <div className="text-center">
-                <div className="font-medium text-purple-800">전문 세무사</div>
-                <div className="text-purple-600">개인 상담</div>
-                <div className="text-xs text-purple-500">복잡한 사안</div>
+                <div className="font-medium text-purple-800">?�문 ?�무??/div>
+                <div className="text-purple-600">개인 ?�담</div>
+                <div className="text-xs text-purple-500">복잡???�안</div>
               </div>
             </div>
           </div>
           
-          {/* 최종 알림 */}
+          {/* 최종 ?�림 */}
           <Alert className="mt-6 border-red-200 bg-red-50">
             <AlertTriangle className="h-4 w-4 text-red-600" />
             <AlertDescription className="text-red-800">
-              <strong>🚨 중요 안내:</strong><br />
-              본 계산 결과는 참고용이며, 실제 신고 시에는 반드시 세무 전문가의 검토를 받으시기 바랍니다.
-              개인별 특수 상황이나 최신 세법 변경사항이 반영되지 않을 수 있습니다.
+              <strong>?�� 중요 ?�내:</strong><br />
+              �?계산 결과??참고?�이�? ?�제 ?�고 ?�에??반드???�무 ?�문가??검?��? 받으?�기 바랍?�다.
+              개인�??�수 ?�황?�나 최신 ?�법 변경사??�� 반영?��? ?�을 ???�습?�다.
             </AlertDescription>
           </Alert>
         </CardContent>
       </Card>
 
-      {/* 🧪 베타테스트 피드백 시스템 (면책조항 상단) */}
-      <BetaFeedbackForm 
-        calculatorName="증여세 계산기"
-        calculatorType="gift-tax"
+      {/* ?�� 베�??�스???�드�??�스??(면책조항 ?�단) */}
+        calculatorName="증여??계산�?
         className="mb-6"
       />
 
-      {/* 하단 면책 조항 */}
+      {/* ?�단 면책 조항 */}
       <TaxCalculatorDisclaimer variant="full" className="mt-8" />
     </div>
   );

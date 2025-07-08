@@ -29,7 +29,7 @@ import { ComprehensiveIncomeTaxCalculator, ComprehensiveTaxInputValidator } from
 import { formatCurrency, formatNumber, formatNumberInput, parseFormattedNumber, handleNumberInputChange } from '@/lib/utils';
 import { COMPREHENSIVE_TAX_LIMITS_2024 } from '@/constants/tax-rates-2024';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
-import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
+
 import { generateServiceGuideBook } from '@/lib/utils/pdfDocumentGenerator';
 
 interface NumberInputProps {
@@ -993,12 +993,7 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
         </CardHeader>
       </Card>
 
-      {/* 🧪 베타테스트 피드백 시스템 (면책조항 상단) */}
-      <BetaFeedbackForm 
-        calculatorName="종합소득세 계산기"
-        calculatorType="comprehensive-income-tax"
-        className="mb-6"
-      />
+
 
       {/* 간단한 면책 조항 */}
       <TaxCalculatorDisclaimer variant="summary" />

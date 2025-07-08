@@ -26,7 +26,7 @@ import {
 import { VATInput, VATResult } from '@/types/tax-calculator.types';
 import { calculateVAT, determineBusinessType, getVATRateByBusiness, VAT_RATES, SIMPLIFIED_THRESHOLD, EXEMPT_THRESHOLD } from '@/lib/utils/vat-calculations';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
-import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
+
 
 // 업종 선택 옵션
 const BUSINESS_CATEGORIES = [
@@ -1168,12 +1168,7 @@ export default function VATCalculator() {
         </div>
       </div>
 
-      {/* 🧪 베타테스트 피드백 시스템 */}
-      <BetaFeedbackForm 
-        calculatorName="부가가치세 계산기"
-        calculatorType="vat"
-        className="mt-8"
-      />
+
 
       {/* 하단 면책 조항 */}
       <TaxCalculatorDisclaimer variant="full" className="mt-6" />

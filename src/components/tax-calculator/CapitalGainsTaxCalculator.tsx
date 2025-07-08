@@ -28,7 +28,7 @@ import {
   EyeOff
 } from 'lucide-react';
 import { TaxCalculatorDisclaimer } from './TaxCalculatorDisclaimer';
-import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
+
 import { EnhancedSmartInput } from '@/components/ui/enhanced-smart-input';
 import { useSmartCalculation } from '@/lib/utils/smartCalculationEngine';
 import { 
@@ -725,12 +725,7 @@ export default function CapitalGainsTaxCalculatorComponent() {
         </CardHeader>
       </Card>
 
-      {/* 🧪 베타테스트 피드백 시스템 (면책조항 상단) */}
-      <BetaFeedbackForm 
-        calculatorName="양도소득세 계산기"
-        calculatorType="capital-gains-tax"
-        className="mb-6"
-      />
+
 
       {/* 간단한 면책 조항 */}
       <TaxCalculatorDisclaimer variant="summary" />

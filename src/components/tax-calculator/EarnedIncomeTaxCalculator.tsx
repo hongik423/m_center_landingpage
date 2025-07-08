@@ -36,7 +36,7 @@ import { EarnedIncomeTaxCalculator, TaxInputValidator } from '@/lib/utils/tax-ca
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import { DEDUCTION_LIMITS_2024 } from '@/constants/tax-rates-2024';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
-import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
+
 import { EnhancedSmartInput } from '@/components/ui/enhanced-smart-input';
 
 import { NumberInput } from '@/components/ui/number-input';
@@ -1089,13 +1089,6 @@ export default function EarnedIncomeTaxCalculatorComponent() {
 
 
     </CalculatorWrapper>
-
-    {/* 🧪 베타테스트 피드백 시스템 */}
-    <BetaFeedbackForm 
-      calculatorName="근로소득세 계산기"
-      calculatorType="earned-income-tax"
-      className="mt-8"
-    />
 
     {/* 하단 면책 조항 */}
     <TaxCalculatorDisclaimer variant="full" className="mt-6" />

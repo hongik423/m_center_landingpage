@@ -32,7 +32,7 @@ import { BusinessInheritanceInput, BusinessInheritanceResult, PracticalChecklist
 import { BusinessInheritanceCalculator } from '@/lib/utils/business-inheritance-calculations';
 import BusinessInheritanceManagementSystem from './BusinessInheritanceManagementSystem';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
-import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
+
 
 const BusinessInheritanceCalculatorComponent: React.FC = () => {
   const [inputs, setInputs] = useState<BusinessInheritanceInput>({
@@ -1836,12 +1836,7 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
         </div>
       )}
 
-      {/* 🧪 베타테스트 피드백 시스템 */}
-      <BetaFeedbackForm 
-        calculatorName="사업승계세 계산기"
-        calculatorType="business-inheritance-tax"
-        className="mt-8"
-      />
+
 
       {/* 하단 면책 조항 */}
       <TaxCalculatorDisclaimer variant="full" className="mt-6" />

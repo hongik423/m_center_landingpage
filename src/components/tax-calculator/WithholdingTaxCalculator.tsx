@@ -37,7 +37,7 @@ import {
 import { calculateWithholdingTax, getWithholdingTaxRate } from '@/lib/utils/withholding-tax-calculations';
 import { WITHHOLDING_TAX_2024, WITHHOLDING_TAX_LIMITS_2024 } from '@/constants/tax-rates-2024';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
-import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
+
 import { EnhancedSmartInput } from '@/components/ui/enhanced-smart-input';
 import { useSmartCalculation } from '@/lib/utils/smartCalculationEngine';
 import { formatCurrency } from '@/lib/utils';
@@ -1524,12 +1524,7 @@ const WithholdingTaxCalculator: React.FC = () => {
         </TabsContent>
       </Tabs>
 
-      {/* 🧪 베타테스트 피드백 시스템 */}
-      <BetaFeedbackForm 
-        calculatorName="원천징수세 계산기"
-        calculatorType="withholding-tax"
-        className="mt-8"
-      />
+
 
       {/* 하단 면책 조항 */}
       <TaxCalculatorDisclaimer variant="full" className="mt-6" />

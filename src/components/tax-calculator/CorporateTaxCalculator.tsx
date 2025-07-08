@@ -38,7 +38,7 @@ import { CorporateTaxInput, CorporateTaxResult, CorporateTaxValidation } from '@
 import { CorporateTaxCalculator, CorporateTaxInputValidator } from '@/lib/utils/corporate-tax-calculations';
 import { CORPORATE_TAX_LIMITS_2024, CORPORATE_TAX_2024 } from '@/constants/tax-rates-2024';
 import { TaxCalculatorDisclaimer } from './TaxCalculatorDisclaimer';
-import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
+
 import { formatNumber, formatWon } from '@/lib/utils';
 
 // NumberInput 컴포넌트 (실시간 검증 및 한도 표시)
@@ -2027,12 +2027,7 @@ const CorporateTaxCalculatorComponent: React.FC = () => {
         </div>
       </div>
 
-      {/* 🧪 베타테스트 피드백 시스템 */}
-      <BetaFeedbackForm 
-        calculatorName="법인세 계산기"
-        calculatorType="corporate-tax"
-        className="mb-6"
-      />
+
 
       {/* 하단 면책 조항 */}
       <TaxCalculatorDisclaimer variant="full" />

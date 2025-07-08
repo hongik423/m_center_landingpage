@@ -39,7 +39,7 @@ import VATCalculator from '@/components/tax-calculator/VATCalculator';
 import WithholdingTaxCalculator from '@/components/tax-calculator/WithholdingTaxCalculator';
 import BusinessInheritanceCalculatorComponent from '@/components/tax-calculator/BusinessInheritanceCalculator';
 import StockTransferTaxCalculator from '@/components/tax-calculator/StockTransferTaxCalculator';
-import { FloatingErrorReportButton } from '@/components/ui/floating-error-report-button';
+
 import { Label } from '@/components/ui/label';
 import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
 
@@ -617,11 +617,12 @@ export default function TaxCalculatorPage() {
         }, 2000);
       }
 
-      // 3단계: 베타 피드백 섹션으로 스크롤 (백업 방법)
+      // 3단계: 통합 오류신고 섹션으로 스크롤 (백업 방법)
       setTimeout(() => {
-        const feedbackSection = document.querySelector('[data-beta-feedback]');
-        if (feedbackSection) {
-          feedbackSection.scrollIntoView({ 
+        const errorReportSection = document.getElementById('beta-feedback-section');
+        if (errorReportSection) {
+          console.log('🎯 통합 오류신고 섹션으로 스크롤');
+          errorReportSection.scrollIntoView({ 
             behavior: 'smooth', 
             block: 'center' 
           });
@@ -1728,24 +1729,84 @@ export default function TaxCalculatorPage() {
         </div>
       </div>
       
-      {/* 🚨 플로팅 오류신고 버튼 */}
-      <FloatingErrorReportButton
-        calculatorName={
-          selectedCalculator 
-            ? (personalTaxCalculators.find(c => c.id === selectedCalculator)?.title ||
-               corporateTaxCalculators.find(c => c.id === selectedCalculator)?.title ||
-               businessInheritanceCalculator.id === selectedCalculator ? businessInheritanceCalculator.title :
-               stockTransferCalculator.id === selectedCalculator ? stockTransferCalculator.title : '세금계산기')
-            : '세금계산기'
-        }
-        onReportClick={scrollToErrorReport}
-      />
-
-      {/* 🚨 베타피드백 폼 */}
-      <BetaFeedbackForm 
-        calculatorName="세금계산기"
-        calculatorType="tax"
-      />
+      {/* 🚨 통합 오류신고 섹션 - 모든 세금계산기 아래에 하나만 배치 */}
+      <div className="mt-16 mb-8 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-6 md:p-8">
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Bug className="w-8 h-8 text-red-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-red-800 mb-3">오류 신고 및 피드백</h2>
+          <p className="text-red-700 text-lg">
+            계산 오류나 개선사항이 있으시면 언제든 신고해주세요
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* 오류신고 카드 */}
+          <Card className="border-red-300 bg-white/80">
+            <CardHeader className="text-center">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              <CardTitle className="text-red-800">🚨 계산 오류 신고</CardTitle>
+              <CardDescription className="text-red-600">
+                잘못된 계산 결과나 시스템 오류를 발견하셨나요?
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={scrollToErrorReport}
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3"
+                size="lg"
+              >
+                <Bug className="w-5 h-5 mr-2" />
+                지금 바로 오류신고하기
+              </Button>
+            </CardContent>
+          </Card>
+          
+          {/* 베타피드백 카드 */}
+          <Card className="border-orange-300 bg-white/80">
+            <CardHeader className="text-center">
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <RefreshCw className="w-6 h-6 text-orange-600" />
+              </div>
+              <CardTitle className="text-orange-800">💡 개선 제안</CardTitle>
+              <CardDescription className="text-orange-600">
+                더 나은 서비스를 위한 아이디어나 의견을 들려주세요
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div id="beta-feedback-section">
+                <BetaFeedbackForm 
+                  calculatorName={
+                    selectedCalculator 
+                      ? (personalTaxCalculators.find(c => c.id === selectedCalculator)?.title ||
+                         corporateTaxCalculators.find(c => c.id === selectedCalculator)?.title ||
+                         businessInheritanceCalculator.id === selectedCalculator ? businessInheritanceCalculator.title :
+                         stockTransferCalculator.id === selectedCalculator ? stockTransferCalculator.title : '세금계산기')
+                      : '세금계산기'
+                  }
+                  calculatorType="tax"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* 연락처 정보 */}
+        <div className="mt-6 p-4 bg-white/60 rounded-lg border border-gray-200">
+          <div className="text-center text-sm text-gray-600">
+            <p className="mb-2">
+              <strong>긴급 문의:</strong> 심각한 오류나 즉시 해결이 필요한 문제는
+            </p>
+            <p>
+              📧 <strong>mcenter.support@example.com</strong> 또는 
+              📞 <strong>1588-0000</strong>으로 연락주세요
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 } 

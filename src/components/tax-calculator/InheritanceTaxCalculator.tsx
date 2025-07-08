@@ -15,7 +15,7 @@ import { InheritanceTaxCalculator, InheritanceTaxInputValidator } from '@/lib/ut
 import { InheritanceTaxInput, InheritanceTaxResult } from '@/types/tax-calculator.types';
 import { INHERITANCE_TAX_LIMITS_2024 } from '@/constants/tax-rates-2024';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
-import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
+
 import { formatNumber, formatWon, formatNumberInput, parseFormattedNumber, handleNumberInputChange } from '@/lib/utils';
 import { NumberInput } from '@/components/ui/number-input';
 
@@ -1221,12 +1221,7 @@ export const InheritanceTaxCalculatorComponent: React.FC = () => {
         </div>
       </div>
 
-      {/* 🧪 베타테스트 피드백 시스템 (면책조항 상단) */}
-      <BetaFeedbackForm 
-        calculatorName="상속세 계산기"
-        calculatorType="inheritance-tax"
-        className="mb-6"
-      />
+
 
       {/* 하단 면책 조항 */}
       <TaxCalculatorDisclaimer variant="full" />

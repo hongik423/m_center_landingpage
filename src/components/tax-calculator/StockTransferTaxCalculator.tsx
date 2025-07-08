@@ -39,7 +39,7 @@ import { StockTransferInput, StockTransferResult } from '@/types/tax-calculator.
 import { StockTransferTaxCalculator as StockTransferCalc } from '@/lib/utils/stock-transfer-calculations';
 import { formatNumber, formatWon, formatNumberInput, parseFormattedNumber, handleNumberInputChange } from '@/lib/utils';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
-import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
+
 
 interface FormData extends Partial<StockTransferInput> {
   stockType: 'listed' | 'unlisted' | 'kosdaq' | 'konex';
@@ -3916,12 +3916,7 @@ export default function StockTransferTaxCalculator() {
         </div>
       )}
 
-      {/* 🧪 베타테스트 피드백 시스템 */}
-      <BetaFeedbackForm 
-        calculatorName="주식이동세금 계산기"
-        calculatorType="stock-transfer-tax"
-        className="mt-8"
-      />
+
 
       {/* 하단 면책 조항 */}
       <TaxCalculatorDisclaimer variant="full" className="mt-6" />
