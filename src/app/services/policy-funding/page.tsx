@@ -40,6 +40,8 @@ export default function PolicyFundingPage() {
     // DSCR 계산을 위한 부채 정보
     policyLoanAmount: 350000000, // 정책자금융자액 3.5억원 (초기투자액의 70%)
     policyLoanRate: 2.5, // 정책자금 이자율 2.5%
+    gracePeriod: 2, // 거치기간 2년 (이자만 납부)
+    repaymentPeriod: 5, // 원금상환기간 5년 (원금+이자 납부)
     otherDebtAmount: 0, // 기타채무액
     otherDebtRate: 5.0, // 기타채무 이자율 5.0%
   });
@@ -123,8 +125,9 @@ export default function PolicyFundingPage() {
         // DSCR 정보 추가 (연도별 상세 데이터 포함)
         policyFundAmount: investmentInput.policyLoanAmount,
         interestRate: investmentInput.policyLoanRate,
-        loanPeriod: investmentInput.analysisYears,
-        gracePeriod: 0,
+        loanPeriod: investmentInput.gracePeriod + investmentInput.repaymentPeriod, // 총 대출기간
+        gracePeriod: investmentInput.gracePeriod, // 거치기간
+        repaymentPeriod: investmentInput.repaymentPeriod, // 원금상환기간
         dscrData: dscrData,
         yearlyDSCRData: yearlyDSCRData, // 연도별 DSCR 상세 데이터 추가
       });
@@ -169,9 +172,11 @@ export default function PolicyFundingPage() {
     }));
   };
 
-  // DSCR 연도별 상세 계산 함수
+  // DSCR 연도별 상세 계산 함수 (거치기간/상환기간 반영)
   const calculateYearlyDSCR = () => {
     const analysisYears = investmentInput.analysisYears;
+    const gracePeriod = investmentInput.gracePeriod || 0; // 거치기간
+    const repaymentPeriod = investmentInput.repaymentPeriod || analysisYears; // 원금상환기간
     const yearlyDSCRData = [];
     
     // 매출 성장률 (고급 설정에서 가져오거나 기본값 5%)
@@ -185,12 +190,30 @@ export default function PolicyFundingPage() {
       const operatingProfitRate = (investmentInput.operatingProfitRate || 15) / 100;
       const yearlyOperatingProfit = yearlyRevenue * operatingProfitRate;
       
-      // 연도별 정책자금 잔액 계산 (원금 균등상환 방식)
-      const yearlyPolicyLoanPrincipal = investmentInput.policyLoanAmount / analysisYears;
-      const remainingPolicyLoan = investmentInput.policyLoanAmount - (yearlyPolicyLoanPrincipal * (year - 1));
-      const yearlyPolicyLoanInterest = remainingPolicyLoan * (investmentInput.policyLoanRate / 100);
+      // 🔥 거치기간/상환기간을 고려한 정책자금 상환 계산
+      let yearlyPolicyLoanPrincipal = 0;
+      let yearlyPolicyLoanInterest = 0;
+      let remainingPolicyLoan = investmentInput.policyLoanAmount;
       
-      // 연도별 기타채무 잔액 계산
+      if (year <= gracePeriod) {
+        // 거치기간: 이자만 납부, 원금 상환 없음
+        yearlyPolicyLoanPrincipal = 0;
+        yearlyPolicyLoanInterest = investmentInput.policyLoanAmount * (investmentInput.policyLoanRate / 100);
+        remainingPolicyLoan = investmentInput.policyLoanAmount;
+      } else if (year <= gracePeriod + repaymentPeriod) {
+        // 상환기간: 원금 균등분할 + 잔액 기준 이자
+        const repaymentYear = year - gracePeriod; // 상환 시작 후 몇 년차
+        yearlyPolicyLoanPrincipal = investmentInput.policyLoanAmount / repaymentPeriod;
+        remainingPolicyLoan = investmentInput.policyLoanAmount - (yearlyPolicyLoanPrincipal * (repaymentYear - 1));
+        yearlyPolicyLoanInterest = remainingPolicyLoan * (investmentInput.policyLoanRate / 100);
+      } else {
+        // 상환 완료 후: 상환액 없음
+        yearlyPolicyLoanPrincipal = 0;
+        yearlyPolicyLoanInterest = 0;
+        remainingPolicyLoan = 0;
+      }
+      
+      // 연도별 기타채무 잔액 계산 (기존 방식 유지)
       const yearlyOtherDebtPrincipal = investmentInput.otherDebtAmount / analysisYears;
       const remainingOtherDebt = investmentInput.otherDebtAmount - (yearlyOtherDebtPrincipal * (year - 1));
       const yearlyOtherDebtInterest = remainingOtherDebt * (investmentInput.otherDebtRate / 100);
@@ -213,7 +236,11 @@ export default function PolicyFundingPage() {
         otherDebtInterest: yearlyOtherDebtInterest,
         remainingOtherDebt,
         totalDebtService: yearlyTotalDebtService,
-        dscr: yearlyDSCR
+        dscr: yearlyDSCR,
+        // 추가 정보
+        isGracePeriod: year <= gracePeriod,
+        isRepaymentPeriod: year > gracePeriod && year <= gracePeriod + repaymentPeriod,
+        isPostRepayment: year > gracePeriod + repaymentPeriod
       });
     }
     
@@ -838,6 +865,70 @@ export default function PolicyFundingPage() {
                               className="w-full p-2 text-sm border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                               placeholder="2.5"
                             />
+                          </div>
+                        </div>
+
+                        {/* 🔥 거치기간 및 상환기간 */}
+                        <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
+                          <h5 className="text-xs font-bold text-orange-900 mb-2 flex items-center">
+                            <span className="mr-1">⏰</span>
+                            정책자금 거치/상환 조건
+                          </h5>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-xs font-bold text-orange-900 mb-1">
+                                🔄 거치기간 (년)
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                max="5"
+                                step="1"
+                                value={investmentInput.gracePeriod}
+                                onChange={(e) => setInvestmentInput(prev => ({
+                                  ...prev,
+                                  gracePeriod: Number(e.target.value)
+                                }))}
+                                className="w-full p-2 text-sm border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                placeholder="2"
+                              />
+                              <p className="text-xs text-orange-600 mt-1">이자만 납부</p>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-bold text-orange-900 mb-1">
+                                💸 원금상환기간 (년)
+                              </label>
+                              <input
+                                type="number"
+                                min="1"
+                                max="10"
+                                step="1"
+                                value={investmentInput.repaymentPeriod}
+                                onChange={(e) => setInvestmentInput(prev => ({
+                                  ...prev,
+                                  repaymentPeriod: Number(e.target.value)
+                                }))}
+                                className="w-full p-2 text-sm border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                placeholder="5"
+                              />
+                              <p className="text-xs text-orange-600 mt-1">원금+이자 납부</p>
+                            </div>
+                          </div>
+                          <div className="mt-2 p-2 bg-white rounded border border-orange-300">
+                            <div className="text-xs text-orange-800 space-y-1">
+                              <div className="flex justify-between">
+                                <span>총 대출기간:</span>
+                                <span className="font-bold">{investmentInput.gracePeriod + investmentInput.repaymentPeriod}년</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>거치기간 (1~{investmentInput.gracePeriod}년):</span>
+                                <span className="text-blue-600">이자만 납부</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>상환기간 ({investmentInput.gracePeriod + 1}~{investmentInput.gracePeriod + investmentInput.repaymentPeriod}년):</span>
+                                <span className="text-red-600">원금+이자 납부</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
 

@@ -68,6 +68,8 @@ interface DSCRDetailedAnalysisProps {
     analysisYears: number;
     policyLoanAmount: number;
     policyLoanRate: number;
+    gracePeriod?: number; // 거치기간
+    repaymentPeriod?: number; // 원금상환기간
     otherDebtAmount: number;
     otherDebtRate: number;
   };
@@ -559,7 +561,14 @@ export default function DSCRDetailedAnalysis({
                   <h4 className="font-bold text-orange-900 mb-3">🏦 총 부채상환액 계산</h4>
                   <ul className="space-y-2 text-sm text-orange-700">
                     <li>• <strong>정책자금 이자:</strong> 연 {investmentInput.policyLoanRate}%</li>
-                    <li>• <strong>정책자금 원금:</strong> 균등분할상환</li>
+                    {investmentInput.gracePeriod && investmentInput.gracePeriod > 0 ? (
+                      <>
+                        <li>• <strong>거치기간:</strong> {investmentInput.gracePeriod}년 (이자만 납부)</li>
+                        <li>• <strong>상환기간:</strong> {investmentInput.repaymentPeriod || 5}년 (원금+이자)</li>
+                      </>
+                    ) : (
+                      <li>• <strong>정책자금 원금:</strong> 균등분할상환</li>
+                    )}
                     <li>• <strong>기타채무 이자:</strong> 연 {investmentInput.otherDebtRate}%</li>
                     <li>• <strong>기타채무 원금:</strong> 균등분할상환</li>
                   </ul>
