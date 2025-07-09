@@ -72,6 +72,8 @@ interface DSCRDetailedAnalysisProps {
     repaymentPeriod?: number; // 원금상환기간
     otherDebtAmount: number;
     otherDebtRate: number;
+    otherDebtGracePeriod?: number; // 기타채무 거치기간
+    otherDebtRepaymentPeriod?: number; // 기타채무 원금상환기간
   };
   advancedSettings?: {
     revenueGrowthRate: number;
@@ -86,25 +88,39 @@ export default function DSCRDetailedAnalysis({
   yearlyDSCRData
 }: DSCRDetailedAnalysisProps) {
   
+  // 디버깅 로그 (개발 시에만 사용)
+  // console.log('🔍 DSCRDetailedAnalysis - yearlyDSCRData:', yearlyDSCRData);
+  // console.log('🔍 DSCRDetailedAnalysis - investmentInput:', investmentInput);
+  // console.log('🔍 DSCRDetailedAnalysis - advancedSettings:', advancedSettings);
+  
   // 연도별 DSCR 데이터 - 페이지에서 전달받은 데이터 우선 사용
   const dscrDataByYear = useMemo((): DSCRData[] => {
     // 페이지에서 전달받은 데이터가 있으면 그것을 사용
     if (yearlyDSCRData && yearlyDSCRData.length > 0) {
-      return yearlyDSCRData.map(data => ({
+      // console.log('Using yearlyDSCRData from props');
+      const mappedData = yearlyDSCRData.map(data => ({
         year: data.year,
         revenue: data.revenue,
         operatingProfit: data.operatingProfit,
-        policyLoanInterest: data.policyLoanInterest,
-        policyLoanPrincipal: data.policyLoanPrincipal,
-        otherDebtInterest: data.otherDebtInterest,
-        otherDebtPrincipal: data.otherDebtPrincipal,
-        totalDebtService: data.totalDebtService,
-        dscr: data.dscr
+        policyLoanInterest: data.policyLoanInterest || 0,
+        policyLoanPrincipal: data.policyLoanPrincipal || 0,
+        otherDebtInterest: data.otherDebtInterest || 0,
+        otherDebtPrincipal: data.otherDebtPrincipal || 0,
+        totalDebtService: data.totalDebtService || 0,
+        dscr: data.dscr || 0
       }));
+      // console.log('Mapped data:', mappedData);
+      return mappedData;
     }
     
-    // 기존 계산 로직 (폴백용) - 잔액 기반 이자 계산으로 개선
+    // console.log('Calculating DSCR data locally');
+    // 기존 계산 로직 (폴백용) - 거치기간/상환기간 고려
     const data: DSCRData[] = [];
+    
+    const gracePeriod = investmentInput.gracePeriod || 0;
+    const repaymentPeriod = investmentInput.repaymentPeriod || investmentInput.analysisYears;
+    const otherDebtGracePeriod = investmentInput.otherDebtGracePeriod || 0;
+    const otherDebtRepaymentPeriod = investmentInput.otherDebtRepaymentPeriod || investmentInput.analysisYears;
     
     for (let year = 1; year <= investmentInput.analysisYears; year++) {
       // 연도별 매출 성장 반영
@@ -114,15 +130,39 @@ export default function DSCRDetailedAnalysis({
       const operatingProfitRate = (investmentInput.operatingProfitRate || 15) / 100;
       const yearlyOperatingProfit = yearlyRevenue * operatingProfitRate;
       
-      // 연도별 정책자금 잔액 계산 (원금 균등상환 방식)
-      const yearlyPolicyLoanPrincipal = investmentInput.policyLoanAmount / investmentInput.analysisYears;
-      const remainingPolicyLoan = investmentInput.policyLoanAmount - (yearlyPolicyLoanPrincipal * (year - 1));
-      const yearlyPolicyLoanInterest = remainingPolicyLoan * (investmentInput.policyLoanRate / 100);
+      // 정책자금 거치기간/상환기간 고려
+      let yearlyPolicyLoanPrincipal = 0;
+      let yearlyPolicyLoanInterest = 0;
       
-      // 연도별 기타채무 잔액 계산
-      const yearlyOtherDebtPrincipal = investmentInput.otherDebtAmount / investmentInput.analysisYears;
-      const remainingOtherDebt = investmentInput.otherDebtAmount - (yearlyOtherDebtPrincipal * (year - 1));
-      const yearlyOtherDebtInterest = remainingOtherDebt * (investmentInput.otherDebtRate / 100);
+      if (year <= gracePeriod) {
+        // 거치기간: 이자만
+        yearlyPolicyLoanPrincipal = 0;
+        yearlyPolicyLoanInterest = investmentInput.policyLoanAmount * (investmentInput.policyLoanRate / 100);
+      } else if (year <= gracePeriod + repaymentPeriod) {
+        // 상환기간: 원금+이자
+        const repaymentYear = year - gracePeriod;
+        yearlyPolicyLoanPrincipal = investmentInput.policyLoanAmount / repaymentPeriod;
+        const remainingPolicyLoan = investmentInput.policyLoanAmount - (yearlyPolicyLoanPrincipal * (repaymentYear - 1));
+        yearlyPolicyLoanInterest = remainingPolicyLoan * (investmentInput.policyLoanRate / 100);
+      }
+      
+      // 기타채무 거치기간/상환기간 고려
+      let yearlyOtherDebtPrincipal = 0;
+      let yearlyOtherDebtInterest = 0;
+      
+      if (investmentInput.otherDebtAmount > 0) {
+        if (year <= otherDebtGracePeriod) {
+          // 거치기간: 이자만
+          yearlyOtherDebtPrincipal = 0;
+          yearlyOtherDebtInterest = investmentInput.otherDebtAmount * (investmentInput.otherDebtRate / 100);
+        } else if (year <= otherDebtGracePeriod + otherDebtRepaymentPeriod) {
+          // 상환기간: 원금+이자
+          const repaymentYear = year - otherDebtGracePeriod;
+          yearlyOtherDebtPrincipal = investmentInput.otherDebtAmount / otherDebtRepaymentPeriod;
+          const remainingOtherDebt = investmentInput.otherDebtAmount - (yearlyOtherDebtPrincipal * (repaymentYear - 1));
+          yearlyOtherDebtInterest = remainingOtherDebt * (investmentInput.otherDebtRate / 100);
+        }
+      }
       
       // 연도별 총 부채상환액
       const yearlyTotalDebtService = yearlyPolicyLoanPrincipal + yearlyPolicyLoanInterest + 
@@ -147,8 +187,14 @@ export default function DSCRDetailedAnalysis({
     return data;
   }, [investmentInput, advancedSettings, yearlyDSCRData]);
 
-  // DSCR 평균값 계산
-  const avgDSCR = dscrDataByYear.reduce((sum, data) => sum + data.dscr, 0) / dscrDataByYear.length;
+  // 평균 DSCR = (분석기간 총 영업이익) / (분석기간 총 부채상환액)
+  const aggregateOperatingProfit = dscrDataByYear.reduce((sum, d) => sum + d.operatingProfit, 0);
+  const aggregateDebtService = dscrDataByYear.reduce((sum, d) => sum + d.totalDebtService, 0);
+  const avgDSCR = aggregateDebtService > 0 ? aggregateOperatingProfit / aggregateDebtService : 0;
+  
+  // 디버깅: 최종 데이터 확인 (개발 시에만 사용)
+  // console.log('🔍 최종 dscrDataByYear:', dscrDataByYear);
+  // console.log('🔍 첫 번째 연도 데이터:', dscrDataByYear[0]);
   
   // DSCR 등급 결정
   const getDSCRGrade = (dscr: number) => {
@@ -288,157 +334,92 @@ export default function DSCRDetailedAnalysis({
 
   return (
     <div className="space-y-8">
-      {/* DSCR 전체 요약 */}
+      {/* 🔥 평균 DSCR 대시보드 추가 */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.5 }}
       >
-        <Card className="p-6">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <Shield className="h-6 w-6 text-blue-600" />
-              DSCR 부채상환능력 종합 평가
+        <Card className="p-4 md:p-6 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200">
+          <CardHeader className="pb-3 md:pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+              <Target className="h-5 w-5 md:h-6 md:w-6 text-blue-600" />
+              📊 분석기간 평균 DSCR 대시보드
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* 평균 DSCR */}
-              <div className="text-center">
-                <div className={`inline-flex items-center gap-2 px-4 py-3 rounded-xl ${currentGrade.bgColor} border`}>
-                  <currentGrade.icon className={`h-6 w-6 ${currentGrade.color}`} />
-                  <div>
-                    <p className="text-3xl font-bold text-gray-900">{avgDSCR.toFixed(2)}</p>
-                    <p className={`text-sm font-medium ${currentGrade.color}`}>평균 DSCR</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+              {/* 평균 DSCR 값 - 모바일 최적화 */}
+              <div className="text-center p-4 bg-white rounded-xl border-2 border-blue-300 order-1">
+                <div className={`inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full ${currentGrade.bgColor} mb-3`}>
+                  <span className="text-2xl md:text-3xl font-bold text-blue-600">{avgDSCR.toFixed(2)}</span>
+                </div>
+                <h3 className="font-bold text-base md:text-lg text-gray-800 mb-1">평균 DSCR</h3>
+                <p className={`text-sm font-medium ${currentGrade.color}`}>{currentGrade.grade}</p>
+                
+                {/* 🔥 모바일 전용 간단한 설명 추가 */}
+                <div className="block md:hidden mt-2 text-xs text-gray-600">
+                  총 영업이익 ÷ 총 부채상환액
+                </div>
+              </div>
+
+              {/* 계산 공식 - 모바일에서는 숨김 */}
+              <div className="hidden md:block p-4 bg-white rounded-xl border border-gray-200 order-2">
+                <h4 className="font-bold text-gray-800 mb-3">📐 계산 공식</h4>
+                <div className="text-center">
+                  <p className="text-lg font-bold text-blue-800 mb-2">
+                    분석기간 총 영업이익
+                  </p>
+                  <hr className="border-t-2 border-blue-800 my-1" />
+                  <p className="text-lg font-bold text-blue-800">
+                    분석기간 총 부채상환액
+                  </p>
+                </div>
+                <div className="mt-3 text-sm text-gray-600">
+                  <p>• 총 영업이익: {(aggregateOperatingProfit / 100000000).toFixed(1)}억원</p>
+                  <p>• 총 부채상환액: {(aggregateDebtService / 100000000).toFixed(1)}억원</p>
+                </div>
+              </div>
+
+              {/* 평가 기준 - 모바일 최적화 */}
+              <div className="p-4 bg-white rounded-xl border border-gray-200 order-3">
+                <h4 className="font-bold text-gray-800 mb-3 text-sm md:text-base">📋 평가 기준</h4>
+                <div className="space-y-2 text-xs md:text-sm">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-3 w-3 md:h-4 md:w-4 text-green-600 flex-shrink-0" />
+                    <span>1.25 이상: 우수</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-3 w-3 md:h-4 md:w-4 text-yellow-600 flex-shrink-0" />
+                    <span>1.0 ~ 1.25: 주의</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-3 w-3 md:h-4 md:w-4 text-red-600 flex-shrink-0" />
+                    <span>1.0 미만: 위험</span>
                   </div>
                 </div>
-                <Badge className={`mt-2 ${currentGrade.color} ${currentGrade.bgColor}`}>
-                  {currentGrade.grade}
-                </Badge>
               </div>
-
-              {/* 연간 상환액 */}
-              <div className="text-center">
-                <p className="text-3xl font-bold text-blue-600">
-                  {(dscrDataByYear[0]?.totalDebtService / 100000000).toFixed(1)}억원
-                </p>
-                <p className="text-sm text-gray-600 mt-1">연간 총 상환액</p>
-                <div className="mt-2 text-xs text-gray-500">
-                  이자 + 원금상환
-                </div>
-              </div>
-
-              {/* 영업이익 */}
-              <div className="text-center">
-                <p className="text-3xl font-bold text-green-600">
-                  {(dscrDataByYear[0]?.operatingProfit / 100000000).toFixed(1)}억원
-                </p>
-                <p className="text-sm text-gray-600 mt-1">연간 영업이익</p>
-                <div className="mt-2 text-xs text-gray-500">
-                  1년차 기준
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* 3단계 평가 기준 */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.1 }}
-      >
-        <Card className="p-6">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <Target className="h-6 w-6 text-purple-600" />
-              DSCR 평가 기준
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
-                <div className="flex items-center gap-2 mb-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <span className="font-bold text-green-900">🟢 1.25 이상</span>
-                </div>
-                <h4 className="font-semibold text-green-900 mb-1">매우 안정적</h4>
-                <p className="text-sm text-green-700">부채상환여력 충분</p>
-                <ul className="mt-2 text-xs text-green-600 space-y-1">
-                  <li>• 안정적 현금흐름 확보</li>
-                  <li>• 추가 투자 여력 보유</li>
-                  <li>• 금융기관 신용도 우수</li>
-                </ul>
-              </div>
-
-              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-                <div className="flex items-center gap-2 mb-2">
-                  <AlertTriangle className="h-5 w-5 text-yellow-600" />
-                  <span className="font-bold text-yellow-900">🟡 1.0~1.25</span>
-                </div>
-                <h4 className="font-semibold text-yellow-900 mb-1">주의 필요</h4>
-                <p className="text-sm text-yellow-700">여유자금 부족</p>
-                <ul className="mt-2 text-xs text-yellow-600 space-y-1">
-                  <li>• 현금흐름 관리 필요</li>
-                  <li>• 비용 절감 노력 요구</li>
-                  <li>• 정기적 모니터링 필수</li>
-                </ul>
-              </div>
-
-              <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
-                <div className="flex items-center gap-2 mb-2">
-                  <AlertCircle className="h-5 w-5 text-red-600" />
-                  <span className="font-bold text-red-900">🔴 1.0 미만</span>
-                </div>
-                <h4 className="font-semibold text-red-900 mb-1">위험</h4>
-                <p className="text-sm text-red-700">상환능력 부족</p>
-                <ul className="mt-2 text-xs text-red-600 space-y-1">
-                  <li>• 즉시 개선 조치 필요</li>
-                  <li>• 자금조달 구조 재검토</li>
-                  <li>• 사업계획 수정 필수</li>
-                </ul>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* DSCR 복합 차트 */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
-        <Card className="p-6">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <BarChart3 className="h-6 w-6 text-indigo-600" />
-              연도별 DSCR 분석 차트
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[400px]">
-              <Line data={chartData} options={chartOptions} />
             </div>
             
-            {/* 차트 해석 가이드 */}
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <h4 className="font-semibold text-gray-900 mb-2">📊 차트 해석 가이드</h4>
-              <div className="grid md:grid-cols-3 gap-4 text-sm">
-                <div>
-                  <span className="font-medium text-purple-600">🟣 DSCR 비율:</span>
-                  <p className="text-gray-600">영업이익 ÷ 총상환액</p>
+            {/* 🔥 모바일 전용 상세 정보 (접기/펼치기) */}
+            <div className="block md:hidden mt-4">
+              <details className="group">
+                <summary className="cursor-pointer p-3 bg-blue-100 rounded-lg text-sm font-medium text-blue-800 hover:bg-blue-200 transition-colors">
+                  📐 상세 계산 공식 보기
+                </summary>
+                <div className="mt-3 p-3 bg-white rounded-lg border border-blue-200 text-sm">
+                  <div className="text-center mb-3">
+                    <p className="font-bold text-blue-800 mb-1">분석기간 총 영업이익</p>
+                    <hr className="border-t-2 border-blue-800 my-1" />
+                    <p className="font-bold text-blue-800">분석기간 총 부채상환액</p>
+                  </div>
+                  <div className="text-gray-600 space-y-1">
+                    <p>• 총 영업이익: {(aggregateOperatingProfit / 100000000).toFixed(1)}억원</p>
+                    <p>• 총 부채상환액: {(aggregateDebtService / 100000000).toFixed(1)}억원</p>
+                    <p>• 평균 DSCR: {avgDSCR.toFixed(3)}</p>
+                  </div>
                 </div>
-                <div>
-                  <span className="font-medium text-blue-600">🔵 대출상환액:</span>
-                  <p className="text-gray-600">이자 + 원금상환 합계</p>
-                </div>
-                <div>
-                  <span className="font-medium text-green-600">🟢 영업이익:</span>
-                  <p className="text-gray-600">매출 × 영업이익률</p>
-                </div>
-              </div>
+              </details>
             </div>
           </CardContent>
         </Card>
@@ -448,63 +429,129 @@ export default function DSCRDetailedAnalysis({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
+        transition={{ duration: 0.6 }}
       >
-        <Card className="p-6">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <Calculator className="h-6 w-6 text-green-600" />
-              연도별 DSCR 상세 내역
+        <Card className="p-4 md:p-6">
+          <CardHeader className="pb-3 md:pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+              <Calculator className="h-5 w-5 md:h-6 md:w-6 text-green-600" />
+              📊 연도별 DSCR 상세 내역
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
+            {/* 🔥 모바일 버전: 카드 형태로 표시 */}
+            <div className="block md:hidden space-y-4">
+              {dscrDataByYear.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  데이터가 없습니다. 투자분석을 먼저 실행해주세요.
+                </div>
+              ) : (
+                dscrDataByYear.map((data) => {
+                  const dscrStatus = data.dscr >= 1.25 ? 'safe' : data.dscr >= 1.0 ? 'warning' : 'danger';
+                  const statusText = dscrStatus === 'safe' ? '안정' : dscrStatus === 'warning' ? '주의' : '위험';
+                  const statusColor = dscrStatus === 'safe' ? 'text-green-600' : dscrStatus === 'warning' ? 'text-yellow-600' : 'text-red-600';
+                  const statusBgColor = dscrStatus === 'safe' ? 'bg-green-50 border-green-200' : dscrStatus === 'warning' ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200';
+                  
+                  return (
+                    <div key={data.year} className={`p-4 rounded-xl border-2 ${statusBgColor} hover:shadow-md transition-shadow`}>
+                      <div className="flex justify-between items-center mb-3">
+                        <h3 className="text-lg font-bold text-gray-800">{data.year}년차</h3>
+                        <div className="text-right">
+                          <div className={`text-2xl font-bold ${statusColor}`}>{data.dscr.toFixed(2)}</div>
+                          <div className={`text-sm font-medium ${statusColor}`}>{statusText}</div>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">영업이익:</span>
+                            <span className="font-medium">{(data.operatingProfit / 100000000).toFixed(2)}억원</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">정책자금 원금:</span>
+                            <span className="font-medium">{(data.policyLoanPrincipal / 100000000).toFixed(2)}억원</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">정책자금 이자:</span>
+                            <span className="font-medium">{(data.policyLoanInterest / 100000000).toFixed(2)}억원</span>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">기타채무 원금:</span>
+                            <span className="font-medium">{(data.otherDebtPrincipal / 100000000).toFixed(2)}억원</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">기타채무 이자:</span>
+                            <span className="font-medium">{(data.otherDebtInterest / 100000000).toFixed(2)}억원</span>
+                          </div>
+                          <div className="flex justify-between border-t pt-2">
+                            <span className="text-gray-800 font-medium">총 상환액:</span>
+                            <span className="font-bold">{((data.policyLoanPrincipal + data.otherDebtPrincipal + data.policyLoanInterest + data.otherDebtInterest) / 100000000).toFixed(2)}억원</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* 🔥 데스크톱 버전: 기존 테이블 유지 */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>
-                  <tr className="border-b-2 border-gray-300 bg-gray-100">
-                    <th className="text-center py-4 px-3 font-bold text-gray-800 border border-gray-300">연도</th>
-                    <th className="text-center py-4 px-3 font-bold text-gray-800 border border-gray-300">영업이익<br/>(억원)</th>
-                    <th className="text-center py-4 px-3 font-bold text-gray-800 border border-gray-300">원금상환<br/>(억원)</th>
-                    <th className="text-center py-4 px-3 font-bold text-gray-800 border border-gray-300">이자상환<br/>(억원)</th>
-                    <th className="text-center py-4 px-3 font-bold text-gray-800 border border-gray-300">총상환액<br/>(억원)</th>
-                    <th className="text-center py-4 px-3 font-bold text-gray-800 border border-gray-300">DSCR</th>
-                    <th className="text-center py-4 px-3 font-bold text-gray-800 border border-gray-300">평가</th>
+                  <tr className="bg-gray-100">
+                    <th className="text-center py-3 px-2 font-bold text-gray-800 border border-gray-400 bg-gray-200">연<br/>도</th>
+                    <th className="text-center py-3 px-2 font-bold text-gray-800 border border-gray-400 bg-gray-200">영업이익<br/>(억원)</th>
+                    <th className="text-center py-3 px-2 font-bold text-gray-800 border border-gray-400 bg-gray-200">정책자금원금<br/>상환(억원)</th>
+                    <th className="text-center py-3 px-2 font-bold text-gray-800 border border-gray-400 bg-gray-200">기타자금원금<br/>상환(억원)</th>
+                    <th className="text-center py-3 px-2 font-bold text-gray-800 border border-gray-400 bg-gray-200">정책자금이자<br/>상환(억원)</th>
+                    <th className="text-center py-3 px-2 font-bold text-gray-800 border border-gray-400 bg-gray-200">기타채무이자<br/>상환(억원)</th>
+                    <th className="text-center py-3 px-2 font-bold text-gray-800 border border-gray-400 bg-gray-200">총상환액<br/>(억원)</th>
+                    <th className="text-center py-3 px-2 font-bold text-gray-800 border border-gray-400 bg-gray-200">DSCR</th>
+                    <th className="text-center py-3 px-2 font-bold text-gray-800 border border-gray-400 bg-gray-200">평가</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {dscrDataByYear.map((data, index) => {
-                    const yearGrade = getDSCRGrade(data.dscr);
-                    const totalPrincipal = data.policyLoanPrincipal + data.otherDebtPrincipal;
-                    const totalInterest = data.policyLoanInterest + data.otherDebtInterest;
-                    
-                    return (
-                      <tr key={index} className="border-b hover:bg-blue-50">
-                        <td className="py-3 px-3 text-center font-medium border border-gray-300">{data.year}년</td>
-                        <td className="py-3 px-3 text-center font-medium border border-gray-300">
-                          {(data.operatingProfit / 100000000).toFixed(1)}
-                        </td>
-                        <td className="py-3 px-3 text-center border border-gray-300">
-                          {(totalPrincipal / 100000000).toFixed(1)}
-                        </td>
-                        <td className="py-3 px-3 text-center border border-gray-300">
-                          {(totalInterest / 100000000).toFixed(1)}
-                        </td>
-                        <td className="py-3 px-3 text-center font-medium border border-gray-300">
-                          {(data.totalDebtService / 100000000).toFixed(1)}
-                        </td>
-                        <td className={`py-3 px-3 text-center font-bold border border-gray-300 ${yearGrade.color}`}>
-                          {data.dscr.toFixed(2)}
-                        </td>
-                        <td className="py-3 px-3 text-center border border-gray-300">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${yearGrade.color}`}>
-                            {yearGrade.grade}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {dscrDataByYear.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} className="text-center py-8 text-gray-500 border border-gray-400">
+                        데이터가 없습니다. 투자분석을 먼저 실행해주세요.
+                      </td>
+                    </tr>
+                  ) : (
+                    dscrDataByYear.map((data) => {
+                      const dscrStatus = data.dscr >= 1.25 ? 'safe' : data.dscr >= 1.0 ? 'warning' : 'danger';
+                      const statusText = dscrStatus === 'safe' ? '안정' : dscrStatus === 'warning' ? '주의' : '위험';
+                      const statusColor = dscrStatus === 'safe' ? 'text-green-600' : dscrStatus === 'warning' ? 'text-yellow-600' : 'text-red-600';
+                      return (
+                        <tr key={data.year} className="hover:bg-gray-50">
+                          <td className="text-center py-2 px-2 font-medium border border-gray-400 bg-gray-50">{data.year}년</td>
+                          <td className="text-center py-2 px-2 border border-gray-400">{(data.operatingProfit / 100000000).toFixed(2)}</td>
+                          <td className="text-center py-2 px-2 border border-gray-400">{(data.policyLoanPrincipal / 100000000).toFixed(2)}</td>
+                          <td className="text-center py-2 px-2 border border-gray-400">{(data.otherDebtPrincipal / 100000000).toFixed(2)}</td>
+                          <td className="text-center py-2 px-2 border border-gray-400">{(data.policyLoanInterest / 100000000).toFixed(2)}</td>
+                          <td className="text-center py-2 px-2 border border-gray-400">{(data.otherDebtInterest / 100000000).toFixed(2)}</td>
+                          <td className="text-center py-2 px-2 font-bold border border-gray-400">{((data.policyLoanPrincipal + data.otherDebtPrincipal + data.policyLoanInterest + data.otherDebtInterest) / 100000000).toFixed(2)}</td>
+                          <td className={`text-center py-2 px-2 font-bold border border-gray-400 ${statusColor}`}>{data.dscr.toFixed(2)}</td>
+                          <td className={`text-center py-2 px-2 font-medium border border-gray-400 ${statusColor}`}>
+                            {statusText}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
+            </div>
+            
+            {/* 표 하단 설명 추가 */}
+            <div className="mt-4 p-3 md:p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>💡 DSCR (Debt Service Coverage Ratio)</strong>: 영업이익 ÷ 총상환액으로 계산되며, 1.25 이상이면 안정적인 상환능력을 의미합니다.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -514,32 +561,77 @@ export default function DSCRDetailedAnalysis({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
       >
-        <Card className="p-6">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <Info className="h-6 w-6 text-amber-600" />
+        <Card className="p-4 md:p-6">
+          <CardHeader className="pb-3 md:pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+              <Info className="h-5 w-5 md:h-6 md:w-6 text-amber-600" />
               DSCR 계산 공식 상세 설명
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {/* 기본 공식 */}
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                <h4 className="font-bold text-blue-900 mb-3">📐 기본 계산 공식</h4>
-                <div className="text-center p-4 bg-white rounded-lg border border-blue-300">
-                  <p className="text-2xl font-bold text-blue-800 mb-2">
+              <div className="p-3 md:p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                <h4 className="font-bold text-blue-900 mb-2 md:mb-3 text-sm md:text-base">📐 기본 계산 공식</h4>
+                <div className="text-center p-3 md:p-4 bg-white rounded-lg border border-blue-300">
+                  <p className="text-lg md:text-2xl font-bold text-blue-800 mb-1 md:mb-2">
                     DSCR = 영업이익 ÷ 총 부채상환액
                   </p>
-                  <p className="text-sm text-blue-600">
+                  <p className="text-xs md:text-sm text-blue-600">
                     (Debt Service Coverage Ratio)
                   </p>
                 </div>
               </div>
 
-              {/* 세부 계산 항목 */}
-              <div className="grid md:grid-cols-2 gap-6">
+              {/* 🔥 모바일 버전: 접기/펼치기 형태로 세부 정보 제공 */}
+              <div className="block md:hidden space-y-3">
+                <details className="group">
+                  <summary className="cursor-pointer p-3 bg-green-100 rounded-lg text-sm font-medium text-green-800 hover:bg-green-200 transition-colors">
+                    💰 영업이익 계산 방식 보기
+                  </summary>
+                  <div className="mt-3 p-3 bg-white rounded-lg border border-green-200 text-sm">
+                    <ul className="space-y-1 text-green-700">
+                      <li>• <strong>기본 공식:</strong> 매출액 × 영업이익률</li>
+                      <li>• <strong>매출 성장:</strong> 연평균 {advancedSettings.revenueGrowthRate}% 반영</li>
+                      <li>• <strong>비용 상승:</strong> 연평균 {advancedSettings.costInflationRate}% 반영</li>
+                      <li>• <strong>실제 계산:</strong> 연도별 변동 반영</li>
+                    </ul>
+                  </div>
+                </details>
+
+                <details className="group">
+                  <summary className="cursor-pointer p-3 bg-orange-100 rounded-lg text-sm font-medium text-orange-800 hover:bg-orange-200 transition-colors">
+                    🏦 총 부채상환액 계산 방식 보기
+                  </summary>
+                  <div className="mt-3 p-3 bg-white rounded-lg border border-orange-200 text-sm">
+                    <ul className="space-y-1 text-orange-700">
+                      <li>• <strong>정책자금 이자:</strong> 연 {investmentInput.policyLoanRate}%</li>
+                      {investmentInput.gracePeriod && investmentInput.gracePeriod > 0 ? (
+                        <>
+                          <li>• <strong>거치기간:</strong> {investmentInput.gracePeriod}년 (이자만 납부)</li>
+                          <li>• <strong>상환기간:</strong> {investmentInput.repaymentPeriod || 5}년 (원금+이자)</li>
+                        </>
+                      ) : (
+                        <li>• <strong>정책자금 원금:</strong> 균등분할상환</li>
+                      )}
+                      <li>• <strong>기타채무 이자:</strong> 연 {investmentInput.otherDebtRate}%</li>
+                      {investmentInput.otherDebtGracePeriod && investmentInput.otherDebtGracePeriod > 0 ? (
+                        <>
+                          <li>• <strong>기타채무 거치기간:</strong> {investmentInput.otherDebtGracePeriod}년 (이자만 납부)</li>
+                          <li>• <strong>기타채무 상환기간:</strong> {investmentInput.otherDebtRepaymentPeriod || 5}년 (원금+이자)</li>
+                        </>
+                      ) : (
+                        <li>• <strong>기타채무 원금:</strong> 균등분할상환</li>
+                      )}
+                    </ul>
+                  </div>
+                </details>
+              </div>
+
+              {/* 🔥 데스크톱 버전: 기존 2열 레이아웃 유지 */}
+              <div className="hidden md:grid md:grid-cols-2 gap-6">
                 <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
                   <h4 className="font-bold text-green-900 mb-3">💰 영업이익 계산</h4>
                   <ul className="space-y-2 text-sm text-green-700">
@@ -563,15 +655,22 @@ export default function DSCRDetailedAnalysis({
                       <li>• <strong>정책자금 원금:</strong> 균등분할상환</li>
                     )}
                     <li>• <strong>기타채무 이자:</strong> 연 {investmentInput.otherDebtRate}%</li>
-                    <li>• <strong>기타채무 원금:</strong> 균등분할상환</li>
+                    {investmentInput.otherDebtGracePeriod && investmentInput.otherDebtGracePeriod > 0 ? (
+                      <>
+                        <li>• <strong>기타채무 거치기간:</strong> {investmentInput.otherDebtGracePeriod}년 (이자만 납부)</li>
+                        <li>• <strong>기타채무 상환기간:</strong> {investmentInput.otherDebtRepaymentPeriod || 5}년 (원금+이자)</li>
+                      </>
+                    ) : (
+                      <li>• <strong>기타채무 원금:</strong> 균등분할상환</li>
+                    )}
                   </ul>
                 </div>
               </div>
 
               {/* 실제 계산 예시 */}
-              <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
-                <h4 className="font-bold text-gray-900 mb-3">📊 1년차 계산 예시</h4>
-                <div className="grid md:grid-cols-2 gap-4 text-sm">
+              <div className="p-3 md:p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                <h4 className="font-bold text-gray-900 mb-2 md:mb-3 text-sm md:text-base">📊 1년차 계산 예시</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 text-sm">
                   <div>
                     <h5 className="font-semibold text-green-700 mb-2">영업이익 계산:</h5>
                     <p>매출: {(dscrDataByYear[0]?.revenue / 100000000).toFixed(1)}억원</p>
@@ -584,18 +683,83 @@ export default function DSCRDetailedAnalysis({
                     <p className="font-semibold">총 상환액: {(dscrDataByYear[0]?.totalDebtService / 100000000).toFixed(1)}억원</p>
                   </div>
                 </div>
-                <div className="mt-4 p-3 bg-white rounded-lg border-2 border-purple-300">
+                <div className="mt-3 md:mt-4 p-2 md:p-3 bg-white rounded-lg border-2 border-purple-300">
                   <p className="text-center">
-                    <span className="text-lg font-bold text-purple-800">
+                    <span className="text-base md:text-lg font-bold text-purple-800">
                       DSCR = {(dscrDataByYear[0]?.operatingProfit / 100000000).toFixed(1)}억 ÷ {(dscrDataByYear[0]?.totalDebtService / 100000000).toFixed(1)}억 = {dscrDataByYear[0]?.dscr.toFixed(2)}
                     </span>
                   </p>
-                  <p className="text-center text-sm text-purple-600 mt-1">
+                  <p className="text-center text-xs md:text-sm text-purple-600 mt-1">
                     → {getDSCRGrade(dscrDataByYear[0]?.dscr || 0).grade} 등급
                   </p>
                 </div>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* 🔥 DSCR 차트 섹션 추가 */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
+        <Card className="p-4 md:p-6">
+          <CardHeader className="pb-3 md:pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+              <BarChart3 className="h-5 w-5 md:h-6 md:w-6 text-purple-600" />
+              📈 DSCR 연도별 추세 분석
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {dscrDataByYear.length > 0 ? (
+              <div className="space-y-4">
+                {/* 🔥 모바일 알림 */}
+                <div className="block md:hidden p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-sm text-amber-800">
+                    💡 <strong>모바일 차트 안내:</strong> 차트를 좌우로 스크롤하거나 확대/축소할 수 있습니다.
+                  </p>
+                </div>
+                
+                {/* 차트 컨테이너 */}
+                <div className="w-full h-64 md:h-80 overflow-x-auto">
+                  <div className="min-w-full md:min-w-0">
+                    <Line data={chartData} options={chartOptions} />
+                  </div>
+                </div>
+                
+                {/* 차트 설명 */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                  <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-4 h-1 bg-purple-600 rounded"></div>
+                      <span className="font-medium">DSCR 비율</span>
+                    </div>
+                    <p className="text-purple-700">연도별 부채상환능력 지수</p>
+                  </div>
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-4 h-1 bg-blue-600 rounded"></div>
+                      <span className="font-medium">대출상환액</span>
+                    </div>
+                    <p className="text-blue-700">연간 총 부채상환액</p>
+                  </div>
+                  <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-4 h-1 bg-green-600 rounded dashed"></div>
+                      <span className="font-medium">영업이익</span>
+                    </div>
+                    <p className="text-green-700">연간 영업이익</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <BarChart3 className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                <p>데이터가 없습니다. 투자분석을 먼저 실행해주세요.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>

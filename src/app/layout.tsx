@@ -87,7 +87,7 @@ export default function RootLayout({
         
         {/* 🔧 한글 폰트 최적화 - Pretendard만 사용 */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         
         {/* 🔧 성능 최적화: DNS 프리페치 - Google Apps Script 기반 */}
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
@@ -109,11 +109,8 @@ export default function RootLayout({
         <meta name="MobileOptimized" content="width" />
         <meta name="apple-mobile-web-app-orientations" content="portrait-any" />
         
-
-        
         {/* Vercel 배포 최적화 설정 */}
         <link rel="canonical" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://m-center-landingpage.vercel.app'} />
-        
 
       </head>
       <body className={inter.className} suppressHydrationWarning>        

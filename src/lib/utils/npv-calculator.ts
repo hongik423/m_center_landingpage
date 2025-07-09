@@ -10,6 +10,10 @@ export interface DetailedNPVCalculation {
   depreciation: number;
   loanPrincipal: number;
   loanInterest: number;
+  policyLoanPrincipal?: number;
+  policyLoanInterest?: number;
+  otherDebtPrincipal?: number;
+  otherDebtInterest?: number;
   netCashFlow: number;
   discountRate: number;
   discountFactor: number;
@@ -54,6 +58,10 @@ export function calculateDetailedNPV(
     depreciation: 0,
     loanPrincipal: 0,
     loanInterest: 0,
+    policyLoanPrincipal: 0,
+    policyLoanInterest: 0,
+    otherDebtPrincipal: 0,
+    otherDebtInterest: 0,
     netCashFlow: -initialInvestment,
     discountRate: discountRate,
     discountFactor: 1,
@@ -101,6 +109,10 @@ export function calculateDetailedNPV(
       depreciation: depreciationAmount,
       loanPrincipal: loanSchedule?.principal[year - 1] || 0,
       loanInterest: loanSchedule?.interest[year - 1] || 0,
+      policyLoanPrincipal: 0,
+      policyLoanInterest: 0,
+      otherDebtPrincipal: 0,
+      otherDebtInterest: 0,
       netCashFlow,
       discountRate,
       discountFactor,

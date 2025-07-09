@@ -31,7 +31,7 @@ import EarnedIncomeTaxCalculatorComponent from '@/components/tax-calculator/Earn
 import ComprehensiveIncomeTaxCalculatorComponent from '@/components/tax-calculator/ComprehensiveIncomeTaxCalculator';
 import CapitalGainsTaxCalculatorComponent from '@/components/tax-calculator/CapitalGainsTaxCalculator';
 import { InheritanceTaxCalculatorComponent } from '@/components/tax-calculator/InheritanceTaxCalculator';
-import GiftTaxCalculator from '@/components/tax-calculator/GiftTaxCalculator';
+import { GiftTaxCalculator } from '@/components/tax-calculator/GiftTaxCalculator';
 import SimpleComprehensiveCalculator from '@/components/tax-calculator/SimpleComprehensiveCalculator';
 import TaxCalculatorDisclaimer from '@/components/tax-calculator/TaxCalculatorDisclaimer';
 import CorporateTaxCalculatorComponent from '@/components/tax-calculator/CorporateTaxCalculator';
@@ -1183,74 +1183,13 @@ export default function TaxCalculatorPage() {
                   <span className="text-overflow-safe">🧮 M-CENTER 전문 세금계산기</span>
                 </h1>
                 
-                <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
-                  <Bug className="w-5 h-5 text-yellow-300" />
-                  <span className="font-semibold text-overflow-safe">BETA 테스트 진행 중 - 오류 신고 환영!</span>
-                </div>
-                
-                {/* 베타테스트 주요 안내 */}
-                <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 lg:p-8 text-gray-900 shadow-xl border border-white/20 max-w-5xl mx-auto">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
-                    <div className="text-left">
-                      <h2 className="text-xl lg:text-2xl font-bold mb-4 text-red-600 mobile-centered">
-                        <span className="text-overflow-safe">🚨 중요 안내: 베타 테스트 중</span>
-                      </h2>
-                      
-                      <div className="space-y-3 text-sm lg:text-base">
-                        <div className="flex items-start gap-3">
-                          <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="font-semibold text-overflow-safe">현재 베타 테스트 단계입니다</p>
-                            <p className="text-gray-600 mobile-text">계산 결과는 참고용이며, 실제 세무신고 시 전문가 검토를 권장합니다</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-start gap-3">
-                          <Shield className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="font-semibold text-overflow-safe">2024년 최신 세법 반영</p>
-                            <p className="text-gray-600 mobile-text">11개 전문 계산기로 정확한 세금 계산을 지원합니다</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-
-                  </div>
-                  
-
-                </div>
+                {/* 간단한 소개 문구 */}
+                <p className="text-lg lg:text-xl text-white/90 mb-6 max-w-3xl mx-auto">
+                  2024년 최신 세법을 반영한 11개 전문 계산기로 정확한 세금 계산을 지원합니다
+                </p>
               </div>
             </div>
           </section>
-
-          {/* 헤더 섹션 - 모바일 최적화된 사용자 안내 */}
-          <div className="text-center mb-12 md:mb-16 lg:mb-20 mobile-container">
-            {/* 메인 타이틀 */}
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 mobile-centered">
-              <span className="text-overflow-safe">전문 세금계산기</span>
-            </h1>
-            
-            {/* 서브 타이틀 */}
-            <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-4xl mx-auto mobile-text">
-              2024년 최신 세법을 반영한 11개 전문 계산기로 정확한 세금 계산을 경험하세요
-            </p>
-            
-            {/* 특징 배지들 */}
-            <div className="flex flex-wrap justify-center gap-3 mb-8">
-              {[
-                { icon: "🎯", text: "2024년 최신 세법", color: "bg-blue-100 text-blue-700" },
-                { icon: "⚡", text: "실시간 계산", color: "bg-green-100 text-green-700" },
-                { icon: "🔒", text: "100% 무료", color: "bg-purple-100 text-purple-700" },
-                { icon: "🛡️", text: "정확성 보장", color: "bg-orange-100 text-orange-700" }
-              ].map((badge, index) => (
-                <div key={index} className={`${badge.color} px-4 py-2 rounded-full font-semibold text-sm`}>
-                  <span className="mr-2">{badge.icon}</span>
-                  <span className="text-overflow-safe">{badge.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
 
           {selectedCalculator ? (
             // 선택된 계산기 표시
@@ -1699,10 +1638,39 @@ export default function TaxCalculatorPage() {
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Bug className="w-8 h-8 text-red-600" />
           </div>
-          <h2 className="text-2xl font-bold text-red-800 mb-3">오류 신고 및 피드백</h2>
+          <h2 className="text-2xl font-bold text-red-800 mb-3">M-CENTER 전문 세금계산기</h2>
+          <div className="inline-flex items-center gap-2 bg-yellow-100 border border-yellow-400 rounded-full px-4 py-2 mb-4">
+            <Bug className="w-5 h-5 text-yellow-600" />
+            <span className="font-semibold text-yellow-800">BETA 테스트 진행 중 - 오류 신고 환영!</span>
+          </div>
           <p className="text-red-700 text-lg">
             계산 오류나 개선사항이 있으시면 언제든 신고해주세요
           </p>
+        </div>
+
+        {/* 베타 테스트 중요 안내 */}
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 mb-6 shadow-lg border border-orange-200">
+          <h3 className="text-xl font-bold mb-4 text-red-600 text-center">
+            <span>🚨 중요 안내: 베타 테스트 중</span>
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-semibold">현재 베타 테스트 단계입니다</p>
+                <p className="text-gray-600 text-sm">계산 결과는 참고용이며, 실제 세무신고 시 전문가 검토를 권장합니다</p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3">
+              <Shield className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-semibold">2024년 최신 세법 반영</p>
+                <p className="text-gray-600 text-sm">11개 전문 계산기로 정확한 세금 계산을 지원합니다</p>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

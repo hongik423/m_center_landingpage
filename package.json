@@ -3,7 +3,8 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "dev": "npx next dev",
+    "dev": "npx next dev -p 3005",
+    "dev:default": "npx next dev",
     "build": "next build",
     "build:github": "cross-env GITHUB_PAGES=true NODE_ENV=production next build",
     "build:static": "npm run build:github",

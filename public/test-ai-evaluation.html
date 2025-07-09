@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>투자분석 도구 테스트</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🧪 투자분석 도구 AI 평가 테스트</h1>
+    
+    <button onclick="testInvestmentAnalysis()">투자분석 테스트 시작</button>
+    <button onclick="testAIEvaluation()">AI 평가 직접 테스트</button>
+    
+    <div id="results"></div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `${new Date().toLocaleTimeString()} - ${message}`;
+            results.appendChild(div);
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        async function testAIEvaluation() {
+            log('🚀 AI 평가 API 직접 테스트 시작...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3010/api/test-ai-evaluation');
+                const data = await response.json();
+                
+                if (data.success) {
+                    log('✅ AI 평가 API 성공!', 'success');
+                    log(`📊 NPV: ${data.testResults.step1_analysis.npv}`, 'info');
+                    log(`🤖 종합 등급: ${data.testResults.step3_ai_evaluation.overallGrade.grade}`, 'info');
+                    log(`💡 추천: ${data.testResults.step3_ai_evaluation.recommendation}`, 'info');
+                    log(`🎯 신뢰도: ${data.testResults.step3_ai_evaluation.confidence}%`, 'info');
+                } else {
+                    log('❌ AI 평가 API 실패: ' + data.error, 'error');
+                }
+            } catch (error) {
+                log('❌ AI 평가 API 오류: ' + error.message, 'error');
+            }
+        }
+
+        async function testInvestmentAnalysis() {
+            log('🚀 투자분석 도구 테스트 시작...', 'info');
+            
+            // 1. 정책자금 페이지 로드 테스트
+            try {
+                log('📄 정책자금 페이지 로드 중...', 'info');
+                const response = await fetch('http://localhost:3010/services/policy-funding');
+                const html = await response.text();
+                
+                if (html.includes('🤖 AI 평가')) {
+                    log('✅ AI 평가 탭이 페이지에 포함되어 있습니다.', 'success');
+                } else {
+                    log('❌ AI 평가 탭을 찾을 수 없습니다.', 'error');
+                }
+                
+                if (html.includes('투자분석 도구')) {
+                    log('✅ 투자분석 도구가 페이지에 포함되어 있습니다.', 'success');
+                } else {
+                    log('❌ 투자분석 도구를 찾을 수 없습니다.', 'error');
+                }
+                
+            } catch (error) {
+                log('❌ 페이지 로드 오류: ' + error.message, 'error');
+            }
+            
+            // 2. JavaScript 모듈 테스트
+            log('🔍 JavaScript 모듈 테스트 중...', 'info');
+            
+            // 3. 실제 투자분석 시뮬레이션
+            log('💼 투자분석 시뮬레이션 중...', 'info');
+            
+            const testData = {
+                initialInvestment: 35,
+                policyFundAmount: 10,
+                annualRevenue: 100,
+                operatingProfitRate: 17.5,
+                discountRate: 10,
+                analysisYears: 10,
+                revenueGrowthRate: 5
+            };
+            
+            log(`📊 테스트 데이터: 초기투자 ${testData.initialInvestment}억원, NPV 분석 ${testData.analysisYears}년`, 'info');
+            
+            // 4. 결과 확인
+            log('🎯 테스트 완료! 브라우저에서 http://localhost:3010/services/policy-funding 에 접속하여 직접 테스트해보세요.', 'success');
+        }
+
+        // 페이지 로드 시 자동 테스트
+        window.onload = function() {
+            log('🌟 투자분석 도구 AI 평가 테스트 페이지 로드 완료', 'success');
+            log('📝 테스트 방법:', 'info');
+            log('1. "AI 평가 직접 테스트" 버튼을 클릭하여 API 테스트', 'info');
+            log('2. "투자분석 테스트 시작" 버튼을 클릭하여 웹 페이지 테스트', 'info');
+            log('3. 브라우저에서 http://localhost:3010/services/policy-funding 직접 접속하여 수동 테스트', 'info');
+        };
+    </script>
+</body>
+</html> 

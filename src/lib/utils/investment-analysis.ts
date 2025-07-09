@@ -40,7 +40,7 @@ export interface InvestmentInput {
   additionalLoanRate?: number; // 추가 대출금리 (%)
   depreciationRate?: number; // 감가상각률 (% 연간)
   residualValue?: number; // 잔존가치 (원)
-  inflationRate?: number; // 인플레이션율 (%)
+  inflationRate?: number; // 물가상승률 (% 연간)
   corporateTaxRate?: number; // 법인세율 (고급 설정)
   
   // 시나리오 분석 설정
@@ -48,7 +48,15 @@ export interface InvestmentInput {
   pessimisticAdjustment?: number; // 비관적 시나리오 조정률 (%)
   optimisticAdjustment?: number; // 낙관적 시나리오 조정률 (%)
   selectedScenario?: 'pessimistic' | 'neutral' | 'optimistic'; // 선택된 시나리오
-  scenarioAdjustment?: number; // 선택된 시나리오 조정률 (%)
+  
+  // 추가: 연도별 DSCR 데이터
+  yearlyDSCRData?: any[]; // 연도별 DSCR 상세 데이터
+  
+  // 추가: 기타채무 정보
+  otherDebtAmount?: number; // 기타채무액
+  otherDebtRate?: number; // 기타채무 이자율
+  otherDebtGracePeriod?: number; // 기타채무 거치기간
+  otherDebtRepaymentPeriod?: number; // 기타채무 상환기간
 }
 
 export interface InvestmentResult {
@@ -97,6 +105,8 @@ export interface InvestmentResult {
     remainingOtherDebt: number;
     totalDebtService: number;
     dscr: number;
+    totalPrincipal: number;
+    totalInterest: number;
   }[];
 }
 
@@ -199,6 +209,11 @@ export interface DetailedNPVCalculation {
   depreciation: number;
   loanPrincipal: number;
   loanInterest: number;
+  // 🔥 정책자금과 기타채무 정보 추가
+  policyLoanPrincipal?: number;
+  policyLoanInterest?: number;
+  otherDebtPrincipal?: number;
+  otherDebtInterest?: number;
   netCashFlow: number;
   discountRate: number;
   discountFactor: number;
@@ -734,24 +749,11 @@ export function calculateBreakEvenPoint(cashFlows: CashFlow[]): number {
 }
 
 // DSCR (부채상환비율) 계산 - 개선된 버전
-export function calculateDSCR(ebit: number, depreciation: number, principal: number, interest: number): number {
-  const debtService = principal + interest;
-  if (debtService === 0) return 0;
-  
-  // DSCR = 영업현금흐름 / 총 부채상환액
-  // 영업현금흐름 = 세후순이익 + 감가상각비 (정확한 공식)
-  const taxRate = 0.22; // 법인세율 22%
-  const netIncome = ebit * (1 - taxRate);
-  const operatingCashFlow = netIncome + depreciation;
-  
-  if (operatingCashFlow <= 0) return 0;
-  
-  const dscr = operatingCashFlow / debtService;
-  
-  // DSCR 유효성 검사 및 현실적 범위 제한
+export function calculateDSCR(operatingProfit: number, totalDebtService: number): number {
+  if (totalDebtService === 0) return 0;
+  // DSCR = 영업이익 / 총상환액
+  const dscr = operatingProfit / totalDebtService;
   if (!isFinite(dscr) || dscr < 0) return 0;
-  if (dscr > 10) return 10; // 비현실적으로 높은 값 제한
-  
   return Math.round(dscr * 100) / 100; // 소수점 2자리로 반올림
 }
 
@@ -767,6 +769,8 @@ export function calculateDetailedDSCR(input: {
   repaymentPeriod?: number; // 원금상환기간
   otherDebtAmount?: number;
   otherDebtRate?: number;
+  otherDebtGracePeriod?: number; // 기타채무 거치기간
+  otherDebtRepaymentPeriod?: number; // 기타채무 원금상환기간
 }, advancedSettings?: {
   revenueGrowthRate: number;
   costInflationRate: number;
@@ -782,6 +786,8 @@ export function calculateDetailedDSCR(input: {
   remainingOtherDebt: number;
   totalDebtService: number;
   dscr: number;
+  totalPrincipal: number;
+  totalInterest: number;
   isGracePeriod?: boolean;
   isRepaymentPeriod?: boolean;
   isPostRepayment?: boolean;
@@ -792,99 +798,147 @@ export function calculateDetailedDSCR(input: {
     ...advancedSettings
   };
   
-  const {
-    annualRevenue,
-    operatingProfitRate = 15,
-    analysisYears,
-    policyLoanAmount = 0,
-    policyLoanRate = 2.5,
-    gracePeriod = 0, // 거치기간 기본값 0년
-    repaymentPeriod = analysisYears, // 상환기간 기본값 분석기간
-    otherDebtAmount = 0,
-    otherDebtRate = 5.0
-  } = input;
+  const results: any[] = [];
+  const analysisYears = input.analysisYears || 10;
+  const gracePeriod = input.gracePeriod || 0;
+  const repaymentPeriod = input.repaymentPeriod || analysisYears;
+  const otherDebtGracePeriod = input.otherDebtGracePeriod || 0;
+  const otherDebtRepaymentPeriod = input.otherDebtRepaymentPeriod || analysisYears;
   
-  const results = [];
+  // 🔥 통일된 원금상환 계산 함수 - 수정된 버전
+  const calculateDebtPayment = (
+    loanAmount: number, 
+    rate: number, 
+    year: number, 
+    gracePeriod: number, 
+    repaymentPeriod: number
+  ) => {
+    let principal = 0;
+    let interest = 0;
+    let remainingBalance = loanAmount;
+    
+    if (!loanAmount || loanAmount <= 0) {
+      return { principal: 0, interest: 0, remainingBalance: 0 };
+    }
+    
+    if (year <= gracePeriod) {
+      // 거치기간: 이자만 납부
+      principal = 0;
+      interest = loanAmount * (rate / 100);
+      remainingBalance = loanAmount;
+    } else if (year <= gracePeriod + repaymentPeriod) {
+      // 상환기간: 원금 균등분할 상환
+      const repaymentYear = year - gracePeriod;
+      principal = loanAmount / repaymentPeriod;
+      
+      // 잔금 계산 (이전까지 상환한 원금 차감)
+      remainingBalance = loanAmount - (principal * (repaymentYear - 1));
+      
+      // 이자는 잔금 기준으로 계산
+      interest = remainingBalance * (rate / 100);
+      
+      // 상환 후 잔금
+      remainingBalance = remainingBalance - principal;
+    } else {
+      // 상환 완료 후
+      principal = 0;
+      interest = 0;
+      remainingBalance = 0;
+    }
+    
+    return { 
+      principal: Math.max(0, principal), 
+      interest: Math.max(0, interest), 
+      remainingBalance: Math.max(0, remainingBalance) 
+    };
+  };
   
   for (let year = 1; year <= analysisYears; year++) {
     // 연도별 매출 성장 반영
-    const yearRevenue = annualRevenue * Math.pow(1 + settings.revenueGrowthRate / 100, year - 1);
+    const yearlyRevenue = input.annualRevenue * Math.pow(1 + settings.revenueGrowthRate / 100, year - 1);
     
-    // 📊 영업이익 계산 (첨부 이미지 기준 통일: 매출액 × 영업이익률)
-    const operatingProfit = yearRevenue * (operatingProfitRate / 100);
+    // 🔥 영업이익 계산 수정 - 올바른 영업이익률 적용
+    const yearlyOperatingProfit = yearlyRevenue * (input.operatingProfitRate / 100);
     
-    // 🔥 거치기간/상환기간을 고려한 정책자금 상환 계산
-    let policyLoanPrincipal = 0;
-    let policyLoanInterest = 0;
-    let remainingPolicyLoan = policyLoanAmount;
+    // 🔥 정책자금 계산 (통일된 방식)
+    const policyLoan = calculateDebtPayment(
+      input.policyLoanAmount || 0,
+      input.policyLoanRate || 0,
+      year,
+      gracePeriod,
+      repaymentPeriod
+    );
     
-    if (year <= gracePeriod) {
-      // 거치기간: 이자만 납부, 원금 상환 없음
-      policyLoanPrincipal = 0;
-      policyLoanInterest = policyLoanAmount * (policyLoanRate / 100);
-      remainingPolicyLoan = policyLoanAmount;
-    } else if (year <= gracePeriod + repaymentPeriod) {
-      // 상환기간: 원금 균등분할 + 잔액 기준 이자
-      const repaymentYear = year - gracePeriod; // 상환 시작 후 몇 년차
-      policyLoanPrincipal = policyLoanAmount / repaymentPeriod;
-      remainingPolicyLoan = policyLoanAmount - (policyLoanPrincipal * (repaymentYear - 1));
-      policyLoanInterest = remainingPolicyLoan * (policyLoanRate / 100);
-    } else {
-      // 상환 완료 후: 상환액 없음
-      policyLoanPrincipal = 0;
-      policyLoanInterest = 0;
-      remainingPolicyLoan = 0;
-    }
-    
-    // 🏦 기타채무 상환 계산 (정책자금과 동일한 거치/상환 구조)
-    let otherDebtPrincipal = 0;
-    let otherDebtInterest = 0;
-    let remainingOtherDebt = otherDebtAmount;
-    
-    if (year <= gracePeriod) {
-      // 거치기간: 이자만 납부, 원금 상환 없음
-      otherDebtPrincipal = 0;
-      otherDebtInterest = otherDebtAmount * (otherDebtRate / 100);
-      remainingOtherDebt = otherDebtAmount;
-    } else if (year <= gracePeriod + repaymentPeriod) {
-      // 상환기간: 원금 균등분할 + 잔액 기준 이자
-      const repaymentYear = year - gracePeriod;
-      otherDebtPrincipal = otherDebtAmount / repaymentPeriod;
-      remainingOtherDebt = otherDebtAmount - (otherDebtPrincipal * (repaymentYear - 1));
-      otherDebtInterest = remainingOtherDebt * (otherDebtRate / 100);
-    } else {
-      // 상환 완료 후: 상환액 없음
-      otherDebtPrincipal = 0;
-      otherDebtInterest = 0;
-      remainingOtherDebt = 0;
-    }
+    // 🔥 기타채무 계산 (통일된 방식)
+    const otherDebt = calculateDebtPayment(
+      input.otherDebtAmount || 0,
+      input.otherDebtRate || 0,
+      year,
+      otherDebtGracePeriod,
+      otherDebtRepaymentPeriod
+    );
     
     // 총 부채상환액
-    const totalDebtService = policyLoanInterest + policyLoanPrincipal + otherDebtInterest + otherDebtPrincipal;
+    const totalDebtService = 
+      policyLoan.principal + policyLoan.interest + 
+      otherDebt.principal + otherDebt.interest;
     
-    // 📈 DSCR 계산 (첨부 이미지 기준 통일: 영업이익 ÷ 총상환액)
-    let dscr = 0;
-    if (totalDebtService > 0) {
-      dscr = operatingProfit / totalDebtService;
-      
-      // DSCR 유효성 검사
-      if (!isFinite(dscr) || dscr < 0) dscr = 0;
-      if (dscr > 50) dscr = 50; // 비현실적으로 높은 값 제한
+    // 🔥 DSCR 계산 수정 - 올바른 공식 적용
+    const dscr = totalDebtService > 0 ? yearlyOperatingProfit / totalDebtService : 0;
+    // 🔥 원금/이자 합계 기록
+    const totalPrincipal = policyLoan.principal + otherDebt.principal;
+    const totalInterest = policyLoan.interest + otherDebt.interest;
+    
+    // 🔥 디버깅 로그 추가 - 계산 과정 확인
+    if (year <= 3) {
+      console.log(`📊 ${year}년차 DSCR 계산 디버깅:`, {
+        '연도': year,
+        '정책자금': {
+          '대출액': (input.policyLoanAmount || 0) / 100000000 + '억원',
+          '이자율': (input.policyLoanRate || 0) + '%',
+          '거치기간': gracePeriod + '년',
+          '상환기간': repaymentPeriod + '년',
+          '원금': (policyLoan.principal / 100000000).toFixed(1) + '억원',
+          '이자': (policyLoan.interest / 100000000).toFixed(4) + '억원'
+        },
+        '기타채무': {
+          '대출액': (input.otherDebtAmount || 0) / 100000000 + '억원',
+          '이자율': (input.otherDebtRate || 0) + '%',
+          '거치기간': otherDebtGracePeriod + '년',
+          '상환기간': otherDebtRepaymentPeriod + '년',
+          '원금': (otherDebt.principal / 100000000).toFixed(1) + '억원',
+          '이자': (otherDebt.interest / 100000000).toFixed(1) + '억원'
+        },
+        '총상환액': (totalDebtService / 100000000).toFixed(4) + '억원',
+        '영업이익': (yearlyOperatingProfit / 100000000).toFixed(2) + '억원',
+        'DSCR계산': `${(yearlyOperatingProfit / 100000000).toFixed(1)}억 ÷ ${(totalDebtService / 100000000).toFixed(1)}억 = ${dscr.toFixed(2)}`,
+        'DSCR': dscr.toFixed(2),
+        '원금합계': (totalPrincipal / 100000000).toFixed(2) + '억원',
+        '이자합계': (totalInterest / 100000000).toFixed(2) + '억원',
+        '원시데이터': {
+          policyLoanAmount: input.policyLoanAmount || 0,
+          otherDebtAmount: input.otherDebtAmount || 0,
+          totalDebtService: totalDebtService,
+          operatingProfit: yearlyOperatingProfit,
+          dscr: dscr
+        }
+      });
     }
     
     results.push({
       year,
-      revenue: yearRevenue,
-      operatingProfit,
-      policyLoanInterest,
-      policyLoanPrincipal,
-      remainingPolicyLoan,
-      otherDebtInterest,
-      otherDebtPrincipal,
-      remainingOtherDebt,
+      revenue: yearlyRevenue,
+      operatingProfit: yearlyOperatingProfit,
+      policyLoanInterest: policyLoan.interest,
+      policyLoanPrincipal: policyLoan.principal,
+      remainingPolicyLoan: policyLoan.remainingBalance,
+      otherDebtInterest: otherDebt.interest,
+      otherDebtPrincipal: otherDebt.principal,
+      remainingOtherDebt: otherDebt.remainingBalance,
       totalDebtService,
-      dscr,
-      // 추가 정보
+      dscr: Math.round(dscr * 100) / 100,
+      totalPrincipal, // 추가: 원금합계
+      totalInterest,  // 추가: 이자합계
       isGracePeriod: year <= gracePeriod,
       isRepaymentPeriod: year > gracePeriod && year <= gracePeriod + repaymentPeriod,
       isPostRepayment: year > gracePeriod + repaymentPeriod
@@ -894,59 +948,137 @@ export function calculateDetailedDSCR(input: {
   return results;
 }
 
-// 대출 상환 스케줄 계산 (정확한 이자율 반영 버전)
-export function calculateLoanSchedule(
+// 대출 상환 스케줄 계산 (거치기간 포함)
+// 🔥 정책자금 연도별 상환액 계산 함수
+export function calculatePolicyLoanPayment(
   loanAmount: number,
   interestRate: number,
-  loanPeriod: number,
-  gracePeriod: number = 0
-): { principal: number[], interest: number[], remainingBalance: number[] } {
+  year: number,
+  gracePeriod: number,
+  repaymentPeriod: number
+): { principal: number; interest: number } {
+  if (loanAmount === 0) return { principal: 0, interest: 0 };
+  
+  const rate = interestRate / 100;
+  
+  // 거치기간 중에는 이자만 납부
+  if (year < gracePeriod) {
+    return {
+      principal: 0,
+      interest: loanAmount * rate
+    };
+  }
+  
+  // 원금상환기간 중에는 원금과 이자 모두 납부
+  if (year < gracePeriod + repaymentPeriod) {
+    const principalPayment = loanAmount / repaymentPeriod;
+    const remainingBalance = loanAmount - (principalPayment * (year - gracePeriod));
+    const interestPayment = remainingBalance * rate;
+    
+    return {
+      principal: principalPayment,
+      interest: interestPayment
+    };
+  }
+  
+  // 상환 완료 후에는 0
+  return { principal: 0, interest: 0 };
+}
+
+// 🔥 기타채무 연도별 상환액 계산 함수
+export function calculateOtherDebtPayment(
+  debtAmount: number,
+  interestRate: number,
+  year: number,
+  gracePeriod: number,
+  repaymentPeriod: number
+): { principal: number; interest: number } {
+  if (debtAmount === 0) return { principal: 0, interest: 0 };
+  
+  const rate = interestRate / 100;
+  
+  // 거치기간 중에는 이자만 납부
+  if (year < gracePeriod) {
+    return {
+      principal: 0,
+      interest: debtAmount * rate
+    };
+  }
+  
+  // 원금상환기간 중에는 원금과 이자 모두 납부
+  if (year < gracePeriod + repaymentPeriod) {
+    const principalPayment = debtAmount / repaymentPeriod;
+    const remainingBalance = debtAmount - (principalPayment * (year - gracePeriod));
+    const interestPayment = remainingBalance * rate;
+    
+    return {
+      principal: principalPayment,
+      interest: interestPayment
+    };
+  }
+  
+  // 상환 완료 후에는 0
+  return { principal: 0, interest: 0 };
+}
+
+export function calculateLoanSchedule(
+  loanAmount: number, 
+  interestRate: number, 
+  loanPeriod: number, 
+  gracePeriod: number = 0,
+  repaymentPeriod?: number // 원금상환기간 추가
+): { principal: number[]; interest: number[]; remainingBalance: number[] } {
   const principal: number[] = [];
   const interest: number[] = [];
   const remainingBalance: number[] = [];
   
-  // 입력값 유효성 검사
-  if (loanAmount <= 0 || loanPeriod <= 0 || interestRate < 0) {
-    return { principal: [], interest: [], remainingBalance: [] };
+  if (!loanAmount || loanAmount <= 0) {
+    for (let i = 0; i < loanPeriod; i++) {
+      principal.push(0);
+      interest.push(0);
+      remainingBalance.push(0);
+    }
+    return { principal, interest, remainingBalance };
   }
   
   const annualRate = interestRate / 100;
   let balance = loanAmount;
   
-  // 상환 기간 (거치기간 제외)
-  const repaymentPeriod = Math.max(0, loanPeriod - gracePeriod);
+  // 원금상환기간이 지정되지 않은 경우 기본값 설정
+  const actualRepaymentPeriod = repaymentPeriod || (loanPeriod - gracePeriod);
   
   for (let year = 0; year < loanPeriod; year++) {
     let yearlyPrincipal = 0;
     let yearlyInterest = 0;
     
     if (year < gracePeriod) {
-      // 거치 기간: 이자만 상환
-      yearlyInterest = balance * annualRate;
+      // 거치기간: 이자만 납부
       yearlyPrincipal = 0;
-    } else {
-      // 상환 기간: 원금 균등상환 방식 (정책자금 표준)
-      if (repaymentPeriod > 0) {
-        // 원금 균등상환: 매년 동일한 원금 상환
-        yearlyPrincipal = loanAmount / repaymentPeriod;
-        // 이자는 현재 잔액에 대해서만 계산
-        yearlyInterest = balance * annualRate;
-        
-        // 잔액이 원금상환액보다 작은 경우 조정
-        if (yearlyPrincipal > balance) {
-          yearlyPrincipal = balance;
-        }
-      } else {
-        yearlyPrincipal = 0;
-        yearlyInterest = 0;
-      }
+      yearlyInterest = loanAmount * annualRate;
+      balance = loanAmount;
+    } else if (year < gracePeriod + actualRepaymentPeriod) {
+      // 상환기간: 원금 균등분할 상환
+      const repaymentYear = year - gracePeriod + 1;
+      yearlyPrincipal = loanAmount / actualRepaymentPeriod;
       
+      // 잔금 계산 (이전까지 상환한 원금 차감)
+      balance = loanAmount - (yearlyPrincipal * (repaymentYear - 1));
+      
+      // 이자는 잔금 기준으로 계산
+      yearlyInterest = balance * annualRate;
+      
+      // 상환 후 잔금
       balance = Math.max(0, balance - yearlyPrincipal);
+    } else {
+      // 상환 완료 후
+      yearlyPrincipal = 0;
+      yearlyInterest = 0;
+      balance = 0;
     }
     
     principal.push(Math.max(0, yearlyPrincipal));
     interest.push(Math.max(0, yearlyInterest));
-    remainingBalance.push(balance);
+    remainingBalance.push(Math.max(0, balance));
   }
   
   return { principal, interest, remainingBalance };
@@ -1190,7 +1322,24 @@ export function performInvestmentAnalysis(input: InvestmentInput): InvestmentRes
         // 연도별 영업이익률 계산 - 입력된 영업이익률 사용 (일관성 유지)
         const yearlyOperatingProfitRate = finalOperatingProfitRate;
         
-        // details 배열에 상세 정보 추가
+        // 🔥 정책자금과 기타채무 정보 분리해서 계산
+        const policyLoanInfo = calculatePolicyLoanPayment(
+          input.policyFundAmount || 0,
+          input.interestRate || 2.5,
+          year,
+          input.gracePeriod || 0,
+          input.repaymentPeriod || input.analysisYears || 10
+        );
+        
+        const otherDebtInfo = calculateOtherDebtPayment(
+          input.otherDebtAmount || 0,
+          input.otherDebtRate || 5.0,
+          year,
+          input.otherDebtGracePeriod || 0,
+          input.otherDebtRepaymentPeriod || input.analysisYears || 10
+        );
+
+        // details 배열에 상세 정보 추가 (정책자금과 기타채무 정보 포함)
         details.push({
           year: year + 1,
           revenue,
@@ -1201,6 +1350,12 @@ export function performInvestmentAnalysis(input: InvestmentInput): InvestmentRes
           depreciation,
           loanPrincipal,
           loanInterest,
+          // 🔥 정책자금 정보 추가
+          policyLoanPrincipal: policyLoanInfo.principal,
+          policyLoanInterest: policyLoanInfo.interest,
+          // 🔥 기타채무 정보 추가
+          otherDebtPrincipal: otherDebtInfo.principal,
+          otherDebtInterest: otherDebtInfo.interest,
           netCashFlow,
           discountRate: input.discountRate || 10,
           discountFactor: discountFactor,
@@ -1467,26 +1622,56 @@ export function performInvestmentAnalysis(input: InvestmentInput): InvestmentRes
       otherDebtPrincipal: number;
       totalDebtService: number;
       dscr: number;
+      totalPrincipal: number;
+      totalInterest: number;
     }[] = [];
     
     try {
-      const baseRevenue = Array.isArray(input.annualRevenue) ? input.annualRevenue[0] : input.annualRevenue;
-      
-      dscrData = calculateDetailedDSCR({
+      // 페이지에서 전달받은 yearlyDSCRData가 있으면 우선 사용
+      if (input.yearlyDSCRData && input.yearlyDSCRData.length > 0) {
+        // console.log('🔍 페이지에서 전달받은 DSCR 데이터 사용');
+        dscrData = input.yearlyDSCRData.map(data => ({
+          year: data.year,
+          revenue: data.revenue,
+          operatingProfit: data.operatingProfit,
+          policyLoanInterest: data.policyLoanInterest || 0,
+          policyLoanPrincipal: data.policyLoanPrincipal || 0,
+          otherDebtInterest: data.otherDebtInterest || 0,
+          otherDebtPrincipal: data.otherDebtPrincipal || 0,
+          totalDebtService: data.totalDebtService || 0,
+          dscr: data.dscr || 0,
+          totalPrincipal: data.totalPrincipal || 0,
+          totalInterest: data.totalInterest || 0
+        }));
+      } else {
+        // 🔥 전달받은 데이터가 없으면 직접 계산
+        const baseRevenue = Array.isArray(input.annualRevenue) ? input.annualRevenue[0] : input.annualRevenue;
+        
+        dscrData = calculateDetailedDSCR({
         initialInvestment: input.initialInvestment,
         annualRevenue: baseRevenue,
         operatingProfitRate: finalOperatingProfitRate,
         analysisYears: input.analysisYears || 10,
         policyLoanAmount: input.policyFundAmount || 0,
         policyLoanRate: input.interestRate || 2.5,
-        otherDebtAmount: 0, // 기타채무는 향후 확장 가능
-        otherDebtRate: 5.0
-      }, {
-        revenueGrowthRate: revenueGrowthRate,
-        costInflationRate: costInflationRate
-      });
-      
-      console.log('🔍 DSCR 상세 데이터 계산 완료:', dscrData.length, '년간');
+        gracePeriod: input.gracePeriod || 0,
+        repaymentPeriod: input.repaymentPeriod || input.analysisYears,
+        otherDebtAmount: input.otherDebtAmount || 0, // ✅ input에서 가져오도록 수정
+        otherDebtRate: input.otherDebtRate || 5.0, // ✅ input에서 가져오도록 수정
+        otherDebtGracePeriod: input.otherDebtGracePeriod || 0, // ✅ 기타채무 거치기간 추가
+        otherDebtRepaymentPeriod: input.otherDebtRepaymentPeriod || input.analysisYears // ✅ 기타채무 상환기간 추가
+        }, {
+          revenueGrowthRate: revenueGrowthRate,
+          costInflationRate: costInflationRate
+        });
+        
+        // console.log('🔍 DSCR 상세 데이터 계산 완료:', dscrData.length, '년간');
+        // console.log('🔍 첫 번째 연도 DSCR 데이터:', dscrData[0]);
+        // console.log('🔍 기타채무 정보:', {
+        //   otherDebtAmount: (input.otherDebtAmount || 0) / 100000000 + '억원',
+        //   otherDebtRate: (input.otherDebtRate || 0) + '%'
+        // });
+      }
     } catch (error) {
       console.error('DSCR 상세 데이터 계산 오류:', error);
       dscrData = [];

@@ -3,7 +3,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { DetailedNPVCalculation } from '@/lib/utils/npv-calculator';
+import { DetailedNPVCalculation } from '@/lib/utils/investment-analysis';
 import { Calculator, TrendingUp, DollarSign, BarChart3 } from 'lucide-react';
 
 // 금액 포맷팅 함수
@@ -90,11 +90,20 @@ export default function NPVDetailedDisplay({ details, summary }: NPVDetailedDisp
                   <TableHead className="text-right">세금</TableHead>
                   <TableHead className="text-right">순이익</TableHead>
                   <TableHead className="text-right">감가상각</TableHead>
-                  <TableHead className="text-right">대출상환</TableHead>
+                  <TableHead className="text-center" colSpan={2}>정책자금<br/>(억원)</TableHead>
+                  <TableHead className="text-center" colSpan={2}>기타채무<br/>(억원)</TableHead>
                   <TableHead className="text-right">순현금흐름</TableHead>
                   <TableHead className="text-center">할인율</TableHead>
                   <TableHead className="text-right">현재가치</TableHead>
                   <TableHead className="text-right">누적 PV</TableHead>
+                </TableRow>
+                <TableRow>
+                  <TableHead colSpan={7}></TableHead>
+                  <TableHead className="text-right text-xs">원금</TableHead>
+                  <TableHead className="text-right text-xs">이자</TableHead>
+                  <TableHead className="text-right text-xs">원금</TableHead>
+                  <TableHead className="text-right text-xs">이자</TableHead>
+                  <TableHead colSpan={4}></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -106,6 +115,9 @@ export default function NPVDetailedDisplay({ details, summary }: NPVDetailedDisp
                         <TableCell className="text-center font-bold">초기 투자</TableCell>
                         <TableCell className="text-right">-</TableCell>
                         <TableCell className="text-center">-</TableCell>
+                        <TableCell className="text-right">-</TableCell>
+                        <TableCell className="text-right">-</TableCell>
+                        <TableCell className="text-right">-</TableCell>
                         <TableCell className="text-right">-</TableCell>
                         <TableCell className="text-right">-</TableCell>
                         <TableCell className="text-right">-</TableCell>
@@ -135,7 +147,10 @@ export default function NPVDetailedDisplay({ details, summary }: NPVDetailedDisp
                       <TableCell className="text-right">{formatCurrency(detail.tax)}</TableCell>
                       <TableCell className="text-right">{formatCurrency(detail.netIncome)}</TableCell>
                       <TableCell className="text-right">{formatCurrency(detail.depreciation)}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(detail.loanPrincipal + detail.loanInterest)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(detail.policyLoanPrincipal || detail.loanPrincipal || 0)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(detail.policyLoanInterest || detail.loanInterest || 0)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(detail.otherDebtPrincipal || 0)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(detail.otherDebtInterest || 0)}</TableCell>
                       <TableCell className="text-right font-medium">{formatCurrency(detail.netCashFlow)}</TableCell>
                       <TableCell className="text-center">{`1/${detail.discountFactor.toFixed(3)}`}</TableCell>
                       <TableCell className="text-right font-medium">{formatCurrency(detail.presentValue)}</TableCell>

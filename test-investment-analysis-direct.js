@@ -55,35 +55,43 @@ function calculateIRR(cashFlows, initialGuess = 10) {
   return rate * 100;
 }
 
-function calculateLoanSchedule(loanAmount, interestRate, loanPeriod, gracePeriod) {
+function calculateLoanSchedule(loanAmount, interestRate, loanPeriod, gracePeriod, repaymentPeriod) {
   const principal = [];
   const interest = [];
   const annualRate = interestRate / 100;
   
   let remainingBalance = loanAmount;
   
+  // 실제 원금상환기간
+  const actualRepaymentPeriod = repaymentPeriod || (loanPeriod - gracePeriod);
+  
   for (let year = 0; year < loanPeriod; year++) {
     let yearlyPrincipal = 0;
     let yearlyInterest = 0;
     
     if (year < gracePeriod) {
-      yearlyInterest = remainingBalance * annualRate;
+      // 거치기간: 이자만 납부
+      yearlyInterest = loanAmount * annualRate;
       yearlyPrincipal = 0;
+      remainingBalance = loanAmount;
+    } else if (year < gracePeriod + actualRepaymentPeriod) {
+      // 상환기간: 원금 균등분할 상환
+      const repaymentYear = year - gracePeriod + 1;
+      yearlyPrincipal = loanAmount / actualRepaymentPeriod;
+      
+      // 잔금 계산 (이전까지 상환한 원금 차감)
+      remainingBalance = loanAmount - (yearlyPrincipal * (repaymentYear - 1));
+      
+      // 이자는 잔금 기준으로 계산
+      yearlyInterest = remainingBalance * annualRate;
+      
+      // 상환 후 잔금
+      remainingBalance = Math.max(0, remainingBalance - yearlyPrincipal);
     } else {
-      const repaymentYears = loanPeriod - gracePeriod;
-      if (repaymentYears > 0) {
-        const annualPayment = loanAmount * annualRate * Math.pow(1 + annualRate, repaymentYears) /
-          (Math.pow(1 + annualRate, repaymentYears) - 1);
-        
-        yearlyInterest = remainingBalance * annualRate;
-        yearlyPrincipal = Math.min(annualPayment - yearlyInterest, remainingBalance);
-        remainingBalance -= yearlyPrincipal;
-        
-        if (remainingBalance < 0) {
-          yearlyPrincipal += remainingBalance;
-          remainingBalance = 0;
-        }
-      }
+      // 상환 완료 후
+      yearlyPrincipal = 0;
+      yearlyInterest = 0;
+      remainingBalance = 0;
     }
     
     principal.push(yearlyPrincipal);
@@ -134,7 +142,8 @@ function performInvestmentAnalysis(input) {
           input.policyFundAmount,
           input.interestRate || 5,
           input.loanPeriod || 7,
-          input.gracePeriod || 2
+          input.gracePeriod || 2,
+          input.repaymentPeriod || null
         );
       } catch (error) {
         console.warn('대출 스케줄 계산 오류, 기본값 사용:', error);
