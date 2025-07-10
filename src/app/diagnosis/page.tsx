@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import SimplifiedDiagnosisForm from '@/components/diagnosis/SimplifiedDiagnosisForm';
 import SimplifiedDiagnosisResults from '@/components/diagnosis/SimplifiedDiagnosisResults';
 import { Button } from '@/components/ui/button';
@@ -23,10 +24,19 @@ interface DiagnosisResponse {
   };
 }
 
-export default function DiagnosisPage() {
+function DiagnosisPageContent() {
+  const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1); // 1: 소개, 2: 폼, 3: 결과
   const [results, setResults] = useState<DiagnosisResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // URL 파라미터 체크하여 바로 폼으로 이동
+  useEffect(() => {
+    const startParam = searchParams.get('start');
+    if (startParam === 'form') {
+      setCurrentStep(2);
+    }
+  }, [searchParams]);
 
   const handleDiagnosisComplete = (data: DiagnosisResponse) => {
     setResults(data);
@@ -524,4 +534,12 @@ export default function DiagnosisPage() {
   }
 
   return null;
+}
+
+export default function DiagnosisPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DiagnosisPageContent />
+    </Suspense>
+  );
 } 

@@ -45,10 +45,10 @@ export default function Header() {
   ];
 
   const actionItems = [
-    { href: '/diagnosis', label: '무료진단', green: true },
+    { href: '/diagnosis?start=form', label: '무료진단', green: true },
     { href: '/consultation', label: '상담신청', green: true },
     { href: '/tax-calculator', label: '세금계산기', orange: true },
-    { href: '/services/policy-funding', label: '재무타당성분석기', orange: true },
+    { href: '/services/policy-funding/investment-analysis', label: '재무타당성분석기', orange: true },
     { href: '/support/error-report', label: '오류신고', gray: true },
   ];
 
