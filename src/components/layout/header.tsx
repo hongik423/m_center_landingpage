@@ -40,7 +40,7 @@ export default function Header() {
     { href: '/cases', label: '성공사례' },
     { href: '/center-leader', label: '센터장' },
     { href: '/seminar', label: '세미나' },
-    { href: '/support', label: '고객지원' },
+    { href: '/support/faq', label: '고객지원Q&A' },
   ];
 
   const actionItems = [

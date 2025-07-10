@@ -120,7 +120,7 @@ export default function InvestmentAnalysisTool() {
       const report = generateAIAnalysisReport(result, input, scenarios, sensitivity);
       setAiReport(report);
 
-      // AI 평가 수행
+      // AI 평가 수행 - 🔥 새로운 점수체계 적용
       console.log('🤖 AI 평가 수행 중...');
       try {
         const evaluation = generateAIInvestmentEvaluation(result, input);

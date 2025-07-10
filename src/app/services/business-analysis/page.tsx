@@ -188,7 +188,7 @@ export default function BusinessAnalysisPage() {
       
       {/* Hero Section */}
       <section className="py-12 md:py-20">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <div className="max-w-6xl mx-auto">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
@@ -208,7 +208,7 @@ export default function BusinessAnalysisPage() {
               <span className="text-blue-600 font-medium">BM ZEN 사업분석</span>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
+            <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
               <div>
                 <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 px-4 py-2 rounded-full mb-6">
                   <Brain className="w-5 h-5 text-blue-600" />
@@ -297,7 +297,7 @@ export default function BusinessAnalysisPage() {
                   </Badge>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-4 px-2 sm:px-0">
                   <Button 
                     size="lg"
                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group"
@@ -320,11 +320,23 @@ export default function BusinessAnalysisPage() {
                       무료 진단 받기
                     </span>
                   </Button>
+                  <Button 
+                    variant="outline"
+                    size="lg"
+                    className="px-8 py-4 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] border-orange-300 hover:border-orange-600 text-orange-700 hover:text-orange-600 hover:shadow-md relative overflow-hidden group"
+                    onClick={() => window.open('/images/bmzwn_CASE.PDF', '_blank')}
+                  >
+                    <span className="absolute inset-0 bg-orange-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                    <span className="relative flex items-center">
+                      <FileSpreadsheet className="w-5 h-5 mr-2" />
+                      BM ZEN 사례 공유 (PDF)
+                    </span>
+                  </Button>
                 </div>
               </div>
 
-              <div className="relative">
-                <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8">
+              <div className="relative px-2 sm:px-0">
+                <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 lg:p-10">
                   <h3 className="text-xl font-bold text-gray-900 mb-4">서비스 개요</h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between py-2 border-b border-gray-100">
@@ -367,7 +379,7 @@ export default function BusinessAnalysisPage() {
 
       {/* Navigation Tabs */}
       <section className="bg-white border-b sticky top-0 z-10">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <div className="flex space-x-8 overflow-x-auto">
             {[
               { id: 'overview', label: '서비스 개요' },
@@ -398,28 +410,251 @@ export default function BusinessAnalysisPage() {
         </div>
       </section>
 
+      {/* 기업성장솔루션 섹션 */}
+      <section className="py-16 md:py-24 bg-gradient-to-br from-slate-50 to-gray-100">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 max-w-7xl">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-100 to-blue-100 
+                            text-emerald-700 rounded-full font-semibold text-sm mb-8">
+              <Rocket className="w-5 h-5" />
+              <span>기업 성장 단계별 맞춤 솔루션</span>
+            </div>
+            
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-8">
+              <span className="bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
+                기업성장솔루션
+              </span>
+            </h2>
+            
+            <p className="text-xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
+              기업의 성장 단계와 규모에 맞는 차별화된 BM ZEN 솔루션으로<br />
+              지속 가능한 성장과 혁신을 실현합니다
+            </p>
+          </div>
+
+          {/* 성장 단계별 솔루션 카드 */}
+          <div className="grid lg:grid-cols-3 gap-8 lg:gap-12 mb-20">
+            {/* Step 1-2: 스타트업/초기 기업 */}
+                          <Card className="relative group hover:shadow-2xl transition-all duration-500 border-0 bg-white overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <CardHeader className="relative z-10 text-center pb-6 px-6 lg:px-8 pt-8">
+                  <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <Rocket className="w-10 h-10 text-green-600" />
+                  </div>
+                  <CardTitle className="text-2xl text-green-600 mb-3">BM ZEN Starter</CardTitle>
+                  <p className="text-gray-600">Step 1-2 기업 | 연매출 10-100억원</p>
+                </CardHeader>
+                <CardContent className="relative z-10 px-6 lg:px-8 pb-8">
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="font-bold text-gray-900 mb-4">🎯 핵심 목표</h4>
+                    <ul className="space-y-3 text-sm text-gray-700">
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span>비즈니스 모델 검증 및 최적화</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span>초기 AI 도구 도입 (ChatGPT, 자동화)</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span>핵심 프로세스 3개 영역 개선</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div className="bg-green-50 rounded-xl p-6 border border-green-100">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-green-600 mb-2">150%</div>
+                      <div className="text-sm text-gray-600 mb-1">예상 6개월 ROI</div>
+                      <div className="text-xs text-gray-500">생산성 20% 이상 향상 보장</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Step 2-3: 성장기 기업 */}
+                          <Card className="relative group hover:shadow-2xl transition-all duration-500 border-2 border-blue-200 bg-white overflow-hidden scale-105">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
+                  <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 text-sm font-bold">
+                    <Star className="w-4 h-4 mr-2" />
+                    BEST CHOICE
+                  </Badge>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <CardHeader className="relative z-10 text-center pb-6 px-6 lg:px-8 pt-8">
+                  <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <Award className="w-10 h-10 text-blue-600" />
+                  </div>
+                  <CardTitle className="text-2xl text-blue-600 mb-3">BM ZEN Professional</CardTitle>
+                  <p className="text-gray-600">Step 2-3 기업 | 연매출 50-300억원</p>
+                </CardHeader>
+                <CardContent className="relative z-10 px-6 lg:px-8 pb-8">
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="font-bold text-gray-900 mb-4">🚀 핵심 목표</h4>
+                    <ul className="space-y-3 text-sm text-gray-700">
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                        <span>완전 맞춤형 AI 솔루션 개발</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                        <span>컴퓨터 비전 품질 검사 시스템</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                        <span>통합 CRM/ERP 시스템 구축</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-100">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-blue-600 mb-2">290%</div>
+                      <div className="text-sm text-gray-600 mb-1">실제 6개월 ROI</div>
+                      <div className="text-xs text-gray-500">한국정밀기계 검증 완료</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Step 3-4: 확장기 기업 */}
+                          <Card className="relative group hover:shadow-2xl transition-all duration-500 border-0 bg-white overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <CardHeader className="relative z-10 text-center pb-6 px-6 lg:px-8 pt-8">
+                  <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <Building2 className="w-10 h-10 text-purple-600" />
+                  </div>
+                  <CardTitle className="text-2xl text-purple-600 mb-3">BM ZEN Enterprise</CardTitle>
+                  <p className="text-gray-600">Step 3-4 기업 | 연매출 300억원+</p>
+                </CardHeader>
+                <CardContent className="relative z-10 px-6 lg:px-8 pb-8">
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="font-bold text-gray-900 mb-4">🏢 핵심 목표</h4>
+                    <ul className="space-y-3 text-sm text-gray-700">
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                        <span>엔터프라이즈급 AI 플랫폼 구축</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                        <span>다국가 확장 지원 시스템</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                        <span>조직 전체 디지털 트랜스포메이션</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div className="bg-purple-50 rounded-xl p-6 border border-purple-100">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-purple-600 mb-2">500%</div>
+                      <div className="text-sm text-gray-600 mb-1">목표 12개월 ROI</div>
+                      <div className="text-xs text-gray-500">조직 혁신 완료</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* 단계별 진행 프로세스 */}
+          <div className="bg-white rounded-3xl p-8 md:p-12 lg:p-16 shadow-xl border border-gray-100">
+            <div className="text-center mb-12">
+              <h3 className="text-3xl font-bold text-gray-900 mb-4">
+                체계적인 5단계 진행 프로세스
+              </h3>
+              <p className="text-lg text-gray-600">
+                검증된 BM ZEN 프레임워크로 단계별 성과를 보장합니다
+              </p>
+            </div>
+
+            <div className="grid lg:grid-cols-5 gap-6 lg:gap-8">
+              {[
+                { step: '1', title: '가치 발견', duration: '2-3주', icon: Eye, color: 'blue' },
+                { step: '2', title: '가치 창출', duration: '3-4주', icon: Lightbulb, color: 'green' },
+                { step: '3', title: '가치 제공', duration: '12-16주', icon: Cog, color: 'purple' },
+                { step: '4', title: '가치 포착', duration: '지속', icon: Gauge, color: 'orange' },
+                { step: '5', title: '가치 교정', duration: '지속', icon: Settings, color: 'red' }
+              ].map((phase, index) => (
+                <div key={index} className="text-center group">
+                  <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-${phase.color}-100 to-${phase.color}-200 rounded-full mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                    <phase.icon className={`w-8 h-8 text-${phase.color}-600`} />
+                  </div>
+                  <h4 className="font-bold text-gray-900 mb-2">{phase.step}단계</h4>
+                  <p className="text-sm font-semibold text-gray-700 mb-1">{phase.title}</p>
+                  <Badge variant="outline" className="text-xs">
+                    <Clock className="w-3 h-3 mr-1" />
+                    {phase.duration}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Content Sections */}
-      <section className="py-12 md:py-20">
-        <div className="container mx-auto px-4">
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 max-w-7xl">
           {activeTab === 'framework' && (
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
-                BM Zen 5단계 프레임워크
-              </h2>
+              <div className="text-center mb-16">
+                <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-100 to-purple-100 
+                                text-blue-700 rounded-full font-semibold text-sm mb-8">
+                  <Brain className="w-5 h-5" />
+                  <span>실제 기업 검증 완료 · 5단계 체계적 접근</span>
+                </div>
+                
+                <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-8">
+                  <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    BM Zen 5단계 프레임워크
+                  </span>
+                </h2>
+                
+                <p className="text-xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
+                  가치 발견부터 교정까지, 체계적인 5단계 접근으로<br />
+                  지속 가능한 성장과 혁신을 실현합니다
+                </p>
+              </div>
               
-              <div className="grid lg:grid-cols-5 gap-6 mb-12">
+              <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 mb-20">
                 {processSteps.map((step, index) => (
-                  <Card key={index} className="text-center border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
-                    <CardContent className="p-6">
-                      <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                        <step.icon className="w-8 h-8 text-white" />
+                  <Card key={index} className="text-center border-0 shadow-lg hover:shadow-xl transition-all duration-500 group bg-white relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <CardContent className="p-8 relative z-10">
+                      <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                        <step.icon className="w-10 h-10 text-white" />
                       </div>
-                      <h3 className="font-bold text-gray-900 mb-2 text-sm">{step.title}</h3>
-                      <p className="text-xs text-gray-600 mb-3">{step.description}</p>
+                      <div className="mb-4">
+                        <Badge className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 text-sm font-bold mb-3">
+                          {step.step}
+                        </Badge>
+                      </div>
+                      <h3 className="font-bold text-gray-900 mb-3 text-lg">{step.title}</h3>
+                      <p className="text-sm text-gray-600 mb-4 leading-relaxed">{step.description}</p>
                       <Badge variant="outline" className="text-xs">
                         <Clock className="w-3 h-3 mr-1" />
                         {step.duration}
                       </Badge>
+                      
+                      {/* 상세 내용 */}
+                      <div className="mt-6 pt-4 border-t border-gray-100">
+                        <ul className="space-y-2 text-xs text-gray-600">
+                          {step.details.map((detail, detailIndex) => (
+                            <li key={detailIndex} className="flex items-start gap-2">
+                              <CheckCircle className="w-3 h-3 text-green-500 mt-0.5 flex-shrink-0" />
+                              <span>{detail}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
@@ -456,58 +691,86 @@ export default function BusinessAnalysisPage() {
           )}
 
           {activeTab === 'overview' && (
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-                왜 BM ZEN 사업분석인가요?
-              </h2>
-              <div className="grid md:grid-cols-2 gap-8">
-                <Card className="p-6 border-0 shadow-lg">
-                  <CardHeader className="p-0 pb-4">
-                    <CardTitle className="text-xl text-red-600">기존 방식의 한계</CardTitle>
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-16">
+                <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-100 to-orange-100 
+                                text-amber-700 rounded-full font-semibold text-sm mb-8">
+                  <Award className="w-5 h-5" />
+                  <span>실제 기업 검증 완료 · 차별화된 접근법</span>
+                </div>
+                
+                <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-8">
+                  <span className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+                    왜 BM ZEN 사업분석인가요?
+                  </span>
+                </h2>
+                
+                <p className="text-xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
+                  기존 컨설팅의 한계를 극복하고, 실제 기업에서 검증된<br />
+                  차별화된 접근법으로 확실한 성과를 보장합니다
+                </p>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-12 lg:gap-16 mb-20">
+                <Card className="p-8 border-0 shadow-xl hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-red-50 to-orange-50 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-red-100 to-orange-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <CardHeader className="p-0 pb-6 relative z-10">
+                    <div className="inline-flex items-center gap-3 mb-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-lg">✗</span>
+                      </div>
+                      <CardTitle className="text-2xl text-red-600 font-bold">기존 방식의 한계</CardTitle>
+                    </div>
                   </CardHeader>
-                  <CardContent className="p-0">
-                    <ul className="space-y-3 text-gray-600">
-                      <li className="flex items-start">
-                        <span className="text-red-500 mr-2">✗</span>
-                        단순 세무 서비스로 한정된 수익 구조
+                  <CardContent className="p-0 relative z-10">
+                    <ul className="space-y-4 text-gray-700">
+                      <li className="flex items-start gap-3 p-3 bg-white/70 rounded-lg">
+                        <span className="text-red-500 font-bold text-lg">✗</span>
+                        <span>단순 세무 서비스로 한정된 수익 구조</span>
                       </li>
-                      <li className="flex items-start">
-                        <span className="text-red-500 mr-2">✗</span>
-                        반복적 업무로 인한 성장 정체
+                      <li className="flex items-start gap-3 p-3 bg-white/70 rounded-lg">
+                        <span className="text-red-500 font-bold text-lg">✗</span>
+                        <span>반복적 업무로 인한 성장 정체</span>
                       </li>
-                      <li className="flex items-start">
-                        <span className="text-red-500 mr-2">✗</span>
-                        체계적인 비즈니스 전략 부재
+                      <li className="flex items-start gap-3 p-3 bg-white/70 rounded-lg">
+                        <span className="text-red-500 font-bold text-lg">✗</span>
+                        <span>체계적인 비즈니스 전략 부재</span>
                       </li>
-                      <li className="flex items-start">
-                        <span className="text-red-500 mr-2">✗</span>
-                        시장 변화에 대한 대응력 부족
+                      <li className="flex items-start gap-3 p-3 bg-white/70 rounded-lg">
+                        <span className="text-red-500 font-bold text-lg">✗</span>
+                        <span>시장 변화에 대한 대응력 부족</span>
                       </li>
                     </ul>
                   </CardContent>
                 </Card>
 
-                <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-blue-50 to-purple-50">
-                  <CardHeader className="p-0 pb-4">
-                    <CardTitle className="text-xl text-blue-600">BM ZEN 솔루션</CardTitle>
+                <Card className="p-8 border-0 shadow-xl hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-blue-50 to-purple-50 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-purple-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <CardHeader className="p-0 pb-6 relative z-10">
+                    <div className="inline-flex items-center gap-3 mb-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                        <CheckCircle className="w-6 h-6 text-white" />
+                      </div>
+                      <CardTitle className="text-2xl text-blue-600 font-bold">BM ZEN 솔루션</CardTitle>
+                    </div>
                   </CardHeader>
-                  <CardContent className="p-0">
-                    <ul className="space-y-3 text-gray-700">
-                      <li className="flex items-start">
-                        <span className="text-green-500 mr-2">✓</span>
-                        5단계 프레임워크로 체계적 접근
+                  <CardContent className="p-0 relative z-10">
+                    <ul className="space-y-4 text-gray-700">
+                      <li className="flex items-start gap-3 p-3 bg-white/70 rounded-lg">
+                        <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span>5단계 프레임워크로 체계적 접근</span>
                       </li>
-                      <li className="flex items-start">
-                        <span className="text-green-500 mr-2">✓</span>
-                        AI 기반 데이터 분석 및 인사이트
+                      <li className="flex items-start gap-3 p-3 bg-white/70 rounded-lg">
+                        <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span>AI 기반 데이터 분석 및 인사이트</span>
                       </li>
-                      <li className="flex items-start">
-                        <span className="text-green-500 mr-2">✓</span>
-                        맞춤형 비즈니스 모델 설계
+                      <li className="flex items-start gap-3 p-3 bg-white/70 rounded-lg">
+                        <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span>맞춤형 비즈니스 모델 설계</span>
                       </li>
-                      <li className="flex items-start">
-                        <span className="text-green-500 mr-2">✓</span>
-                        지속 가능한 성장 전략 수립
+                      <li className="flex items-start gap-3 p-3 bg-white/70 rounded-lg">
+                        <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span>지속 가능한 성장 전략 수립</span>
                       </li>
                     </ul>
                   </CardContent>
@@ -877,7 +1140,7 @@ export default function BusinessAnalysisPage() {
 
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600">
-        <div className="container mx-auto px-4 text-center">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 text-center">
           <div className="max-w-3xl mx-auto text-white">
             <h2 className="text-3xl font-bold mb-4">
               지금 바로 BM Zen AI 성장전략 컨설팅을 시작하세요!

@@ -21,14 +21,14 @@ export interface InvestmentGrade {
   adjustedScore: number;
 }
 
-// 📊 투자규모별 분류 및 리스크 프리미엄 계산 (5구간 체계)
+// 📊 투자규모별 분류 및 리스크 프리미엄 계산 (5구간 체계) - 🔥 사용자 요구사항 반영
 export const getInvestmentScaleInfo = (initialInvestment: number) => {
   const investmentInBillion = initialInvestment;
   
   if (investmentInBillion >= 100) {
     return {
       scale: 'mega' as const,
-      riskPremium: 0.18, // 18% 리스크 프리미엄 (최고 엄격 기준)
+      riskPremium: 0.12, // 🔥 12% 리스크 프리미엄 (사용자 요구사항)
       description: '메가 투자 (100억원 이상)',
       minIRR: 20, // 최소 IRR 20% 요구
       minDSCR: 3.0, // 최소 DSCR 3.0 요구
@@ -37,7 +37,7 @@ export const getInvestmentScaleInfo = (initialInvestment: number) => {
   } else if (investmentInBillion >= 75) {
     return {
       scale: 'large' as const,
-      riskPremium: 0.15, // 15% 리스크 프리미엄 (엄격한 기준)
+      riskPremium: 0.08, // 🔥 8% 리스크 프리미엄 (사용자 요구사항)
       description: '대규모 투자 (75-100억원)',
       minIRR: 18, // 최소 IRR 18% 요구
       minDSCR: 2.5, // 최소 DSCR 2.5 요구
@@ -46,7 +46,7 @@ export const getInvestmentScaleInfo = (initialInvestment: number) => {
   } else if (investmentInBillion >= 50) {
     return {
       scale: 'medium' as const,
-      riskPremium: 0.12, // 12% 리스크 프리미엄 (표준 기준)
+      riskPremium: 0.05, // 🔥 5% 리스크 프리미엄 (사용자 요구사항)
       description: '중규모 투자 (50-75억원)',
       minIRR: 15, // 최소 IRR 15% 요구
       minDSCR: 2.0, // 최소 DSCR 2.0 요구
@@ -55,7 +55,7 @@ export const getInvestmentScaleInfo = (initialInvestment: number) => {
   } else if (investmentInBillion >= 25) {
     return {
       scale: 'small' as const,
-      riskPremium: 0.08, // 8% 리스크 프리미엄 (완화된 기준)
+      riskPremium: 0.03, // 🔥 3% 리스크 프리미엄 (사용자 요구사항)
       description: '소규모 투자 (25-50억원)',
       minIRR: 12, // 최소 IRR 12% 요구
       minDSCR: 1.5, // 최소 DSCR 1.5 요구
@@ -64,7 +64,7 @@ export const getInvestmentScaleInfo = (initialInvestment: number) => {
   } else {
     return {
       scale: 'micro' as const,
-      riskPremium: 0.05, // 5% 리스크 프리미엄 (최대 완화 기준)
+      riskPremium: 0.02, // 🔥 2% 리스크 프리미엄 (사용자 요구사항)
       description: '마이크로 투자 (25억원 미만)',
       minIRR: 10, // 최소 IRR 10% 요구
       minDSCR: 1.25, // 최소 DSCR 1.25 요구
@@ -97,8 +97,8 @@ export const calculateAverageDSCR = (result: InvestmentResult | null): number =>
   return 0;
 };
 
-// 🚀 투자규모별 동적 점수 구간 생성 (5구간 체계)
-export const getDynamicGradingCriteria = (investmentScale: 'mega' | 'large' | 'medium' | 'small' | 'micro') => {
+// 🚀 투자규모별 동적 점수 구간 생성 (5구간 체계) - 🔥 사용자 요구사항 반영
+export const getDynamicGradingCriteria = (investmentScale: 'mega' | 'large' | 'medium' | 'small' | 'micro', discountRate: number = 10) => {
   const baseWeight = {
     npv: 30,
     irr: 25,
@@ -159,124 +159,60 @@ export const getDynamicGradingCriteria = (investmentScale: 'mega' | 'large' | 'm
       ]
     },
     irr: {
-      title: 'IRR (내부수익률)',
+      title: 'IRR (내부수익률) - 할인율 대비 상대평가',
       weight: Math.round(baseWeight.irr * adjustment.irr),
-      ranges: investmentScale === 'mega' ? [
-        { min: 25, max: 999, score: 30, desc: '25% 이상 (30점)' },
-        { min: 22, max: 25, score: 27, desc: '22~25% (27점)' },
-        { min: 20, max: 22, score: 24, desc: '20~22% (24점)' },
-        { min: 18, max: 20, score: 20, desc: '18~20% (20점)' },
-        { min: 15, max: 18, score: 12, desc: '15~18% (12점)' },
-        { min: 0, max: 15, score: 0, desc: '15% 미만 (0점)' }
-      ] : investmentScale === 'large' ? [
-        { min: 22, max: 999, score: 28, desc: '22% 이상 (28점)' },
-        { min: 20, max: 22, score: 25, desc: '20~22% (25점)' },
-        { min: 18, max: 20, score: 22, desc: '18~20% (22점)' },
-        { min: 15, max: 18, score: 18, desc: '15~18% (18점)' },
-        { min: 12, max: 15, score: 10, desc: '12~15% (10점)' },
-        { min: 0, max: 12, score: 0, desc: '12% 미만 (0점)' }
-      ] : investmentScale === 'medium' ? [
-        { min: 18, max: 999, score: 25, desc: '18% 이상 (25점)' },
-        { min: 15, max: 18, score: 22, desc: '15~18% (22점)' },
-        { min: 12, max: 15, score: 18, desc: '12~15% (18점)' },
-        { min: 10, max: 12, score: 14, desc: '10~12% (14점)' },
-        { min: 8, max: 10, score: 8, desc: '8~10% (8점)' },
-        { min: 0, max: 8, score: 0, desc: '8% 미만 (0점)' }
-      ] : investmentScale === 'small' ? [
-        { min: 15, max: 999, score: 30, desc: '15% 이상 (30점)' },
-        { min: 12, max: 15, score: 26, desc: '12~15% (26점)' },
-        { min: 10, max: 12, score: 22, desc: '10~12% (22점)' },
-        { min: 8, max: 10, score: 18, desc: '8~10% (18점)' },
-        { min: 6, max: 8, score: 12, desc: '6~8% (12점)' },
-        { min: 0, max: 6, score: 0, desc: '6% 미만 (0점)' }
-      ] : [
-        { min: 12, max: 999, score: 32, desc: '12% 이상 (32점)' },
-        { min: 10, max: 12, score: 28, desc: '10~12% (28점)' },
-        { min: 8, max: 10, score: 24, desc: '8~10% (24점)' },
-        { min: 6, max: 8, score: 18, desc: '6~8% (18점)' },
-        { min: 4, max: 6, score: 10, desc: '4~6% (10점)' },
-        { min: 0, max: 4, score: 0, desc: '4% 미만 (0점)' }
-      ]
+      // 🔥 사용자 요구사항: IRR 점수체계를 할인율 대비 상대적 점수체계로 변경 (리스크프리미엄 제외)
+      ranges: (() => {
+        const baseDiscountRate = discountRate; // 할인율 기준 (리스크프리미엄 제외)
+        const maxScore = Math.round(baseWeight.irr * adjustment.irr);
+        
+        return [
+          { min: baseDiscountRate + 15, max: 999, score: maxScore, desc: `할인율+15%p 이상 (${maxScore}점)` },
+          { min: baseDiscountRate + 10, max: baseDiscountRate + 15, score: Math.round(maxScore * 0.9), desc: `할인율+10~15%p (${Math.round(maxScore * 0.9)}점)` },
+          { min: baseDiscountRate + 5, max: baseDiscountRate + 10, score: Math.round(maxScore * 0.75), desc: `할인율+5~10%p (${Math.round(maxScore * 0.75)}점)` },
+          { min: baseDiscountRate + 2, max: baseDiscountRate + 5, score: Math.round(maxScore * 0.6), desc: `할인율+2~5%p (${Math.round(maxScore * 0.6)}점)` },
+          { min: baseDiscountRate, max: baseDiscountRate + 2, score: Math.round(maxScore * 0.4), desc: `할인율~+2%p (${Math.round(maxScore * 0.4)}점)` },
+          { min: 0, max: baseDiscountRate, score: 0, desc: `할인율 미만 (0점)` }
+        ];
+      })()
     },
     dscr: {
-      title: 'DSCR (부채상환능력)',
+      title: 'DSCR (부채상환능력) - 1.25 중간점수 기준',
       weight: Math.round(baseWeight.dscr * adjustment.dscr),
-      ranges: investmentScale === 'mega' ? [
-        { min: 3.5, max: 999, score: 35, desc: '3.5 이상 (35점)' },
-        { min: 3.0, max: 3.5, score: 30, desc: '3.0~3.5 (30점)' },
-        { min: 2.5, max: 3.0, score: 25, desc: '2.5~3.0 (25점)' },
-        { min: 2.0, max: 2.5, score: 18, desc: '2.0~2.5 (18점)' },
-        { min: 1.5, max: 2.0, score: 10, desc: '1.5~2.0 (10점)' },
-        { min: 0, max: 1.5, score: 0, desc: '1.5 미만 (0점)' }
-      ] : investmentScale === 'large' ? [
-        { min: 3.0, max: 999, score: 33, desc: '3.0 이상 (33점)' },
-        { min: 2.5, max: 3.0, score: 28, desc: '2.5~3.0 (28점)' },
-        { min: 2.0, max: 2.5, score: 23, desc: '2.0~2.5 (23점)' },
-        { min: 1.5, max: 2.0, score: 15, desc: '1.5~2.0 (15점)' },
-        { min: 1.25, max: 1.5, score: 8, desc: '1.25~1.5 (8점)' },
-        { min: 0, max: 1.25, score: 0, desc: '1.25 미만 (0점)' }
-      ] : investmentScale === 'medium' ? [
-        { min: 2.5, max: 999, score: 25, desc: '2.5 이상 (25점)' },
-        { min: 2.0, max: 2.5, score: 22, desc: '2.0~2.5 (22점)' },
-        { min: 1.5, max: 2.0, score: 18, desc: '1.5~2.0 (18점)' },
-        { min: 1.25, max: 1.5, score: 12, desc: '1.25~1.5 (12점)' },
-        { min: 1.0, max: 1.25, score: 6, desc: '1.0~1.25 (6점)' },
-        { min: 0, max: 1.0, score: 0, desc: '1.0 미만 (0점)' }
-      ] : investmentScale === 'small' ? [
-        { min: 2.0, max: 999, score: 23, desc: '2.0 이상 (23점)' },
-        { min: 1.5, max: 2.0, score: 20, desc: '1.5~2.0 (20점)' },
-        { min: 1.25, max: 1.5, score: 16, desc: '1.25~1.5 (16점)' },
-        { min: 1.0, max: 1.25, score: 12, desc: '1.0~1.25 (12점)' },
-        { min: 0.8, max: 1.0, score: 8, desc: '0.8~1.0 (8점)' },
-        { min: 0, max: 0.8, score: 0, desc: '0.8 미만 (0점)' }
-      ] : [
-        { min: 1.5, max: 999, score: 20, desc: '1.5 이상 (20점)' },
-        { min: 1.25, max: 1.5, score: 18, desc: '1.25~1.5 (18점)' },
-        { min: 1.0, max: 1.25, score: 15, desc: '1.0~1.25 (15점)' },
-        { min: 0.8, max: 1.0, score: 12, desc: '0.8~1.0 (12점)' },
-        { min: 0.6, max: 0.8, score: 8, desc: '0.6~0.8 (8점)' },
-        { min: 0, max: 0.6, score: 0, desc: '0.6 미만 (0점)' }
-      ]
+      // 🔥 사용자 요구사항: DSCR 점수체계를 1.25 중간점수로 개선 (리스크프리미엄 제외)
+      ranges: (() => {
+        const maxScore = Math.round(baseWeight.dscr * adjustment.dscr);
+        const midScore = Math.round(maxScore * 0.5); // 1.25에서 중간점수
+        
+        return [
+          { min: 3.0, max: 999, score: maxScore, desc: `3.0 이상 (${maxScore}점) - 금융권 최우수` },
+          { min: 2.5, max: 3.0, score: Math.round(maxScore * 0.9), desc: `2.5~3.0 (${Math.round(maxScore * 0.9)}점) - 금융권 우수` },
+          { min: 2.0, max: 2.5, score: Math.round(maxScore * 0.8), desc: `2.0~2.5 (${Math.round(maxScore * 0.8)}점) - 금융권 양호` },
+          { min: 1.5, max: 2.0, score: Math.round(maxScore * 0.7), desc: `1.5~2.0 (${Math.round(maxScore * 0.7)}점) - 금융권 보통` },
+          { min: 1.25, max: 1.5, score: midScore, desc: `1.25~1.5 (${midScore}점) - 금융권 안정권 (중간점수)` },
+          { min: 1.0, max: 1.25, score: Math.round(maxScore * 0.3), desc: `1.0~1.25 (${Math.round(maxScore * 0.3)}점) - 주의 필요` },
+          { min: 0, max: 1.0, score: 0, desc: `1.0 미만 (0점) - 위험` }
+        ];
+      })()
     },
     payback: {
-      title: '회수기간 (Payback Period)',
+      title: '회수기간 (Payback Period) - 7~8년 기준',
       weight: Math.round(baseWeight.payback * adjustment.payback),
-      ranges: investmentScale === 'mega' ? [
-        { min: 0, max: 2.5, score: 18, desc: '2.5년 이하 (18점)' },
-        { min: 2.5, max: 3.5, score: 16, desc: '2.5~3.5년 (16점)' },
-        { min: 3.5, max: 4.5, score: 14, desc: '3.5~4.5년 (14점)' },
-        { min: 4.5, max: 6, score: 10, desc: '4.5~6년 (10점)' },
-        { min: 6, max: 8, score: 5, desc: '6~8년 (5점)' },
-        { min: 8, max: 999, score: 0, desc: '8년 초과 (0점)' }
-      ] : investmentScale === 'large' ? [
-        { min: 0, max: 3, score: 20, desc: '3년 이하 (20점)' },
-        { min: 3, max: 4, score: 18, desc: '3~4년 (18점)' },
-        { min: 4, max: 5, score: 15, desc: '4~5년 (15점)' },
-        { min: 5, max: 7, score: 10, desc: '5~7년 (10점)' },
-        { min: 7, max: 10, score: 5, desc: '7~10년 (5점)' },
-        { min: 10, max: 999, score: 0, desc: '10년 초과 (0점)' }
-      ] : investmentScale === 'medium' ? [
-        { min: 0, max: 3, score: 20, desc: '3년 이하 (20점)' },
-        { min: 3, max: 5, score: 18, desc: '3~5년 (18점)' },
-        { min: 5, max: 7, score: 15, desc: '5~7년 (15점)' },
-        { min: 7, max: 10, score: 10, desc: '7~10년 (10점)' },
-        { min: 10, max: 15, score: 5, desc: '10~15년 (5점)' },
-        { min: 15, max: 999, score: 0, desc: '15년 초과 (0점)' }
-      ] : investmentScale === 'small' ? [
-        { min: 0, max: 4, score: 22, desc: '4년 이하 (22점)' },
-        { min: 4, max: 6, score: 20, desc: '4~6년 (20점)' },
-        { min: 6, max: 8, score: 17, desc: '6~8년 (17점)' },
-        { min: 8, max: 10, score: 13, desc: '8~10년 (13점)' },
-        { min: 10, max: 15, score: 8, desc: '10~15년 (8점)' },
-        { min: 15, max: 999, score: 0, desc: '15년 초과 (0점)' }
-      ] : [
-        { min: 0, max: 5, score: 24, desc: '5년 이하 (24점)' },
-        { min: 5, max: 7, score: 22, desc: '5~7년 (22점)' },
-        { min: 7, max: 9, score: 18, desc: '7~9년 (18점)' },
-        { min: 9, max: 12, score: 14, desc: '9~12년 (14점)' },
-        { min: 12, max: 18, score: 8, desc: '12~18년 (8점)' },
-        { min: 18, max: 999, score: 0, desc: '18년 초과 (0점)' }
-      ]
+      // 🔥 사용자 요구사항: 투자회수기간을 7~8년 기준으로 조정
+      ranges: (() => {
+        const maxScore = Math.round(baseWeight.payback * adjustment.payback);
+        const standardPeriod = 7.5; // 7~8년 중간값
+        
+        return [
+          { min: 0, max: 3, score: maxScore, desc: `3년 이하 (${maxScore}점) - 매우 빠름` },
+          { min: 3, max: 5, score: Math.round(maxScore * 0.9), desc: `3~5년 (${Math.round(maxScore * 0.9)}점) - 빠름` },
+          { min: 5, max: 7, score: Math.round(maxScore * 0.8), desc: `5~7년 (${Math.round(maxScore * 0.8)}점) - 양호` },
+          { min: 7, max: 8, score: Math.round(maxScore * 0.7), desc: `7~8년 (${Math.round(maxScore * 0.7)}점) - 보통 (기준)` },
+          { min: 8, max: 10, score: Math.round(maxScore * 0.5), desc: `8~10년 (${Math.round(maxScore * 0.5)}점) - 느림` },
+          { min: 10, max: 15, score: Math.round(maxScore * 0.3), desc: `10~15년 (${Math.round(maxScore * 0.3)}점) - 매우 느림` },
+          { min: 15, max: 999, score: 0, desc: `15년 초과 (0점) - 부적합` }
+        ];
+      })()
     }
   };
 };
@@ -286,8 +222,8 @@ export const getGradingCriteria = () => {
   return getDynamicGradingCriteria('medium'); // 기본값으로 중규모 기준 반환
 };
 
-// 🚀 고도화된 통합 투자 등급 계산 함수
-export function calculateInvestmentGrade(result: InvestmentResult | null, initialInvestment: number = 35): InvestmentGrade {
+// 🚀 고도화된 통합 투자 등급 계산 함수 - 🔥 사용자 요구사항 반영
+export function calculateInvestmentGrade(result: InvestmentResult | null, initialInvestment: number = 35, discountRate: number = 10): InvestmentGrade {
   if (!result) {
     return {
       grade: 'D급',
@@ -311,7 +247,7 @@ export function calculateInvestmentGrade(result: InvestmentResult | null, initia
 
   // 투자규모 정보 획득
   const scaleInfo = getInvestmentScaleInfo(initialInvestment);
-  const criteria = getDynamicGradingCriteria(scaleInfo.scale);
+  const criteria = getDynamicGradingCriteria(scaleInfo.scale, discountRate);
 
   let score = 0;
   let details = {
@@ -332,7 +268,7 @@ export function calculateInvestmentGrade(result: InvestmentResult | null, initia
     }
   }
   
-  // IRR 평가 - 투자규모별 동적 기준 적용
+  // 🔥 IRR 평가 - 할인율 대비 상대평가 (리스크프리미엄 제외)
   const irrRanges = criteria.irr.ranges;
   for (const range of irrRanges) {
     if (result.irr >= range.min && result.irr < range.max) {
@@ -342,7 +278,7 @@ export function calculateInvestmentGrade(result: InvestmentResult | null, initia
     }
   }
   
-  // DSCR 평가 - 투자규모별 동적 기준 적용
+  // 🔥 DSCR 평가 - 1.25 중간점수 기준 (리스크프리미엄 제외)
   const avgDSCR = calculateAverageDSCR(result);
   const dscrRanges = criteria.dscr.ranges;
   for (const range of dscrRanges) {
@@ -353,7 +289,7 @@ export function calculateInvestmentGrade(result: InvestmentResult | null, initia
     }
   }
   
-  // 회수기간 평가 - 투자규모별 동적 기준 적용
+  // 🔥 회수기간 평가 - 7~8년 기준
   const paybackRanges = criteria.payback.ranges;
   for (const range of paybackRanges) {
     if (result.paybackPeriod >= range.min && result.paybackPeriod < range.max) {
@@ -363,7 +299,7 @@ export function calculateInvestmentGrade(result: InvestmentResult | null, initia
     }
   }
 
-  // 🚀 리스크 프리미엄 적용한 조정 점수 계산
+  // 🚀 리스크 프리미엄 적용한 조정 점수 계산 (사용자 요구사항 반영)
   const riskAdjustment = 1 - scaleInfo.riskPremium;
   const adjustedScore = Math.round(score * riskAdjustment);
   
@@ -391,7 +327,7 @@ export function calculateInvestmentGrade(result: InvestmentResult | null, initia
     color = 'text-emerald-600'; 
     bgColor = 'bg-emerald-50'; 
     borderColor = 'border-emerald-200';
-    gradeDesc = `최우수 ${scaleInfo.description} - 모든 지표가 탁월하여 적극 투자 권장`;
+    gradeDesc = `최우수 ${scaleInfo.description} - 할인율 대비 우수한 IRR, DSCR 1.25 이상 안정권`;
     recommendation = '적극 투자 권장';
   }
   else if (adjustedScore >= thresholds.A) { 
@@ -399,7 +335,7 @@ export function calculateInvestmentGrade(result: InvestmentResult | null, initia
     color = 'text-blue-600'; 
     bgColor = 'bg-blue-50'; 
     borderColor = 'border-blue-200';
-    gradeDesc = `우수 ${scaleInfo.description} - 주요 지표가 양호하여 투자 권장`;
+    gradeDesc = `우수 ${scaleInfo.description} - 할인율 대비 양호한 IRR, DSCR 금융권 기준 충족`;
     recommendation = '투자 권장';
   }
   else if (adjustedScore >= thresholds.B) { 
@@ -407,7 +343,7 @@ export function calculateInvestmentGrade(result: InvestmentResult | null, initia
     color = 'text-yellow-600'; 
     bgColor = 'bg-yellow-50'; 
     borderColor = 'border-yellow-200';
-    gradeDesc = `보통 ${scaleInfo.description} - 신중한 검토 후 투자 고려`;
+    gradeDesc = `보통 ${scaleInfo.description} - 할인율 근접 IRR, 회수기간 7-8년 기준 양호`;
     recommendation = '신중한 투자';
   }
   else if (adjustedScore >= thresholds.C) { 
@@ -415,11 +351,11 @@ export function calculateInvestmentGrade(result: InvestmentResult | null, initia
     color = 'text-orange-600'; 
     bgColor = 'bg-orange-50'; 
     borderColor = 'border-orange-200';
-    gradeDesc = `주의 ${scaleInfo.description} - 리스크 관리 방안 필수`;
+    gradeDesc = `주의 ${scaleInfo.description} - 할인율 미달 IRR, DSCR 1.25 미만 위험권`;
     recommendation = '주의 필요';
   }
   else {
-    gradeDesc = `투자 부적합 ${scaleInfo.description} - 사업 계획 전면 재검토 필요`;
+    gradeDesc = `투자 부적합 ${scaleInfo.description} - 모든 지표가 기준 미달, 사업계획 재검토 필요`;
     recommendation = '투자 비권장';
   }
   

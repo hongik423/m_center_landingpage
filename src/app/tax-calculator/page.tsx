@@ -185,201 +185,404 @@ interface CalculatorSelectorProps {
 function CalculatorSelector({ calculators, onSelect, selectedId }: CalculatorSelectorProps) {
   return (
     <>
-      {/* 🔥 모바일 최적화된 사용법 안내 */}
-      <Card className="mb-6 lg:mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-        <CardContent className="pt-4 sm:pt-6 px-4 sm:px-6">
-          <div className="flex items-start gap-3 sm:gap-4">
-            <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
-              <Info className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+      {/* 🔥 모바일 가시성 개선 - 흑색 바탕에 흰색 텍스트 */}
+      <Card className="mb-4 lg:mb-6 bg-gray-800 border-gray-600">
+        <CardContent className="pt-3 sm:pt-4 px-3 sm:px-4">
+          <div className="flex items-start gap-2 sm:gap-3">
+            <div className="p-1.5 sm:p-2 bg-blue-900/50 rounded-lg flex-shrink-0">
+              <Info className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-base sm:text-lg font-semibold text-blue-900 mb-3 sm:mb-4">
-                계산기 사용 방법 (3단계로 완료!)
+              <h3 className="text-sm sm:text-base font-semibold text-white mb-2 sm:mb-3">
+                💡 빠른 계산 가이드
               </h3>
-              <div className="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-1 lg:grid-cols-3 lg:gap-4">
-                <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-100">
-                  <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-3">
+                <div className="text-center p-2 bg-gray-700 rounded-lg border border-gray-600">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold mx-auto mb-1">
                     1
                   </div>
-                  <div className="min-w-0">
-                    <h4 className="font-bold text-gray-900 text-sm sm:text-base">계산기 선택</h4>
-                    <p className="text-xs sm:text-sm text-gray-600 leading-tight">필요한 세금 계산기를 선택</p>
-                  </div>
+                  <p className="text-xs sm:text-sm text-gray-200 font-medium">카드 선택</p>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-100">
-                  <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                <div className="text-center p-2 bg-gray-700 rounded-lg border border-gray-600">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold mx-auto mb-1">
                     2
                   </div>
-                  <div className="min-w-0">
-                    <h4 className="font-bold text-gray-900 text-sm sm:text-base">샘플 활용</h4>
-                    <p className="text-xs sm:text-sm text-gray-600 leading-tight">"샘플 데이터" 버튼으로 빠른 테스트</p>
-                  </div>
+                  <p className="text-xs sm:text-sm text-gray-200 font-medium">샘플 테스트</p>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-100">
-                  <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                <div className="text-center p-2 bg-gray-700 rounded-lg border border-gray-600">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold mx-auto mb-1">
                     3
                   </div>
-                  <div className="min-w-0">
-                    <h4 className="font-bold text-gray-900 text-sm sm:text-base">결과 확인</h4>
-                    <p className="text-xs sm:text-sm text-gray-600 leading-tight">계산 결과와 절세 팁 확인</p>
-                  </div>
+                  <p className="text-xs sm:text-sm text-gray-200 font-medium">결과 확인</p>
                 </div>
               </div>
               
-              {/* 🔥 새로운 샘플 데이터 안내 섹션 */}
-              <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <h4 className="font-bold text-green-800 text-sm">샘플 데이터로 빠른 체험!</h4>
+              {/* 🔥 컴팩트한 샘플 데이터 안내 - 흑색 바탕 개선 */}
+              <div className="p-2 bg-gradient-to-r from-green-900/30 to-emerald-900/30 rounded-lg border border-green-700">
+                <div className="flex items-center gap-2 text-xs">
+                  <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
+                  <span className="text-green-200 font-medium">
+                    각 계산기마다 <strong className="bg-green-800 px-1 rounded text-green-100">샘플 데이터</strong> 버튼으로 즉시 체험 가능!
+                  </span>
                 </div>
-                <p className="text-xs text-green-700 leading-relaxed">
-                  각 계산기에는 <strong>실제 사례 기반 샘플 데이터</strong>가 준비되어 있습니다. 
-                  계산기 선택 후 <strong className="bg-green-200 px-1 rounded">"샘플 데이터"</strong> 버튼을 클릭하여 
-                  즉시 테스트해보세요!
-                </p>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-        {calculators.map((calc) => (
-          <Card 
-            key={calc.id}
-            className={`mobile-card-enhanced transition-all duration-200 hover:shadow-lg hover:-translate-y-1 border 
-              transform hover:scale-[1.02] active:scale-[0.98] active:shadow-md
-              ${selectedId === calc.id ? 'ring-2 ring-blue-500 shadow-lg border-blue-200 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}
-            `}
-            onClick={(e) => {
-              console.log('🔥 카드 클릭됨:', calc.id, calc.title);
-              e.preventDefault();
-              onSelect(calc.id);
-            }}
-            // 🔥 개선된 모바일 터치 이벤트 - 클릭과 충돌하지 않도록 수정
-            onTouchStart={(e) => {
-              console.log('📱 터치 시작:', calc.id);
-              e.currentTarget.style.transform = 'scale(0.98)';
-              e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.05)';
-              if (navigator.vibrate) navigator.vibrate(15);
-            }}
-            onTouchEnd={(e) => {
-              console.log('📱 터치 종료:', calc.id);
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.backgroundColor = '';
-              // 터치 종료 시 명시적으로 클릭 이벤트 실행
-              setTimeout(() => {
-                console.log('🎯 터치 후 계산기 선택 실행:', calc.id);
-                onSelect(calc.id);
-              }, 50);
-            }}
-            onTouchCancel={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.backgroundColor = '';
-            }}
-            // 키보드 접근성
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                console.log('⌨️ 키보드로 계산기 선택:', calc.id);
-                onSelect(calc.id);
-              }
-            }}
-            aria-label={`${calc.title} 선택`}
-            role="button"
-            tabIndex={0}
-          >
-            <CardHeader className="pb-3 px-4 sm:px-5 pt-4 sm:pt-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className={`p-2.5 sm:p-3 rounded-xl bg-${calc.color}-50 flex-shrink-0 transition-transform duration-200 group-hover:scale-110`}>
-                  <calc.icon className={`w-5 h-5 sm:w-6 sm:h-6 text-${calc.color}-600`} />
-                </div>
-                <Badge variant="secondary" className="text-xs px-2 py-1 flex-shrink-0">
-                  2024년 기준
-                </Badge>
-              </div>
-              <CardTitle className="text-base sm:text-lg font-bold leading-tight mb-2">
-                {calc.title}
-              </CardTitle>
-              <CardDescription className="text-sm text-gray-600 leading-tight">
-                {calc.description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="px-4 sm:px-5 pb-4 sm:pb-5">
-              {/* 주요 기능 - 컴팩트한 표시 */}
-              <div className="mb-4">
-                <div className="grid grid-cols-1 gap-2">
-                  {calc.features.slice(0, 3).map((feature: string, index: number) => (
-                    <div key={index} className="flex items-center text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
-                      <CheckCircle className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
-                      <span className="font-medium leading-tight">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* 🔥 개선된 샘플 데이터 안내 */}
-              <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-3 rounded-lg mb-4 border border-orange-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
-                    <span className="text-xs text-white font-bold">!</span>
-                  </div>
-                  <h4 className="text-xs font-bold text-orange-800">샘플 데이터 체험</h4>
-                </div>
-                <div className="text-xs text-orange-700">
-                  <div className="flex items-center justify-between">
-                    <span>원클릭 테스트</span>
-                    <span>실제 사례 기반</span>
-                  </div>
-                  <div className="mt-1 text-center text-orange-600 font-medium">
-                    선택 후 "샘플 데이터" 버튼 클릭!
-                  </div>
-                </div>
-              </div>
-              
-              <Button 
-                className={`mobile-button-enhanced text-sm py-3 font-semibold 
-                  ${selectedId === calc.id 
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg' 
-                    : 'border-2 hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50 hover:shadow-md'
-                  }`}
-                variant={selectedId === calc.id ? "default" : "outline"}
+      {/* 🔥 모바일 최적화된 메트릭스 그리드 - 스크롤 없이 모든 계산기 표시 */}
+      <div className="space-y-4">
+        {/* 개인세금 계산기 섹션 */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+              <User className="w-4 h-4 text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-white">개인세금 계산기</h3>
+            <Badge variant="secondary" className="text-xs bg-gray-700 text-gray-200">5개</Badge>
+          </div>
+          
+          {/* 🔥 모바일: 2x3 그리드, 태블릿: 3x2 그리드, 데스크톱: 5x1 그리드 */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 mb-6">
+            {personalTaxCalculators.map((calc) => (
+              <Card 
+                key={calc.id}
+                className={`mobile-compact-card cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1 border bg-gray-700
+                  transform hover:scale-[1.02] active:scale-[0.98] active:shadow-md hover:bg-gray-600
+                  ${selectedId === calc.id ? 'ring-2 ring-blue-400 shadow-lg border-blue-400 bg-blue-900/30' : 'border-gray-600 hover:border-gray-500'}
+                `}
                 onClick={(e) => {
-                  e.stopPropagation(); // 부모 카드 클릭 이벤트 방지
-                  console.log('🔴 버튼 클릭됨:', calc.id, calc.title);
+                  console.log('🔥 개인세금 카드 클릭됨:', calc.id, calc.title);
+                  e.preventDefault();
                   onSelect(calc.id);
                 }}
-                // 모바일 터치 피드백
+                // 🔥 개선된 모바일 터치 이벤트
                 onTouchStart={(e) => {
-                  e.stopPropagation();
-                  console.log('📱 버튼 터치:', calc.id);
+                  console.log('📱 개인세금 터치 시작:', calc.id);
+                  e.currentTarget.style.transform = 'scale(0.95)';
+                  e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.05)';
                   if (navigator.vibrate) navigator.vibrate(10);
                 }}
                 onTouchEnd={(e) => {
-                  e.stopPropagation();
-                  // 터치 종료 시 명시적으로 클릭 이벤트 실행
+                  console.log('📱 개인세금 터치 종료:', calc.id);
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.backgroundColor = '';
                   setTimeout(() => {
-                    console.log('🎯 버튼 터치 후 계산기 선택 실행:', calc.id);
+                    console.log('🎯 개인세금 터치 후 선택 실행:', calc.id);
                     onSelect(calc.id);
                   }, 50);
                 }}
-                aria-label={`${calc.title} 계산기 시작`}
+                onTouchCancel={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.backgroundColor = '';
+                }}
+                // 키보드 접근성
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    console.log('⌨️ 키보드로 개인세금 계산기 선택:', calc.id);
+                    onSelect(calc.id);
+                  }
+                }}
+                aria-label={`${calc.title} 선택`}
+                role="button"
+                tabIndex={0}
               >
-                {selectedId === calc.id ? (
-                  <>
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    현재 선택됨
-                  </>
-                ) : (
-                  <>
-                    <Calculator className="w-4 h-4 mr-2" />
-                    계산 시작하기
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+                <CardContent className="p-3 sm:p-4 text-center">
+                  {/* 아이콘과 제목 */}
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-${calc.color}-50 rounded-lg flex items-center justify-center transition-transform duration-200 hover:scale-110`}>
+                    <calc.icon className={`w-5 h-5 sm:w-6 sm:h-6 text-${calc.color}-600`} />
+                  </div>
+                  
+                  <h4 className="text-xs sm:text-sm font-bold text-white mb-1 leading-tight">
+                    {calc.title.replace(' 계산기', '')}
+                  </h4>
+                  
+                  <p className="text-xs text-gray-300 mb-2 leading-tight line-clamp-2">
+                    {calc.description}
+                  </p>
+                  
+                  {/* 주요 기능 1개만 표시 */}
+                  <div className="flex items-center justify-center text-xs text-gray-200 bg-gray-600 px-2 py-1 rounded-md mb-2">
+                    <CheckCircle className="w-3 h-3 text-green-400 mr-1 flex-shrink-0" />
+                    <span className="font-medium truncate">{calc.features[0]}</span>
+                  </div>
+                  
+                  {/* 계산 버튼 */}
+                  <Button 
+                    size="sm"
+                    className={`w-full text-xs py-1.5 font-semibold transition-all duration-200
+                      ${selectedId === calc.id 
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg' 
+                        : 'border hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50'
+                      }`}
+                    variant={selectedId === calc.id ? "default" : "outline"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log('🔴 개인세금 버튼 클릭됨:', calc.id, calc.title);
+                      onSelect(calc.id);
+                    }}
+                    onTouchStart={(e) => {
+                      e.stopPropagation();
+                      if (navigator.vibrate) navigator.vibrate(5);
+                    }}
+                    onTouchEnd={(e) => {
+                      e.stopPropagation();
+                      setTimeout(() => {
+                        console.log('🎯 개인세금 버튼 터치 후 선택 실행:', calc.id);
+                        onSelect(calc.id);
+                      }, 50);
+                    }}
+                    aria-label={`${calc.title} 계산기 시작`}
+                  >
+                    {selectedId === calc.id ? (
+                      <>
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        선택됨
+                      </>
+                    ) : (
+                      <>
+                        <Calculator className="w-3 h-3 mr-1" />
+                        계산하기
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* 법인세금 계산기 섹션 */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
+              <Building2 className="w-4 h-4 text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-white">법인세금 계산기</h3>
+            <Badge variant="secondary" className="text-xs bg-gray-700 text-gray-200">3개</Badge>
+          </div>
+          
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-2 sm:gap-3 mb-6">
+            {corporateTaxCalculators.map((calc) => (
+              <Card 
+                key={calc.id}
+                className={`mobile-compact-card cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1 border 
+                  transform hover:scale-[1.02] active:scale-[0.98] active:shadow-md
+                  ${selectedId === calc.id ? 'ring-2 ring-green-500 shadow-lg border-green-200 bg-green-50' : 'border-gray-200 hover:border-gray-300'}
+                `}
+                onClick={(e) => {
+                  console.log('🔥 법인세금 카드 클릭됨:', calc.id, calc.title);
+                  e.preventDefault();
+                  onSelect(calc.id);
+                }}
+                onTouchStart={(e) => {
+                  console.log('📱 법인세금 터치 시작:', calc.id);
+                  e.currentTarget.style.transform = 'scale(0.95)';
+                  e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.05)';
+                  if (navigator.vibrate) navigator.vibrate(10);
+                }}
+                onTouchEnd={(e) => {
+                  console.log('📱 법인세금 터치 종료:', calc.id);
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.backgroundColor = '';
+                  setTimeout(() => {
+                    console.log('🎯 법인세금 터치 후 선택 실행:', calc.id);
+                    onSelect(calc.id);
+                  }, 50);
+                }}
+                onTouchCancel={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.backgroundColor = '';
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    console.log('⌨️ 키보드로 법인세금 계산기 선택:', calc.id);
+                    onSelect(calc.id);
+                  }
+                }}
+                aria-label={`${calc.title} 선택`}
+                role="button"
+                tabIndex={0}
+              >
+                <CardContent className="p-3 sm:p-4 text-center">
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-${calc.color}-50 rounded-lg flex items-center justify-center transition-transform duration-200 hover:scale-110`}>
+                    <calc.icon className={`w-5 h-5 sm:w-6 sm:h-6 text-${calc.color}-600`} />
+                  </div>
+                  
+                  <h4 className="text-xs sm:text-sm font-bold text-gray-900 mb-1 leading-tight">
+                    {calc.title.replace(' 계산기', '')}
+                  </h4>
+                  
+                  <p className="text-xs text-gray-600 mb-2 leading-tight line-clamp-2">
+                    {calc.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-center text-xs text-gray-700 bg-gray-50 px-2 py-1 rounded-md mb-2">
+                    <CheckCircle className="w-3 h-3 text-green-500 mr-1 flex-shrink-0" />
+                    <span className="font-medium truncate">{calc.features[0]}</span>
+                  </div>
+                  
+                  <Button 
+                    size="sm"
+                    className={`w-full text-xs py-1.5 font-semibold transition-all duration-200
+                      ${selectedId === calc.id 
+                        ? 'bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg' 
+                        : 'border hover:border-green-600 hover:text-green-600 hover:bg-green-50'
+                      }`}
+                    variant={selectedId === calc.id ? "default" : "outline"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log('🔴 법인세금 버튼 클릭됨:', calc.id, calc.title);
+                      onSelect(calc.id);
+                    }}
+                    onTouchStart={(e) => {
+                      e.stopPropagation();
+                      if (navigator.vibrate) navigator.vibrate(5);
+                    }}
+                    onTouchEnd={(e) => {
+                      e.stopPropagation();
+                      setTimeout(() => {
+                        console.log('🎯 법인세금 버튼 터치 후 선택 실행:', calc.id);
+                        onSelect(calc.id);
+                      }, 50);
+                    }}
+                    aria-label={`${calc.title} 계산기 시작`}
+                  >
+                    {selectedId === calc.id ? (
+                      <>
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        선택됨
+                      </>
+                    ) : (
+                      <>
+                        <Calculator className="w-3 h-3 mr-1" />
+                        계산하기
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* 특수 계산기 섹션 */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-6 h-6 bg-violet-600 rounded-full flex items-center justify-center">
+              <Crown className="w-4 h-4 text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-white">특수 계산기</h3>
+            <Badge variant="secondary" className="text-xs bg-gray-700 text-gray-200">2개</Badge>
+          </div>
+          
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-2 sm:gap-3">
+            {[businessInheritanceCalculator, stockTransferCalculator].map((calc) => (
+              <Card 
+                key={calc.id}
+                className={`mobile-compact-card cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1 border 
+                  transform hover:scale-[1.02] active:scale-[0.98] active:shadow-md
+                  ${selectedId === calc.id ? 'ring-2 ring-violet-500 shadow-lg border-violet-200 bg-violet-50' : 'border-gray-200 hover:border-gray-300'}
+                `}
+                onClick={(e) => {
+                  console.log('🔥 특수 계산기 카드 클릭됨:', calc.id, calc.title);
+                  e.preventDefault();
+                  onSelect(calc.id);
+                }}
+                onTouchStart={(e) => {
+                  console.log('📱 특수 계산기 터치 시작:', calc.id);
+                  e.currentTarget.style.transform = 'scale(0.95)';
+                  e.currentTarget.style.backgroundColor = 'rgba(139, 92, 246, 0.05)';
+                  if (navigator.vibrate) navigator.vibrate(10);
+                }}
+                onTouchEnd={(e) => {
+                  console.log('📱 특수 계산기 터치 종료:', calc.id);
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.backgroundColor = '';
+                  setTimeout(() => {
+                    console.log('🎯 특수 계산기 터치 후 선택 실행:', calc.id);
+                    onSelect(calc.id);
+                  }, 50);
+                }}
+                onTouchCancel={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.backgroundColor = '';
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    console.log('⌨️ 키보드로 특수 계산기 선택:', calc.id);
+                    onSelect(calc.id);
+                  }
+                }}
+                aria-label={`${calc.title} 선택`}
+                role="button"
+                tabIndex={0}
+              >
+                <CardContent className="p-3 sm:p-4 text-center">
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-${calc.color}-50 rounded-lg flex items-center justify-center transition-transform duration-200 hover:scale-110`}>
+                    <calc.icon className={`w-5 h-5 sm:w-6 sm:h-6 text-${calc.color}-600`} />
+                  </div>
+                  
+                  <h4 className="text-xs sm:text-sm font-bold text-gray-900 mb-1 leading-tight">
+                    {calc.title.replace(' 계산기', '').replace('세금', '')}
+                  </h4>
+                  
+                  <p className="text-xs text-gray-600 mb-2 leading-tight line-clamp-2">
+                    {calc.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-center text-xs text-gray-700 bg-gray-50 px-2 py-1 rounded-md mb-2">
+                    <CheckCircle className="w-3 h-3 text-green-500 mr-1 flex-shrink-0" />
+                    <span className="font-medium truncate">{calc.features[0]}</span>
+                  </div>
+                  
+                  <Button 
+                    size="sm"
+                    className={`w-full text-xs py-1.5 font-semibold transition-all duration-200
+                      ${selectedId === calc.id 
+                        ? 'bg-violet-600 hover:bg-violet-700 text-white shadow-md hover:shadow-lg' 
+                        : 'border hover:border-violet-600 hover:text-violet-600 hover:bg-violet-50'
+                      }`}
+                    variant={selectedId === calc.id ? "default" : "outline"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log('🔴 특수 계산기 버튼 클릭됨:', calc.id, calc.title);
+                      onSelect(calc.id);
+                    }}
+                    onTouchStart={(e) => {
+                      e.stopPropagation();
+                      if (navigator.vibrate) navigator.vibrate(5);
+                    }}
+                    onTouchEnd={(e) => {
+                      e.stopPropagation();
+                      setTimeout(() => {
+                        console.log('🎯 특수 계산기 버튼 터치 후 선택 실행:', calc.id);
+                        onSelect(calc.id);
+                      }, 50);
+                    }}
+                    aria-label={`${calc.title} 계산기 시작`}
+                  >
+                    {selectedId === calc.id ? (
+                      <>
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        선택됨
+                      </>
+                    ) : (
+                      <>
+                        <Calculator className="w-3 h-3 mr-1" />
+                        계산하기
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
     </>
   );
@@ -970,12 +1173,15 @@ export default function TaxCalculatorPage() {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
-      isDarkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 to-purple-50'
+      isDarkMode ? 'bg-gray-900' : 'bg-gray-900'
     } ${
       highContrast ? 'contrast-more' : ''
     }`}>
       {/* 네비게이션 헤더 */}
       <Header />
+      
+      {/* 🔥 모바일 상단 여백 확보 */}
+      <div className="h-4 sm:h-6 bg-gray-900"></div>
       
       {/* 🔥 접근성 패널 */}
       {showAccessibilityPanel && (
@@ -1164,29 +1370,46 @@ export default function TaxCalculatorPage() {
         </div>
       )}
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
         <div className="max-w-6xl mx-auto">
-          {/* 🎯 상단 베타테스트 안내 섹션 - 시각적 강화 */}
-          <section className="bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 relative overflow-hidden">
-            <div className="absolute inset-0 bg-black/10"></div>
+          {/* 🔥 모바일 가시성 개선 - 흑색 바탕에 흰색 텍스트 */}
+          <section className="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl relative overflow-hidden mb-8">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-indigo-900/20"></div>
+            
             {/* 배경 패턴 */}
-            <div className="absolute inset-0 opacity-20">
-              <div className="absolute top-5 left-5 w-20 h-20 bg-white rounded-full blur-xl"></div>
-              <div className="absolute top-20 right-10 w-32 h-32 bg-yellow-300 rounded-full blur-xl"></div>
-              <div className="absolute bottom-10 left-1/3 w-24 h-24 bg-orange-300 rounded-full blur-xl"></div>
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-5 left-5 w-20 h-20 bg-blue-400 rounded-full blur-xl"></div>
+              <div className="absolute top-20 right-10 w-32 h-32 bg-purple-400 rounded-full blur-xl"></div>
+              <div className="absolute bottom-10 left-1/3 w-24 h-24 bg-indigo-400 rounded-full blur-xl"></div>
             </div>
             
-            <div className="mobile-container relative z-10 py-8 lg:py-12">
-              <div className="text-center text-white">
-                {/* 메인 타이틀 */}
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 mobile-centered">
-                  <span className="text-overflow-safe">🧮 M-CENTER 전문 세금계산기</span>
+            <div className="relative z-10 py-8 lg:py-12 px-6">
+              <div className="text-center">
+                {/* 메인 타이틀 - 흰색 텍스트 */}
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 text-white">
+                  <span className="block">🧮 M-CENTER 전문 세금계산기</span>
                 </h1>
                 
-                {/* 간단한 소개 문구 */}
-                <p className="text-lg lg:text-xl text-white/90 mb-6 max-w-3xl mx-auto">
+                {/* 간단한 소개 문구 - 밝은 회색 텍스트 */}
+                <p className="text-lg lg:text-xl text-gray-200 mb-6 max-w-3xl mx-auto">
                   2024년 최신 세법을 반영한 11개 전문 계산기로 정확한 세금 계산을 지원합니다
                 </p>
+                
+                {/* 추가 정보 */}
+                <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-300">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <span>2024년 세법 반영</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-blue-400" />
+                    <span>정확한 계산</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calculator className="w-4 h-4 text-purple-400" />
+                    <span>11개 전문 계산기</span>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -1240,25 +1463,25 @@ export default function TaxCalculatorPage() {
           ) : (
             // 계산기 선택 화면
             <div className="w-full">
-              {/* 🍎 애플 스토어 스타일 세금 메뉴바 - 미니멀 & 트렌디 */}
-              <div className="mb-16 md:mb-20">
-                {/* 깔끔한 제목 - 애플 스타일 */}
-                <div className="text-center mb-12 md:mb-16">
-                  <h3 className="text-3xl md:text-4xl font-light text-gray-900 mb-3 tracking-tight">세금계산기</h3>
-                  <p className="text-lg text-gray-600 font-light">필요한 계산기를 선택해주세요</p>
+              {/* 🔥 모바일 가시성 개선 - 흑색 바탕에 흰색 텍스트 */}
+              <div className="mb-12 md:mb-16">
+                {/* 깔끔한 제목 - 흰색 텍스트 */}
+                <div className="text-center mb-8 md:mb-12">
+                  <h3 className="text-3xl md:text-4xl font-light text-white mb-3 tracking-tight">세금계산기</h3>
+                  <p className="text-lg text-gray-300 font-light">필요한 계산기를 선택해주세요</p>
                 </div>
                 
-                {/* 🍎 애플 스토어 스타일 카드 그리드 */}
+                {/* 🔥 흑색 바탕에 흰색 텍스트로 개선된 카드 그리드 */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto">
                   <button 
                     onClick={() => setActiveTab('personal')}
-                    className={`group relative bg-white border rounded-2xl p-6 md:p-8 
-                              hover:border-gray-300/80 hover:shadow-lg hover:-translate-y-1 
+                    className={`group relative bg-gray-800 border border-gray-600 rounded-2xl p-6 md:p-8 
+                              hover:border-blue-400/80 hover:shadow-xl hover:-translate-y-1 hover:bg-gray-700
                               transition-all duration-300 cursor-pointer text-left h-auto min-h-[200px] flex flex-col justify-between
                               mobile-safe-click mobile-touch-feedback
                               ${activeTab === 'personal' 
-                                ? 'border-blue-500/50 shadow-xl bg-blue-50/30' 
-                                : 'border-gray-200/60'}`}
+                                ? 'border-blue-400 shadow-xl bg-blue-900/30 ring-2 ring-blue-400/50' 
+                                : 'border-gray-600'}`}
                     // 🔥 개선된 모바일 터치 최적화
                     onTouchStart={(e) => {
                       console.log('📱 개인세금 탭 터치 시작');
@@ -1296,30 +1519,30 @@ export default function TaxCalculatorPage() {
                       <div className="mb-6">
                         <User className={`w-10 h-10 transition-colors duration-300 ${
                           activeTab === 'personal' 
-                            ? 'text-blue-600' 
-                            : 'text-gray-700 group-hover:text-blue-600'
+                            ? 'text-blue-400' 
+                            : 'text-gray-300 group-hover:text-blue-400'
                         }`} />
                       </div>
-                      <h4 className="text-xl font-semibold text-gray-900 mb-3 tracking-tight">개인세금</h4>
-                      <p className="text-sm text-gray-600 leading-relaxed font-light">
+                      <h4 className="text-xl font-semibold text-white mb-3 tracking-tight">개인세금</h4>
+                      <p className="text-sm text-gray-300 leading-relaxed font-light">
                         근로소득세, 종합소득세<br />
                         양도·상속·증여세
                       </p>
                     </div>
                     <div className="pt-4">
-                      <div className="text-xs text-gray-500 font-medium">PERSONAL TAX</div>
+                      <div className="text-xs text-gray-400 font-medium">PERSONAL TAX</div>
                     </div>
                   </button>
                   
                   <button 
                     onClick={() => setActiveTab('corporate')}
-                    className={`group relative bg-white border rounded-2xl p-6 md:p-8 
-                              hover:border-gray-300/80 hover:shadow-lg hover:-translate-y-1 
+                    className={`group relative bg-gray-800 border border-gray-600 rounded-2xl p-6 md:p-8 
+                              hover:border-green-400/80 hover:shadow-xl hover:-translate-y-1 hover:bg-gray-700
                               transition-all duration-300 cursor-pointer text-left h-auto min-h-[200px] flex flex-col justify-between
                               mobile-safe-click mobile-touch-feedback
                               ${activeTab === 'corporate' 
-                                ? 'border-green-500/50 shadow-xl bg-green-50/30' 
-                                : 'border-gray-200/60'}`}
+                                ? 'border-green-400 shadow-xl bg-green-900/30 ring-2 ring-green-400/50' 
+                                : 'border-gray-600'}`}
                     // 🔥 개선된 모바일 터치 최적화
                     onTouchStart={(e) => {
                       e.currentTarget.style.transform = 'scale(0.95)';
@@ -1349,30 +1572,30 @@ export default function TaxCalculatorPage() {
                       <div className="mb-6">
                         <Building2 className={`w-10 h-10 transition-colors duration-300 ${
                           activeTab === 'corporate' 
-                            ? 'text-green-600' 
-                            : 'text-gray-700 group-hover:text-green-600'
+                            ? 'text-green-400' 
+                            : 'text-gray-300 group-hover:text-green-400'
                         }`} />
                       </div>
-                      <h4 className="text-xl font-semibold text-gray-900 mb-3 tracking-tight">법인세금</h4>
-                      <p className="text-sm text-gray-600 leading-relaxed font-light">
+                      <h4 className="text-xl font-semibold text-white mb-3 tracking-tight">법인세금</h4>
+                      <p className="text-sm text-gray-300 leading-relaxed font-light">
                         법인세, 부가가치세<br />
                         원천징수세
                       </p>
                     </div>
                     <div className="pt-4">
-                      <div className="text-xs text-gray-500 font-medium">CORPORATE TAX</div>
+                      <div className="text-xs text-gray-400 font-medium">CORPORATE TAX</div>
                     </div>
                   </button>
                   
                   <button 
                     onClick={() => setActiveTab('business-inheritance')}
-                    className={`group relative bg-white border rounded-2xl p-6 md:p-8 
-                              hover:border-gray-300/80 hover:shadow-lg hover:-translate-y-1 
+                    className={`group relative bg-gray-800 border border-gray-600 rounded-2xl p-6 md:p-8 
+                              hover:border-violet-400/80 hover:shadow-xl hover:-translate-y-1 hover:bg-gray-700
                               transition-all duration-300 cursor-pointer text-left h-auto min-h-[200px] flex flex-col justify-between
                               mobile-safe-click mobile-touch-feedback
                               ${activeTab === 'business-inheritance' 
-                                ? 'border-violet-500/50 shadow-xl bg-violet-50/30' 
-                                : 'border-gray-200/60'}`}
+                                ? 'border-violet-400 shadow-xl bg-violet-900/30 ring-2 ring-violet-400/50' 
+                                : 'border-gray-600'}`}
                     // 🔥 개선된 모바일 터치 최적화
                     onTouchStart={(e) => {
                       e.currentTarget.style.transform = 'scale(0.95)';
@@ -1402,30 +1625,30 @@ export default function TaxCalculatorPage() {
                       <div className="mb-6">
                         <Crown className={`w-10 h-10 transition-colors duration-300 ${
                           activeTab === 'business-inheritance' 
-                            ? 'text-violet-600' 
-                            : 'text-gray-700 group-hover:text-violet-600'
+                            ? 'text-violet-400' 
+                            : 'text-gray-300 group-hover:text-violet-400'
                         }`} />
                       </div>
-                      <h4 className="text-xl font-semibold text-gray-900 mb-3 tracking-tight">가업상속세</h4>
-                      <p className="text-sm text-gray-600 leading-relaxed font-light">
+                      <h4 className="text-xl font-semibold text-white mb-3 tracking-tight">가업상속세</h4>
+                      <p className="text-sm text-gray-300 leading-relaxed font-light">
                         중소기업 가업승계<br />
                         최대 500억 공제
                       </p>
                     </div>
                     <div className="pt-4">
-                      <div className="text-xs text-gray-500 font-medium">BUSINESS SUCCESSION</div>
+                      <div className="text-xs text-gray-400 font-medium">BUSINESS SUCCESSION</div>
                     </div>
                   </button>
                   
                   <button 
                     onClick={() => setActiveTab('stock-transfer')}
-                    className={`group relative bg-white border rounded-2xl p-6 md:p-8 
-                              hover:border-gray-300/80 hover:shadow-lg hover:-translate-y-1 
+                    className={`group relative bg-gray-800 border border-gray-600 rounded-2xl p-6 md:p-8 
+                              hover:border-rose-400/80 hover:shadow-xl hover:-translate-y-1 hover:bg-gray-700
                               transition-all duration-300 cursor-pointer text-left h-auto min-h-[200px] flex flex-col justify-between
                               mobile-safe-click mobile-touch-feedback
                               ${activeTab === 'stock-transfer' 
-                                ? 'border-rose-500/50 shadow-xl bg-rose-50/30' 
-                                : 'border-gray-200/60'}`}
+                                ? 'border-rose-400 shadow-xl bg-rose-900/30 ring-2 ring-rose-400/50' 
+                                : 'border-gray-600'}`}
                     // 🔥 개선된 모바일 터치 최적화
                     onTouchStart={(e) => {
                       e.currentTarget.style.transform = 'scale(0.95)';
@@ -1455,27 +1678,27 @@ export default function TaxCalculatorPage() {
                       <div className="mb-6">
                         <TrendingUp className={`w-10 h-10 transition-colors duration-300 ${
                           activeTab === 'stock-transfer' 
-                            ? 'text-rose-600' 
-                            : 'text-gray-700 group-hover:text-rose-600'
+                            ? 'text-rose-400' 
+                            : 'text-gray-300 group-hover:text-rose-400'
                         }`} />
                       </div>
-                      <h4 className="text-xl font-semibold text-gray-900 mb-3 tracking-tight">주식이동세</h4>
-                      <p className="text-sm text-gray-600 leading-relaxed font-light">
+                      <h4 className="text-xl font-semibold text-white mb-3 tracking-tight">주식이동세</h4>
+                      <p className="text-sm text-gray-300 leading-relaxed font-light">
                         주식 매매시<br />
                         양도소득세 계산
                       </p>
                     </div>
                     <div className="pt-4">
-                      <div className="text-xs text-gray-500 font-medium">STOCK TRANSFER</div>
+                      <div className="text-xs text-gray-400 font-medium">STOCK TRANSFER</div>
                     </div>
                   </button>
                 </div>
                 
-                {/* 선택된 카테고리 안내 - 애플 스타일 */}
+                {/* 선택된 카테고리 안내 - 흑색 바탕 개선 */}
                 <div className="text-center mt-12">
-                  <div className="inline-flex items-center gap-3 bg-gray-100/70 backdrop-blur-sm px-6 py-3 rounded-full border border-gray-200/60">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <span className="text-sm font-medium text-gray-700">
+                  <div className="inline-flex items-center gap-3 bg-gray-800/80 backdrop-blur-sm px-6 py-3 rounded-full border border-gray-600">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                    <span className="text-sm font-medium text-gray-200">
                       {activeTab === 'personal' && '개인 납세자용 계산기'}
                       {activeTab === 'corporate' && '법인 사업자용 계산기'}
                       {activeTab === 'business-inheritance' && '가업상속공제 전문 계산기'}
@@ -1485,17 +1708,17 @@ export default function TaxCalculatorPage() {
                 </div>
               </div>
 
-              {/* 탭 컨텐츠 - 애플 스타일 클린 디자인 */}
+              {/* 탭 컨텐츠 - 흑색 바탕 개선 */}
               {activeTab === 'personal' && (
                 <div className="space-y-8 mt-12">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-gray-200/60 shadow-lg">
+                  <div className="bg-gray-800/90 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-gray-600 shadow-xl">
                     <div className="flex items-center gap-4 mb-8">
-                      <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center border border-blue-100">
-                        <User className="w-7 h-7 text-blue-600" />
+                      <div className="w-14 h-14 bg-blue-900/50 rounded-2xl flex items-center justify-center border border-blue-700">
+                        <User className="w-7 h-7 text-blue-400" />
                       </div>
                       <div>
-                        <h2 className="text-2xl md:text-3xl font-light text-gray-900 tracking-tight">개인세금 계산기</h2>
-                        <p className="text-gray-600 text-lg font-light mt-1">개인 납세자를 위한 정확한 세금 계산</p>
+                        <h2 className="text-2xl md:text-3xl font-light text-white tracking-tight">개인세금 계산기</h2>
+                        <p className="text-gray-300 text-lg font-light mt-1">개인 납세자를 위한 정확한 세금 계산</p>
                       </div>
                     </div>
                     <CalculatorSelector 
@@ -1509,14 +1732,14 @@ export default function TaxCalculatorPage() {
 
               {activeTab === 'corporate' && (
                 <div className="space-y-8 mt-12">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-gray-200/60 shadow-lg">
+                  <div className="bg-gray-800/90 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-gray-600 shadow-xl">
                     <div className="flex items-center gap-4 mb-8">
-                      <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center border border-green-100">
-                        <Building2 className="w-7 h-7 text-green-600" />
+                      <div className="w-14 h-14 bg-green-900/50 rounded-2xl flex items-center justify-center border border-green-700">
+                        <Building2 className="w-7 h-7 text-green-400" />
                       </div>
                       <div>
-                        <h2 className="text-2xl md:text-3xl font-light text-gray-900 tracking-tight">법인세금 계산기</h2>
-                        <p className="text-gray-600 text-lg font-light mt-1">법인 사업자를 위한 전문 세금 계산</p>
+                        <h2 className="text-2xl md:text-3xl font-light text-white tracking-tight">법인세금 계산기</h2>
+                        <p className="text-gray-300 text-lg font-light mt-1">법인 사업자를 위한 전문 세금 계산</p>
                       </div>
                     </div>
                     <CalculatorSelector 
@@ -1530,14 +1753,14 @@ export default function TaxCalculatorPage() {
 
               {activeTab === 'business-inheritance' && (
                 <div className="space-y-8 mt-12">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-gray-200/60 shadow-lg">
+                  <div className="bg-gray-800/90 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-gray-600 shadow-xl">
                     <div className="flex items-center gap-4 mb-8">
-                      <div className="w-14 h-14 bg-violet-50 rounded-2xl flex items-center justify-center border border-violet-100">
-                        <Crown className="w-7 h-7 text-violet-600" />
+                      <div className="w-14 h-14 bg-violet-900/50 rounded-2xl flex items-center justify-center border border-violet-700">
+                        <Crown className="w-7 h-7 text-violet-400" />
                       </div>
                       <div>
-                        <h2 className="text-2xl md:text-3xl font-light text-gray-900 tracking-tight">가업상속세금 계산기</h2>
-                        <p className="text-gray-600 text-lg font-light mt-1">중소기업 가업상속공제 전문 계산</p>
+                        <h2 className="text-2xl md:text-3xl font-light text-white tracking-tight">가업상속세금 계산기</h2>
+                        <p className="text-gray-300 text-lg font-light mt-1">중소기업 가업상속공제 전문 계산</p>
                       </div>
                     </div>
                     <SingleCalculatorDisplay 
@@ -1550,14 +1773,14 @@ export default function TaxCalculatorPage() {
 
               {activeTab === 'stock-transfer' && (
                 <div className="space-y-8 mt-12">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-gray-200/60 shadow-lg">
+                  <div className="bg-gray-800/90 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-gray-600 shadow-xl">
                     <div className="flex items-center gap-4 mb-8">
-                      <div className="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center border border-rose-100">
-                        <TrendingUp className="w-7 h-7 text-rose-600" />
+                      <div className="w-14 h-14 bg-rose-900/50 rounded-2xl flex items-center justify-center border border-rose-700">
+                        <TrendingUp className="w-7 h-7 text-rose-400" />
                       </div>
                       <div>
-                        <h2 className="text-2xl md:text-3xl font-light text-gray-900 tracking-tight">주식이동세금 계산기</h2>
-                        <p className="text-gray-600 text-lg font-light mt-1">주식 양도소득세 전문 계산</p>
+                        <h2 className="text-2xl md:text-3xl font-light text-white tracking-tight">주식이동세금 계산기</h2>
+                        <p className="text-gray-300 text-lg font-light mt-1">주식 양도소득세 전문 계산</p>
                       </div>
                     </div>
                     <SingleCalculatorDisplay 

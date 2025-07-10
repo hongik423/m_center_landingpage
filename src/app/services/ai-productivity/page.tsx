@@ -24,7 +24,8 @@ import {
   ArrowLeft,
   Lightbulb,
   Rocket,
-  Settings
+  Settings,
+  FileSpreadsheet
 } from 'lucide-react';
 
 export default function AIProductivityPage() {
@@ -204,6 +205,20 @@ export default function AIProductivityPage() {
                     <span className="absolute inset-0 bg-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                     <span className="relative">
                       적합성 진단받기
+                    </span>
+                  </Button>
+                  
+                  {/* AI 혁신 사례 공유 버튼 */}
+                  <Button 
+                    variant="outline"
+                    size="lg"
+                    className="px-8 py-4 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] border-orange-300 hover:border-orange-600 text-orange-700 hover:text-orange-600 hover:shadow-md relative overflow-hidden group"
+                    onClick={() => window.open('/images/AI_INNOVATION.pdf', '_blank')}
+                  >
+                    <span className="absolute inset-0 bg-orange-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                    <span className="relative flex items-center">
+                      <FileSpreadsheet className="w-5 h-5 mr-2" />
+                      AI 혁신 사례 공유 (PDF)
                     </span>
                   </Button>
                 </div>

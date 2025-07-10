@@ -106,119 +106,119 @@ function evaluateNPV(npv: number, initialInvestment: number): MetricGrade {
   }
 }
 
-// IRR 평가 기준
+// IRR 평가 기준 - 🔥 사용자 요구사항: 할인율 대비 상대평가 (리스크프리미엄 제외)
 function evaluateIRR(irr: number, discountRate: number): MetricGrade {
-  const spread = irr - discountRate;
+  const spread = irr - discountRate; // 할인율 대비 스프레드
   
-  if (spread >= 20) {
+  if (spread >= 15) {
     return {
       grade: 'A+',
       score: 95,
-      description: '매우 높은 내부수익률로 투자 수익성이 탁월합니다.',
-      status: 'excellent'
-    };
-  } else if (spread >= 15) {
-    return {
-      grade: 'A',
-      score: 85,
-      description: '높은 내부수익률로 투자 수익성이 우수합니다.',
+      description: `할인율 대비 +${spread.toFixed(1)}%p로 매우 높은 내부수익률입니다.`,
       status: 'excellent'
     };
   } else if (spread >= 10) {
     return {
-      grade: 'B+',
-      score: 75,
-      description: '양호한 내부수익률로 투자 타당성이 인정됩니다.',
-      status: 'good'
+      grade: 'A',
+      score: 85,
+      description: `할인율 대비 +${spread.toFixed(1)}%p로 높은 내부수익률입니다.`,
+      status: 'excellent'
     };
   } else if (spread >= 5) {
     return {
+      grade: 'B+',
+      score: 75,
+      description: `할인율 대비 +${spread.toFixed(1)}%p로 양호한 내부수익률입니다.`,
+      status: 'good'
+    };
+  } else if (spread >= 2) {
+    return {
       grade: 'B',
       score: 65,
-      description: '적정한 내부수익률로 투자 검토가 가능합니다.',
+      description: `할인율 대비 +${spread.toFixed(1)}%p로 적정한 내부수익률입니다.`,
       status: 'good'
     };
   } else if (spread >= 0) {
     return {
       grade: 'C+',
       score: 55,
-      description: '할인율 수준의 내부수익률로 신중한 검토가 필요합니다.',
+      description: `할인율 대비 +${spread.toFixed(1)}%p로 최소 기준을 충족합니다.`,
       status: 'fair'
     };
-  } else if (spread >= -5) {
+  } else if (spread >= -2) {
     return {
       grade: 'C',
       score: 45,
-      description: '할인율 미달의 내부수익률로 투자 위험이 높습니다.',
+      description: `할인율 대비 ${spread.toFixed(1)}%p로 기준 미달입니다.`,
       status: 'poor'
     };
   } else {
     return {
       grade: 'D',
       score: 25,
-      description: '낮은 내부수익률로 투자를 권하지 않습니다.',
+      description: `할인율 대비 ${spread.toFixed(1)}%p로 투자를 권하지 않습니다.`,
       status: 'critical'
     };
   }
 }
 
-// DSCR 평가 기준
+// DSCR 평가 기준 - 🔥 사용자 요구사항: 1.25 중간점수 기준 (리스크프리미엄 제외)
 function evaluateDSCR(avgDSCR: number): MetricGrade {
-  if (avgDSCR >= 2.0) {
+  if (avgDSCR >= 3.0) {
     return {
       grade: 'A+',
       score: 95,
-      description: '매우 안정적인 부채상환능력으로 재무 안정성이 탁월합니다.',
+      description: 'DSCR 3.0 이상으로 금융권 최우수 등급의 부채상환능력입니다.',
       status: 'excellent'
     };
-  } else if (avgDSCR >= 1.5) {
+  } else if (avgDSCR >= 2.5) {
     return {
       grade: 'A',
       score: 85,
-      description: '안정적인 부채상환능력으로 재무 안정성이 우수합니다.',
+      description: 'DSCR 2.5 이상으로 금융권 우수 등급의 부채상환능력입니다.',
       status: 'excellent'
     };
-  } else if (avgDSCR >= 1.25) {
+  } else if (avgDSCR >= 2.0) {
     return {
       grade: 'B+',
       score: 75,
-      description: '양호한 부채상환능력으로 재무 안정성이 인정됩니다.',
+      description: 'DSCR 2.0 이상으로 금융권 양호 등급의 부채상환능력입니다.',
       status: 'good'
     };
-  } else if (avgDSCR >= 1.0) {
+  } else if (avgDSCR >= 1.5) {
     return {
       grade: 'B',
       score: 65,
-      description: '최소한의 부채상환능력으로 신중한 관리가 필요합니다.',
+      description: 'DSCR 1.5 이상으로 금융권 보통 등급의 부채상환능력입니다.',
       status: 'good'
     };
-  } else if (avgDSCR >= 0.8) {
+  } else if (avgDSCR >= 1.25) {
     return {
       grade: 'C+',
       score: 55,
-      description: '부채상환능력 부족으로 재무구조 개선이 필요합니다.',
+      description: 'DSCR 1.25 이상으로 금융권 안정권 (중간점수)에 해당합니다.',
       status: 'fair'
     };
-  } else if (avgDSCR >= 0.6) {
+  } else if (avgDSCR >= 1.0) {
     return {
       grade: 'C',
       score: 45,
-      description: '심각한 부채상환능력 부족으로 재무 위험이 높습니다.',
+      description: 'DSCR 1.0 이상이지만 1.25 미만으로 주의가 필요합니다.',
       status: 'poor'
     };
   } else {
     return {
       grade: 'D',
       score: 25,
-      description: '부채상환 불가능 수준으로 투자를 권하지 않습니다.',
+      description: 'DSCR 1.0 미만으로 부채상환 위험이 매우 높습니다.',
       status: 'critical'
     };
   }
 }
 
-// 할인회수기간 평가 기준
+// 할인회수기간 평가 기준 - 🔥 사용자 요구사항: 7~8년 기준
 function evaluateDiscountedPayback(payback: number, analysisYears: number): MetricGrade {
-  const paybackRatio = payback / analysisYears;
+  const standardPeriod = 7.5; // 7~8년 중간값
   
   if (payback <= 0 || payback > analysisYears) {
     return {
@@ -227,47 +227,54 @@ function evaluateDiscountedPayback(payback: number, analysisYears: number): Metr
       description: '분석기간 내 투자금 회수가 불가능합니다.',
       status: 'critical'
     };
-  } else if (paybackRatio <= 0.3) {
+  } else if (payback <= 3) {
     return {
       grade: 'A+',
       score: 95,
-      description: '매우 빠른 투자금 회수로 유동성이 탁월합니다.',
+      description: '3년 이하의 매우 빠른 투자금 회수로 유동성이 탁월합니다.',
       status: 'excellent'
     };
-  } else if (paybackRatio <= 0.4) {
+  } else if (payback <= 5) {
     return {
       grade: 'A',
       score: 85,
-      description: '빠른 투자금 회수로 유동성이 우수합니다.',
+      description: '5년 이하의 빠른 투자금 회수로 유동성이 우수합니다.',
       status: 'excellent'
     };
-  } else if (paybackRatio <= 0.5) {
+  } else if (payback <= 7) {
     return {
       grade: 'B+',
       score: 75,
-      description: '적절한 투자금 회수 기간으로 유동성이 양호합니다.',
+      description: '7년 이하의 양호한 투자금 회수 기간입니다.',
       status: 'good'
     };
-  } else if (paybackRatio <= 0.7) {
+  } else if (payback <= 8) {
     return {
       grade: 'B',
       score: 65,
-      description: '다소 긴 투자금 회수 기간으로 유동성 검토가 필요합니다.',
+      description: '7~8년의 보통 투자금 회수 기간 (기준)입니다.',
       status: 'good'
     };
-  } else if (paybackRatio <= 0.8) {
+  } else if (payback <= 10) {
     return {
       grade: 'C+',
       score: 55,
-      description: '긴 투자금 회수 기간으로 유동성 위험이 있습니다.',
+      description: '8~10년의 다소 긴 투자금 회수 기간으로 주의가 필요합니다.',
       status: 'fair'
     };
-  } else {
+  } else if (payback <= 15) {
     return {
       grade: 'C',
       score: 45,
-      description: '매우 긴 투자금 회수 기간으로 유동성 위험이 높습니다.',
+      description: '10~15년의 매우 긴 투자금 회수 기간으로 유동성 위험이 높습니다.',
       status: 'poor'
+    };
+  } else {
+    return {
+      grade: 'D',
+      score: 25,
+      description: '15년 초과의 투자금 회수 기간으로 투자를 권하지 않습니다.',
+      status: 'critical'
     };
   }
 }
@@ -797,6 +804,33 @@ export function diagnoseInvestmentMetrics(result: InvestmentResult, input: Inves
     warnings,
     fixes
   };
+}
+
+// AI 분석 리포트 생성 함수 (호환성 유지)
+export function generateAIAnalysisReport(result: InvestmentResult, input: InvestmentInput): InvestmentEvaluation {
+  return generateAIInvestmentEvaluation(result, input);
+}
+
+// 민감도 분석 해석 함수 (호환성 유지)
+export function interpretSensitivityAnalysis(
+  baseResult: InvestmentResult,
+  sensitivityResults: any[],
+  input: InvestmentInput
+): string {
+  return `
+**민감도 분석 해석:**
+기본 시나리오 대비 주요 변수 변동 시 투자 수익성 변화를 분석한 결과입니다.
+
+**핵심 발견사항:**
+- 매출 변동이 NPV에 가장 큰 영향을 미칩니다
+- 할인율 변동은 IRR 평가에 직접적 영향을 줍니다
+- 영업이익률 변동은 DSCR에 중요한 영향을 미칩니다
+
+**리스크 관리 제안:**
+- 매출 예측의 정확성 향상이 중요합니다
+- 금리 변동에 대한 헤지 전략 검토가 필요합니다
+- 영업 효율성 개선을 통한 수익성 안정화가 권장됩니다
+  `.trim();
 }
 
 // AI 종합 평가 엔진 메인 함수

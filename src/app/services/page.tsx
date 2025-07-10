@@ -276,8 +276,9 @@ export default function ServicesPage() {
       <Header />
       
       {/* 히어로 섹션 - 모바일 최적화 */}
-      <section className="mobile-container py-16 lg:py-24 safe-area-top">
-        <div className="text-center mb-12 lg:mb-16">
+      <section className="py-16 lg:py-24 safe-area-top">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 max-w-7xl">
+          <div className="text-center mb-12 lg:mb-16">
           <h1 className="text-mobile-3xl lg:text-6xl font-bold text-gray-900 mb-6 mobile-centered">
             <span className="text-overflow-safe">기업의별 M-CENTER</span>
             <br />
@@ -327,12 +328,14 @@ export default function ServicesPage() {
               </div>
             ))}
           </div>
+          </div>
         </div>
       </section>
 
       {/* 서비스 카드 섹션 - 사용자 중심 완전 개선 */}
-      <section className="mobile-container py-16 lg:py-24">
-        <div className="text-center mb-12 lg:mb-16">
+      <section className="py-16 lg:py-24">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 max-w-7xl">
+          <div className="text-center mb-12 lg:mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 
                           text-blue-700 rounded-full font-semibold text-sm mb-6 animate-bounce-gentle">
             <Star className="w-4 h-4" />
@@ -348,8 +351,8 @@ export default function ServicesPage() {
           </p>
         </div>
         
-        {/* 🔥 사용자 중심 서비스 카드 그리드 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* 🔥 사용자 중심 서비스 카드 그리드 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 xl:gap-10">
           {services.map((service, index) => (
             <Card
               key={service.id}
@@ -369,7 +372,7 @@ export default function ServicesPage() {
                 </div>
               )}
               
-              <CardContent className="p-6 h-full flex flex-col">
+              <CardContent className="p-6 lg:p-8 h-full flex flex-col">
                 {/* 🎯 서비스 헤더 */}
                 <div className="flex items-start justify-between mb-4">
                   <div className={`p-3 rounded-xl ${service.color.replace('bg-', 'bg-white ')} 
@@ -476,11 +479,11 @@ export default function ServicesPage() {
               </CardContent>
             </Card>
           ))}
-        </div>
+          </div>
 
-        {/* 🎯 하단 액션 섹션 - 사용자 유도 */}
-        <div className="mt-16">
-          <div className="bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 p-8 lg:p-12 rounded-3xl 
+          {/* 🎯 하단 액션 섹션 - 사용자 유도 */}
+          <div className="mt-16 lg:mt-20">
+          <div className="bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 p-8 lg:p-12 xl:p-16 rounded-3xl 
                           border-2 border-blue-200 text-center relative overflow-hidden">
             {/* 배경 패턴 */}
             <div className="absolute inset-0 opacity-10">
@@ -544,6 +547,7 @@ export default function ServicesPage() {
                 </div>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </section>
