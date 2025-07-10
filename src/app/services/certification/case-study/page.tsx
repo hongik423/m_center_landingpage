@@ -24,7 +24,9 @@ import {
   Clock,
   BarChart3,
   Zap,
-  DollarSign
+  DollarSign,
+  Phone,
+  ExternalLink
 } from 'lucide-react';
 import Header from '@/components/layout/header';
 
@@ -44,7 +46,7 @@ export default function CertificationCaseStudyPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-red-50">
       <Header />
       
-      {/* M-CENTER 고객지원 Q&A 버튼 */}
+      {/* Q&A로 돌아가기 버튼 */}
       <div className="mb-4">
         <Button 
           variant="outline" 
@@ -55,7 +57,7 @@ export default function CertificationCaseStudyPage() {
           <span className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
           <span className="relative flex items-center">
             <ArrowLeft className="w-4 h-4 mr-2 group-hover:translate-x-[-2px] transition-transform duration-200" />
-            M-CENTER 고객지원 Q&A
+            Q&A로 돌아가기
           </span>
         </Button>
       </div>

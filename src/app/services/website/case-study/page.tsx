@@ -50,7 +50,7 @@ export default function WebsiteCaseStudyPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       <Header />
       
-      {/* M-CENTER 고객지원 Q&A 버튼 */}
+      {/* Q&A로 돌아가기 버튼 */}
       <div className="mb-4">
         <Button 
           variant="outline" 
@@ -61,7 +61,7 @@ export default function WebsiteCaseStudyPage() {
           <span className="absolute inset-0 bg-pink-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
           <span className="relative flex items-center">
             <ArrowLeft className="w-4 h-4 mr-2 group-hover:translate-x-[-2px] transition-transform duration-200" />
-            M-CENTER 고객지원 Q&A
+            Q&A로 돌아가기
           </span>
         </Button>
       </div>
@@ -69,14 +69,6 @@ export default function WebsiteCaseStudyPage() {
       {/* 히어로 섹션 */}
       <section className="container mx-auto px-6 py-16 max-w-7xl">
         <div className="mb-8">
-          <Button 
-            onClick={handleBack}
-            variant="outline" 
-            className="mb-6"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Q&A로 돌아가기
-          </Button>
           
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-100 to-blue-100 
