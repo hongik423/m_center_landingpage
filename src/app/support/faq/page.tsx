@@ -143,6 +143,59 @@ const faqData = {
           '스타트업이 받을 수 있는 인증이나 혜택이 있나요?',
           '우리 기술의 시장성을 어떻게 검증할 수 있을까요?'
         ]
+      },
+      {
+        id: 'startup-2',
+        question: '레이저솔드링기술을 가지고 있는데, 창업부터 상장까지 단계별로 어떻게 진행해야 할까요?',
+        primaryService: '기술사업화',
+        relatedServices: ['정책자금', 'BM ZEN 사업분석'],
+        answer: `레이저솔드링기술은 정말 유망한 기술이네요! 실제로 ABC기업이 동일한 기술로 창업부터 IPO 준비까지 성공한 사례가 있습니다.
+
+**🚀 레이저솔드링기술 기업 성공 로드맵**
+
+**1단계: 창업 준비기 (2019-2020)**
+• 특허 출원 및 등록 (3건)
+• 예비벤처기업 확인 취득
+• 창업지원 디딤돌과제 선정 (1억원)
+• 시제품 개발 및 검증
+
+**2단계: 벤처기업 성장기 (2021-2022)**
+• 벤처기업 확인 취득
+• 중소기업 기술개발사업 선정 (3억원)
+• 정책자금 활용 공장 설립 (8억원)
+• 대기업 협력업체 등록
+
+**3단계: 해외진출 및 투자유치 (2023)**
+• 구매조건부 R&D 선정 (5억원)
+• 해외시장진출지원사업 참여
+• TIPS 프로그램 선정 (15억원 투자)
+• 해외 매출 확대
+
+**4단계: IPO 준비기 (2024-2025)**
+• 기업가치 500억원 달성
+• 연매출 120억원 목표
+• 코스닥 상장 준비
+• 글로벌 시장 확대
+
+**💰 단계별 자금 확보 실적:**
+• 총 누적 자금: 87억원
+• 정부 R&D: 15억원
+• 정책자금: 8억원
+• 민간투자: 15억원
+• 매출 수익: 49억원
+
+**🏆 핵심 성공 요인:**
+• 단계별 전략적 접근
+• 정부지원사업 최적 활용
+• 기술 차별화 및 특허 확보
+• 대기업 협력 우선 진입
+
+실제 성공사례를 바탕으로 한 검증된 로드맵입니다!`,
+        nextQuestions: [
+          '우리 기술도 ABC기업처럼 성공할 수 있을까요?',
+          '정책자금으로 공장 설립이 정말 가능한가요?',
+          '단계별 자금 확보 전략을 상세히 알고 싶어요'
+        ]
       }
     ]
   },
@@ -193,7 +246,7 @@ const faqData = {
     ]
   },
   service: {
-    title: '서비스업 소상공인',
+    title: '서비스업.제조업 소상공인',
     icon: Building,
     color: 'green',
     description: '직원 5-20명, 온라인 마케팅 필요',
@@ -363,7 +416,8 @@ const serviceDetails = {
     effect: '자금 조달 성공률 95%',
     duration: '2-6개월',
     roi: '200-800%',
-    link: '/services/policy-funding'
+    link: '/services/policy-funding',
+    caseStudy: '/services/policy-funding/case-study'
   },
   '기술사업화': {
     icon: Rocket,
@@ -372,7 +426,8 @@ const serviceDetails = {
     effect: '평균 5억원 자금 확보',
     duration: '6-12개월',
     roi: '500-2000%',
-    link: '/services/tech-startup'
+    link: '/services/tech-startup',
+    caseStudy: '/services/tech-startup/case-study'
   },
   '인증지원': {
     icon: Award,
@@ -381,7 +436,8 @@ const serviceDetails = {
     effect: '연간 5,000만원 세제혜택',
     duration: '3-6개월',
     roi: '200-600%',
-    link: '/services/certification'
+    link: '/services/certification',
+    caseStudy: '/services/certification/case-study'
   },
   '웹사이트 구축': {
     icon: Globe,
@@ -601,25 +657,52 @@ export default function FAQPage() {
                         <p className="text-xs text-gray-600 mb-2">{service.description}</p>
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-green-600 font-semibold">{service.effect}</span>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="h-6 px-2 text-xs"
-                            onClick={() => {
-                              if (serviceName === 'BM ZEN 사업분석') {
-                                window.open('/images/bmzwn_CASE.PDF', '_blank');
-                              } else if (serviceName === 'AI 생산성향상') {
-                                window.open('/images/AI_INNOVATION.pdf', '_blank');
-                              } else if (serviceName === '정책자금') {
-                                window.open('/images/관광개발시설과튼튼론자금사례.pdf', '_blank');
-                              } else {
-                                window.location.href = service.link;
-                              }
-                            }}
-                          >
-                            <ExternalLink className="w-3 h-3 mr-1" />
-                                                         {serviceName === 'BM ZEN 사업분석' || serviceName === 'AI 생산성향상' || serviceName === '정책자금' ? '사례공유' : '자세히'}
-                          </Button>
+                          <div className="flex gap-1">
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="h-6 px-2 text-xs"
+                              onClick={() => {
+                                if (serviceName === 'BM ZEN 사업분석') {
+                                  window.open('/images/bmzwn_CASE.PDF', '_blank');
+                                } else if (serviceName === 'AI 생산성향상') {
+                                  window.open('/images/AI_INNOVATION.pdf', '_blank');
+                                } else if (serviceName === '정책자금') {
+                                  window.open('/images/관광개발시설과튼튼론자금사례.pdf', '_blank');
+                                } else if (serviceName === '웹사이트 구축') {
+                                  window.location.href = '/services/website/case-study';
+                                } else if (serviceName === '기술사업화') {
+                                  window.location.href = '/services/tech-startup/case-study';
+                                } else if (serviceName === '인증지원') {
+                                  window.location.href = '/services/certification/case-study';
+                                } else {
+                                  window.location.href = service.link;
+                                }
+                              }}
+                            >
+                              <ExternalLink className="w-3 h-3 mr-1" />
+                              {serviceName === 'BM ZEN 사업분석' || serviceName === 'AI 생산성향상' || serviceName === '정책자금' || serviceName === '웹사이트 구축' || serviceName === '기술사업화' || serviceName === '인증지원' ? '사례공유' : '자세히'}
+                            </Button>
+                            {(serviceName === '정책자금' || serviceName === 'BM ZEN 사업분석' || serviceName === 'AI 생산성향상') && (
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="h-6 px-2 text-xs"
+                                onClick={() => {
+                                  if (serviceName === '정책자금') {
+                                    window.location.href = '/services/policy-funding/case-study';
+                                  } else if (serviceName === 'BM ZEN 사업분석') {
+                                    window.location.href = '/services/business-analysis/case-study';
+                                  } else if (serviceName === 'AI 생산성향상') {
+                                    window.location.href = '/services/ai-productivity/case-study';
+                                  }
+                                }}
+                              >
+                                <ExternalLink className="w-3 h-3 mr-1" />
+                                활용사례
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );

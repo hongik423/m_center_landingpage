@@ -41,6 +41,7 @@ export default function Header() {
     { href: '/center-leader', label: '센터장' },
     { href: '/seminar', label: '세미나' },
     { href: '/support/faq', label: '고객지원Q&A' },
+    { href: '/support/qa', label: 'Q&A전용' },
   ];
 
   const actionItems = [
