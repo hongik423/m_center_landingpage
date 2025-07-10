@@ -1,38 +1,36 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 import { 
-  ArrowLeft, 
   Award, 
   Shield, 
-  Calendar, 
   CheckCircle, 
+  Target, 
   TrendingUp, 
-  Building, 
   Users, 
-  Phone, 
-  Mail, 
-  ExternalLink,
-  Star,
-  Target,
-  Zap,
-  BarChart3,
-  Briefcase,
+  Building, 
   FileText,
-  Globe,
-  Factory,
+  ArrowRight,
+  ArrowLeft,
+  Calendar,
+  Star,
   Lightbulb,
-  CreditCard,
-  DollarSign,
-  Percent
+  Clock,
+  BarChart3,
+  Zap,
+  DollarSign
 } from 'lucide-react';
 import Header from '@/components/layout/header';
 
 export default function CertificationCaseStudyPage() {
-  const [activeTab, setActiveTab] = useState('timeline');
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState('overview');
 
   const handleConsultation = () => {
     window.location.href = '/consultation';
@@ -46,6 +44,22 @@ export default function CertificationCaseStudyPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-red-50">
       <Header />
       
+      {/* M-CENTER 고객지원 Q&A 버튼 */}
+      <div className="mb-4">
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => router.push('/support/qa')}
+          className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] px-4 py-2 rounded-md hover:bg-blue-50 border-blue-300 hover:border-blue-600 text-blue-700 hover:text-blue-600 relative overflow-hidden group"
+        >
+          <span className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+          <span className="relative flex items-center">
+            <ArrowLeft className="w-4 h-4 mr-2 group-hover:translate-x-[-2px] transition-transform duration-200" />
+            M-CENTER 고객지원 Q&A
+          </span>
+        </Button>
+      </div>
+
       {/* 히어로 섹션 */}
       <section className="container mx-auto px-6 py-16 max-w-7xl">
         <div className="mb-8">
@@ -776,6 +790,37 @@ export default function CertificationCaseStudyPage() {
           </div>
         </div>
       </section>
+
+      {/* 하단 액션 */}
+      <div className="mt-8 text-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button 
+            size="lg" 
+            className="px-8 py-3 bg-blue-600 hover:bg-blue-700 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group"
+            onClick={() => router.push('/consultation')}
+          >
+            <span className="absolute inset-0 bg-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+            <span className="relative flex items-center">
+              <Award className="w-5 h-5 mr-2" />
+              인증 컨설팅 상담 신청하기
+              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+            </span>
+          </Button>
+          
+          <Button 
+            variant="outline"
+            size="lg"
+            className="px-8 py-3 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 hover:shadow-md relative overflow-hidden group"
+            onClick={() => router.push('/services/certification')}
+          >
+            <span className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+            <span className="relative flex items-center">
+              <ArrowLeft className="w-5 h-5 mr-2 group-hover:translate-x-[-2px] transition-transform duration-200" />
+              서비스 상세 보기
+            </span>
+          </Button>
+        </div>
+      </div>
     </div>
   );
 } 

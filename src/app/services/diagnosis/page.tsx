@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,11 +21,13 @@ import {
   TrendingUp,
   Shield,
   Award,
-  ArrowRight
+  ArrowRight,
+  ArrowLeft
 } from 'lucide-react';
 import { getImagePath } from '@/lib/utils';
 
 export default function FreeDiagnosisPage() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState<'intro' | 'form' | 'results'>('intro');
   const [diagnosisResults, setDiagnosisResults] = useState<any>(null);
 
@@ -107,6 +110,22 @@ export default function FreeDiagnosisPage() {
       <Header />
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
+          {/* M-CENTER 고객지원 Q&A 버튼 */}
+          <div className="mb-4">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => router.push('/support/qa')}
+              className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] px-4 py-2 rounded-md hover:bg-purple-50 border-purple-300 hover:border-purple-600 text-purple-700 hover:text-purple-600 relative overflow-hidden group"
+            >
+              <span className="absolute inset-0 bg-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+              <span className="relative flex items-center">
+                <ArrowLeft className="w-4 h-4 mr-2 group-hover:translate-x-[-2px] transition-transform duration-200" />
+                M-CENTER 고객지원 Q&A
+              </span>
+            </Button>
+          </div>
+
           {/* 헤더 섹션 */}
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 px-4 py-2 rounded-full mb-6">
@@ -142,14 +161,28 @@ export default function FreeDiagnosisPage() {
               </Badge>
             </div>
 
-            <Button 
-              onClick={handleStartDiagnosis}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-4 h-auto"
-            >
-              <Brain className="w-5 h-5 mr-2" />
-              무료 AI진단 신청하기
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                onClick={handleStartDiagnosis}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-4 h-auto"
+              >
+                <Brain className="w-5 h-5 mr-2" />
+                무료 AI진단 신청하기
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+              
+              <Button 
+                variant="outline"
+                size="lg"
+                className="px-8 py-4 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 hover:shadow-md relative overflow-hidden group"
+                onClick={() => router.push('/consultation')}
+              >
+                <span className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative">
+                  전문가 상담 신청하기
+                </span>
+              </Button>
+            </div>
           </div>
 
           {/* 새로운 시스템 특징 */}
@@ -337,6 +370,16 @@ export default function FreeDiagnosisPage() {
                   <Brain className="w-5 h-5 mr-2" />
                   무료 AI진단 신청하기
                 </Button>
+                
+                <Button 
+                  variant="outline"
+                  size="lg"
+                  className="px-8 py-4 text-white border-white hover:bg-white hover:text-blue-600 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95]"
+                  onClick={() => router.push('/consultation')}
+                >
+                  전문가 상담 신청하기
+                </Button>
+                
                 <div className="flex items-center gap-4 text-sm text-blue-100">
                   <div className="flex items-center gap-1">
                     <Shield className="w-4 h-4" />

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ import {
   Target, 
   Award,
   ArrowRight,
+  ArrowLeft,
   CheckCircle,
   Calendar,
   TrendingUp,
@@ -23,6 +25,7 @@ import {
 } from 'lucide-react';
 
 export default function AIProductivityCaseStudyPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('timeline');
 
   const timelineData = [
@@ -155,6 +158,22 @@ export default function AIProductivityCaseStudyPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-100">
       <div className="container mx-auto px-4 py-16">
+        {/* M-CENTER 고객지원 Q&A 버튼 */}
+        <div className="mb-4">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => router.push('/support/qa')}
+            className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] px-4 py-2 rounded-md hover:bg-purple-50 border-purple-300 hover:border-purple-600 text-purple-700 hover:text-purple-600 relative overflow-hidden group"
+          >
+            <span className="absolute inset-0 bg-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+            <span className="relative flex items-center">
+              <ArrowLeft className="w-4 h-4 mr-2 group-hover:translate-x-[-2px] transition-transform duration-200" />
+              M-CENTER 고객지원 Q&A
+            </span>
+          </Button>
+        </div>
+
         {/* 헤더 */}
         <div className="text-center mb-12 mt-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -478,10 +497,33 @@ export default function AIProductivityCaseStudyPage() {
 
         {/* 하단 액션 */}
         <div className="mt-8 text-center">
-          <Button size="lg" className="px-8 py-3 bg-purple-600 hover:bg-purple-700">
-            <Bot className="w-5 h-5 mr-2" />
-            AI생산성향상 상담 신청하기
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              size="lg" 
+              className="px-8 py-3 bg-purple-600 hover:bg-purple-700 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group"
+              onClick={() => router.push('/consultation')}
+            >
+              <span className="absolute inset-0 bg-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+              <span className="relative flex items-center">
+                <Bot className="w-5 h-5 mr-2" />
+                AI생산성향상 상담 신청하기
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+              </span>
+            </Button>
+            
+            <Button 
+              variant="outline"
+              size="lg"
+              className="px-8 py-3 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] border-gray-300 hover:border-purple-600 text-gray-700 hover:text-purple-600 hover:shadow-md relative overflow-hidden group"
+              onClick={() => router.push('/services/ai-productivity')}
+            >
+              <span className="absolute inset-0 bg-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+              <span className="relative flex items-center">
+                <ArrowLeft className="w-5 h-5 mr-2 group-hover:translate-x-[-2px] transition-transform duration-200" />
+                서비스 상세 보기
+              </span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>
