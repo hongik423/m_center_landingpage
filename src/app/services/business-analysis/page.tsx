@@ -190,6 +190,22 @@ export default function BusinessAnalysisPage() {
       <section className="py-12 md:py-20">
         <div className="container mx-auto px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <div className="max-w-6xl mx-auto">
+            {/* M-CENTER 고객지원 Q&A 버튼 */}
+            <div className="mb-4">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => router.push('/support/qa')}
+                className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] px-4 py-2 rounded-md hover:bg-green-50 border-green-300 hover:border-green-600 text-green-700 hover:text-green-600 relative overflow-hidden group"
+              >
+                <span className="absolute inset-0 bg-green-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative flex items-center">
+                  <ArrowLeft className="w-4 h-4 mr-2 group-hover:translate-x-[-2px] transition-transform duration-200" />
+                  M-CENTER 고객지원 Q&A
+                </span>
+              </Button>
+            </div>
+
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
               <Button 

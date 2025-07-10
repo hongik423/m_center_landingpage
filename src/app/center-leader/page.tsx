@@ -59,7 +59,7 @@ export default function CenterLeaderPage() {
                 </div>
                 <div>
                   <Badge className="bg-yellow-500 text-black mb-2">28년 검증된 전문가</Badge>
-                  <h1 className="text-4xl lg:text-5xl font-bold mb-2">이후경 경영지도사</h1>
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2">이후경 경영지도사</h1>
                   <p className="text-xl text-blue-100">기업의별 경영지도센터장</p>
                 </div>
               </div>

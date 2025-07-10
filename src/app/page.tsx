@@ -44,7 +44,7 @@ const services = [
     textColor: 'text-white',
     href: '/services/business-analysis',
     benefits: ['95% 성공률 보장', '매출 4배 증가', '5단계 전략 프레임워크'],
-    badge: '⭐ 추천',
+    badge: '추천',
     featured: true
   },
   {
@@ -58,7 +58,7 @@ const services = [
     textColor: 'text-white',
     href: '/services/ai-productivity',
     benefits: ['정부 100% 지원', '20주 집중 프로그램', '업무 효율성 40% 향상'],
-    badge: '🎯 정부지원'
+    badge: '정부지원'
   },
   {
     id: 'factory-auction',
@@ -71,7 +71,7 @@ const services = [
     textColor: 'text-white',
     href: '/services/factory-auction',
     benefits: ['투자비 40% 절약', '전문가 동행', '완전 위탁 진행'],
-    badge: '💰 절약'
+    badge: '절약'
   },
   {
     id: 'tech-startup',
@@ -84,7 +84,7 @@ const services = [
     textColor: 'text-white',
     href: '/services/tech-startup',
     benefits: ['평균 5억원 확보', '성공률 85%', '3년 사후관리'],
-    badge: '🚀 성장'
+    badge: '성장'
   },
   {
     id: 'certification',
@@ -97,7 +97,7 @@ const services = [
     textColor: 'text-white',
     href: '/services/certification',
     benefits: ['5천만원 세제혜택', '통합 인증 관리', '100% 취득 보장'],
-    badge: '🏆 인증'
+    badge: '인증'
   },
   {
     id: 'website',
@@ -110,7 +110,7 @@ const services = [
     textColor: 'text-white',
     href: '/services/website',
     benefits: ['매출 30% 증대', '지능형 최적화', '무료 1년 관리'],
-    badge: '🌐 디지털'
+    badge: '디지털'
   }
 ];
 
@@ -212,51 +212,69 @@ export default function Home() {
           <div className="absolute bottom-20 left-1/3 w-40 h-40 bg-green-400 rounded-full blur-xl"></div>
         </div>
         
-        <div className="mobile-container relative z-10">
-          <div className="max-w-5xl mx-auto text-center">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-20 md:py-24 lg:py-32 relative z-10">
+          <div className="max-w-6xl mx-auto text-center">
             {/* 상단 배지 */}
             <div className="apple-badge-primary mb-8 apple-animation-fadeIn">
               <Sparkles className="w-4 h-4 mr-2" />
               <span className="font-semibold text-overflow-safe">프리미엄 비즈니스 혁신 프레임워크</span>
             </div>
             
-            <h1 className="apple-title apple-animation-slideUp mobile-centered">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight apple-animation-slideUp mobile-centered">
               <span className="block text-overflow-safe">기업 성장의 새로운 차원을</span>
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent text-overflow-safe">
                 경험하세요
               </span>
             </h1>
             
-            <p className="apple-body max-w-3xl mx-auto apple-animation-slideUp mobile-text" 
+            <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed apple-animation-slideUp mobile-text" 
                style={{ animationDelay: '0.2s' }}>
               <strong className="text-gray-800">혁신 AI, 스마트 투자, 기술창업, 프리미엄 인증, 디지털 혁신</strong> - 6대 영역 통합 솔루션으로 차원이 다른 비즈니스 성과를 만나보세요
             </p>
             
-            <div className="apple-spacing-xs apple-animation-slideUp"
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 apple-animation-slideUp"
                  style={{ animationDelay: '0.4s' }}>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/services">
-                  <button className="apple-button-primary mobile-full-width touch-target-enhanced ios-touch-feedback mobile-button-enhanced">
+              <Link href="/services">
+                <Button 
+                  size="lg"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg shadow-xl hover:shadow-2xl transform hover:scale-[1.05] active:scale-[0.95] transition-all duration-200 relative overflow-hidden group"
+                >
+                  <span className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="relative flex items-center">
                     <Sparkles className="w-5 h-5 mr-2" />
-                    <span className="text-overflow-safe">프리미엄 사업분석 시작하기</span>
-                    <ArrowRight className="ml-2 w-5 h-5" />
-                  </button>
-                </Link>
-                
-                <Link href="/diagnosis">
-                  <button className="apple-button-secondary mobile-full-width touch-target-enhanced ios-touch-feedback mobile-button-enhanced">
-                    <Zap className="w-5 h-5 mr-2" />
-                    <span className="text-overflow-safe">무료 전문가 진단</span>
-                  </button>
-                </Link>
-                
-                <Link href="/consultation">
-                  <button className="apple-button-outline mobile-full-width touch-target-enhanced ios-touch-feedback mobile-button-enhanced">
-                    <Users className="w-5 h-5 mr-2" />
-                    <span className="text-overflow-safe">전문가 상담 신청</span>
-                  </button>
-                </Link>
-              </div>
+                    프리미엄 사업분석 시작하기
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+                  </span>
+                </Button>
+              </Link>
+              
+              <Link href="/diagnosis">
+                <Button 
+                  variant="outline"
+                  size="lg"
+                  className="px-8 py-4 text-lg border-2 border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 hover:bg-blue-50 transform hover:scale-[1.05] active:scale-[0.95] transition-all duration-200 relative overflow-hidden group"
+                >
+                  <span className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="relative flex items-center">
+                    <Zap className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" />
+                    무료 전문가 진단
+                  </span>
+                </Button>
+              </Link>
+              
+              <Link href="/consultation">
+                <Button 
+                  variant="outline"
+                  size="lg"
+                  className="px-8 py-4 text-lg border-2 border-purple-300 hover:border-purple-600 text-purple-700 hover:text-purple-600 hover:bg-purple-50 transform hover:scale-[1.05] active:scale-[0.95] transition-all duration-200 relative overflow-hidden group"
+                >
+                  <span className="absolute inset-0 bg-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="relative flex items-center">
+                    <Users className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" />
+                    전문가 상담 신청
+                  </span>
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -264,19 +282,18 @@ export default function Home() {
 
       {/* 🍎 애플스토어 스타일 AI 상담사 섹션 */}
       <section className="apple-section bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-        <div className="mobile-container">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-20 md:py-24 lg:py-32">
           <div className="text-center mb-16">
             <div className="apple-badge-primary mb-8 apple-animation-fadeIn">
               <Cpu className="w-5 h-5 mr-2" />
               <span className="font-semibold text-overflow-safe">차세대 지능형 상담 시스템</span>
             </div>
             
-            <h2 className="apple-subtitle apple-animation-slideUp mobile-centered">
-              <span className="text-4xl mr-3">🤖</span>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 apple-animation-slideUp mobile-centered">
               <span className="text-overflow-safe">M센터장과 바로 대화하기</span>
             </h2>
             
-            <p className="apple-body max-w-4xl mx-auto mobile-text">
+            <p className="text-lg md:text-xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed mobile-text">
               <strong className="text-blue-600">최첨단 AI 기술</strong>로 무장한 전문 상담사가 24시간 대기 중입니다.<br />
               기업 성장에 관한 모든 궁금증을 지금 바로 해결해보세요!
             </p>
@@ -403,11 +420,11 @@ export default function Home() {
                     
                     {/* 플로팅 엘리먼트들 */}
                     <div className="absolute top-20 right-8 w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center animate-bounce">
-                      <span className="text-2xl">💡</span>
+                                              <span className="text-2xl">✓</span>
                     </div>
-                    <div className="absolute bottom-20 left-8 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center animate-pulse">
-                      <span className="text-xl">⚡</span>
-                    </div>
+                                          <div className="absolute bottom-20 left-8 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center animate-pulse">
+                        <span className="text-xl">✓</span>
+                      </div>
                   </div>
                 </div>
               </div>
@@ -495,14 +512,14 @@ export default function Home() {
           <div className="absolute bottom-20 right-10 w-48 h-48 bg-purple-400 rounded-full blur-2xl"></div>
         </div>
         
-        <div className="mobile-container relative z-10">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-20 md:py-24 lg:py-32 relative z-10">
           <div className="text-center mb-16">
             <div className="badge-primary mb-6 animate-bounce-gentle">
               <Star className="w-5 h-5 mr-2" />
               <span className="font-semibold text-overflow-safe">기업 성장 솔루션</span>
             </div>
             
-            <h2 className="text-h1 text-gray-900 mb-4 mobile-centered">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 mobile-centered">
               <span className="text-overflow-safe">6대 핵심서비스</span>
             </h2>
             <p className="text-body-lg text-gray-600 max-w-4xl mx-auto mobile-text">
@@ -511,7 +528,7 @@ export default function Home() {
             </p>
           </div>
           
-          {/* 🔥 사용자 중심 서비스 그리드 - 우선순위 기반 */}
+                                    {/* 사용자 중심 서비스 그리드 - 우선순위 기반 */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {services.map((service, index) => (
               <div
@@ -522,7 +539,7 @@ export default function Home() {
                            transition-all duration-300 animate-scale-in gpu-accelerated`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                {/* 🌟 특별 추천 배지 */}
+                                  {/* 특별 추천 배지 */}
                 {service.featured && (
                   <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
                     <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white 
@@ -533,7 +550,7 @@ export default function Home() {
                 )}
                 
                 <CardContent className="p-6 h-full flex flex-col">
-                  {/* 🎯 서비스 헤더 - 간소화 */}
+                  {/* 서비스 헤더 - 간소화 */}
                   <div className="flex items-center justify-between mb-4">
                     <div className={`p-3 rounded-2xl ${service.color} shadow-lg 
                                     group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
@@ -544,7 +561,7 @@ export default function Home() {
                     </Badge>
                   </div>
                   
-                  {/* 📝 서비스 정보 - 핵심만 */}
+                                      {/* 서비스 정보 - 핵심만 */}
                   <div className="mb-6 flex-1">
                     <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 
                                    transition-colors mobile-centered leading-tight">
@@ -559,7 +576,7 @@ export default function Home() {
                       {service.description}
                     </p>
                     
-                    {/* 🎁 핵심 혜택 - 3개만 표시 */}
+                                          {/* 핵심 혜택 - 3개만 표시 */}
                     <div className="space-y-2">
                       {service.benefits.slice(0, 3).map((benefit, benefitIndex) => (
                         <div key={benefitIndex} className="flex items-center gap-3">
@@ -570,7 +587,7 @@ export default function Home() {
                     </div>
                   </div>
                   
-                  {/* 🚀 액션 버튼 - 명확한 CTA */}
+                                      {/* 액션 버튼 - 명확한 CTA */}
                   <div className="space-y-3">
                     <Link href={service.href}>
                       <Button 
@@ -586,7 +603,7 @@ export default function Home() {
                       </Button>
                     </Link>
                     
-                    {/* 💬 빠른 상담 버튼 */}
+                                          {/* 빠른 상담 버튼 */}
                     <button 
                       className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium 
                                 py-2 hover:bg-blue-50 rounded-lg transition-colors duration-200 touch-feedback"
@@ -601,7 +618,7 @@ export default function Home() {
                         }
                       }}
                     >
-                      💬 M센터장에게 바로 문의하기
+                      M센터장에게 바로 문의하기
                     </button>
                   </div>
                 </CardContent>
@@ -609,9 +626,9 @@ export default function Home() {
             ))}
           </div>
 
-          {/* 🎯 빠른 액션 섹션 */}
+          {/* 빠른 액션 섹션 */}
           <div className="mt-16 text-center">
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-8 rounded-3xl border border-blue-200">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-8 rounded-3xl border border-blue-200 mx-4 sm:mx-6 lg:mx-8 xl:mx-12">
               <h3 className="text-2xl font-bold text-gray-900 mb-4 mobile-centered">
                 <span className="text-overflow-safe">어떤 서비스가 필요한지 모르겠다면?</span>
               </h3>
@@ -661,9 +678,9 @@ export default function Home() {
 
       {/* 성장 단계별 가이드 - 프리미엄 표현 */}
       <section className="section-padding gradient-bg-primary">
-        <div className="container-custom">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-20 md:py-24 lg:py-32">
           <div className="text-center mb-16">
-            <h2 className="text-h1 text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
               기업 성장 4단계 혁신 프레임워크
             </h2>
             <p className="text-body-lg text-gray-600 max-w-3xl mx-auto">
@@ -712,9 +729,9 @@ export default function Home() {
 
       {/* 고객 추천 후기 - 토스 스타일 */}
       <section className="section-padding bg-white">
-        <div className="mobile-container">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-20 md:py-24 lg:py-32">
           <div className="text-center mb-16">
-            <h2 className="text-h1 text-gray-900 mb-4 mobile-centered">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 mobile-centered">
               <span className="text-overflow-safe">고객 성공 스토리</span>
             </h2>
             <p className="text-body-lg text-gray-600 max-w-3xl mx-auto mobile-text">
@@ -757,9 +774,9 @@ export default function Home() {
 
       {/* 기업 성장 단계별 맞춤 전략 */}
       <section className="section-padding bg-gradient-to-br from-gray-50 to-blue-50">
-        <div className="mobile-container">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-20 md:py-24 lg:py-32">
           <div className="text-center mb-16">
-            <h2 className="text-h1 text-gray-900 mb-4 mobile-centered">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 mobile-centered">
               <span className="text-overflow-safe">기업 성장 단계별 맞춤 전략</span>
             </h2>
             <p className="text-body-lg text-gray-600 max-w-4xl mx-auto mobile-text">
@@ -802,7 +819,7 @@ export default function Home() {
                 최적의 로드맵을 제시합니다
               </p>
               <Link href="/diagnosis">
-                {/* 🔥 개선된 우리 기업 성장 단계 진단받기 버튼 */}
+                {/* 개선된 우리 기업 성장 단계 진단받기 버튼 */}
                 <Button className="mobile-button btn-hero bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group">
                   <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                   <span className="relative flex items-center">
@@ -818,14 +835,14 @@ export default function Home() {
 
       {/* 무료 전문가 진단 섹션 - 프리미엄 표현 */}
       <section id="ai-diagnosis" className="section-padding bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white">
-        <div className="container-custom">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-20 md:py-24 lg:py-32">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full mb-6">
               <Cpu className="w-5 h-5" />
               <span className="font-semibold">차세대 지능형 진단 시스템</span>
             </div>
             
-            <h2 className="text-h1 mb-6">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
               <Zap className="inline-block w-12 h-12 mr-4 text-yellow-400" />
               무료 전문가 진단 신청
             </h2>
@@ -840,8 +857,8 @@ export default function Home() {
             {/* 개선 효과 비교 */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
               {[
-                { icon: Clock, title: '⚡ 처리 속도', before: '기존: 2-3주', after: '신규: 2-3분', improvement: '99.9% 단축', color: 'from-green-400 to-emerald-500' },
-                { icon: BarChart3, title: '📝 입력 항목', before: '기존: 20+ 항목', after: '신규: 8개 항목', improvement: '60% 간소화', color: 'from-blue-400 to-cyan-500' },
+                { icon: Clock, title: '처리 속도', before: '기존: 2-3주', after: '신규: 2-3분', improvement: '99.9% 단축', color: 'from-green-400 to-emerald-500' },
+                { icon: BarChart3, title: '입력 항목', before: '기존: 20+ 항목', after: '신규: 8개 항목', improvement: '60% 간소화', color: 'from-blue-400 to-cyan-500' },
                 { icon: FileText, title: '보고서', before: '기존: 5000자+', after: '신규: 전문가 진단보고서', improvement: '핵심 정보 집중', color: 'from-purple-400 to-pink-500' }
               ].map((item, index) => (
                 <Card key={index} className={`text-center p-6 bg-gradient-to-br ${item.color} text-white border-0`}>
@@ -872,7 +889,7 @@ export default function Home() {
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
                   <Link href="/diagnosis">
-                    {/* 🔥 개선된 무료 전문가 진단 신청하기 버튼 */}
+                    {/* 개선된 무료 전문가 진단 신청하기 버튼 */}
                     <Button 
                       className="btn-hero bg-white text-blue-600 hover:bg-gray-50 shadow-xl transform hover:scale-[1.05] active:scale-[0.95] transition-all duration-200 relative overflow-hidden group"
                     >

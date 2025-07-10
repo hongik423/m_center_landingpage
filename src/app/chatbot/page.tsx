@@ -229,7 +229,7 @@ export default function ChatbotPage() {
               <span className="font-semibold">GEMINI AI 기반 스마트 상담</span>
             </div>
             
-            <h1 className="text-hero text-gray-900 mb-6 animate-slide-in">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 animate-slide-in">
               <Sparkles className="inline-block w-16 h-16 mr-4 text-yellow-500" />
               M센터장과 채팅
             </h1>

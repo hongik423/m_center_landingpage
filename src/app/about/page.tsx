@@ -13,7 +13,7 @@ export default function AboutPage() {
         <div className="container mx-auto px-4">
           {/* 회사 소개 헤더 */}
           <div className="text-center mb-16">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
               기업의별 경영지도센터
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">

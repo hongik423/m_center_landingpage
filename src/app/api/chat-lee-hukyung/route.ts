@@ -1,341 +1,550 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// 🎯 고도화된 질문 분류 시스템 (4개 그룹)
-type QuestionCategory = 
-  | 'simple-greeting'           // 단순인사
-  | 'consultation-request'      // 정해진 상담신청 문의
-  | 'single-service'           // 단순한 단일 서비스 문의  
-  | 'complex-strategic';       // 복합적인 서비스문의/산업전문/전략 질문
+// 📚 M-CENTER 종합 지식 베이스 (최신 업데이트 반영)
+const MCENTER_COMPREHENSIVE_KNOWLEDGE = {
+  // 🏢 기업 정보
+  company: {
+    name: 'M-CENTER (기업의별 경영지도센터)',
+    leader: '이후경 경영지도사',
+    experience: '28년 (현대그룹 8년, 삼성생명 10년, 컨설팅 10년)',
+    achievements: '500개 기업 직접 지도, 95% 성공률, 평균 ROI 400%',
+    specialization: '고용노동부 일터혁신 수행기관',
+    contact: '010-9251-9743',
+    email: 'hongik423@gmail.com',
+    website: 'https://m-center.co.kr'
+  },
 
-// 🎭 이후경 경영지도사 전용 질문 분석기
-class QuestionAnalyzer {
-  
-  // 🧠 고도화된 질문 분류 (4개 카테고리)
-  static categorizeQuestion(message: string): QuestionCategory {
-    const msg = message.toLowerCase().trim();
-    
-    // 1️⃣ 단순인사 (50-150자 응답)
-    const greetingPatterns = [
-      /^(안녕|하이|hi|hello|좋은|처음|시작)/,
-      /^(감사|고마워|최고|훌륭|멋져|좋아|네|예|오케이|ok)/,
-      /^(ㅋ|ㄷㄷ|ㅎㅎ|ㅇㅇ|맞|그래|알겠)/,
-      /인사|처음뵙|만나서반가|반갑/
-    ];
-    
-    if (greetingPatterns.some(pattern => pattern.test(msg)) || msg.length <= 15) {
-      return 'simple-greeting';
+  // 🎯 6대 핵심서비스 (최신 정보 반영)
+  coreServices: {
+    'business-analysis': {
+      name: 'BM ZEN 사업분석',
+      description: '국내 유일 독자적 비즈니스모델 분석 프레임워크',
+      keyFeatures: [
+        '5단계 전략 프레임워크로 매출 20-40% 증대',
+        'Business Model Canvas 고도화 버전',
+        '수익모델 다각화 및 최적화',
+        '시장분석 기반 데이터 중심 접근',
+        '단계별 실행계획 및 성과 측정'
+      ],
+      results: {
+        averageGrowth: '35% 매출 증대',
+        successRate: '96% 고객만족도',
+        sustainability: '85% 이상 지속성장',
+        roi: '평균 280% ROI'
+      },
+      casestudy: 'D기업: 매출 120억→480억(3년), 영업이익률 8%→15%',
+      price: '컨설팅 비용 100% 정부지원 가능'
+    },
+    'ai-productivity': {
+      name: 'AI 생산성향상',
+      description: '2025년 일터혁신 상생컨설팅 - AI 활용 생산성향상',
+      keyFeatures: [
+        '업무효율 40% 향상 보장',
+        'ChatGPT 기업 활용 마스터',
+        '20주 집중 프로그램',
+        '247개 기업 실제 지도',
+        '24시간 AI 자동화 시스템'
+      ],
+      results: {
+        productivity: '평균 42% 업무효율 향상',
+        timeReduction: '평균 35% 업무시간 단축',
+        costSaving: '연간 평균 8,500만원 절감',
+        satisfaction: '94% AI 도구 활용 만족도'
+      },
+      casestudy: 'AAA에너지관리IT: 제안서 작성 50% 단축, 해외사업 확장 가속화',
+      government: '고용노동부 100% 지원 (일터혁신 수행기관)',
+      price: '정부지원 100% 무료'
+    },
+    'policy-funding': {
+      name: '정책자금 확보',
+      description: '맞춤형 정책자금 확보 및 투자 분석',
+      keyFeatures: [
+        '업종별 맞춤형 정책자금 매칭',
+        '평균 확보금액 15억원',
+        '8단계 완벽 대행 프로세스',
+        '금리 1.5-2.5% (시중은행 대비 3-4%p 절감)',
+        '사후관리 및 추가지원 연계'
+      ],
+      results: {
+        averageAmount: '평균 15억원 확보',
+        interestSaving: '68% 이자비용 절감',
+        successRate: '95% 승인률',
+        timeframe: '평균 3-6개월'
+      },
+      casestudy: 'H관광개발: 5년간 총 100억원 확보, 매출 650% 성장',
+      types: [
+        '제조업: 시설자금 50억원 (연 1.5%)',
+        '서비스업: 창업자금 10억원 (연 2.5%)',
+        '기술기업: R&D 자금 100억원 (연 1.0%)'
+      ]
+    },
+    'tech-startup': {
+      name: '기술창업 지원',
+      description: '기술사업화 및 창업 전주기 지원',
+      keyFeatures: [
+        '평균 5억원 자금 확보',
+        'R&D부터 사업화까지 원스톱',
+        '투자유치 단계별 맞춤 전략',
+        '특허 포트폴리오 구축',
+        '3년 사후관리 지원'
+      ],
+      results: {
+        funding: '평균 5억원 확보',
+        rdSuccess: '87% R&D 과제 선정',
+        patentPortfolio: '평균 특허 15건 확보',
+        valuationGrowth: '기업가치 평균 500억원',
+        roi: '평균 2,174% ROI'
+      },
+      casestudy: 'ABC기업: 총 87억원 확보, 기업가치 500억원 달성',
+      roadmap: [
+        '1단계: 특허출원+예비벤처+디딤돌과제 1.7억원',
+        '2단계: 벤처확인+기술개발+정책자금 24.7억원',
+        '3단계: TIPS선정+해외진출+VC투자 57억원',
+        '4단계: 상장준비+글로벌확대'
+      ]
+    },
+    'certification': {
+      name: '인증지원',
+      description: '기업 성장을 위한 전략적 인증',
+      keyFeatures: [
+        '연간 5천만원 세제혜택',
+        '100% 취득 보장',
+        '12개 인증 통합 관리',
+        '대기업 협력사 등록 지원',
+        'ESG 경영 및 탄소중립 대응'
+      ],
+      results: {
+        taxBenefit: '연간 5천만원 세제혜택',
+        successRate: '100% 취득 보장',
+        certificationCount: '평균 12개 인증',
+        partnerRegistration: '대기업 3개사 협력사 등록'
+      },
+      casestudy: 'ABC기업: 12개 인증 획득, 대기업 협력사 등록, 납품단가 20% 상승',
+      types: [
+        'ISO 9001/14001/45001 통합인증',
+        '벤처기업/이노비즈 인증',
+        'ESG 경영 및 탄소중립 인증',
+        '품질경영시스템 고도화'
+      ]
+    },
+    'website': {
+      name: '웹사이트 구축',
+      description: '디지털 혁신 - 온라인 매출 300% 증대',
+      keyFeatures: [
+        '온라인 매출 300% 증대',
+        'SEO 최적화 및 모바일 퍼스트',
+        'AI 기반 콘텐츠 마케팅',
+        '무료 1년 사후관리',
+        '브랜드 가치 극대화'
+      ],
+      results: {
+        salesGrowth: '온라인 매출 300% 증대',
+        roi: '1년차 ROI 1,667%',
+        trafficIncrease: '월 방문자 15,000명 달성',
+        inquiryIncrease: '온라인 문의 월 200건'
+      },
+      casestudy: 'G제조업: 웹사이트 구축 후 온라인 매출 연 15억원 달성',
+      package: [
+        '반응형 웹사이트 구축',
+        'SEO 최적화',
+        '콘텐츠 마케팅',
+        '구글/네이버 광고',
+        '성과 분석 및 최적화'
+      ]
     }
-    
-    // 2️⃣ 정해진 상담신청 문의 (800-1200자 응답)
-    const consultationPatterns = [
-      /상담.*신청|신청.*상담|상담.*받고싶|상담.*문의/,
-      /전화.*상담|직접.*상담|면담|미팅/,
-      /컨설팅.*받고싶|컨설팅.*신청|도움.*받고싶/,
-      /연락.*드리고싶|연락처|전화번호/,
-      /만나서.*이야기|직접.*만나/
-    ];
-    
-    if (consultationPatterns.some(pattern => pattern.test(msg))) {
-      return 'consultation-request';
+  },
+
+  // 📊 성공사례 데이터베이스
+  successCases: {
+    manufacturing: {
+      company: '(주)스마트팩토리솔루션',
+      industry: '자동차 부품 제조',
+      employees: '67명',
+      revenue: '145억원',
+      aiResults: {
+        proposalTime: '69% 단축 (8시간→2.5시간)',
+        qualityAnalysis: '85% 단축 (주 20시간→3시간)',
+        customerResponse: '87% 단축 (4시간→30분)',
+        reportCreation: '80% 단축 (40시간→8시간)',
+        designRevision: '75% 단축 (3일→6시간)'
+      },
+      economicImpact: '연간 5억 8천만원 경제적 효과',
+      satisfaction: '92% 직원만족도'
+    },
+    service: {
+      company: '(주)크리에이티브마케팅',
+      industry: '종합 광고 대행',
+      employees: '28명',
+      revenue: '42억원→68억원 (61% 성장)',
+      aiResults: {
+        copywriting: '81% 시간 단축',
+        design: '83% 시간 단축',
+        videoEditing: '86% 시간 단축',
+        strategy: '78% 시간 단축',
+        proposal: '86% 시간 단축'
+      },
+      productivity: '프로젝트 처리량 125% 증가',
+      creativity: '아이디어 다양성 300% 증가'
+    },
+    startup: {
+      company: '(주)AI헬스케어테크',
+      industry: 'AI 헬스케어',
+      stage: '창업 3년차',
+      revenue: '월 8억원',
+      aiResults: {
+        developmentTime: '66% 단축 (24개월→8개월)',
+        mvpValidation: '67% 단축 (6개월→2개월)',
+        investmentSuccess: '467% 향상 (15%→85%)',
+        customerAcquisition: '900% 초과달성',
+        revenueGrowth: '무한대 성장'
+      },
+      valuation: '기업가치 500억원',
+      funding: '총 87억원 확보'
     }
-    
-    // 4️⃣ 복합적인 서비스문의/산업전문/전략 질문 (2000-4000자 응답)
-    const complexPatterns = [
-      // 복합 서비스 조합
-      /.*?(그리고|또한|또|추가로|더불어|아울러|동시에|같이|함께).*?(서비스|지원|컨설팅)/,
-      
-      // 전략적/산업전문 키워드
-      /전략|로드맵|마스터플랜|통합.*방안|종합.*계획/,
-      /산업.*전망|시장.*분석|업계.*동향|경쟁.*분석/,
-      /디지털.*전환|디지털.*혁신|4차.*산업|스마트.*팩토리/,
-      /비즈니스.*모델|수익.*구조|매출.*다각화/,
-      
-      // 복합적 문제 해결
-      /.*?(문제|이슈|과제).*?(해결|개선|혁신|최적화)/,
-      /.*?(효율|생산성|수익성).*?(향상|증대|개선)/,
-      
-      // 상세 설명 요청
-      /자세히|상세히|구체적으로|완전히|전체적으로|포괄적으로/,
-      /사례|경험|실적|성과|결과.*알고싶/,
-      
-      // 장문의 질문 (200자 이상)
-    ];
-    
-    if (complexPatterns.some(pattern => pattern.test(msg)) || 
-        msg.length > 200 ||
-        (msg.split(/그리고|또한|또|추가로|더불어|아울러|동시에/).length > 2)) {
-      return 'complex-strategic';
-    }
-    
-    // 3️⃣ 단순한 단일 서비스 문의 (기본값, 1000-2000자 응답)
-    return 'single-service';
+  },
+
+  // 🤖 AI 생산성 향상 상세 정보
+  aiProductivity: {
+    program: '20주 집중 프로그램',
+    phases: [
+      '현황진단 (2주): AI 활용 가능 영역 발굴',
+      'AI도구선정 (3주): 맞춤형 도구 선정 및 도입',
+      '실무적용 (16주): 실제 업무 적용 및 최적화',
+      '성과측정 (2주): ROI 분석 및 확산 계획'
+    ],
+    tools: [
+      'ChatGPT/Claude (문서작성, 전략수립)',
+      'Midjourney/DALL-E (디자인, 시각자료)',
+      'RunwayML (영상편집, 모션그래픽)',
+      'Zapier/Make (업무자동화)',
+      'Python/Excel (데이터분석)'
+    ],
+    results: {
+      companies: '247개 기업 지도',
+      efficiency: '평균 42% 업무효율 향상',
+      timeSaving: '평균 35% 업무시간 단축',
+      costReduction: '연간 평균 8,500만원 절감',
+      satisfaction: '94% AI 도구 활용 만족도'
+    },
+    government: '고용노동부 일터혁신 수행기관 - 100% 무료 지원'
+  },
+
+  // 📋 Q&A 데이터베이스 (34개 질문)
+  qaDatabase: {
+    totalQuestions: 34,
+    personas: [
+      '성장형 중소기업 CEO',
+      '성장기 스타트업',
+      '제조업 경영진',
+      '서비스업 소상공인',
+      '정책자금 특별상담',
+      '성장전략 컨설팅',
+      '종합 상담'
+    ],
+    coverageAreas: [
+      '매출 성장 전략',
+      '정부지원 로드맵',
+      '기술사업화',
+      '투자유치',
+      'AI 생산성향상',
+      '스마트팩토리',
+      '환경규제 대응',
+      '대기업 납품',
+      '온라인 마케팅',
+      '디지털 전환',
+      '세무회계 관리',
+      '인사노무 관리'
+    ]
+  },
+
+  // 💰 정책자금 상세 정보
+  policyFunding: {
+    types: {
+      manufacturing: {
+        facility: '시설자금 50억원 (연 1.5%, 10년 상환)',
+        operating: '운영자금 30억원 (연 2.0%, 5년 상환)',
+        tech: '기술개발 20억원 (연 1.0%, 5년 거치)'
+      },
+      service: {
+        startup: '창업자금 10억원 (연 2.5%, 7년 상환)',
+        digital: '디지털 전환 5억원 (연 1.8%, 5년 상환)',
+        marketing: '마케팅 2억원 (연 3.0%, 3년 상환)'
+      },
+      tech: {
+        rd: 'R&D 자금 100억원 (연 1.0%, 7년 거치)',
+        commercialization: '사업화 50억원 (연 1.5%, 5년 상환)'
+      }
+    },
+    process: [
+      '1단계: 기업진단 (재무상태+사업계획 분석)',
+      '2단계: 자금매칭 (최적 정책자금 선별)',
+      '3단계: 서류준비 (사업계획서+재무계획 작성)',
+      '4단계: 신청접수',
+      '5단계: 심사대응',
+      '6단계: 승인협상',
+      '7단계: 자금집행',
+      '8단계: 사후관리'
+    ],
+    benefits: '68% 이자비용 절감 (정책자금 vs 시중은행)',
+    successCase: 'H관광개발: 5년간 총 100억원 확보, 매출 650% 성장'
+  },
+
+  // 📊 세금계산기 정보
+  taxCalculator: {
+    types: [
+      '소득세 계산기',
+      '법인세 계산기',
+      '부가가치세 계산기',
+      '상속세 계산기',
+      '증여세 계산기',
+      '양도소득세 계산기',
+      '종합소득세 계산기',
+      '원천징수세 계산기',
+      '주식양도세 계산기',
+      '사업승계세 계산기'
+    ],
+    features: [
+      '2024년 최신 세율 적용',
+      '실시간 세액 계산',
+      '세금 절약 팁 제공',
+      '상세 계산 과정 표시',
+      'PDF 결과 다운로드'
+    ],
+    url: 'https://m-center.co.kr/tax-calculator'
   }
+};
+
+// 🎯 고급 질문 분석 시스템
+class AdvancedQuestionAnalyzer {
   
-  // 📏 카테고리별 응답 길이 가이드라인 
-  static getResponseGuidelines(category: QuestionCategory): {
-    minLength: number;
-    maxLength: number;
-    tone: string;
-    structure: string;
+  // 질문 카테고리 분석
+  static analyzeQuestion(message: string): {
+    category: string;
+    intent: string;
+    service: string;
+    urgency: string;
+    complexity: string;
+    responseLength: { min: number; max: number };
   } {
-    switch (category) {
-      case 'simple-greeting':
-        return {
-          minLength: 50,
-          maxLength: 150,
-          tone: '따뜻하고 친근한 인사, 간단한 자기소개',
-          structure: '인사 → 간단한 M-CENTER 소개 → 친근한 마무리'
-        };
-        
-      case 'consultation-request':
-        return {
-          minLength: 800,
-          maxLength: 1200,
-          tone: '환영하는 마음, 전문성 어필, 신뢰감 조성',
-          structure: '환영인사 → 전문분야 소개 → 상담방법 안내 → 연락처 제공'
-        };
-        
-      case 'single-service':
-        return {
-          minLength: 1000,
-          maxLength: 2000,
-          tone: '해박한 전문성, 실용적 조언, 명확한 방향 제시',
-          structure: '공감 → 전문지식 설명 → 실제사례 → 구체적 방안 → 다음 액션'
-        };
-        
-      case 'complex-strategic':
-        return {
-          minLength: 2000,
-          maxLength: 4000,
-          tone: '탁월한 통찰력, 전략적 사고, 체계적 접근, 깊이 있는 조언',
-          structure: '문제 정확한 이해 → 다각도 분석 → 통합적 해결방안 → 단계별 실행계획 → 시너지 효과 → 맞춤 상담 제안'
-        };
-    }
-  }
-}
-
-// 🎭 이후경 경영지도사 전용 응답 생성기
-class LeeHukyungResponseGenerator {
-  
-  // 🎯 카테고리별 맞춤형 프롬프트 생성
-  static createPrompt(message: string, category: QuestionCategory): string {
-    const guidelines = QuestionAnalyzer.getResponseGuidelines(category);
+    const lowerMessage = message.toLowerCase();
     
-    const basePersona = `당신은 28년 베테랑 이후경 경영지도사입니다. 
-- 25년 대기업 실무경험 (현대그룹, 삼성생명)
-- 500개 기업 직접 컨설팅 성공
-- 탁월하고 해박한 전문성
-- 선택과 집중이 가능한 직관적 판단력
-- 따뜻하지만 명확한 소통 스타일
-- 실용적이고 구체적인 솔루션 제시`;
-
-    switch (category) {
-      case 'simple-greeting':
-        return `${basePersona}
-
-🎯 응답 가이드 (${guidelines.minLength}-${guidelines.maxLength}자):
-톤앤매너: ${guidelines.tone}
-구조: ${guidelines.structure}
-
-요구사항:
-- 자연스럽고 따뜻한 인사
-- 간단한 M-CENTER 소개
-- 친근하지만 전문가다운 품격 유지
-- 마크다운 기호 사용 금지
-
-질문: "${message}"
-
-이후경 경영지도사로서 따뜻하고 친근한 인사를 해주세요.`;
-
-      case 'consultation-request':
-        return `${basePersona}
-
-🎯 응답 가이드 (${guidelines.minLength}-${guidelines.maxLength}자):
-톤앤매너: ${guidelines.tone}
-구조: ${guidelines.structure}
-
-요구사항:
-- 상담 신청에 대한 진심어린 감사와 환영
-- 28년 경험의 전문성과 차별화 포인트 강조
-- 6개 핵심 서비스 영역 간단 소개
-- 구체적인 상담 방법과 절차 안내
-- 연락처와 상담시간 정보 제공
-- 신뢰감을 주는 전문적인 톤 유지
-
-질문: "${message}"
-
-상담 문의에 대해 전문적이고 신뢰감 있는 응답을 해주세요.`;
-
-      case 'single-service':
-        return `${basePersona}
-
-🎯 응답 가이드 (${guidelines.minLength}-${guidelines.maxLength}자):
-톤앤매너: ${guidelines.tone}
-구조: ${guidelines.structure}
-
-요구사항:
-- 질문자의 고민에 대한 정확한 이해와 공감
-- 해당 분야의 깊이 있는 전문 지식 설명
-- 실제 성공 사례와 구체적 수치 제시
-- 정부지원 프로그램이나 혜택 정보 포함
-- 단계별 실행 방안 제시
-- 추가 상담으로 자연스럽게 연결
-
-질문: "${message}"
-
-해당 분야에 대해 전문적이고 실용적인 조언을 해주세요.`;
-
-      case 'complex-strategic':
-        return `${basePersona}
-
-🎯 응답 가이드 (${guidelines.minLength}-${guidelines.maxLength}자):
-톤앤매너: ${guidelines.tone}
-구조: ${guidelines.structure}
-
-요구사항:
-- 복합적 질문에 대한 정확한 문제 인식과 분석
-- 28년 경험에서 우러나오는 통찰력 있는 관점 제시
-- 여러 서비스 영역의 시너지 효과 설명
-- 산업 동향과 전략적 관점 포함
-- 단계별 통합 실행 로드맵 제시
-- 실제 통합 컨설팅 성공 사례와 구체적 성과
-- 복잡한 문제를 명쾌하게 정리하는 능력 발휘
-- 맞춤형 직접 상담의 가치와 필요성 강조
-
-질문: "${message}"
-
-복합적이고 전략적인 질문에 대해 깊이 있고 통찰력 있는 답변을 해주세요.`;
-    }
-  }
-  
-  // 🎭 응답 품질 향상 (이후경 경영지도사 톤앤매너 보장)
-  static enhanceResponse(response: string, category: QuestionCategory): string {
-    let enhanced = response;
+    // 서비스별 키워드 매칭
+    const serviceKeywords = {
+      'ai-productivity': ['ai', '생산성', '자동화', '업무효율', '일터혁신', '상생컨설팅'],
+      'business-analysis': ['사업분석', '비즈니스모델', 'bm zen', '매출증대', '수익구조'],
+      'policy-funding': ['정책자금', '지원금', '보조금', '정부지원', '자금확보'],
+      'tech-startup': ['창업', '스타트업', '기술사업화', '투자유치', 'r&d'],
+      'certification': ['인증', 'iso', '벤처기업', '세제혜택', '품질인증'],
+      'website': ['웹사이트', '홈페이지', '온라인', '마케팅', '디지털']
+    };
     
-    // 🏷️ 이후경 정체성 보장
-    if (!enhanced.includes('이후경')) {
-      enhanced = `안녕하세요! 이후경입니다.\n\n${enhanced}`;
-    }
+    let detectedService = 'general';
+    let maxMatches = 0;
     
-    // 📞 카테고리별 연락처 추가
-    if (!enhanced.includes('010-9251-9743')) {
-      switch (category) {
-        case 'simple-greeting':
-          enhanced += '\n\n더 궁금한 점이 있으시면 언제든 말씀해 주세요! 😊';
-          break;
-        case 'consultation-request':
-          enhanced += '\n\n📞 직접 상담: 010-9251-9743\n⏰ 상담시간: 평일 09:00-18:00';
-          break;
-        case 'single-service':
-          enhanced += '\n\n더 구체적인 맞춤형 방안은 직접 상담으로 안내해드리겠습니다.\n📞 전문 상담: 010-9251-9743';
-          break;
-        case 'complex-strategic':
-          enhanced += '\n\n이런 전략적 이슈는 기업 상황에 맞는 맞춤형 접근이 필요합니다. 직접 상담을 통해 더 정밀한 분석과 실행 계획을 제시해드리겠습니다.\n📞 전략 상담: 010-9251-9743';
-          break;
+    for (const [service, keywords] of Object.entries(serviceKeywords)) {
+      const matches = keywords.filter(keyword => lowerMessage.includes(keyword)).length;
+      if (matches > maxMatches) {
+        maxMatches = matches;
+        detectedService = service;
       }
     }
     
-    // 📏 카테고리별 길이 조정
-    const guidelines = QuestionAnalyzer.getResponseGuidelines(category);
-    if (enhanced.length > guidelines.maxLength) {
-      const cutPoint = guidelines.maxLength - 150;
-      enhanced = enhanced.slice(0, cutPoint) + 
-                 '\n\n더 자세한 내용은 직접 상담을 통해 말씀드리겠습니다.\n📞 010-9251-9743';
-    }
+    // 질문 의도 분석
+    let intent = 'inquiry';
+    if (lowerMessage.includes('상담') || lowerMessage.includes('신청')) intent = 'consultation';
+    else if (lowerMessage.includes('비용') || lowerMessage.includes('가격')) intent = 'pricing';
+    else if (lowerMessage.includes('사례') || lowerMessage.includes('성과')) intent = 'case-study';
+    else if (lowerMessage.includes('방법') || lowerMessage.includes('어떻게')) intent = 'how-to';
     
-    // 🎨 카테고리별 감정 표현 조정
-    if (category === 'simple-greeting' && !enhanced.includes('😊')) {
-      enhanced = enhanced.replace('이후경입니다.', '이후경입니다. 😊');
-    }
+    // 복잡도 분석
+    const complexity = message.length > 100 ? 'complex' : 
+                      message.length > 50 ? 'medium' : 'simple';
     
-    // 🎯 선택과 집중 표현 강화 (이후경 스타일)
-    if (category === 'complex-strategic') {
-      enhanced = enhanced.replace(
-        /(\.)(\s*)(하지만|그런데|다만)/g, 
-        '$1$2**핵심은 이겁니다.**$2$3'
-      );
-    }
+    // 응답 길이 결정
+    const responseLength = complexity === 'complex' ? { min: 800, max: 2000 } :
+                          complexity === 'medium' ? { min: 400, max: 800 } :
+                          { min: 100, max: 400 };
     
-    return enhanced;
-  }
-  
-  // 🛡️ 카테고리별 고품질 폴백 응답
-  static generateFallbackResponse(message: string, category: QuestionCategory): string {
-    switch (category) {
-      case 'simple-greeting':
-        return `안녕하세요! 이후경입니다. 😊
-
-28년간 500개 기업과 함께 성장해온 경영지도사로서 언제든 도움드릴 준비가 되어 있습니다.
-
-더 궁금한 점이 있으시면 언제든 말씀해 주세요!`;
-
-      case 'consultation-request':
-        return `안녕하세요! 이후경 경영지도사입니다.
-
-상담 문의해주셔서 진심으로 감사합니다! 28년간 500개 기업의 성장을 함께해온 경험으로 확실한 성과를 만들어드리겠습니다.
-
-🎯 M-CENTER 전문 서비스:
-• BM ZEN 사업분석 (신규사업 성공률 95%)
-• AI 생산성향상 (20-99인 기업 100% 무료)
-• 경매활용 공장구매 (30-50% 절감)
-• 기술사업화/창업 (평균 5억원 지원)
-• 인증지원 (연간 5천만원 세제혜택)
-• 웹사이트 구축 (매출 300-500% 증대)
-
-📞 직접 상담: 010-9251-9743
-⏰ 상담시간: 평일 09:00-18:00`;
-
-      case 'single-service':
-        return `좋은 질문입니다!
-
-28년 현장 경험으로 확신하는 건, 이런 이슈는 기업마다 상황이 다르기 때문에 맞춤형 접근이 필요하다는 것입니다.
-
-구체적인 상황을 자세히 듣고 정확한 솔루션을 제시해드리겠습니다.
-
-📞 전문 상담: 010-9251-9743`;
-
-      case 'complex-strategic':
-        return `정말 전략적이고 통찰력 있는 질문을 해주셨네요!
-
-28년 경험상, 이런 복합적인 이슈들은 각 영역의 시너지 효과를 고려한 통합적 접근이 핵심입니다. 
-
-단순히 개별 솔루션을 나열하는 게 아니라, 기업의 현재 상황과 목표에 맞는 전략적 로드맵을 설계해야 최적의 성과를 얻을 수 있습니다.
-
-이런 전략적 이슈는 직접 상담을 통해 더 정밀한 분석과 맞춤형 실행 계획을 제시해드리겠습니다.
-
-📞 전략 상담: 010-9251-9743`;
-    }
+    return {
+      category: detectedService,
+      intent,
+      service: detectedService,
+      urgency: 'normal',
+      complexity,
+      responseLength
+    };
   }
 }
 
-// 🔘 기본 상담 버튼 생성 함수
-function generateDefaultButtons(category: QuestionCategory): Array<{ 
-  text: string; 
-  url: string; 
-  style: string; 
-  icon: string 
-}> {
-  // 카테고리별로 버튼 표시 여부 결정
-  const shouldShowButtons = category !== 'simple-greeting';
+// 🎭 고도화된 이후경 응답 생성기
+class EnhancedLeeHukyungGenerator {
   
-  if (!shouldShowButtons) {
-    return [];
+  // 서비스별 맞춤형 응답 생성
+  static generateServiceResponse(message: string, analysis: any): string {
+    const service = MCENTER_COMPREHENSIVE_KNOWLEDGE.coreServices[analysis.service];
+    
+    if (!service) {
+      return this.generateGeneralResponse(message);
+    }
+    
+    let response = `안녕하세요! 이후경 경영지도사입니다.\n\n`;
+    
+    // 서비스 소개
+    response += `"${message}"에 대해 문의해주셔서 감사합니다! `;
+    response += `${service.name}은 M-CENTER의 6대 핵심서비스 중 하나로 `;
+    response += `${service.description}입니다.\n\n`;
+    
+    // 핵심 특징
+    response += `🎯 **주요 특징:**\n`;
+    service.keyFeatures.forEach(feature => {
+      response += `• ${feature}\n`;
+    });
+    response += `\n`;
+    
+    // 성과 정보
+    if (service.results) {
+      response += `📊 **검증된 성과:**\n`;
+      Object.entries(service.results).forEach(([key, value]) => {
+        response += `• ${value}\n`;
+      });
+      response += `\n`;
+    }
+    
+    // 사례 소개
+    if (service.casestudy) {
+      response += `🏆 **성공사례:**\n`;
+      response += `${service.casestudy}\n\n`;
+    }
+    
+    // 정부지원 정보
+    if (service.government) {
+      response += `💰 **정부지원:**\n`;
+      response += `${service.government}\n\n`;
+    }
+    
+    // 행동 유도
+    response += `구체적인 상황을 알려주시면 더 정확한 맞춤형 솔루션을 제안해드릴 수 있습니다.\n\n`;
+    response += `📞 **즉시 상담:** 010-9251-9743\n`;
+    response += `🌐 **온라인 상담:** https://m-center.co.kr/consultation`;
+    
+    return response;
   }
   
-  return [
-    {
-      text: '🎯 무료진단 받기',
-      url: '/diagnosis',
-      style: 'primary',
-      icon: '🎯'
-    },
-    {
-      text: '📞 상담신청 하기',
-      url: '/consultation', 
-      style: 'secondary',
-      icon: '📞'
-    }
-  ];
+  // AI 생산성 전용 응답
+  static generateAIProductivityResponse(message: string): string {
+    const aiData = MCENTER_COMPREHENSIVE_KNOWLEDGE.aiProductivity;
+    
+    return `안녕하세요! 이후경 경영지도사입니다.
+
+AI 생산성 향상에 대해 문의해주셔서 정말 감사합니다! 28년 컨설팅 경험을 바탕으로 최근 2년간 247개 기업의 AI 도입을 직접 지도하면서 확신하게 된 것은, AI가 단순한 도구가 아니라 진정한 일터혁신의 게임체인저라는 것입니다.
+
+🤖 **2025년 일터혁신 상생컨설팅 - AI 활용 생산성향상**
+
+📊 **실제 성과 (247개 기업 평균):**
+• 업무효율성 42% 향상
+• 업무시간 35% 단축
+• 연간 인건비 8,500만원 절감
+• AI 도구 활용 만족도 94%
+
+🎯 **20주 집중 프로그램:**
+• 현황진단 (2주): AI 활용 가능 영역 발굴
+• AI도구선정 (3주): 맞춤형 도구 선정 및 도입
+• 실무적용 (16주): 실제 업무 적용 및 최적화
+• 성과측정 (2주): ROI 분석 및 확산 계획
+
+🏆 **성공사례: (주)스마트팩토리솔루션**
+• 제안서 작성 시간 69% 단축 (8시간→2.5시간)
+• 품질 데이터 분석 85% 단축 (주 20시간→3시간)
+• 고객 문의 응답 87% 단축 (4시간→30분)
+• 연간 경제적 효과 5억 8천만원
+
+💰 **정부지원 혜택:**
+고용노동부 일터혁신 수행기관으로서 컨설팅 비용 100% 정부지원 가능합니다.
+
+구체적인 업종과 현재 가장 시간이 많이 걸리는 업무를 알려주시면, 맞춤형 AI 도입 로드맵을 제시해드리겠습니다.
+
+📞 **직접 상담:** 010-9251-9743
+🌐 **AI 진단:** https://m-center.co.kr/diagnosis`;
+  }
+  
+  // 정책자금 전용 응답
+  static generatePolicyFundingResponse(message: string): string {
+    const policyData = MCENTER_COMPREHENSIVE_KNOWLEDGE.policyFunding;
+    
+    return `안녕하세요! 이후경 경영지도사입니다.
+
+정책자금에 대해 문의해주셔서 감사합니다! 28년간 500개 기업을 지도하면서 정책자금 확보에 있어 평균 15억원, 최대 100억원까지 성공적으로 확보한 노하우를 바탕으로 말씀드리겠습니다.
+
+💰 **업종별 정책자금 종류:**
+
+🏭 **제조업**
+• 시설자금: 50억원 (연 1.5%, 10년 상환)
+• 운영자금: 30억원 (연 2.0%, 5년 상환)
+• 기술개발: 20억원 (연 1.0%, 5년 거치)
+
+🏢 **서비스업**
+• 창업자금: 10억원 (연 2.5%, 7년 상환)
+• 디지털 전환: 5억원 (연 1.8%, 5년 상환)
+• 마케팅: 2억원 (연 3.0%, 3년 상환)
+
+🚀 **기술기업**
+• R&D 자금: 100억원 (연 1.0%, 7년 거치)
+• 사업화: 50억원 (연 1.5%, 5년 상환)
+
+📋 **8단계 완벽 대행 프로세스:**
+1. 기업진단 (재무상태+사업계획 분석)
+2. 자금매칭 (최적 정책자금 선별)
+3. 서류준비 (사업계획서+재무계획 작성)
+4. 신청접수 → 5. 심사대응 → 6. 승인협상
+7. 자금집행 → 8. 사후관리
+
+💡 **정책자금 vs 시중은행 비교 (10억원 기준):**
+• 정책자금: 총 이자비용 1.2억원
+• 시중은행: 총 이자비용 3.8억원
+• **절약효과: 2.6억원 (68% 절감)**
+
+🏆 **성공사례: H관광개발**
+• 5년간 총 100억원 확보
+• 매출 20억→150억원 (650% 성장)
+• 직원 15명→120명 (8배 증가)
+
+기업 규모와 업종, 자금 용도를 알려주시면 최적의 정책자금을 매칭해드리겠습니다.
+
+📞 **정책자금 상담:** 010-9251-9743
+🌐 **온라인 신청:** https://m-center.co.kr/services/policy-funding`;
+  }
+  
+  // 일반 응답 생성
+  static generateGeneralResponse(message: string): string {
+    const company = MCENTER_COMPREHENSIVE_KNOWLEDGE.company;
+    
+    return `안녕하세요! ${company.name} ${company.leader}입니다.
+
+"${message}"에 대해 문의해주셔서 감사합니다! 
+
+28년간 현대그룹과 삼성생명에서 쌓은 대기업 실무 경험과 500개 기업을 직접 지도한 컨설팅 노하우를 바탕으로 실질적이고 성과 중심적인 솔루션을 제공해드리겠습니다.
+
+🎯 **M-CENTER 6대 핵심서비스:**
+
+1. **BM ZEN 사업분석** - 매출 20-40% 증대
+2. **AI 생산성향상** - 업무효율 40% 향상 (정부 100% 지원)
+3. **정책자금 확보** - 평균 15억원 확보
+4. **기술창업 지원** - 평균 5억원 자금 확보
+5. **인증지원** - 연간 5천만원 세제혜택
+6. **웹사이트 구축** - 온라인 매출 300% 증대
+
+📊 **검증된 성과:**
+• 95% 성공률
+• 평균 ROI 400%
+• 500개 기업 직접 지도
+• 고객 만족도 96%
+
+구체적인 상황을 더 자세히 알려주시면 맞춤형 솔루션을 제시해드릴 수 있습니다.
+
+📞 **직접 상담:** 010-9251-9743
+🌐 **무료 진단:** https://m-center.co.kr/diagnosis
+📧 **이메일:** hongik423@gmail.com`;
+  }
 }
 
 // 🚀 메인 API 핸들러
@@ -347,91 +556,135 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
     }
     
-    // 🎯 고도화된 질문 분석
-    const category = QuestionAnalyzer.categorizeQuestion(message);
-    const guidelines = QuestionAnalyzer.getResponseGuidelines(category);
+    // 고급 질문 분석
+    const analysis = AdvancedQuestionAnalyzer.analyzeQuestion(message);
     
-    console.log(`🎭 이후경 AI 분석: ${category} (${guidelines.minLength}-${guidelines.maxLength}자)`);
+    console.log(`🎯 고도화된 질문 분석: ${analysis.category} (${analysis.complexity})`);
     
+    let response = '';
+    
+    // 서비스별 맞춤형 응답 생성
+    if (analysis.service === 'ai-productivity') {
+      response = EnhancedLeeHukyungGenerator.generateAIProductivityResponse(message);
+    } else if (analysis.service === 'policy-funding') {
+      response = EnhancedLeeHukyungGenerator.generatePolicyFundingResponse(message);
+    } else if (analysis.service !== 'general') {
+      response = EnhancedLeeHukyungGenerator.generateServiceResponse(message, analysis);
+    } else {
+      response = EnhancedLeeHukyungGenerator.generateGeneralResponse(message);
+    }
+    
+    // AI 기반 응답 고도화 시도
     try {
-      // 🤖 AI 기반 응답 생성
       const origin = new URL(request.url).origin;
-      const prompt = LeeHukyungResponseGenerator.createPrompt(message, category);
+      const enhancedPrompt = `당신은 28년 베테랑 이후경 경영지도사입니다. 다음 기본 응답을 더욱 전문적이고 신뢰감 있게 개선해주세요:
+
+${response}
+
+개선 가이드:
+- 28년 경험의 전문성 강조
+- 구체적인 성과 수치 활용
+- 실제 사례 언급
+- 따뜻하면서도 확신에 찬 어조
+- 실용적인 다음 단계 제안
+- 마크다운 기호 사용 금지
+- 자연스러운 대화체 유지
+
+질문: "${message}"`;
       
       const aiResponse = await fetch(`${origin}/api/chat-ai`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          message: prompt,
-          maxTokens: category === 'complex-strategic' ? 8192 : 4096
-        }),
+        body: JSON.stringify({ message: enhancedPrompt }),
       });
 
       if (aiResponse.ok) {
         const aiData = await aiResponse.json();
-        let response = aiData.response || '';
-        
-        // 🎭 이후경 스타일 품질 향상
-        response = LeeHukyungResponseGenerator.enhanceResponse(response, category);
-        
-        console.log(`✅ 고도화 완료: ${response.length}자 (목표: ${guidelines.minLength}-${guidelines.maxLength}자)`);
-        
-                 // 🔘 기본 버튼 생성 (무료진단 & 상담신청)
-         const defaultButtons = generateDefaultButtons(category);
-         
-         return NextResponse.json({
-           response,
-           category,
-           complexity: category,
-           responseLength: response.length,
-           guidelines: `${guidelines.minLength}-${guidelines.maxLength}자`,
-           tone: guidelines.tone,
-           buttons: defaultButtons
-         });
+        if (aiData.response) {
+          response = aiData.response;
+        }
       }
     } catch (aiError) {
-      console.error('❌ AI 연계 오류:', aiError);
+      console.log('AI 고도화 실패, 기본 응답 사용:', aiError);
     }
     
-         // 🛡️ 폴백 응답 (카테고리별 고품질)
-     const fallbackResponse = LeeHukyungResponseGenerator.generateFallbackResponse(message, category);
-     const fallbackButtons = generateDefaultButtons(category);
-     
-     return NextResponse.json({
-       response: fallbackResponse,
-       category,
-       complexity: category,
-       responseLength: fallbackResponse.length,
-       source: 'fallback',
-       buttons: fallbackButtons
-     });
+    // 버튼 생성
+    const buttons = [
+      {
+        text: '🎯 무료 진단 받기',
+        url: '/diagnosis',
+        style: 'primary',
+        icon: '🎯'
+      },
+      {
+        text: '📞 상담 신청하기',
+        url: '/consultation',
+        style: 'secondary',
+        icon: '📞'
+      }
+    ];
+    
+    // 서비스별 맞춤 버튼 추가
+    if (analysis.service === 'ai-productivity') {
+      buttons.push({
+        text: '🤖 AI 생산성 자세히 보기',
+        url: '/services/ai-productivity',
+        style: 'outline',
+        icon: '🤖'
+      });
+    } else if (analysis.service === 'policy-funding') {
+      buttons.push({
+        text: '💰 정책자금 자세히 보기',
+        url: '/services/policy-funding',
+        style: 'outline',
+        icon: '💰'
+      });
+    }
+    
+    return NextResponse.json({
+      response,
+      category: analysis.category,
+      service: analysis.service,
+      intent: analysis.intent,
+      complexity: analysis.complexity,
+      responseLength: response.length,
+      buttons,
+      consultant: '이후경 경영지도사 (28년 경험)',
+      timestamp: new Date().toISOString()
+    });
     
   } catch (error) {
-    console.error('❌ API 오류:', error);
+    console.error('❌ 고도화된 API 오류:', error);
     
-         const errorButtons = [
-       {
-         text: '🎯 무료진단 받기',
-         url: '/diagnosis',
-         style: 'primary',
-         icon: '🎯'
-       },
-       {
-         text: '📞 상담신청 하기',
-         url: '/consultation', 
-         style: 'secondary',
-         icon: '📞'
-       }
-     ];
-     
-     return NextResponse.json({
-       response: `안녕하세요! 이후경입니다.
+    const fallbackButtons = [
+      {
+        text: '🎯 무료 진단 받기',
+        url: '/diagnosis',
+        style: 'primary',
+        icon: '🎯'
+      },
+      {
+        text: '📞 직접 상담하기',
+        url: 'tel:010-9251-9743',
+        style: 'secondary',
+        icon: '📞'
+      }
+    ];
+    
+    return NextResponse.json({
+      response: `안녕하세요! 이후경 경영지도사입니다.
 
-잠시 기술적 문제가 있지만 괜찮습니다. 28년 현장 경험으로 언제든 도움 드릴 수 있어요.
+잠시 시스템 문제가 있지만 괜찮습니다. 28년 현장 경험으로 언제든 직접 도움드릴 수 있어요.
 
-📞 직접 상담: 010-9251-9743`,
-       error: true,
-       buttons: errorButtons
-     }, { status: 200 });
+M-CENTER는 6대 핵심서비스(BM ZEN 사업분석, AI 생산성향상, 정책자금 확보, 기술창업 지원, 인증지원, 웹사이트 구축)로 500개 기업을 성공으로 이끌어왔습니다.
+
+📞 **직접 상담:** 010-9251-9743
+🌐 **웹사이트:** https://m-center.co.kr
+
+어떤 고민이든 함께 해결해나가겠습니다!`,
+      error: true,
+      buttons: fallbackButtons,
+      consultant: '이후경 경영지도사 (28년 경험)'
+    }, { status: 200 });
   }
 } 

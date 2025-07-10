@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Calculator, TrendingUp, CheckCircle, Building2, ChevronDown, ChevronUp, Target, Award, Clock, Star, Zap, Shield, Users, ArrowRight, Play, FileText, BarChart3, Brain, AlertTriangle, Lightbulb, CheckCircle2 } from 'lucide-react';
+import { Calculator, TrendingUp, CheckCircle, Building2, ChevronDown, ChevronUp, Target, Award, Clock, Star, Zap, Shield, Users, ArrowRight, Play, FileText, BarChart3, Brain, AlertTriangle, Lightbulb, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -19,10 +19,12 @@ import {
   getGradingCriteria,
   type InvestmentGrade
 } from '@/lib/utils/investment-grade';
+import { useRouter } from 'next/navigation';
 
 export default function PolicyFundingPage() {
   const { toast } = useToast();
   const [isMobile, setIsMobile] = useState(false);
+  const router = useRouter();
   
   // 🔥 모바일 디바이스 감지
   useEffect(() => {
@@ -542,6 +544,24 @@ export default function PolicyFundingPage() {
          }
       `}</style>
       
+      {/* M-CENTER 고객지원 Q&A 버튼 */}
+      <div className="bg-white px-4 py-4 border-b border-gray-200">
+        <div className="container mx-auto">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => router.push('/support/qa')}
+            className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] px-4 py-2 rounded-md hover:bg-blue-50 border-blue-300 hover:border-blue-600 text-blue-700 hover:text-blue-600 relative overflow-hidden group"
+          >
+            <span className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+            <span className="relative flex items-center">
+              <ArrowLeft className="w-4 h-4 mr-2 group-hover:translate-x-[-2px] transition-transform duration-200" />
+              M-CENTER 고객지원 Q&A
+            </span>
+          </Button>
+        </div>
+      </div>
+
              {/* 🔥 모바일 최적화된 HERO Section */}
        <div id="hero-section" className={`mobile-hero relative ${isMobile ? 'min-h-screen' : ''} text-white overflow-hidden`}>
         {/* 배경 패턴 */}
@@ -553,7 +573,7 @@ export default function PolicyFundingPage() {
         
         <div className={`relative container mx-auto px-4 ${isMobile ? 'py-12 min-h-screen flex flex-col justify-center' : 'py-16 lg:py-24'}`}>
           <div className={`text-center ${isMobile ? 'space-y-8' : 'mb-12'}`}>
-            <h1 className={`${isMobile ? 'text-3xl' : 'text-4xl lg:text-6xl'} font-bold mb-6 leading-tight z-10 relative`}>
+            <h1 className={`${isMobile ? 'text-3xl' : 'text-3xl md:text-4xl lg:text-5xl'} font-bold mb-6 leading-tight z-10 relative`}>
               {isMobile ? (
                 <>
                   🚀 중소기업 성장동력<br />
@@ -601,10 +621,7 @@ export default function PolicyFundingPage() {
               <Button 
                 size="lg" 
                 className={`${isMobile ? 'mobile-cta-button w-full' : ''} bg-white text-blue-900 border-2 border-white hover:bg-blue-50 hover:border-blue-200 font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg`}
-                onClick={() => {
-                  const consultationSection = document.getElementById('consultation-section');
-                  consultationSection?.scrollIntoView({ behavior: 'smooth' });
-                }}
+                onClick={() => router.push('/consultation')}
                 style={isMobile ? {
                   minHeight: '64px',
                   fontSize: '20px',
@@ -785,6 +802,7 @@ export default function PolicyFundingPage() {
                 <Button 
                   size="lg" 
                   className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  onClick={() => router.push('/consultation')}
                 >
                   <ArrowRight className="w-5 h-5 mr-2" />
                   통합 서비스 신청하기

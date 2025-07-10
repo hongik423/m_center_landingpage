@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Header from '@/components/layout/header';
+import { useRouter } from 'next/navigation';
 
 import { 
   Award, 
@@ -31,7 +32,8 @@ import {
   AlertCircle,
   CheckCircle2,
   Play,
-  ExternalLink
+  ExternalLink,
+  ArrowLeft
 } from 'lucide-react';
 
 // Apple Store 스타일 인증 서비스 데이터
@@ -200,11 +202,31 @@ const roiData = [
 ];
 
 export default function CertificationPage() {
+  const router = useRouter();
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       <Header />
       
-      {/* Apple Store 스타일 Hero Section */}
+      {/* M-CENTER 고객지원 Q&A 버튼 */}
+      <div className="bg-white px-4 py-4 border-b border-gray-200">
+        <div className="container mx-auto">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => router.push('/support/qa')}
+            className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] px-4 py-2 rounded-md hover:bg-emerald-50 border-emerald-300 hover:border-emerald-600 text-emerald-700 hover:text-emerald-600 relative overflow-hidden group"
+          >
+            <span className="absolute inset-0 bg-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+            <span className="relative flex items-center">
+              <ArrowLeft className="w-4 h-4 mr-2 group-hover:translate-x-[-2px] transition-transform duration-200" />
+              M-CENTER 고객지원 Q&A
+            </span>
+          </Button>
+        </div>
+      </div>
+      
+      {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-white">
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
           <div className="mb-8">
@@ -213,7 +235,7 @@ export default function CertificationPage() {
               ISO/ESG인증·연구소설립·벤처확인 통합 컨설팅
             </div>
             
-            <h1 className="text-6xl lg:text-7xl font-black text-gray-900 mb-6 leading-tight tracking-tight">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight tracking-tight">
               기업 성장을 위한
               <br />
               <span className="text-blue-600">전략적 인증</span>

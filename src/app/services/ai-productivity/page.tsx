@@ -121,6 +121,22 @@ export default function AIProductivityPage() {
       <section className="py-12 md:py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
+            {/* M-CENTER 고객지원 Q&A 버튼 */}
+            <div className="mb-4">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => router.push('/support/qa')}
+                className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] px-4 py-2 rounded-md hover:bg-purple-50 border-purple-300 hover:border-purple-600 text-purple-700 hover:text-purple-600 relative overflow-hidden group"
+              >
+                <span className="absolute inset-0 bg-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                <span className="relative flex items-center">
+                  <ArrowLeft className="w-4 h-4 mr-2 group-hover:translate-x-[-2px] transition-transform duration-200" />
+                  M-CENTER 고객지원 Q&A
+                </span>
+              </Button>
+            </div>
+
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
               {/* 🔥 개선된 뒤로가기 버튼 */}
@@ -147,13 +163,9 @@ export default function AIProductivityPage() {
                   <span className="text-sm font-medium text-purple-800">고용노동부 노사발전재단 주관</span>
                 </div>
                 
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
                   <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                    2025년 일터혁신 상생컨설팅
-                  </span>
-                  <br />
-                  <span className="text-xl md:text-2xl lg:text-3xl text-gray-700">
-                    AI 활용 생산성향상
+                    2025년 일터혁신 상생컨설팅 AI 활용 생산성향상
                   </span>
                 </h1>
                 

@@ -300,8 +300,26 @@ export default function WebsitePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       <Header />
+      
+      {/* M-CENTER 고객지원 Q&A 버튼 */}
+      <div className="bg-white px-4 py-4 border-b border-gray-200">
+        <div className="container mx-auto">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => router.push('/support/qa')}
+            className="transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] px-4 py-2 rounded-md hover:bg-pink-50 border-pink-300 hover:border-pink-600 text-pink-700 hover:text-pink-600 relative overflow-hidden group"
+          >
+            <span className="absolute inset-0 bg-pink-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+            <span className="relative flex items-center">
+              <ArrowLeft className="w-4 h-4 mr-2 group-hover:translate-x-[-2px] transition-transform duration-200" />
+              M-CENTER 고객지원 Q&A
+            </span>
+          </Button>
+        </div>
+      </div>
       
       {/* Hero Section */}
       <section className="py-12 md:py-20 relative overflow-hidden">

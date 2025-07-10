@@ -185,7 +185,7 @@ export default function DiagnosisPage() {
                 <span className="font-semibold">혁신적인 AI 간소화 진단</span>
               </div>
               
-              <h1 className="text-hero text-gray-900 mb-8 animate-slide-in">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-8 animate-slide-in">
                 <Zap className="inline-block w-16 h-16 mr-4 text-yellow-500" />
                 새로운 AI 간소화 진단
               </h1>

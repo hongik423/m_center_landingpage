@@ -279,7 +279,7 @@ export default function CasesPage() {
               <span className="font-semibold">AI 실무도입 성공사례</span>
             </div>
             
-            <h1 className="text-5xl font-bold text-gray-900 mb-6">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
               <span className="block">실제 기업들의</span>
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 AI 혁신 성과
