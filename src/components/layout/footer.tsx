@@ -27,8 +27,8 @@ export default function Footer() {
             <div className="flex items-center space-x-3 mb-6">
               <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg border border-gray-200">
                 <img 
-                  src={getImagePath('/esgr_logo.svg')}
-                  alt="ESG 인증원 로고" 
+                  src={getImagePath('/LOGO.svg')}
+                  alt="기업의별 로고" 
                   className="w-10 h-10 object-contain"
                 />
               </div>

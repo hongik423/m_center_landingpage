@@ -78,8 +78,8 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex-shrink-0" onClick={handleMenuClose}>
             <img 
-              src={getImagePath('/esgr_logo.svg')} 
-              alt="ESG 인증원 Logo" 
+              src={getImagePath('/LOGO.svg')} 
+              alt="기업의별 Logo" 
               className="h-7 w-auto transition-opacity duration-300 hover:opacity-70"
             />
           </Link>
