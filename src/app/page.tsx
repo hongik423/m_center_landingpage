@@ -114,14 +114,14 @@ const services = [
   }
 ];
 
-// 인증 단계 데이터 - ESG 인증원 프로세스
-const certificationStages = [
+// 성장 코칭 프로세스 - 경영지도센터 6대 서비스
+const coachingStages = [
   {
     step: '1단계',
     period: '1-2주',
-    title: '신청 및 접수',
-    description: '인증 신청서 제출 및 검토',
-    features: ['온라인 신청', '서류 검토', '계약 체결'],
+    title: '진단 및 분석',
+    description: '기업 현황 진단 및 성장 전략 분석',
+    features: ['무료 진단', '현황 분석', '전략 수립'],
     color: 'from-green-50 to-emerald-50',
     borderColor: 'border-green-200',
     icon: '1'
@@ -129,58 +129,58 @@ const certificationStages = [
   {
     step: '2단계',
     period: '2-4주',
-    title: '문서 심사',
-    description: '경영시스템 문서 검토',
-    features: ['문서 검토', '부적합 사항 도출', '개선 요청'],
+    title: '맞춤 솔루션 설계',
+    description: '6대 핵심서비스 중 최적 솔루션 설계',
+    features: ['솔루션 설계', '실행 계획', '로드맵 제시'],
     color: 'from-blue-50 to-cyan-50',
     borderColor: 'border-blue-200',
     icon: '2'
   },
   {
     step: '3단계',
-    period: '1-2일',
-    title: '현장 심사',
-    description: '실제 현장에서 시스템 운영 확인',
-    features: ['현장 방문', '시스템 확인', '심사 보고서 작성'],
+    period: '1-2개월',
+    title: '실행 및 코칭',
+    description: '전문가 직접 코칭으로 성장 전략 실행',
+    features: ['전문가 코칭', '실행 지원', '성과 모니터링'],
     color: 'from-purple-50 to-pink-50',
     borderColor: 'border-purple-200',
     icon: '3'
   },
   {
     step: '4단계',
-    period: '1-2주',
-    title: '인증서 발급',
-    description: '최종 검토 후 인증서 발급',
-    features: ['최종 검토', '인증서 발급', '사후 관리 시작'],
+    period: '지속',
+    title: '성과 관리',
+    description: '지속적 성장을 위한 사후 관리',
+    features: ['성과 측정', '지속 관리', '추가 성장 지원'],
     color: 'from-orange-50 to-yellow-50',
     borderColor: 'border-orange-200',
     icon: '4'
   }
 ];
 
-// 고객 후기 데이터
+// 고객 성공사례 데이터
 const testimonials = [
   {
     name: '김대표',
     title: '제조업체 대표',
     company: '○○제조(주)',
-    content: 'ISO 9001 인증을 통해 품질관리 시스템을 체계화했습니다. 고객 신뢰도가 크게 향상되었고 해외 수출도 확대되었어요.',
+    content: '사업분석 컨설팅을 통해 매출이 30% 증가했습니다. 정책자금도 확보하여 사업 확장에 성공했어요.',
     rating: 5,
     avatar: 'K'
   },
   {
     name: '이부장',
-    title: '품질관리부장',
-    company: '○○건설(주)',
-    content: 'ESG 경영시스템 인증으로 지속가능경영을 실현했습니다. 전문적인 심사와 사후관리까지 체계적으로 지원받았습니다.',
+    title: 'IT기업 부장',
+    company: '○○기술(주)',
+    content: 'AI 일터혁신으로 업무 효율이 40% 향상되었습니다. 6대 핵심서비스로 체계적인 성장 전략을 실현했습니다.',
     rating: 5,
     avatar: 'L'
   },
   {
     name: '박과장',
-    title: '환경안전과장',
-    company: '○○화학(주)',
-    content: 'ISO 14001, 45001 통합 인증을 받았습니다. 환경과 안전 리스크가 크게 감소했고 직원들의 만족도도 높아졌어요.',
+    title: '스타트업 대표',
+    company: '○○스타트업',
+    content: '기술창업 지원과 벤처인증으로 투자 유치에 성공했습니다. 매출증대웹페이지로 온라인 매출도 크게 늘었어요.',
     rating: 5,
     avatar: 'P'
   }
@@ -194,7 +194,7 @@ export default function Home() {
   const handleChatbotConnect = () => {
     setIsConnecting(true);
     
-    // "ESG 인증 전문가와 연결하기...." 메시지 표시
+    // "성장 코칭 전문가와 연결하기...." 메시지 표시
     setTimeout(() => {
       setIsConnecting(false);
       setIsChatOpen(true);
@@ -344,12 +344,12 @@ export default function Home() {
                       {isConnecting ? (
                         <>
                           <div className="w-5 h-5 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          ESG 인증 전문가와 연결하기...
+                          성장 코칭 전문가와 연결하기...
                         </>
                       ) : (
                         <>
                           <span className="mr-2">+</span>
-                          무료 경영지도 상담 시작하기
+                          무료 성장 코칭 상담 시작하기
                         </>
                       )}
                     </button>
@@ -376,7 +376,7 @@ export default function Home() {
                             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                           </div>
                           <div className="flex-1 text-center">
-                            <span className="text-white/70 text-xs">ESG 인증원 상담 시스템</span>
+                            <span className="text-white/70 text-xs">경영지도센터 상담 시스템</span>
                           </div>
                         </div>
                         
@@ -515,15 +515,15 @@ export default function Home() {
           <div className="text-center mb-16">
             <div className="badge-primary mb-6 animate-bounce-gentle">
               <Award className="w-5 h-5 mr-2" />
-              <span className="font-semibold text-overflow-safe">ESG 인증 솔루션</span>
+              <span className="font-semibold text-overflow-safe">성장 코칭 솔루션</span>
             </div>
             
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 mobile-centered">
-              <span className="text-overflow-safe">6대 핵심 인증서비스</span>
+              <span className="text-overflow-safe">6대 핵심 서비스</span>
             </h2>
             <p className="text-body-lg text-gray-600 max-w-4xl mx-auto mobile-text">
-              기업 맞춤형 인증 솔루션으로 <strong className="text-green-600">지속가능경영</strong>을 경험하세요<br />
-              KAB 인정기관 전문성 + 체계적 프로세스 = <strong className="text-emerald-600">신뢰받는 인증</strong>
+              기업 맞춤형 성장 솔루션으로 <strong className="text-green-600">지속가능한 성장</strong>을 경험하세요<br />
+              25년 경험 + 체계적 프로세스 = <strong className="text-emerald-600">검증된 성장</strong>
             </p>
           </div>
           
@@ -617,7 +617,7 @@ export default function Home() {
                         }
                       }}
                     >
-                      ESG 인증 전문가에게 바로 문의하기
+                      성장 코칭 전문가에게 바로 문의하기
                     </button>
                   </div>
                 </CardContent>
@@ -629,10 +629,10 @@ export default function Home() {
           <div className="mt-16 text-center">
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-8 rounded-3xl border border-blue-200 mx-4 sm:mx-6 lg:mx-8 xl:mx-12">
               <h3 className="text-2xl font-bold text-gray-900 mb-4 mobile-centered">
-                <span className="text-overflow-safe">어떤 인증이 필요한지 모르겠다면?</span>
+                <span className="text-overflow-safe">어떤 서비스가 필요한지 모르겠다면?</span>
               </h3>
               <p className="text-gray-600 mb-6 mobile-text">
-                전문가 상담으로 맞춤형 인증 솔루션을 추천받으세요 (소요시간: 30분)
+                전문가 상담으로 맞춤형 성장 솔루션을 추천받으세요 (소요시간: 30분)
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-2xl mx-auto">
@@ -642,16 +642,16 @@ export default function Home() {
                               hover:from-green-600 hover:to-emerald-700 text-white shadow-xl w-full sm:w-auto"
                   >
                     <Users className="w-5 h-5 mr-2" />
-                    <span className="text-overflow-safe">무료 인증 상담</span>
+                    <span className="text-overflow-safe">무료 성장 상담</span>
                   </Button>
                 </Link>
                 
-                <Link href="/esg-certification/apply">
+                <Link href="/diagnosis">
                   <Button 
                     className="mobile-button btn-secondary w-full sm:w-auto"
                   >
                     <FileText className="w-5 h-5 mr-2" />
-                    <span className="text-overflow-safe">온라인 인증 신청</span>
+                    <span className="text-overflow-safe">온라인 상담 신청</span>
                   </Button>
                 </Link>
               </div>
@@ -680,15 +680,15 @@ export default function Home() {
         <div className="container mx-auto px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-20 md:py-24 lg:py-32">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-              ESG 인증 4단계 프로세스
+              성장 코칭 4단계 프로세스
             </h2>
             <p className="text-body-lg text-gray-600 max-w-3xl mx-auto">
-              체계적인 인증 프로세스로 기업의 지속가능한 경영을 실현하세요
+              체계적인 성장 프로세스로 기업의 지속가능한 성장을 실현하세요
             </p>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {certificationStages.map((stage, index) => (
+            {coachingStages.map((stage, index) => (
               <Card key={index} className={`card-hover border-2 transition-all duration-300 
                                           hover:shadow-xl ${stage.color} group`}>
                 <CardContent className="p-8 text-center">
@@ -776,15 +776,15 @@ export default function Home() {
         <div className="container mx-auto px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-20 md:py-24 lg:py-32">
                       <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 mobile-centered">
-              <span className="text-overflow-safe">ESG 인증 단계별 맞춤 전략</span>
+              <span className="text-overflow-safe">성장 코칭 단계별 맞춤 전략</span>
             </h2>
             <p className="text-body-lg text-gray-600 max-w-4xl mx-auto mobile-text">
-              신청부터 인증서 발급까지, 각 단계에 최적화된 전문 서비스를 제공합니다
+              진단부터 성과 관리까지, 각 단계에 최적화된 전문 서비스를 제공합니다
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {certificationStages.map((stage, index) => (
+            {coachingStages.map((stage, index) => (
               <Card key={index} className={`service-card-mobile text-center ${stage.color} hover:shadow-lg transition-all duration-300`}>
                 <CardContent className="p-6">
                   <div className="text-4xl mb-4">{stage.icon}</div>
@@ -811,11 +811,11 @@ export default function Home() {
           <div className="text-center mt-12">
             <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-lg border border-blue-200 max-w-4xl mx-auto">
               <h3 className="text-h3 text-gray-900 mb-4 mobile-centered">
-                <span className="text-overflow-safe">단계별 맞춤 인증 전략</span>
+                <span className="text-overflow-safe">단계별 맞춤 성장 전략</span>
               </h3>
               <p className="text-gray-600 mb-6 mobile-text">
-                귀하의 기업이 현재 어느 단계에 있든, ESG 인증원은 최적의 
-                인증 프로세스를 제시합니다
+                귀하의 기업이 현재 어느 단계에 있든, 경영지도센터는 최적의 
+                성장 프로세스를 제시합니다
               </p>
               <Link href="/diagnosis">
                 {/* 개선된 우리 기업 성장 단계 진단받기 버튼 */}
@@ -823,7 +823,7 @@ export default function Home() {
                   <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                   <span className="relative flex items-center">
                     <Target className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-200" />
-                    <span className="text-overflow-safe">우리 기업 인증 준비도 진단받기</span>
+                    <span className="text-overflow-safe">우리 기업 성장 준비도 진단받기</span>
                   </span>
                 </Button>
               </Link>
@@ -838,17 +838,17 @@ export default function Home() {
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full mb-6">
               <Award className="w-5 h-5" />
-              <span className="font-semibold">ESG 인증 전문 상담 시스템</span>
+              <span className="font-semibold">성장 코칭 전문 상담 시스템</span>
             </div>
             
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
               <Users className="inline-block w-12 h-12 mr-4 text-yellow-400" />
-              무료 ESG 인증 상담 신청
+              무료 성장 코칭 상담 신청
             </h2>
             
             <p className="text-body-lg max-w-4xl mx-auto text-blue-100">
-              복잡한 인증 절차를 <strong className="text-white">전문가 상담</strong>으로 간소화!<br />
-              체계적인 프로세스로 <strong className="text-white">신뢰받는 인증</strong>을 보장합니다
+              복잡한 성장 과제를 <strong className="text-white">전문가 상담</strong>으로 간소화!<br />
+              체계적인 프로세스로 <strong className="text-white">검증된 성장</strong>을 보장합니다
             </p>
           </div>
           
@@ -880,10 +880,10 @@ export default function Home() {
             <Card className="bg-white/10 backdrop-blur-sm border border-white/20">
               <CardContent className="p-8 text-center">
                 <h3 className="text-h2 mb-4">
-                  지금 바로 무료 ESG 인증 상담을 신청하세요!
+                  지금 바로 무료 성장 코칭 상담을 신청하세요!
                 </h3>
                 <p className="text-blue-100 mb-8 text-lg">
-                  전문가와 상담하여 귀하의 기업에 최적화된 인증 솔루션을 제안받으세요.
+                  전문가와 상담하여 귀하의 기업에 최적화된 성장 솔루션을 제안받으세요.
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
@@ -895,7 +895,7 @@ export default function Home() {
                       <span className="absolute inset-0 bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                       <span className="relative flex items-center">
                         <Users className="w-5 h-5 mr-2 group-hover:animate-pulse transition-transform duration-200" />
-                        무료 ESG 인증 상담 신청하기
+                        무료 성장 코칭 상담 신청하기
                       </span>
                     </Button>
                   </Link>
