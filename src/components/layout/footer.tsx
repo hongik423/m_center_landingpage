@@ -34,10 +34,10 @@ export default function Footer() {
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-bold text-xl text-white">ESG 인증원</span>
-                  <span className="text-xs bg-green-600 text-white px-2 py-1 rounded-full">KAB</span>
+                  <span className="font-bold text-xl text-white">경영지도센터</span>
+                  <span className="text-xs bg-green-600 text-white px-2 py-1 rounded-full">6대서비스</span>
                 </div>
-                <p className="text-gray-300 text-sm">KAB 인정 ESG 경영시스템 시범 인증기관</p>
+                <p className="text-gray-300 text-sm">기업 경영지도 및 혁신 전문 컨설팅 기관</p>
               </div>
             </div>
             

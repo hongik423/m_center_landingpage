@@ -31,86 +31,86 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import MCenterChatInterface from '@/components/chatbot/MCenterChatInterface';
 
-// 서비스 데이터 - ESG 인증원 중심으로 업데이트
+// 서비스 데이터 - 경영지도센터 6대 서비스
 const services = [
   {
-    id: 'esg-certification',
-    title: 'ESG 경영시스템 인증',
-    subtitle: 'KAB 인정 시범 인증기관',
-    description: '지속가능경영 실현 솔루션',
-    icon: Award,
+    id: 'business-analysis',
+    title: '사업분석 컨설팅',
+    subtitle: '체계적 사업 분석',
+    description: '데이터 기반 사업 분석으로 성장 전략 수립',
+    icon: BarChart3,
     color: 'bg-white text-white',
     bgColor: 'from-green-50 to-emerald-50',
     textColor: 'text-white',
-    href: '/esg-certification',
-    benefits: ['KAB 인정기관', '지속가능경영', '국제 인정 인증서'],
+    href: '/services/business-analysis',
+    benefits: ['수익성 분석', '시장 분석', '경쟁력 강화'],
     badge: '추천',
     featured: true
   },
   {
-    id: 'iso-9001',
-    title: 'ISO 9001 품질경영',
-    subtitle: '품질시스템 구축',
-    description: '체계적인 품질관리 시스템',
-    icon: Shield,
+    id: 'ai-productivity',
+    title: 'AI 일터혁신',
+    subtitle: '디지털 전환 지원',
+    description: 'AI 기술 도입으로 생산성 극대화',
+    icon: Cpu,
     color: 'bg-blue-100 text-blue-600',
     bgColor: 'from-blue-50 to-cyan-50',
     textColor: 'text-white',
-    href: '/esg-certification/process',
-    benefits: ['품질 향상', '고객 만족도 증대', '국제 표준 준수'],
-    badge: '품질'
+    href: '/services/ai-productivity',
+    benefits: ['생산성 향상', '업무 자동화', '디지털 혁신'],
+    badge: '혁신'
   },
   {
-    id: 'iso-14001',
-    title: 'ISO 14001 환경경영',
-    subtitle: '환경친화적 경영',
-    description: '환경 리스크 관리 시스템',
-    icon: Globe,
+    id: 'policy-funding',
+    title: '정책자금 지원',
+    subtitle: '맞춤형 자금 조달',
+    description: '정부 정책자금 및 투자 유치 지원',
+    icon: TrendingUp,
     color: 'bg-green-100 text-green-600',
     bgColor: 'from-green-50 to-emerald-50',
     textColor: 'text-white',
-    href: '/esg-certification/process',
-    benefits: ['환경 보호', '비용 절감', '기업 이미지 향상'],
-    badge: '환경'
+    href: '/services/policy-funding',
+    benefits: ['정책자금 확보', '투자 유치', '자금 조달'],
+    badge: '자금'
   },
   {
-    id: 'iso-45001',
-    title: 'ISO 45001 안전보건',
-    subtitle: '안전한 작업환경',
-    description: '근로자 안전보건 관리',
-    icon: Users,
+    id: 'tech-startup',
+    title: '기술창업 지원',
+    subtitle: '창업 생태계 구축',
+    description: '기술 기반 창업 및 사업화 지원',
+    icon: Rocket,
     color: 'bg-orange-100 text-orange-600',
     bgColor: 'from-orange-50 to-red-50',
     textColor: 'text-white',
-    href: '/esg-certification/process',
-    benefits: ['사고 예방', '근로자 보호', '법적 리스크 감소'],
-    badge: '안전'
+    href: '/services/tech-startup',
+    benefits: ['창업 지원', '사업화 지원', '기술 개발'],
+    badge: '창업'
   },
   {
-    id: 'education',
-    title: '전문가 교육과정',
-    subtitle: '내부심사원 양성',
-    description: '체계적인 교육 프로그램',
-    icon: Target,
+    id: 'certification',
+    title: '벤처/ISO/인증',
+    subtitle: '전문 인증 서비스',
+    description: '벤처기업 인증 및 ISO 인증 지원',
+    icon: Award,
     color: 'bg-purple-100 text-purple-600',
     bgColor: 'from-purple-50 to-pink-50',
     textColor: 'text-white',
-    href: '/esg-certification/education',
-    benefits: ['전문가 양성', '실무 중심 교육', '수료증 발급'],
-    badge: '교육'
+    href: '/services/certification',
+    benefits: ['벤처 인증', 'ISO 인증', '품질 인증'],
+    badge: '인증'
   },
   {
-    id: 'consultation',
-    title: '무료 상담 서비스',
-    subtitle: '맞춤형 컨설팅',
-    description: '전문가 직접 상담',
-    icon: Users,
+    id: 'website',
+    title: '매출증대웹페이지',
+    subtitle: '디지털 마케팅',
+    description: '매출 증대를 위한 웹사이트 구축',
+    icon: Globe,
     color: 'bg-indigo-100 text-indigo-600',
     bgColor: 'from-indigo-50 to-violet-50',
     textColor: 'text-white',
-    href: '/esg-certification/contact',
-    benefits: ['무료 상담', '맞춤형 솔루션', '전문가 직접 상담'],
-    badge: '상담'
+    href: '/services/website',
+    benefits: ['매출 증대', '온라인 마케팅', '웹사이트 구축'],
+    badge: '매출'
   }
 ];
 
@@ -216,12 +216,12 @@ export default function Home() {
           <div className="max-w-6xl mx-auto text-center">
             {/* 상단 배지 */}
             <div className="apple-badge-primary mb-8 apple-animation-fadeIn">
-              <Award className="w-4 h-4 mr-2" />
-              <span className="font-semibold text-overflow-safe">KAB 인정 ESG 경영시스템 시범 인증기관</span>
+              <BarChart3 className="w-4 h-4 mr-2" />
+              <span className="font-semibold text-overflow-safe">경영지도센터 6대 핵심 서비스</span>
             </div>
             
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight apple-animation-slideUp mobile-centered">
-              <span className="block text-overflow-safe">지속가능경영의 새로운 기준을</span>
+              <span className="block text-overflow-safe">기업 성장의 새로운 패러다임을</span>
               <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent text-overflow-safe">
                 제시합니다
               </span>
@@ -229,26 +229,26 @@ export default function Home() {
             
             <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed apple-animation-slideUp mobile-text" 
                style={{ animationDelay: '0.2s' }}>
-              <strong className="text-gray-800">ESG 경영시스템, ISO 9001, ISO 14001, ISO 45001</strong> - 전문적인 인증 서비스로 기업의 지속가능한 성장을 지원합니다
+              <strong className="text-gray-800">사업분석, AI일터혁신, 정책자금, 기술창업, 벤처인증, 매출증대웹페이지</strong> - 6대 핵심 서비스로 기업의 지속가능한 성장을 지원합니다
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 apple-animation-slideUp"
                  style={{ animationDelay: '0.4s' }}>
-              <Link href="/esg-certification">
+              <Link href="/services/business-analysis">
                 <Button 
                   size="lg"
                   className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-4 text-lg shadow-xl hover:shadow-2xl transform hover:scale-[1.05] active:scale-[0.95] transition-all duration-200 relative overflow-hidden group"
                 >
                   <span className="absolute inset-0 bg-gradient-to-r from-green-700 to-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                   <span className="relative flex items-center">
-                    <Award className="w-5 h-5 mr-2" />
-                    ESG 인증 시작하기
+                    <BarChart3 className="w-5 h-5 mr-2" />
+                    6대 서비스 시작하기
                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
                   </span>
                 </Button>
               </Link>
               
-              <Link href="/esg-certification/contact">
+              <Link href="/consultation">
                 <Button 
                   variant="outline"
                   size="lg"
@@ -262,7 +262,7 @@ export default function Home() {
                 </Button>
               </Link>
               
-              <Link href="/esg-certification/apply">
+              <Link href="/diagnosis">
                 <Button 
                   variant="outline"
                   size="lg"
@@ -271,7 +271,7 @@ export default function Home() {
                   <span className="absolute inset-0 bg-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                   <span className="relative flex items-center">
                     <FileText className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" />
-                    온라인 인증 신청
+                    무료 진단 신청
                   </span>
                 </Button>
               </Link>
@@ -290,7 +290,7 @@ export default function Home() {
             </div>
             
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 apple-animation-slideUp mobile-centered">
-              <span className="text-overflow-safe">ESG 인증 전문가와 바로 대화하기</span>
+              <span className="text-overflow-safe">경영지도센터 전문가와 바로 대화하기</span>
             </h2>
             
             <p className="text-lg md:text-xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed mobile-text">
@@ -324,11 +324,11 @@ export default function Home() {
                   {/* 설명 텍스트 */}
                   <div className="text-center lg:text-left max-w-lg mx-auto lg:mx-0">
                     <p className="text-xl md:text-2xl text-gray-600 leading-relaxed font-light">
-                      안녕하세요, ESG 인증원 이후경 경영지도사입니다. 25년간 500개 이상 기업의 ESG 인증을 지원한 
-                      전문가로서 공평성, 전문성, 신뢰성을 바탕으로 최고 수준의 인증 서비스를 제공합니다. 
+                      안녕하세요, 경영지도센터 이후경 경영지도사입니다. 25년간 500개 이상 기업의 성장을 지원한 
+                      전문가로서 공평성, 전문성, 신뢰성을 바탕으로 최고 수준의 경영지도 서비스를 제공합니다. 
                       <br /><br />
-                      ISO 9001, ISO 14001, ISO 45001, ESG 경영시스템 등 
-                      다양한 인증 서비스를 통해 귀하의 기업이 
+                      사업분석, AI일터혁신, 정책자금, 기술창업, 벤처인증, 매출증대웹페이지 등 
+                      6대 핵심 서비스를 통해 귀하의 기업이 
                       지속가능한 성장을 경험할 수 있도록 전문적으로 지원해드리겠습니다.
                     </p>
                   </div>
@@ -349,7 +349,7 @@ export default function Home() {
                       ) : (
                         <>
                           <span className="mr-2">+</span>
-                          무료 ESG 인증 상담 시작하기
+                          무료 경영지도 상담 시작하기
                         </>
                       )}
                     </button>
@@ -391,13 +391,13 @@ export default function Home() {
                             {/* 실시간 대화 시뮬레이션 */}
                             <div className="space-y-3 max-w-md">
                               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-left">
-                                <p className="text-sm text-white/90">안녕하세요! ESG 인증원 이후경 경영지도사입니다.</p>
+                                <p className="text-sm text-white/90">안녕하세요! 경영지도센터 이후경 경영지도사입니다.</p>
                               </div>
                               <div className="bg-green-500/80 backdrop-blur-sm rounded-2xl p-4 text-right ml-8">
-                                <p className="text-sm text-white">ESG 인증을 받고 싶은데 어떻게 시작해야 하나요?</p>
+                                <p className="text-sm text-white">사업분석을 받고 싶은데 어떻게 시작해야 하나요?</p>
                               </div>
                               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-left">
-                                <p className="text-sm text-white/90">ESG 경영시스템 인증으로 지속가능경영을 실현하세요!</p>
+                                <p className="text-sm text-white/90">6대 핵심 서비스로 기업 성장을 지원해드리겠습니다!</p>
                               </div>
                             </div>
                             
