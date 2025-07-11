@@ -62,74 +62,74 @@ interface ChatbotProps {
   embedded?: boolean;
 }
 
-// 🎯 빠른 응답 버튼 (2025년 업데이트)
+// 🎯 빠른 응답 버튼 (5단계 업그레이드 버전)
 const QUICK_RESPONSES = [
   {
-    text: "BM ZEN 5단계 프레임워크가 뭔가요?",
+    text: "【1단계】 기업 현황 진단 받기",
     icon: <Target className="w-4 h-4" />,
-    category: "service"
+    category: "diagnosis"
   },
   {
-    text: "2025년 일터혁신 상생컨설팅 신청",
+    text: "【2단계】 솔루션 매칭 받기",
     icon: <Cpu className="w-4 h-4" />,
-    category: "service"
+    category: "matching"
   },
   {
-    text: "20-99인 기업 100% 무료 지원",
+    text: "【3단계】 실행 가능성 검토",
     icon: <CheckCircle className="w-4 h-4" />,
-    category: "service"
+    category: "feasibility"
   },
   {
-    text: "실제 기업 사례가 궁금해요",
+    text: "【4단계】 실행 계획 수립",
     icon: <TrendingUp className="w-4 h-4" />,
-    category: "case"
+    category: "planning"
   },
   {
-    text: "스마트 생산성 향상 방법",
+    text: "【5단계】 성과 모니터링",
     icon: <Zap className="w-4 h-4" />,
-    category: "smart"
+    category: "monitoring"
   },
   {
-    text: "세금계산기 11개 종류",
-    icon: <Badge className="w-4 h-4" />,
-    category: "tax"
+    text: "5단계 전체 프로세스 설명",
+    icon: <Star className="w-4 h-4" />,
+    category: "process"
   },
   {
-            text: "상담신청",
+    text: "상담신청",
     icon: <Phone className="w-4 h-4" />,
     category: "contact"
   },
   {
-    text: "정부지원 프로그램 안내",
+    text: "성공사례 및 검증된 성과",
     icon: <Award className="w-4 h-4" />,
-    category: "government"
+    category: "success"
   }
 ];
 
-// 🚀 서비스 제안 버튼 (2025년 업데이트)
+// 🚀 서비스 제안 버튼 (5단계 업그레이드 버전)
 const SERVICE_SUGGESTIONS = [
   {
-    name: "BM ZEN 5단계 프레임워크",
-    description: "생산성 42% 향상 실제 검증",
-    icon: <TrendingUp className="w-5 h-5" />,
+    name: "1-2단계: 진단 & 솔루션 매칭",
+    description: "현황 분석 → 맞춤 솔루션 제시",
+    icon: <Target className="w-5 h-5" />,
     color: "bg-blue-500"
   },
   {
-    name: "2025년 일터혁신 상생컨설팅", 
-    description: "20-99인 기업 100% 무료",
-    icon: <Cpu className="w-5 h-5" />,
+    name: "3-4단계: 타당성 검토 & 실행 계획", 
+    description: "투자분석 → 체계적 실행 방안",
+    icon: <TrendingUp className="w-5 h-5" />,
     color: "bg-purple-500"
   },
   {
-    name: "스마트 생산시스템 구축",
-    description: "품질 불량률 78% 감소", 
-    icon: <Zap className="w-5 h-5" />,
+    name: "5단계: 성과 모니터링",
+    description: "실행 지원 → 지속 개선", 
+    icon: <Lightbulb className="w-5 h-5" />,
     color: "bg-green-500"
   },
   {
-    name: "전문 세금계산기 11종",
-    description: "2024년 최신 세법 반영",
-    icon: <Badge className="w-5 h-5" />,
+    name: "검증된 성과 보장",
+    description: "생산성 42% 향상 실제 증명",
+    icon: <Award className="w-5 h-5" />,
     color: "bg-orange-500"
   }
 ];
@@ -192,22 +192,49 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
     }
   };
 
-  // 📝 초기 웰컴 메시지
+  // 📝 초기 웰컴 메시지 (5단계 업그레이드 버전)
   useEffect(() => {
     const welcomeMessage: Message = {
       id: generateMessageId(),
-      content: `안녕하세요! M-CENTER의 전문상담사입니다.
+      content: `🎯 M-CENTER 5단계 전문상담시스템에 오신 것을 환영합니다!
 
-저는 28년간 수많은 기업과 함께 성장해온 이후경 M센터장의 노하우를 바탕으로 상담해드리고 있어요.
+저는 28년간 수많은 기업과 함께 성장해온 이후경 M센터장의 노하우를 바탕으로 한 AI 전문상담사입니다.
 
-실제 검증된 성과로 증명하는 M-CENTER
+🔥 2025년 5단계 진화된 상담시스템
 
-한국정밀기계 고객사와 함께 이뤄낸 놀라운 변화:
+【1단계】 기업 현황 진단
+- 업종별 맞춤 분석
+- 성장단계 파악
+- 핵심 이슈 도출
+
+【2단계】 솔루션 매칭
+- 6대 핵심서비스 연계
+- 정부지원 프로그램 매칭
+- 맞춤형 로드맵 제시
+
+【3단계】 실행 가능성 검토
+- 투자분석 및 타당성 검토
+- 리스크 분석
+- 예상 성과 시뮬레이션
+
+【4단계】 실행 계획 수립
+- 단계별 실행 방안
+- 타임라인 설정
+- 필요 자원 산정
+
+【5단계】 성과 모니터링
+- 실행 지원
+- 성과 측정
+- 지속 개선 방안
+
+🚀 실제 검증된 성과
+
+한국정밀기계 고객사 성공사례:
 - 생산성 42% 향상 (하루 100개 → 142개 생산)
 - 품질 불량률 78% 감소 (3.2% → 0.7%)
 - 6개월 만에 ROI 290% 달성
 
-2025년 특별 지원 프로그램
+💼 2025년 특별 지원 프로그램
 
 1. BM ZEN 사업분석 - 세무사를 위한 신규사업 성공률 95% 달성
 2. AI 생산성향상 - 20주 프로그램으로 업무 효율성 40% 향상
@@ -216,9 +243,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
 5. 인증지원 - 벤처/ISO/ESG 인증으로 5천만원 세제혜택
 6. 웹사이트 구축 - 온라인 매출 300% 증대
 
-28년간 현장에서 쌓아온 경험과 노하우로 고객사들의 성공을 함께 만들어가고 있습니다.
-
-어떤 것이든 편하게 궁금한 점을 물어보세요! 정성껏 답변드리겠습니다.`,
+어떤 것이든 편하게 궁금한 점을 물어보세요! 5단계 체계적 분석을 통해 최적의 솔루션을 제안해드리겠습니다.`,
       sender: 'bot',
       timestamp: new Date(),
       type: 'text',
@@ -309,15 +334,17 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
       
       const errorMessage: Message = {
         id: generateMessageId(),
-        content: `죄송합니다. 일시적으로 시스템에 문제가 있어 답변을 드리지 못하고 있습니다.
+        content: `죄송합니다. 일시적으로 5단계 상담 시스템에 문제가 있어 답변을 드리지 못하고 있습니다.
 
-이런 경우에는 직접 연락주시면 더 정확하고 빠르게 도움을 드릴 수 있어요.
+이런 경우에는 직접 연락주시면 더 정확하고 빠르게 5단계 전문 상담을 받으실 수 있어요.
 
-즉시 전문가 상담 가능합니다
+🎯 즉시 5단계 전문가 상담 가능합니다
 - 전화: 010-9251-9743 (이후경 경영지도사)
 - 이메일: hongik423@gmail.com
 
-28년간의 경험으로 고객님의 상황에 맞는 최적의 솔루션을 제안해드리겠습니다.
+28년간의 경험과 체계적인 5단계 분석을 통해 고객님의 상황에 맞는 최적의 솔루션을 제안해드리겠습니다.
+
+【1단계】 기업 현황 진단 → 【2단계】 솔루션 매칭 → 【3단계】 실행 가능성 검토 → 【4단계】 실행 계획 수립 → 【5단계】 성과 모니터링
 
 조금 있다가 다시 질문해보시거나, 위 연락처로 직접 상담받으세요!`,
         sender: 'bot',
@@ -370,17 +397,20 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
     setTimeout(() => {
       const welcomeMessage: Message = {
         id: generateMessageId(),
-        content: `새로운 상담을 시작합니다!
+        content: `🔄 새로운 5단계 상담을 시작합니다!
 
-28년간의 경험으로 다양한 기업들과 함께 성장해온 노하우를 바탕으로 도움드리겠습니다.
+28년간의 경험으로 다양한 기업들과 함께 성장해온 노하우를 바탕으로 체계적인 5단계 분석을 통해 도움드리겠습니다.
 
-한국정밀기계 고객사와 함께 이뤄낸 실제 성과:
+🎯 5단계 체계적 상담 프로세스
+【1단계】 기업 현황 진단 → 【2단계】 솔루션 매칭 → 【3단계】 실행 가능성 검토 → 【4단계】 실행 계획 수립 → 【5단계】 성과 모니터링
+
+🚀 한국정밀기계 고객사와 함께 이뤄낸 실제 성과:
 - 생산성 42% 향상 (하루 100개 → 142개 생산)
 - 품질 불량률 78% 감소 (3.2% → 0.7%)
 - 6개월 만에 ROI 290% 달성
 
 어떤 것이든 편하게 말씀해주세요. 
-고객사의 상황에 맞는 최적의 솔루션을 정성껏 제안해드리겠습니다!`,
+5단계 체계적 분석을 통해 고객사의 상황에 맞는 최적의 솔루션을 정성껏 제안해드리겠습니다!`,
         sender: 'bot',
         timestamp: new Date(),
         type: 'text'
@@ -563,7 +593,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
           {/* 빠른 응답 버튼 */}
           {showQuickResponses && messages.length <= 1 && (
             <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">💬 빠른 질문</h4>
+              <h4 className="text-sm font-semibold text-gray-700 mb-3">🎯 5단계 상담 빠른 선택</h4>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {QUICK_RESPONSES.map((response, index) => (
                   <Button

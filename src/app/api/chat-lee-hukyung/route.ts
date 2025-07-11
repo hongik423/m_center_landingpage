@@ -476,7 +476,7 @@ class EnhancedLeeHukyungGenerator {
   static generateAIProductivityResponse(message: string): string {
     const aiData = MCENTER_COMPREHENSIVE_KNOWLEDGE.aiProductivity;
     
-    return `안녕하세요! 이후경 경영지도사입니다.
+        return `안녕하세요! 이후경 경영지도사입니다.
 
 AI 생산성 향상에 대해 문의해주셔서 정말 감사합니다! 28년 컨설팅 경험을 바탕으로 최근 2년간 247개 기업의 AI 도입을 직접 지도하면서 확신하게 된 것은, AI가 단순한 도구가 아니라 진정한 일터혁신의 게임체인저라는 것입니다.
 
@@ -682,8 +682,8 @@ ${response}
         icon: '💰'
       });
     }
-    
-    return NextResponse.json({
+     
+     return NextResponse.json({
       response,
       category: analysis.category,
       service: analysis.service,
@@ -693,27 +693,27 @@ ${response}
       buttons,
       consultant: '이후경 경영지도사 (28년 경험)',
       timestamp: new Date().toISOString()
-    });
+     });
     
   } catch (error) {
     console.error('❌ 고도화된 API 오류:', error);
     
     const fallbackButtons = [
-      {
+       {
         text: '🎯 무료 진단 받기',
-        url: '/diagnosis',
-        style: 'primary',
-        icon: '🎯'
-      },
-      {
+         url: '/diagnosis',
+         style: 'primary',
+         icon: '🎯'
+       },
+       {
         text: '📞 직접 상담하기',
         url: 'tel:010-9251-9743',
-        style: 'secondary',
-        icon: '📞'
-      }
-    ];
-    
-    return NextResponse.json({
+         style: 'secondary',
+         icon: '📞'
+       }
+     ];
+     
+     return NextResponse.json({
       response: `안녕하세요! 이후경 경영지도사입니다.
 
 잠시 시스템 문제가 있지만 괜찮습니다. 28년 현장 경험으로 언제든 직접 도움드릴 수 있어요.
@@ -724,9 +724,9 @@ M-CENTER는 6대 핵심서비스(BM ZEN 사업분석, AI 생산성향상, 정책
 🌐 **웹사이트:** https://m-center.co.kr
 
 어떤 고민이든 함께 해결해나가겠습니다!`,
-      error: true,
+       error: true,
       buttons: fallbackButtons,
       consultant: '이후경 경영지도사 (28년 경험)'
-    }, { status: 200 });
+     }, { status: 200 });
   }
 } 

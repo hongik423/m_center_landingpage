@@ -186,7 +186,7 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-center md:text-left">
               <p className="text-gray-400 text-sm">
-                © 2025 ESG 인증원. All rights reserved.
+                © 2025 기업의별 경영지도센터. All rights reserved.
               </p>
             </div>
             
@@ -215,7 +215,7 @@ export default function Footer() {
           {/* 혁신 프레임워크 간단 소개 */}
           <div className="mt-6 pt-6 border-t border-gray-800">
             <div className="text-center">
-              <h5 className="font-medium text-sm mb-3 text-green-300">ESG 인증원 핵심 가치</h5>
+              <h5 className="font-medium text-sm mb-3 text-green-300">기업의별 경영지도센터 핵심가치</h5>
               <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-400">
                 <span className="flex items-center gap-1">
                   <span className="w-2 h-2 bg-green-400 rounded-full"></span>

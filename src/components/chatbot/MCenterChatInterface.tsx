@@ -171,7 +171,7 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
 어떤 업무에 AI를 적용하고 싶으신지 구체적으로 알려주시면 맞춤형 로드맵을 제시해드리겠습니다.
 
 📞 **AI 상담:** 010-9251-9743`,
-
+      
       '정책자금': `정책자금에 대해 문의해주셔서 감사합니다!
 
 💰 **업종별 정책자금 (최신 정보):**

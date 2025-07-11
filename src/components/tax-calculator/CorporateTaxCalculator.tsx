@@ -144,9 +144,9 @@ function NumberInput({
             htmlFor={id} 
             className={`
               text-sm font-medium flex items-center gap-2
-              ${isRequired && !isCompleted ? 'text-red-700 font-semibold' : 
-                isRequired && isCompleted ? 'text-green-700 font-semibold' : 
-                'text-gray-700'}
+              ${isRequired && !isCompleted ? 'text-red-400 font-semibold' : 
+                isRequired && isCompleted ? 'text-green-400 font-semibold' : 
+                'text-gray-200'}
             `}
           >
             <span>{label}</span>
@@ -219,7 +219,7 @@ function NumberInput({
           autoComplete="off"
           title={label}
           aria-label={label}
-          className={`${getStatusColor()} ${className} text-right font-mono`}
+          className={`bg-gray-700 border-gray-600 text-white placeholder-gray-400 ${getStatusColor()} ${className} text-right font-mono`}
         />
         {suffix && (
           <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
@@ -1205,14 +1205,14 @@ const CorporateTaxCalculatorComponent: React.FC = () => {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="max-w-6xl mx-auto p-6 space-y-6 bg-gray-900 text-white min-h-screen">
       {/* 헤더 */}
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center space-x-3">
-          <Building2 className="h-8 w-8 text-blue-600" />
-          <h1 className="text-3xl font-bold text-gray-900">법인세 계산기</h1>
+          <Building2 className="h-8 w-8 text-blue-400" />
+          <h1 className="text-3xl font-bold text-white">법인세 계산기</h1>
         </div>
-        <p className="text-lg text-gray-600">
+        <p className="text-lg text-gray-300">
           2024년 세법 기준으로 법인세를 정확하게 계산하고 절세 방안을 제공합니다
         </p>
         
@@ -1221,17 +1221,17 @@ const CorporateTaxCalculatorComponent: React.FC = () => {
       </div>
 
       {/* 🔥 스마트 자동 계산 대시보드 */}
-      <Card>
+      <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Calculator className="h-5 w-5 text-green-600" />
+          <CardTitle className="flex items-center space-x-2 text-white">
+            <Calculator className="h-5 w-5 text-green-400" />
             <span>⚡ 스마트 자동 계산 대시보드</span>
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-gray-300">
             입력하는 즉시 관련 값들이 자동으로 연계 계산되고 세무 혜택이 분석됩니다
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="text-white">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {/* 영업소득 */}
             <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
@@ -1375,14 +1375,14 @@ const CorporateTaxCalculatorComponent: React.FC = () => {
       </Card>
 
       {/* 안내 시스템 탭 */}
-      <Card>
+      <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Info className="h-5 w-5 text-blue-600" />
+          <CardTitle className="flex items-center space-x-2 text-white">
+            <Info className="h-5 w-5 text-blue-400" />
             <span>법인세 완벽 가이드</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="text-white">
           <Tabs value={activeGuideTab} onValueChange={setActiveGuideTab}>
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="checklist">체크리스트</TabsTrigger>
@@ -1413,14 +1413,14 @@ const CorporateTaxCalculatorComponent: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 입력 영역 */}
         <div className="space-y-6">
-          <Card>
+          <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Calculator className="h-5 w-5" />
+              <CardTitle className="flex items-center space-x-2 text-white">
+                <Calculator className="h-5 w-5 text-blue-400" />
                 <span>법인세 계산 입력</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="text-white">
               <Tabs defaultValue="basic" className="w-full">
                 <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="basic">기본정보</TabsTrigger>
@@ -1433,57 +1433,58 @@ const CorporateTaxCalculatorComponent: React.FC = () => {
                 <TabsContent value="basic" className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="companyName">회사명</Label>
+                      <Label htmlFor="companyName" className="text-white">회사명</Label>
                       <Input
                         id="companyName"
                         value={input.companyName}
                         onChange={(e) => handleInputChange('companyName', e.target.value)}
                         placeholder="예: (주)테크인사이트"
-                        className={validation.errors.companyName ? 'border-red-500' : ''}
+                        className={`bg-gray-700 border-gray-600 text-white placeholder-gray-400 ${validation.errors.companyName ? 'border-red-500' : ''}`}
                       />
                       {validation.errors.companyName && (
-                        <p className="text-sm text-red-500 mt-1">{validation.errors.companyName}</p>
+                        <p className="text-sm text-red-400 mt-1">{validation.errors.companyName}</p>
                       )}
                     </div>
 
                     <div>
-                      <Label htmlFor="businessType">업종</Label>
+                      <Label htmlFor="businessType" className="text-white">업종</Label>
                       <Select value={input.businessType} onValueChange={(value) => handleInputChange('businessType', value)}>
-                        <SelectTrigger className={validation.errors.businessType ? 'border-red-500' : ''}>
+                        <SelectTrigger className={`bg-gray-700 border-gray-600 text-white ${validation.errors.businessType ? 'border-red-500' : ''}`}>
                           <SelectValue placeholder="업종을 선택하세요" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-gray-700 border-gray-600 text-white">
                           {Object.entries(CORPORATE_TAX_LIMITS_2024.businessTypes).map(([key, value]) => (
-                            <SelectItem key={key} value={key}>{value}</SelectItem>
+                            <SelectItem key={key} value={key} className="text-white hover:bg-gray-600">{value}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                       {validation.errors.businessType && (
-                        <p className="text-sm text-red-500 mt-1">{validation.errors.businessType}</p>
+                        <p className="text-sm text-red-400 mt-1">{validation.errors.businessType}</p>
                       )}
                     </div>
 
                     <div>
-                      <Label htmlFor="establishmentDate">설립일</Label>
+                      <Label htmlFor="establishmentDate" className="text-white">설립일</Label>
                       <Input
                         id="establishmentDate"
                         type="date"
                         value={input.establishmentDate}
                         onChange={(e) => handleInputChange('establishmentDate', e.target.value)}
-                        className={validation.errors.establishmentDate ? 'border-red-500' : ''}
+                        className={`bg-gray-700 border-gray-600 text-white ${validation.errors.establishmentDate ? 'border-red-500' : ''}`}
                       />
                       {validation.errors.establishmentDate && (
-                        <p className="text-sm text-red-500 mt-1">{validation.errors.establishmentDate}</p>
+                        <p className="text-sm text-red-400 mt-1">{validation.errors.establishmentDate}</p>
                       )}
                     </div>
 
                     <div>
-                      <Label htmlFor="fiscalYearEnd">사업연도 종료일</Label>
+                      <Label htmlFor="fiscalYearEnd" className="text-white">사업연도 종료일</Label>
                       <Input
                         id="fiscalYearEnd"
                         type="date"
                         value={input.fiscalYearEnd}
                         onChange={(e) => handleInputChange('fiscalYearEnd', e.target.value)}
+                        className="bg-gray-700 border-gray-600 text-white"
                       />
                     </div>
 

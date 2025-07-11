@@ -561,7 +561,7 @@ export default function PolicyFundingPage() {
           </Button>
         </div>
       </div>
-
+      
              {/* 🔥 모바일 최적화된 HERO Section */}
        <div id="hero-section" className={`mobile-hero relative ${isMobile ? 'min-h-screen' : ''} text-white overflow-hidden`}>
         {/* 배경 패턴 */}
@@ -2727,14 +2727,14 @@ export default function PolicyFundingPage() {
                   전문가 상담 신청
                 </Button>
               </Link>
-              <Link href="/analysis">
+              <Link href="/services/policy-funding/investment-analysis">
                 <Button 
                   variant="outline" 
                   size="lg" 
                   className="border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
                 >
                   <BarChart3 className="mr-2 h-5 w-5" />
-                  투자분석 시작하기
+                  재무타당성분석기
                 </Button>
               </Link>
             </div>
