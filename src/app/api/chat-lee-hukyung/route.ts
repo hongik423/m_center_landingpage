@@ -151,6 +151,47 @@ const MCENTER_COMPREHENSIVE_KNOWLEDGE = {
         '구글/네이버 광고',
         '성과 분석 및 최적화'
       ]
+    },
+    'esg-certification': {
+      name: 'ESG 인증원',
+      description: 'KAB 인정 ESG 경영시스템 시범 인증기관',
+      keyFeatures: [
+        'ISO 9001/14001/45001 통합인증',
+        'ESG 경영시스템 인증',
+        '평균 15일 이내 인증 완료',
+        'KAB 인정 공신력',
+        '전문 심사원 팀 보유'
+      ],
+      results: {
+        certificationTime: '평균 15일 이내',
+        successRate: '100% 인증 획득',
+        customerSatisfaction: '98% 고객만족도',
+        afterService: '3년 사후관리 지원'
+      },
+      casestudy: '중소제조업 A사: ISO 9001/14001 통합인증으로 대기업 협력사 등록',
+      certificationTypes: [
+        'ISO 9001 (품질경영시스템)',
+        'ISO 14001 (환경경영시스템)',
+        'ISO 45001 (안전보건경영시스템)',
+        'ESG 경영시스템'
+      ],
+      process: [
+        '1단계: 신청 및 계약 (1-2일)',
+        '2단계: 문서 심사 (3-5일)',
+        '3단계: 현장 심사 (2-3일)',
+        '4단계: 인증서 발급 (5-7일)'
+      ],
+      benefits: [
+        '공평성을 최고의 가치로 하는 인증 서비스',
+        '인증의 전문성을 통한 프로세스 완전성',
+        '신속한 인증 처리 (업계 최단)',
+        '체계적인 사후관리 서비스'
+      ],
+      contact: {
+        phone: '02-588-5114',
+        email: 'ycpark55@naver.com',
+        website: 'https://www.esgrr.co.kr'
+      }
     }
   },
 
@@ -335,7 +376,8 @@ class AdvancedQuestionAnalyzer {
       'policy-funding': ['정책자금', '지원금', '보조금', '정부지원', '자금확보'],
       'tech-startup': ['창업', '스타트업', '기술사업화', '투자유치', 'r&d'],
       'certification': ['인증', 'iso', '벤처기업', '세제혜택', '품질인증'],
-      'website': ['웹사이트', '홈페이지', '온라인', '마케팅', '디지털']
+      'website': ['웹사이트', '홈페이지', '온라인', '마케팅', '디지털'],
+      'esg-certification': ['esg', 'iso 9001', 'iso 14001', 'iso 45001', '품질경영', '환경경영', '안전보건', '인증원', 'kab']
     };
     
     let detectedService = 'general';

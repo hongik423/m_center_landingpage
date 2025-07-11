@@ -27,37 +27,37 @@ export default function Footer() {
             <div className="flex items-center space-x-3 mb-6">
               <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg border border-gray-200">
                 <img 
-                  src={getImagePath('/LOGO.JPG')}
-                  alt="M-CENTER 로고" 
+                  src={getImagePath('/esgr_logo.svg')}
+                  alt="ESG 인증원 로고" 
                   className="w-10 h-10 object-contain"
                 />
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-bold text-xl text-white">M-CENTER (경영지도센터)</span>
-                  <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded-full">STAR</span>
+                  <span className="font-bold text-xl text-white">ESG 인증원</span>
+                  <span className="text-xs bg-green-600 text-white px-2 py-1 rounded-full">KAB</span>
                 </div>
-                <p className="text-gray-300 text-sm">프리미엄 비즈니스 혁신 프레임워크</p>
+                <p className="text-gray-300 text-sm">KAB 인정 ESG 경영시스템 시범 인증기관</p>
               </div>
             </div>
             
             <p className="text-gray-300 mb-6 text-sm leading-relaxed max-w-md">
-              차세대 혁신 프레임워크로 기업의 성장 동력을 발굴하고, 
-              측정 가능한 성과를 만들어내는 프리미엄 컨설팅을 제공합니다.
+              공평성, 전문성, 신뢰성을 바탕으로 기업의 지속가능한 경영을 실현하는 
+              전문 인증 서비스를 제공합니다.
             </p>
             
             <div className="space-y-3 text-sm text-gray-400">
               <div className="flex items-center space-x-3">
-                <Phone className="w-4 h-4 text-blue-400" />
-                <span className="font-medium text-blue-300">010-9251-9743</span>
+                <Phone className="w-4 h-4 text-green-400" />
+                <span className="font-medium text-green-300">010-9251-9743</span>
                 <span className="text-xs bg-green-600 text-white px-2 py-1 rounded-full">24시간 상담</span>
               </div>
               <div className="flex items-center space-x-3">
-                <Mail className="w-4 h-4 text-blue-400" />
+                <Mail className="w-4 h-4 text-green-400" />
                 <span>hongik423@gmail.com</span>
               </div>
               <div className="flex items-center space-x-3">
-                <MapPin className="w-4 h-4 text-blue-400" />
+                <MapPin className="w-4 h-4 text-green-400" />
                 <span>서울특별시 강남구</span>
               </div>
             </div>
@@ -66,53 +66,53 @@ export default function Footer() {
           {/* 핵심 서비스 - 간소화 */}
           <div>
             <h4 className="font-semibold mb-6 text-lg flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-blue-400" />
-              핵심 서비스
+              <Sparkles className="w-5 h-5 text-green-400" />
+              핵심 인증서비스
             </h4>
             <ul className="space-y-3 text-gray-300">
               <li>
                 <Link 
-                  href="/services/business-analysis" 
-                  className="hover:text-blue-400 transition-colors text-sm flex items-center gap-2"
-                >
-                  <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
-                  프리미엄 사업분석
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  href="/services/certification" 
-                  className="hover:text-blue-400 transition-colors text-sm flex items-center gap-2"
-                >
-                  <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
-                  프리미엄 인증지원
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  href="/tax-calculator" 
-                  className="hover:text-blue-400 transition-colors text-sm flex items-center gap-2"
+                  href="/esg-certification" 
+                  className="hover:text-green-400 transition-colors text-sm flex items-center gap-2"
                 >
                   <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                  세금계산기
+                  ESG 경영시스템 인증
                 </Link>
               </li>
               <li>
                 <Link 
-                  href="/diagnosis" 
-                  className="hover:text-blue-400 transition-colors text-sm flex items-center gap-2"
+                  href="/esg-certification/process" 
+                  className="hover:text-green-400 transition-colors text-sm flex items-center gap-2"
+                >
+                  <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
+                  ISO 9001 품질경영
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/esg-certification/process" 
+                  className="hover:text-green-400 transition-colors text-sm flex items-center gap-2"
+                >
+                  <span className="w-2 h-2 bg-emerald-400 rounded-full"></span>
+                  ISO 14001 환경경영
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/esg-certification/process" 
+                  className="hover:text-green-400 transition-colors text-sm flex items-center gap-2"
+                >
+                  <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
+                  ISO 45001 안전보건
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/esg-certification/education" 
+                  className="hover:text-green-400 transition-colors text-sm flex items-center gap-2"
                 >
                   <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
-                  무료 전문가 진단
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  href="/chatbot" 
-                  className="hover:text-blue-400 transition-colors text-sm flex items-center gap-2"
-                >
-                  <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>
-                  AI 전문 상담
+                  전문가 교육과정
                 </Link>
               </li>
             </ul>
@@ -124,27 +124,27 @@ export default function Footer() {
             <ul className="space-y-3 text-gray-300 mb-6">
               <li>
                 <Link 
-                  href="/cases" 
-                  className="hover:text-blue-400 transition-colors text-sm"
+                  href="/esg-certification/about" 
+                  className="hover:text-green-400 transition-colors text-sm"
                 >
-                  성공사례
+                  회사소개
                 </Link>
               </li>
               <li>
                 <Link 
-                  href="/consultation" 
-                  className="hover:text-blue-400 transition-colors text-sm"
+                  href="/esg-certification/contact" 
+                  className="hover:text-green-400 transition-colors text-sm"
                 >
-                  전문가 상담
+                  무료 상담
                 </Link>
               </li>
               <li>
-                <button 
-                  onClick={handleScrollToDiagnosis}
-                  className="hover:text-blue-400 transition-colors text-sm text-left"
+                <Link 
+                  href="/esg-certification/apply" 
+                  className="hover:text-green-400 transition-colors text-sm"
                 >
-                  무료 전문가 진단 신청
-                </button>
+                  온라인 인증 신청
+                </Link>
               </li>
             </ul>
             
@@ -186,7 +186,7 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-center md:text-left">
               <p className="text-gray-400 text-sm">
-                © 2025 M-CENTER (경영지도센터). All rights reserved.
+                © 2025 ESG 인증원. All rights reserved.
               </p>
             </div>
             
@@ -215,27 +215,23 @@ export default function Footer() {
           {/* 혁신 프레임워크 간단 소개 */}
           <div className="mt-6 pt-6 border-t border-gray-800">
             <div className="text-center">
-              <h5 className="font-medium text-sm mb-3 text-blue-300">프리미엄 비즈니스 혁신 프레임워크</h5>
+              <h5 className="font-medium text-sm mb-3 text-green-300">ESG 인증원 핵심 가치</h5>
               <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-400">
                 <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
-                  발견
+                  <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                  공평성
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                  창출
+                  <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
+                  전문성
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 bg-emerald-400 rounded-full"></span>
+                  신뢰성
                 </span>
                 <span className="flex items-center gap-1">
                   <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
-                  제공
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
-                  포착
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>
-                  혁신
+                  혁신성
                 </span>
               </div>
             </div>

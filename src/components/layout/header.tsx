@@ -36,6 +36,21 @@ export default function Header() {
     { href: '/services/policy-funding', label: '정책자금' },
     { href: '/services/tech-startup', label: '기술창업' },
     { href: '/services/certification', label: '벤처/ISO/인증' },
+    { 
+      href: '/esg-certification', 
+      label: 'ESG인증원',
+      subItems: [
+        { href: '/esg-certification/about', label: '회사소개' },
+        { href: '/esg-certification/process', label: '인증절차' },
+        { href: '/esg-certification/apply', label: '인증신청' },
+        { href: '/esg-certification/education', label: '교육서비스' },
+        { href: '/esg-certification/resources', label: '자료실' },
+        { href: '/esg-certification/customer/notice', label: '공지사항' },
+        { href: '/esg-certification/customer/complaint', label: '불만/이의제기' },
+        { href: '/esg-certification/customer/faq', label: 'FAQ' },
+        { href: '/esg-certification/contact', label: '상담신청' }
+      ]
+    },
     { href: '/services/website', label: '매출증대웹페이지' },
     { href: '/cases', label: '성공사례' },
     { href: '/center-leader', label: '센터장' },
@@ -63,8 +78,8 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex-shrink-0" onClick={handleMenuClose}>
             <img 
-              src={getImagePath('/LOGO.svg')} 
-              alt="M-Center Logo" 
+              src={getImagePath('/esgr_logo.svg')} 
+              alt="ESG 인증원 Logo" 
               className="h-7 w-auto transition-opacity duration-300 hover:opacity-70"
             />
           </Link>
