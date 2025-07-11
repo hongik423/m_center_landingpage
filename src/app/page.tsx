@@ -317,7 +317,7 @@ export default function Home() {
                   <div className="text-center lg:text-left">
                     <h2 className="text-5xl md:text-6xl lg:text-7xl font-semibold text-gray-900 leading-tight tracking-tight mb-6">
                       완전히 새로운<br />
-                      <span className="text-green-600">ESG 인증 경험</span>
+                      <span className="text-green-600">성장 코칭 경험</span>
                     </h2>
                   </div>
                   
