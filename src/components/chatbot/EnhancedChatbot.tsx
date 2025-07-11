@@ -54,6 +54,8 @@ interface Message {
     intent?: string;
     sentiment?: 'positive' | 'neutral' | 'negative';
     userRating?: 'positive' | 'negative';
+    answerLevel?: 1 | 2 | 3 | 4 | 5;
+    answerDescription?: string;
   };
 }
 
@@ -62,37 +64,42 @@ interface ChatbotProps {
   embedded?: boolean;
 }
 
-// 🎯 빠른 응답 버튼 (5단계 업그레이드 버전)
+// 🎯 5단계 답변 시스템 테스트용 빠른 응답 버튼
 const QUICK_RESPONSES = [
   {
-    text: "【1단계】 기업 현황 진단 받기",
+    text: "안녕하세요", // 1단계 테스트
     icon: <Target className="w-4 h-4" />,
-    category: "diagnosis"
+    category: "level1",
+    expectedLevel: 1
   },
   {
-    text: "【2단계】 솔루션 매칭 받기",
+    text: "AI 생산성 향상이 뭔가요?", // 2단계 테스트
     icon: <Cpu className="w-4 h-4" />,
-    category: "matching"
+    category: "level2",
+    expectedLevel: 2
   },
   {
-    text: "【3단계】 실행 가능성 검토",
+    text: "사업분석과 정책자금 지원을 자세히 알려주세요", // 3단계 테스트
     icon: <CheckCircle className="w-4 h-4" />,
-    category: "feasibility"
+    category: "level3",
+    expectedLevel: 3
   },
   {
-    text: "【4단계】 실행 계획 수립",
+    text: "사업분석, AI생산성, 정책자금 서비스 비교해서 로드맵 알려주세요", // 4단계 테스트
     icon: <TrendingUp className="w-4 h-4" />,
-    category: "planning"
+    category: "level4",
+    expectedLevel: 4
   },
   {
-    text: "【5단계】 성과 모니터링",
+    text: "전체 서비스 통합 분석과 종합적인 실행 계획을 구체적으로 상세히 알려주세요", // 5단계 테스트
     icon: <Zap className="w-4 h-4" />,
-    category: "monitoring"
+    category: "level5",
+    expectedLevel: 5
   },
   {
-    text: "5단계 전체 프로세스 설명",
+    text: "무료진단",
     icon: <Star className="w-4 h-4" />,
-    category: "process"
+    category: "diagnosis"
   },
   {
     text: "상담신청",
@@ -100,7 +107,7 @@ const QUICK_RESPONSES = [
     category: "contact"
   },
   {
-    text: "성공사례 및 검증된 성과",
+    text: "성공사례 보기",
     icon: <Award className="w-4 h-4" />,
     category: "success"
   }
@@ -133,6 +140,286 @@ const SERVICE_SUGGESTIONS = [
     color: "bg-orange-500"
   }
 ];
+
+// 🎯 5단계 답변 시스템 구현
+interface AnswerLevel {
+  level: 1 | 2 | 3 | 4 | 5;
+  maxLength: number;
+  description: string;
+  serviceAreas: string[];
+}
+
+// 🔍 질문 복잡도 분석 함수
+function analyzeQuestionComplexity(question: string): AnswerLevel {
+  const q = question.toLowerCase();
+  
+  // 서비스 영역 키워드 매핑
+  const serviceKeywords = {
+    '사업분석': ['사업', 'bm zen', '분석', '컨설팅', '진단', '전략'],
+    'AI생산성': ['ai', '인공지능', '자동화', '생산성', '효율', '혁신'],
+    '정책자금': ['정책', '자금', '대출', '지원금', '융자', '투자'],
+    '기술창업': ['창업', '기술', '벤처', '스타트업', '사업화'],
+    '인증지원': ['인증', 'iso', 'esg', '벤처인증', '품질'],
+    '웹사이트': ['웹사이트', '홈페이지', '온라인', '마케팅', '웹']
+  };
+
+  // 매치된 서비스 영역 계산
+  const matchedServices: string[] = [];
+  Object.entries(serviceKeywords).forEach(([service, keywords]) => {
+    if (keywords.some(keyword => q.includes(keyword))) {
+      matchedServices.push(service);
+    }
+  });
+
+  // 복잡도 키워드 체크
+  const complexityIndicators = {
+    simple: ['안녕', '반가', '안녕하세요', '하이', '헬로', '좋은 아침', '좋은 오후', '감사', '고마워'],
+    detailed: ['자세히', '상세히', '구체적으로', '어떻게', '방법', '과정', '절차'],
+    comprehensive: ['전체', '모든', '통합', '종합', '완전한', '포괄적'],
+    comparison: ['비교', '차이', '장단점', '어떤게', '추천'],
+    planning: ['계획', '로드맵', '단계별', '순서', '일정', '스케줄']
+  };
+
+  const simpleCount = complexityIndicators.simple.filter(word => q.includes(word)).length;
+  const detailedCount = complexityIndicators.detailed.filter(word => q.includes(word)).length;
+  const comprehensiveCount = complexityIndicators.comprehensive.filter(word => q.includes(word)).length;
+  const comparisonCount = complexityIndicators.comparison.filter(word => q.includes(word)).length;
+  const planningCount = complexityIndicators.planning.filter(word => q.includes(word)).length;
+
+  // 질문 길이도 고려
+  const questionLength = question.length;
+
+  // 5단계 결정 로직
+  if (simpleCount > 0 && matchedServices.length === 0 && questionLength < 20) {
+    return {
+      level: 1,
+      maxLength: 500,
+      description: "간단한 인사 및 기본 응답",
+      serviceAreas: []
+    };
+  }
+
+  if (matchedServices.length === 1 && detailedCount === 0 && comprehensiveCount === 0) {
+    return {
+      level: 2,
+      maxLength: 1000,
+      description: "단일 서비스 영역 기본 설명",
+      serviceAreas: matchedServices
+    };
+  }
+
+  if (matchedServices.length === 2 || (matchedServices.length === 1 && detailedCount > 0)) {
+    return {
+      level: 3,
+      maxLength: 1500,
+      description: "2개 서비스 영역 또는 상세 설명",
+      serviceAreas: matchedServices
+    };
+  }
+
+  if (matchedServices.length >= 3 || comparisonCount > 0 || (matchedServices.length >= 1 && planningCount > 0)) {
+    return {
+      level: 4,
+      maxLength: 2000,
+      description: "3개 이상 서비스 영역 또는 비교 분석",
+      serviceAreas: matchedServices
+    };
+  }
+
+  // 최고 난이도: 복합적 질문
+  if (comprehensiveCount > 0 || questionLength > 50 || (detailedCount > 0 && planningCount > 0)) {
+    return {
+      level: 5,
+      maxLength: 4000,
+      description: "복합적 고도 분석 및 종합 답변",
+      serviceAreas: matchedServices.length > 0 ? matchedServices : ['종합상담']
+    };
+  }
+
+  // 기본값: 2단계
+  return {
+    level: 2,
+    maxLength: 1000,
+    description: "일반적인 질문 답변",
+    serviceAreas: matchedServices.length > 0 ? matchedServices : ['일반상담']
+  };
+}
+
+// 🎨 각 단계별 답변 템플릿 생성 함수
+function generateAnswerByLevel(level: AnswerLevel, originalResponse: string, question: string): string {
+  const baseResponse = originalResponse;
+  
+  // 공통 CTA 버튼 (모든 답변에 포함)
+  const ctaButtons = `
+
+🎯 **다음 단계 진행**
+- 무료진단: 기업 현황을 정확히 분석해드립니다
+- 상담신청: 전문가와 직접 상담받으세요
+
+📞 **즉시 상담 가능**
+- 전화: 010-9251-9743 (이후경 경영지도사)
+- 이메일: hongik423@gmail.com`;
+
+  switch (level.level) {
+    case 1: // 간단한 인사 등 (500자 미만)
+      return `안녕하세요! M-CENTER AI 전문상담사입니다! 👋
+
+28년 경험의 이후경 M센터장과 함께 기업 성장을 도와드리고 있어요.
+
+무엇을 도와드릴까요? 편하게 질문해주세요!
+
+✨ **주요 서비스**
+- 사업분석 컨설팅
+- AI 생산성 향상  
+- 정책자금 지원
+- 기술창업 지원
+- 인증지원 서비스
+- 웹사이트 구축${ctaButtons}`;
+
+    case 2: // 단일 서비스 영역 (1000자 미만)
+      const truncatedResponse2 = baseResponse.length > 800 ? baseResponse.substring(0, 800) + "..." : baseResponse;
+      return `${truncatedResponse2}
+
+🎯 **${level.serviceAreas.join(', ')} 전문 서비스**
+
+실제 검증된 성과:
+- 생산성 42% 향상 달성
+- 품질 불량률 78% 감소  
+- 6개월 ROI 290% 달성
+
+더 자세한 내용이 필요하시면 언제든 말씀해주세요!${ctaButtons}`;
+
+    case 3: // 2개 서비스 영역 (1500자 미만)
+      const truncatedResponse3 = baseResponse.length > 1200 ? baseResponse.substring(0, 1200) + "..." : baseResponse;
+      return `${truncatedResponse3}
+
+🔄 **연계 서비스 시너지**
+
+${level.serviceAreas.join(' + ')} 통합 솔루션으로 더 큰 성과를 만들어드립니다.
+
+✅ **통합 서비스 혜택**
+- 30% 할인 혜택
+- 우선 심사 지원
+- 전담 매니저 배정
+- 성과 보장 시스템
+
+🚀 **실제 고객사 성과**
+한국정밀기계: 생산성 42% 향상, 품질 불량률 78% 감소
+
+각 서비스별 더 상세한 설명이 필요하시면 말씀해주세요!${ctaButtons}`;
+
+    case 4: // 3개 이상 서비스 영역 (2000자 미만)
+      const truncatedResponse4 = baseResponse.length > 1500 ? baseResponse.substring(0, 1500) + "..." : baseResponse;
+      return `${truncatedResponse4}
+
+🎯 **종합 솔루션 로드맵**
+
+${level.serviceAreas.join(' → ')} 단계별 실행 계획
+
+【1단계】 현황 진단 (1-2주)
+- 기업 역량 분석
+- 성장 가능성 평가
+- 핵심 이슈 도출
+
+【2단계】 솔루션 설계 (2-4주)
+- 맞춤형 전략 수립
+- 서비스 연계 방안
+- 투자 계획 수립
+
+【3단계】 실행 지원 (1-2개월)
+- 단계별 실행 지원
+- 정부지원 연계
+- 성과 모니터링
+
+🏆 **검증된 성과 사례**
+- 한국정밀기계: 생산성 42% 향상
+- 다수 고객사: 평균 투자 회수 기간 6개월
+
+종합적인 실행 계획이 궁금하시면 상세 상담을 받아보세요!${ctaButtons}`;
+
+    case 5: // 최고 난이도 복합 질문 (4000자 미만)
+      return `${baseResponse}
+
+🎯 **M-CENTER 종합 솔루션 체계**
+
+28년 경험의 이후경 M센터장이 직접 설계한 통합 성장 시스템입니다.
+
+🔥 **6대 핵심 서비스 통합 프레임워크**
+
+【사업분석 컨설팅】
+- BM ZEN 5단계 분석법
+- 성공률 95% 검증된 방법론
+- 세무사 신규사업 특화
+
+【AI 생산성 향상】
+- 20주 체계적 프로그램
+- 업무 효율성 40% 향상
+- 스마트 생산시스템 구축
+
+【정책자금 지원】
+- 평균 5억원 확보
+- 투자분석 연계 서비스
+- 95% 이상 선정 성공률
+
+【기술창업 지원】
+- 창업부터 성장까지
+- 정부지원 프로그램 연계
+- IP 개발 및 사업화
+
+【인증지원 서비스】
+- 벤처/ISO/ESG 인증
+- 5천만원 세제혜택
+- 기업 신뢰도 향상
+
+【웹사이트 구축】
+- 온라인 매출 300% 증대
+- 디지털 마케팅 연계
+- 브랜드 가치 제고
+
+🚀 **실제 검증된 통합 성과**
+
+한국정밀기계 통합 프로젝트:
+✅ 생산성 42% 향상 (하루 100개 → 142개)
+✅ 품질 불량률 78% 감소 (3.2% → 0.7%)
+✅ 6개월 ROI 290% 달성
+✅ 온라인 매출 300% 증대
+
+🎯 **맞춤형 실행 로드맵**
+
+【Phase 1】 종합 진단 (2-3주)
+- 360도 기업 분석
+- 성장 포텐셜 평가
+- 우선순위 서비스 선정
+
+【Phase 2】 통합 설계 (3-4주)
+- 서비스 간 시너지 분석
+- 투자 우선순위 결정
+- 정부지원 연계 방안
+
+【Phase 3】 순차 실행 (3-6개월)
+- 고impact 서비스 우선
+- 단계별 성과 측정
+- 지속 개선 체계
+
+【Phase 4】 성과 확산 (지속)
+- 성공모델 정착
+- 추가 성장 기회 발굴
+- 장기 파트너십
+
+💡 **차별화 포인트**
+
+1. **검증된 방법론**: 28년 현장 경험 + 실제 성과 증명
+2. **통합 서비스**: 6개 영역 시너지로 극대화된 효과
+3. **성과 보장**: 단계별 성과 측정 및 개선 시스템
+4. **전담 지원**: 프로젝트 매니저 + 분야별 전문가
+5. **지속 관리**: 일회성이 아닌 지속적 성장 파트너
+
+이 정도 수준의 종합적 분석과 솔루션이 필요하시다면, 직접 상담을 통해 더 구체적이고 맞춤화된 계획을 수립해드리겠습니다.${ctaButtons}`;
+
+    default:
+      return baseResponse + ctaButtons;
+  }
+}
 
 export default function EnhancedChatbot({ className = "", embedded = false }: ChatbotProps) {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -192,40 +479,35 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
     }
   };
 
-  // 📝 초기 웰컴 메시지 (5단계 업그레이드 버전)
+  // 📝 초기 웰컴 메시지 (5단계 답변 시스템 소개)
   useEffect(() => {
     const welcomeMessage: Message = {
       id: generateMessageId(),
-      content: `🎯 M-CENTER 5단계 전문상담시스템에 오신 것을 환영합니다!
+      content: `🎯 M-CENTER 5단계 답변 시스템에 오신 것을 환영합니다!
 
-저는 28년간 수많은 기업과 함께 성장해온 이후경 M센터장의 노하우를 바탕으로 한 AI 전문상담사입니다.
+저는 28년간 수많은 기업과 함께 성장해온 이후경 M센터장의 노하우를 바탕으로 질문의 복잡도에 따라 최적화된 답변을 제공하는 AI 전문상담사입니다.
 
-🔥 2025년 5단계 진화된 상담시스템
+🔥 혁신적인 5단계 답변 시스템
 
-【1단계】 기업 현황 진단
-- 업종별 맞춤 분석
-- 성장단계 파악
-- 핵심 이슈 도출
+🟢 【1단계】 간단한 인사 및 기본 응답 (500자 미만)
+- 간단한 인사말이나 기본적인 질문
+- 빠르고 친근한 응답
 
-【2단계】 솔루션 매칭
-- 6대 핵심서비스 연계
-- 정부지원 프로그램 매칭
-- 맞춤형 로드맵 제시
+🔵 【2단계】 단일 서비스 영역 설명 (1000자 미만)  
+- 하나의 서비스에 대한 기본 설명
+- 핵심 내용 위주의 명확한 답변
 
-【3단계】 실행 가능성 검토
-- 투자분석 및 타당성 검토
-- 리스크 분석
-- 예상 성과 시뮬레이션
+🟣 【3단계】 2개 서비스 영역 또는 상세 설명 (1500자 미만)
+- 두 개 서비스 연계 또는 상세한 설명 요청
+- 구체적인 방법론과 성과 제시
 
-【4단계】 실행 계획 수립
-- 단계별 실행 방안
-- 타임라인 설정
-- 필요 자원 산정
+🟠 【4단계】 3개 이상 서비스 영역 또는 비교 분석 (2000자 미만)
+- 복합 서비스 비교 분석 및 로드맵 제시
+- 단계별 실행 계획 포함
 
-【5단계】 성과 모니터링
-- 실행 지원
-- 성과 측정
-- 지속 개선 방안
+🔴 【5단계】 복합적 고도 분석 및 종합 답변 (4000자 미만)
+- 종합적이고 심층적인 분석 요청
+- 전체 프레임워크와 상세 실행 계획
 
 🚀 실제 검증된 성과
 
@@ -234,23 +516,26 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
 - 품질 불량률 78% 감소 (3.2% → 0.7%)
 - 6개월 만에 ROI 290% 달성
 
-💼 2025년 특별 지원 프로그램
+💡 사용법: 질문의 복잡도와 필요한 정보의 깊이에 따라 자동으로 최적화된 답변을 받으실 수 있습니다.
 
-1. BM ZEN 사업분석 - 세무사를 위한 신규사업 성공률 95% 달성
-2. AI 생산성향상 - 20주 프로그램으로 업무 효율성 40% 향상
-3. 기술창업 지원 - 평균 5억원 정부지원금 확보
-4. 정책자금 활용 - 투자분석과 함께하는 맞춤형 자금 확보
-5. 인증지원 - 벤처/ISO/ESG 인증으로 5천만원 세제혜택
-6. 웹사이트 구축 - 온라인 매출 300% 증대
+아래 테스트 버튼을 클릭하거나 직접 질문해보세요!
 
-어떤 것이든 편하게 궁금한 점을 물어보세요! 5단계 체계적 분석을 통해 최적의 솔루션을 제안해드리겠습니다.`,
+🎯 **다음 단계 진행**
+- 무료진단: 기업 현황을 정확히 분석해드립니다
+- 상담신청: 전문가와 직접 상담받으세요
+
+📞 **즉시 상담 가능**
+- 전화: 010-9251-9743 (이후경 경영지도사)
+- 이메일: hongik423@gmail.com`,
       sender: 'bot',
       timestamp: new Date(),
       type: 'text',
       metadata: {
         confidence: 100,
         intent: 'welcome',
-        sentiment: 'positive'
+        sentiment: 'positive',
+        answerLevel: 3,
+        answerDescription: "5단계 시스템 소개 및 가이드"
       }
     };
 
@@ -262,7 +547,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // 🤖 AI 메시지 전송
+  // 🤖 AI 메시지 전송 (5단계 시스템 적용)
   const sendMessage = async (text: string) => {
     if (!text.trim()) return;
 
@@ -287,6 +572,9 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
         messageCount: prev.messageCount + 1
       }));
 
+      // 🎯 5단계 질문 복잡도 분석
+      const answerLevel = analyzeQuestionComplexity(text);
+      
       // API 호출
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -296,7 +584,8 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
         body: JSON.stringify({
           message: text,
           history: messages.slice(-10),
-          sessionId: chatSession.id
+          sessionId: chatSession.id,
+          answerLevel: answerLevel // 5단계 정보 전달
         }),
       });
 
@@ -306,17 +595,22 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
 
       const data = await response.json();
       
+      // 🎨 5단계 시스템에 맞는 답변 생성
+      const processedResponse = generateAnswerByLevel(answerLevel, data.response, text);
+      
       const botMessage: Message = {
         id: generateMessageId(),
-        content: data.response,
+        content: processedResponse,
         sender: 'bot',
         timestamp: new Date(),
         type: 'text',
         metadata: {
           confidence: 95,
-          services: data.services || [],
+          services: data.services || answerLevel.serviceAreas,
           intent: detectIntent(text),
-          sentiment: 'positive'
+          sentiment: 'positive',
+          answerLevel: answerLevel.level,
+          answerDescription: answerLevel.description
         }
       };
       
@@ -325,7 +619,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
       
       // 자동 음성 읽기 (옵션)
       if (isSpeaking) {
-        speakText(data.response);
+        speakText(processedResponse);
       }
       
     } catch (error) {
@@ -345,6 +639,10 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
 28년간의 경험과 체계적인 5단계 분석을 통해 고객님의 상황에 맞는 최적의 솔루션을 제안해드리겠습니다.
 
 【1단계】 기업 현황 진단 → 【2단계】 솔루션 매칭 → 【3단계】 실행 가능성 검토 → 【4단계】 실행 계획 수립 → 【5단계】 성과 모니터링
+
+🎯 **다음 단계 진행**
+- 무료진단: 기업 현황을 정확히 분석해드립니다
+- 상담신청: 전문가와 직접 상담받으세요
 
 조금 있다가 다시 질문해보시거나, 위 연락처로 직접 상담받으세요!`,
         sender: 'bot',
@@ -506,6 +804,20 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
                     {message.metadata && message.sender === 'bot' && (
                       <div className="mt-3 pt-3 border-t border-gray-200 flex items-center justify-between">
                         <div className="flex items-center gap-2 text-xs text-gray-500">
+                          {message.metadata.answerLevel && (
+                            <Badge 
+                              variant="default" 
+                              className={`text-xs ${
+                                message.metadata.answerLevel === 1 ? 'bg-green-500' :
+                                message.metadata.answerLevel === 2 ? 'bg-blue-500' :
+                                message.metadata.answerLevel === 3 ? 'bg-purple-500' :
+                                message.metadata.answerLevel === 4 ? 'bg-orange-500' :
+                                'bg-red-500'
+                              }`}
+                            >
+                              {message.metadata.answerLevel}단계 답변
+                            </Badge>
+                          )}
                           {message.metadata.confidence && (
                             <Badge variant="secondary" className="text-xs">
                               신뢰도 {message.metadata.confidence}%
@@ -514,6 +826,11 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
                           {message.metadata.services && message.metadata.services.length > 0 && (
                             <Badge variant="outline" className="text-xs">
                               관련 서비스: {message.metadata.services.join(', ')}
+                            </Badge>
+                          )}
+                          {message.metadata.answerDescription && (
+                            <Badge variant="outline" className="text-xs">
+                              {message.metadata.answerDescription}
                             </Badge>
                           )}
                         </div>
@@ -593,22 +910,51 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
           {/* 빠른 응답 버튼 */}
           {showQuickResponses && messages.length <= 1 && (
             <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">🎯 5단계 상담 빠른 선택</h4>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {QUICK_RESPONSES.map((response, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="sm"
-                    className="justify-start text-left h-auto p-3"
-                    onClick={() => sendMessage(response.text)}
-                  >
-                    <div className="flex items-center gap-2">
-                      {response.icon}
-                      <span className="text-xs">{response.text}</span>
-                    </div>
-                  </Button>
-                ))}
+              <h4 className="text-sm font-semibold text-gray-700 mb-3">🎯 5단계 답변 시스템 테스트</h4>
+              <p className="text-xs text-gray-600 mb-3">각 버튼을 클릭하여 답변 단계를 확인해보세요!</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {QUICK_RESPONSES.map((response, index) => {
+                  // 단계별 색상 스타일 결정
+                  const getButtonStyle = () => {
+                    if (response.expectedLevel === 1) return "border-green-300 hover:bg-green-50 text-green-700";
+                    if (response.expectedLevel === 2) return "border-blue-300 hover:bg-blue-50 text-blue-700";
+                    if (response.expectedLevel === 3) return "border-purple-300 hover:bg-purple-50 text-purple-700";
+                    if (response.expectedLevel === 4) return "border-orange-300 hover:bg-orange-50 text-orange-700";
+                    if (response.expectedLevel === 5) return "border-red-300 hover:bg-red-50 text-red-700";
+                    return "border-gray-300 hover:bg-gray-100 text-gray-700";
+                  };
+
+                  return (
+                    <Button
+                      key={index}
+                      variant="outline"
+                      size="sm"
+                      className={`justify-start text-left h-auto p-3 ${getButtonStyle()}`}
+                      onClick={() => sendMessage(response.text)}
+                    >
+                      <div className="flex items-center gap-2 w-full">
+                        {response.icon}
+                        <div className="flex-1">
+                          <span className="text-xs block">{response.text}</span>
+                          {response.expectedLevel && (
+                            <span className="text-xs opacity-60 block mt-1">
+                              → {response.expectedLevel}단계 답변 예상
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </Button>
+                  );
+                })}
+              </div>
+              <div className="mt-3 text-xs text-gray-500">
+                <div className="flex flex-wrap gap-2">
+                  <span className="text-green-600">🟢 1단계: 간단 인사</span>
+                  <span className="text-blue-600">🔵 2단계: 단일 서비스</span>
+                  <span className="text-purple-600">🟣 3단계: 2개 서비스</span>
+                  <span className="text-orange-600">🟠 4단계: 3개+ 서비스</span>
+                  <span className="text-red-600">🔴 5단계: 종합 분석</span>
+                </div>
               </div>
             </div>
           )}
